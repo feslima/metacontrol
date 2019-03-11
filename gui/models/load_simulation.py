@@ -161,8 +161,8 @@ def construct_tree_items(data_list):
         inpt_vars_raw = data_list[inpt_index[i]:(outpt_start_index[i])]
         outpt_vars_raw = data_list[outpt_start_index[i]:(outpt_end_index[i])]
 
-        input_nodes_cell = build_nodes(lsim.spread_tree(inpt_vars_raw))
-        output_nodes_cell = build_nodes(lsim.spread_tree(outpt_vars_raw))
+        input_nodes_cell = build_nodes(spread_tree(inpt_vars_raw))
+        output_nodes_cell = build_nodes(spread_tree(outpt_vars_raw))
 
         # assign nodes to equipments
         equip_name_raw = data_list[level_1_index[i]]
