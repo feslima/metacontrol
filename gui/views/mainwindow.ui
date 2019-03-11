@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
+    <width>1026</width>
     <height>768</height>
    </rect>
   </property>
@@ -31,12 +31,15 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QTabWidget" name="tabLoadSimulation">
+     <widget class="QTabWidget" name="tabMainWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTabWidget::setTabIcon(0, QIcon('Screenshot.png'))</string>
       </property>
       <property name="tabPosition">
        <enum>QTabWidget::West</enum>
@@ -47,7 +50,13 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="tabsClosable">
+       <bool>false</bool>
+      </property>
       <widget class="QWidget" name="tab">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <attribute name="title">
         <string>Load Simulation</string>
        </attribute>
@@ -79,7 +88,7 @@ QGroupBox::title {
           </property>
           <layout class="QGridLayout" name="gridLayout">
            <item row="1" column="2">
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="buttonOpenSimFile">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -133,7 +142,7 @@ QGroupBox::title {
             </spacer>
            </item>
            <item row="2" column="2">
-            <widget class="QPushButton" name="pushButton_4">
+            <widget class="QPushButton" name="buttonLoadVariables">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -168,7 +177,7 @@ QGroupBox::title {
             </spacer>
            </item>
            <item row="1" column="1" rowspan="2">
-            <widget class="QTextBrowser" name="textBrowser_2">
+            <widget class="QTextBrowser" name="textBrowserSimFile">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -473,7 +482,7 @@ QGroupBox::title {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>1026</width>
      <height>25</height>
     </rect>
    </property>
@@ -485,7 +494,28 @@ QGroupBox::title {
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpenSimFile">
+   <property name="text">
+    <string>openSimFile</string>
+   </property>
+  </action>
  </widget>
+ <tabstops>
+  <tabstop>tabMainWidget</tabstop>
+  <tabstop>textBrowserSimFile</tabstop>
+  <tabstop>buttonOpenSimFile</tabstop>
+  <tabstop>buttonLoadVariables</tabstop>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>lineEdit_3</tabstop>
+  <tabstop>lineEdit_4</tabstop>
+  <tabstop>lineEdit_5</tabstop>
+  <tabstop>lineEdit_6</tabstop>
+  <tabstop>lineEdit_7</tabstop>
+  <tabstop>lineEdit_8</tabstop>
+  <tabstop>lineEdit_9</tabstop>
+  <tabstop>tableView</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
