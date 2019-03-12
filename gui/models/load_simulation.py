@@ -90,6 +90,7 @@ def build_node_level(nonempty_index, level_number, number_of_nodes, spread_tree_
 			node_name = node_raw[:leaf_delimiter.span()[0]]
 
 		node_cell_vector[nonempty_index[i]] = QStandardItem(node_name)
+		node_cell_vector[nonempty_index[i], 0].setEditable(False)
 
 	return node_cell_vector
 
@@ -181,11 +182,13 @@ def construct_tree_items(data_list):
 		equip_name = equip_name_raw[:equip_delimiter.span()[0]]
 
 		input_section.append(QStandardItem(equip_name))
+		input_section[-1].setEditable(False)
 		for j in np.arange(input_nodes_cell.size):
 			if input_nodes_cell[j, 0] != '':
 				input_section[i].appendRow(input_nodes_cell[j, 0])
 
 		output_section.append(QStandardItem(equip_name))
+		output_section[-1].setEditable(False)
 		for j in np.arange(output_nodes_cell.size):
 			if output_nodes_cell[j, 0] != '':
 				output_section[i].appendRow(output_nodes_cell[j, 0])
@@ -195,7 +198,9 @@ def construct_tree_items(data_list):
 	root_name = root_name_raw[:root_delimiter.span()[0]]
 
 	root_input_node = (QStandardItem(root_name))
+	root_input_node.setEditable(False)
 	root_output_node = (QStandardItem(root_name))
+	root_output_node.setEditable(False)
 
 	for i in np.arange(len(input_section)):
 		root_input_node.appendRow(input_section[i])
