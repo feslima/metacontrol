@@ -133,9 +133,7 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">QTreeView::branch:has-siblings:!adjoins-item {
-    border-image: url(vline.png) 0;
-}</string>
+      <string notr="true"/>
      </property>
     </widget>
    </item>

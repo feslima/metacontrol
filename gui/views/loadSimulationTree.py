@@ -54,9 +54,7 @@ class Ui_Dialog(object):
         self.treeViewInput = QtWidgets.QTreeView(Dialog)
         self.treeViewInput.setMinimumSize(QtCore.QSize(300, 0))
         self.treeViewInput.setMaximumSize(QtCore.QSize(300, 16777215))
-        self.treeViewInput.setStyleSheet("QTreeView::branch:has-siblings:!adjoins-item {\n"
-"    border-image: url(vline.png) 0;\n"
-"}")
+        self.treeViewInput.setStyleSheet("")
         self.treeViewInput.setObjectName("treeViewInput")
         self.gridLayout.addWidget(self.treeViewInput, 0, 0, 1, 1)
         self.treeViewOutput = QtWidgets.QTreeView(Dialog)
