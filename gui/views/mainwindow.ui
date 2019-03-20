@@ -38,6 +38,11 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">QTabWidget::setTabIcon(0, QIcon('Screenshot.png'))</string>
       </property>
@@ -351,7 +356,7 @@ QGroupBox::title {
              <item row="5" column="0">
               <widget class="QLabel" name="label_6">
                <property name="text">
-                <string>No. sensitivity analysis:</string>
+                <string>No. Sensitivity Analysis:</string>
                </property>
               </widget>
              </item>
@@ -386,7 +391,7 @@ QGroupBox::title {
              <item row="8" column="0">
               <widget class="QLabel" name="label_9">
                <property name="text">
-                <string>No. design specs:</string>
+                <string>No. Design Specs:</string>
                </property>
               </widget>
              </item>
@@ -510,11 +515,83 @@ QGroupBox::title {
 }</string>
           </property>
           <property name="title">
-           <string>GroupBox</string>
+           <string>Input Data</string>
           </property>
+          <widget class="QRadioButton" name="radioButton">
+           <property name="geometry">
+            <rect>
+             <x>50</x>
+             <y>60</y>
+             <width>82</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>RadioButton</string>
+           </property>
+          </widget>
+          <widget class="QRadioButton" name="radioButton_2">
+           <property name="geometry">
+            <rect>
+             <x>80</x>
+             <y>160</y>
+             <width>82</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>RadioButton</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="lineEdit_11">
+           <property name="geometry">
+            <rect>
+             <x>220</x>
+             <y>170</y>
+             <width>113</width>
+             <height>20</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="geometry">
+            <rect>
+             <x>290</x>
+             <y>40</y>
+             <width>391</width>
+             <height>81</height>
+            </rect>
+           </property>
+           <property name="title">
+            <string>GroupBox</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLineEdit" name="lineEdit_10"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="text">
+               <string>PushButton</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>:/settings/noun_Settings_2309357.svg</normaloff>:/settings/noun_Settings_2309357.svg</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="0">
          <widget class="QGroupBox" name="groupBox_4">
           <property name="styleSheet">
            <string notr="true">QGroupBox {
@@ -538,6 +615,16 @@ QGroupBox::title {
        </layout>
       </widget>
       <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Page</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>Page</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_5">
        <attribute name="title">
         <string>Page</string>
        </attribute>
@@ -586,5 +673,38 @@ QGroupBox::title {
   <tabstop>tableView</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_5</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>162</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>334</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineEdit_11</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>187</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>275</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
