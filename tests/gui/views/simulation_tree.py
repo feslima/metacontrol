@@ -17,8 +17,8 @@ class LoadSimulationTreeDialog(QDialog):
 		self.ui.treeViewInput.doubleClicked.connect(self.treeDoubleClick)  # assign double click event
 		self.ui.treeViewOutput.doubleClicked.connect(self.treeDoubleClick)
 
-		self.ui.tableWidgetInput.setColumnWidth(0, 550)  # first column resizing
-		self.ui.tableWidgetOutput.setColumnWidth(0, 550)
+		self.ui.tableWidgetInput.setColumnWidth(0, 450)  # first column resizing
+		self.ui.tableWidgetOutput.setColumnWidth(0, 450)
 
 		# create the model for the tree
 		model_tree_input = QStandardItemModel()
@@ -50,12 +50,14 @@ class LoadSimulationTreeDialog(QDialog):
 
 	def keyPressEvent(self, event):
 		if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:  # if delete key was pressed
-			if self.ui.tableWidgetInput.hasFocus():  # and is inside the table widget
-				table_model = self.ui.tableWidgetInput.selectionModel()
+			widget = QApplication.focusWidget()  # get the widget which has focus
+			if widget.objectName() == self.ui.tableWidgetInput.objectName() or \
+					widget.objectName() == self.ui.tableWidgetOutput.objectName():  # and is the table widget
+				table_model = widget.selectionModel()
 				indices = table_model.selectedRows()
 
 				for index in indices:
-					self.ui.tableWidgetInput.removeRow(index.row())  # delete selected rows
+					widget.removeRow(index.row())  # delete selected rows
 
 	def treeDoubleClick(self):
 		"""
@@ -126,12 +128,18 @@ class LoadSimulationTreeDialog(QDialog):
 				table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem('Alias_' + str(row_position)))
 
 
-
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
 
-	stream_file = "/home/felipe/Desktop/GUI/python/AspenTreeStreams - Input _ Output.txt"
-	blocks_file = "/home/felipe/Desktop/GUI/python/AspenTreeBlocks - Input _ Output.txt"
+	import os
+
+	if os.name == 'posix':
+		stream_file = "/home/felipe/Desktop/GUI/python/AspenTreeStreams - Input _ Output.txt"
+		blocks_file = "/home/felipe/Desktop/GUI/python/AspenTreeBlocks - Input _ Output.txt"
+	elif os.name == 'nt':  # windows
+		stream_file = r"C:\Users\Felipe\Desktop\GUI\python\AspenTreeStreams - Input & Output.txt"
+		blocks_file = r"C:\Users\Felipe\Desktop\GUI\python\AspenTreeBlocks - Input & Output.txt"
+
 	w = LoadSimulationTreeDialog(stream_file, blocks_file)
 	w.show()
 

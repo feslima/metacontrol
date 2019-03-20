@@ -93,12 +93,20 @@
        <string>Alias</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Type</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item row="1" column="2">
     <widget class="QTableWidget" name="tableWidgetOutput">
      <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectItems</enum>
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
      </property>
      <attribute name="horizontalHeaderMinimumSectionSize">
       <number>61</number>

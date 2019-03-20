@@ -48,8 +48,7 @@ def spread_tree(base_branch_cells):
 			break
 
 	lowest_branch_level = 0
-	while len([i for i, e in enumerate(base_branch_cells)
-			   if re.search('-- \({0}\.B\)'.format(lowest_branch_level), e)]) == 0:
+	while len([i for i, e in enumerate(base_branch_cells) if re.search('-- \({0}\.B\)'.format(lowest_branch_level), e)]) == 0:
 		lowest_branch_level += 1
 
 	spread_tree_matrix = np.full((len(base_branch_cells), len(np.arange(lowest_branch_level, max_leaf_level + 2))),
