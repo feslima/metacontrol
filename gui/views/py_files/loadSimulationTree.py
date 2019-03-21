@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'loadSimulationTree.ui'
+# Form implementation generated from reading ui file 'ui_files\loadSimulationTree.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -28,7 +28,7 @@ class Ui_Dialog(object):
         self.gridLayout.addLayout(self.horizontalLayout_2, 2, 2, 1, 1)
         self.tableWidgetInput = QtWidgets.QTableWidget(Dialog)
         self.tableWidgetInput.setStyleSheet("")
-        self.tableWidgetInput.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.tableWidgetInput.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableWidgetInput.setRowCount(0)
         self.tableWidgetInput.setObjectName("tableWidgetInput")
         self.tableWidgetInput.setColumnCount(3)
@@ -42,7 +42,7 @@ class Ui_Dialog(object):
         self.tableWidgetInput.horizontalHeader().setStretchLastSection(True)
         self.gridLayout.addWidget(self.tableWidgetInput, 0, 2, 1, 1)
         self.tableWidgetOutput = QtWidgets.QTableWidget(Dialog)
-        self.tableWidgetOutput.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.tableWidgetOutput.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableWidgetOutput.setObjectName("tableWidgetOutput")
         self.tableWidgetOutput.setColumnCount(2)
         self.tableWidgetOutput.setRowCount(0)

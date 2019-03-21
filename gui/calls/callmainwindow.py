@@ -1,7 +1,6 @@
-import sys
 import pathlib
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QFileDialog
-from gui.views.mainwindow import *
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog
+from gui.views.py_files.mainwindow import *
 
 
 class MyForm(QMainWindow):
@@ -37,6 +36,7 @@ class MyForm(QMainWindow):
 
 
 if __name__ == '__main__':
+    import sys
     app = QApplication(sys.argv)
     w = MyForm()
     w.show()
