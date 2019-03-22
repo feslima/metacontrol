@@ -4,6 +4,9 @@ import numpy as np
 from PyQt5.QtGui import QStandardItem
 
 
+def generate_simulation_tree(aspen_connection):
+    pass
+
 def read_simulation_tree(filepath):
     # read the data
     with open(filepath, 'r') as file:

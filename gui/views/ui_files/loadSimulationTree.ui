@@ -14,7 +14,7 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="1">
+   <item row="1" column="1">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -31,6 +31,32 @@
     </spacer>
    </item>
    <item row="2" column="2">
+    <widget class="QTableWidget" name="tableWidgetOutput">
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectItems</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>61</number>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <column>
+      <property name="text">
+       <string>Variable Path</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Alias</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="3" column="2">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <spacer name="horizontalSpacer_2">
@@ -63,7 +89,7 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="2">
+   <item row="1" column="2">
     <widget class="QTableWidget" name="tableWidgetInput">
      <property name="styleSheet">
       <string notr="true"/>
@@ -100,33 +126,23 @@
      </column>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QTableWidget" name="tableWidgetOutput">
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectItems</enum>
+   <item row="2" column="0">
+    <widget class="QTreeView" name="treeViewOutput">
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>0</height>
+      </size>
      </property>
-     <property name="sortingEnabled">
-      <bool>true</bool>
+     <property name="maximumSize">
+      <size>
+       <width>300</width>
+       <height>16777215</height>
+      </size>
      </property>
-     <attribute name="horizontalHeaderMinimumSectionSize">
-      <number>61</number>
-     </attribute>
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Variable Path</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Alias</string>
-      </property>
-     </column>
     </widget>
    </item>
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QTreeView" name="treeViewInput">
      <property name="minimumSize">
       <size>
@@ -145,19 +161,10 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QTreeView" name="treeViewOutput">
-     <property name="minimumSize">
-      <size>
-       <width>300</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>300</width>
-       <height>16777215</height>
-      </size>
+   <item row="0" column="0">
+    <widget class="QPushButton" name="pushButtonLoadTreeFromFile">
+     <property name="text">
+      <string>Load Variable Tree</string>
      </property>
     </widget>
    </item>

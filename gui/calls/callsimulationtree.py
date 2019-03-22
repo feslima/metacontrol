@@ -79,6 +79,13 @@ class LoadSimulationTreeDialog(QDialog):
         self.return_data = []
 
     def keyPressEvent(self, event):
+        """
+        keyPressEvent override of the QDialog class to extend keyboard interaction with the tables (i.e. delete rows)
+
+        Parameters
+        ----------
+        event
+        """
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:  # if delete key was pressed
             widget = QApplication.focusWidget()  # get the widget which has focus
             if widget.objectName() == self.ui.tableWidgetInput.objectName() or \
@@ -206,6 +213,8 @@ class LoadSimulationTreeDialog(QDialog):
 
             self.accept()  # close window with accept, so that values are allowed to be returned
 
+    def loadSimTreeButtonPressed(self):
+        pass
 
 if __name__ == '__main__':
     import sys
