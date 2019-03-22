@@ -56,7 +56,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="tabsClosable">
        <bool>false</bool>
@@ -547,6 +547,9 @@ QGroupBox::title {
              <property name="text">
               <string>RadioButton</string>
              </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item row="1" column="0" colspan="2">
@@ -559,7 +562,11 @@ QGroupBox::title {
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
-               <widget class="QLineEdit" name="lineEdit_10"/>
+               <widget class="QLineEdit" name="lineEdit_10">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton">
@@ -574,7 +581,7 @@ QGroupBox::title {
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset>
+                 <iconset resource="../../resources/icons/icons.qrc">
                   <normaloff>:/settings/noun_Settings_2309357.svg</normaloff>:/settings/noun_Settings_2309357.svg</iconset>
                 </property>
                </widget>
@@ -586,6 +593,9 @@ QGroupBox::title {
             <widget class="QRadioButton" name="radioButton">
              <property name="text">
               <string>RadioButton</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -673,7 +683,9 @@ QGroupBox::title {
   <tabstop>lineEdit_9</tabstop>
   <tabstop>tableView</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../resources/icons/icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>radioButton</sender>
