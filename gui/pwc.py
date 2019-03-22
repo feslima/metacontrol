@@ -1,8 +1,11 @@
 import sys
+import os
+import tempfile
 from gui.calls.callmainwindow import MainWindow
 
 from PyQt5.QtWidgets import QApplication
 
+# app initialization
 app = QApplication(sys.argv)
 
 w = MainWindow()

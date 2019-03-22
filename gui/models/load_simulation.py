@@ -4,10 +4,7 @@ import numpy as np
 from PyQt5.QtGui import QStandardItem
 
 
-def generate_simulation_tree(aspen_connection):
-    pass
-
-def read_simulation_tree(filepath):
+def read_simulation_tree_from_path(filepath):
     # read the data
     with open(filepath, 'r') as file:
         data = file.readlines()
@@ -17,22 +14,30 @@ def read_simulation_tree(filepath):
     return data
 
 
+def read_simulation_tree_from_fileobject(file_descriptor):
+    data = file_descriptor.readlines()
+
+    data = [line.rstrip('\n') for line in data]  # remove newline delimiter
+
+    return data
+
+
 def spread_tree(base_branch_cells):
     """
-	This function receives de raw tree in list format and "sifts" it. Each depth level is associated to a column.
+    This function receives de raw tree in list format and "sifts" it. Each depth level is associated to a column.
 
-	Parameters
-	----------
-	base_branch_cells : list
-		Input list containg treedata in raw format. Each line corresponds to a node
+    Parameters
+    ----------
+    base_branch_cells : list
+        Input list containg treedata in raw format. Each line corresponds to a node
 
-	Returns
-	-------
-	spread_tree_matrix : numpy.array(dtype=object)
-		Array of size m-by-n where m is the number of lines in `base_branch_cells` and n is the deepest level of the
-		branch.
+    Returns
+    -------
+    spread_tree_matrix : numpy.array(dtype=object)
+        Array of size m-by-n where m is the number of lines in `base_branch_cells` and n is the deepest level of the
+        branch.
 
-	"""
+    """
     # search for lowest leaf and branch level. Starting from zero
     lowest_leaf_level = 0
 
@@ -142,18 +147,18 @@ def build_nodes(spread_tree_matrix):
 
 def construct_tree_items(data_list):
     """
-	Only working for Aspen plus tree
+    Only working for Aspen plus tree
 
-	Parameters
-	----------
-	data_list ; list
-		String list containg the raw data tree. The first line has to be a single root node.
+    Parameters
+    ----------
+    data_list ; list
+        String list containg the raw data tree. The first line has to be a single root node.
 
-	Returns
-	-------
-	out : tuple
-		Tuple containing input and output nodes.
-	"""
+    Returns
+    -------
+    out : tuple
+        Tuple containing input and output nodes.
+    """
     # equipment or streams name - level 1 (Branch)
     # input or output - level 2 (Branch)
     # vars - level 2 (leaf) or 3 onwards (Branch or leaf)

@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QBrush, QStandardItemModel
 from PyQt5.QtWidgets import QDialog, QApplication
 
-from gui.models.load_simulation import read_simulation_tree, construct_tree_items
+from gui.models.load_simulation import read_simulation_tree_from_path, construct_tree_items
 from gui.views.py_files.loadSimulationTree import Ui_Dialog
 
 
@@ -64,13 +64,13 @@ class LoadSimulationTreeDialog(QDialog):
         # Populate the data
 
         # load the stream tree
-        stream_raw = read_simulation_tree(streams_file_path)
+        stream_raw = read_simulation_tree_from_path(streams_file_path)
         stream_input, stream_output = construct_tree_items(stream_raw)
         model_tree_input.appendRow(stream_input)
         model_tree_output.appendRow(stream_output)
 
         # load the blocks tree
-        blocks_raw = read_simulation_tree(blocks_file_path)
+        blocks_raw = read_simulation_tree_from_path(blocks_file_path)
         blocks_input, blocks_output = construct_tree_items(blocks_raw)
         model_tree_input.appendRow(blocks_input)
         model_tree_output.appendRow(blocks_output)
