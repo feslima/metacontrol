@@ -14,8 +14,9 @@ if __name__ == '__main__':
     elif os.name == 'nt':  # windows
         stream_file = r"C:\Users\Felipe\Desktop\GUI\python\AspenTreeStreams - Input & Output.txt"
         blocks_file = r"C:\Users\Felipe\Desktop\GUI\python\AspenTreeBlocks - Input & Output.txt"
+        filepath = r"C:\Users\Felipe\Desktop\GUI\python\infill.bkp"
 
-    w = LoadSimulationTreeDialog(stream_file, blocks_file)
+    w = LoadSimulationTreeDialog(filepath)
     w.show()
 
     sys.exit(app.exec_())

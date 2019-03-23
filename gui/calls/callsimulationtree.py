@@ -1,9 +1,10 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal
 from PyQt5.QtGui import QBrush, QStandardItemModel
 from PyQt5.QtWidgets import QDialog, QApplication
 
-from gui.models.load_simulation import read_simulation_tree_from_path, construct_tree_items
+from gui.models.load_simulation import read_simulation_tree_from_fileobject, construct_tree_items
+from gui.models.sim_connections import AspenConnection
 from gui.views.py_files.loadSimulationTree import Ui_Dialog
 
 
@@ -34,12 +35,24 @@ class ComboboxDelegate(QtWidgets.QItemDelegate):
 
 
 class LoadSimulationTreeDialog(QDialog):
-    def __init__(self, streams_file_path, blocks_file_path):
+    def __init__(self, temp_bkp_path):
+        self.bkp_path = temp_bkp_path  # temporary bkp file path
         super().__init__()  # initialize the QDialog
         self.ui = Ui_Dialog()  # instantiate the Dialog Window
         self.ui.setupUi(self)  # call the setupUi function to create and lay the window
 
+        # display the Progress bar
+        self.progressBarAspen = QtWidgets.QProgressBar(self)
+        self.ui.gridLayout.addWidget(self.progressBarAspen, 0, 2, 1, 1)
+        self.progressBarAspen.setVisible(False)
+
+        # create the threading task for aspen connection
+        self.connection_task = AspenThread()
+        self.connection_task.notifyProgress.connect(self.onProgress)
+        self.connection_task.taskFinished.connect(self.onAspenFinished)
+
         self.ui.pushButtonOK.clicked.connect(self.okButtonPressed)  # closes window when button is pressed
+        self.ui.pushButtonLoadTreeFromFile.clicked.connect(self.loadSimTreeButtonPressed)
 
         self.ui.treeViewInput.doubleClicked.connect(self.treeDoubleClick)  # assign double click event
         self.ui.treeViewOutput.doubleClicked.connect(self.treeDoubleClick)
@@ -48,32 +61,18 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.tableWidgetOutput.setColumnWidth(0, 450)
 
         # create the model for the tree
-        model_tree_input = QStandardItemModel()
-        model_tree_output = QStandardItemModel()
+        self.model_tree_input = QStandardItemModel()
+        self.model_tree_output = QStandardItemModel()
 
-        model_tree_input.setHorizontalHeaderLabels(['Input variables'])
-        model_tree_output.setHorizontalHeaderLabels(['Output variables'])
+        self.model_tree_input.setHorizontalHeaderLabels(['Input variables'])
+        self.model_tree_output.setHorizontalHeaderLabels(['Output variables'])
 
-        self.ui.treeViewInput.setModel(model_tree_input)
-        self.ui.treeViewOutput.setModel(model_tree_output)
+        self.ui.treeViewInput.setModel(self.model_tree_input)
+        self.ui.treeViewOutput.setModel(self.model_tree_output)
 
         # make the qtreeview headers bold
         self.ui.treeViewInput.header().setStyleSheet('QWidget { font: bold }')
         self.ui.treeViewOutput.header().setStyleSheet('QWidget { font: bold }')
-
-        # Populate the data
-
-        # load the stream tree
-        stream_raw = read_simulation_tree_from_path(streams_file_path)
-        stream_input, stream_output = construct_tree_items(stream_raw)
-        model_tree_input.appendRow(stream_input)
-        model_tree_output.appendRow(stream_output)
-
-        # load the blocks tree
-        blocks_raw = read_simulation_tree_from_path(blocks_file_path)
-        blocks_input, blocks_output = construct_tree_items(blocks_raw)
-        model_tree_input.appendRow(blocks_input)
-        model_tree_output.appendRow(blocks_output)
 
         # values to be returned
         self.return_data = []
@@ -214,7 +213,65 @@ class LoadSimulationTreeDialog(QDialog):
             self.accept()  # close window with accept, so that values are allowed to be returned
 
     def loadSimTreeButtonPressed(self):
-        pass
+        """
+        Open connection with simulation engine and loads the variable tree
+        """
+
+        # Disable the ok and load buttons
+        self.ui.pushButtonLoadTreeFromFile.setText("LOADING VARIABLES...")
+        self.ui.pushButtonLoadTreeFromFile.setEnabled(False)
+        self.ui.pushButtonOK.setEnabled(False)
+
+        # call the task
+        self.onAspenTaskStart()
+
+        # enable ok and load buttons
+        self.ui.pushButtonLoadTreeFromFile.setText("Load Variable Tree")
+        self.ui.pushButtonLoadTreeFromFile.setEnabled(True)
+        self.ui.pushButtonOK.setEnabled(True)
+
+    def onProgress(self, i):
+        self.progressBarAspen.setValue(i)
+
+    def onAspenTaskStart(self):
+        self.progressBarAspen.setVisible(True)
+        self.connection_task.start()
+
+    def onAspenFinished(self):
+        self.progressBarAspen.setVisible(False)
+
+
+class AspenThread(QThread):
+    notifyProgress = pyqtSignal(int)
+    taskFinished = pyqtSignal()
+
+    def run(self):
+        import time
+        for i in range(101):
+            self.notifyProgress.emit(i)
+            time.sleep(0.01)
+        self.taskFinished.emit()
+
+        # Open the connection
+
+        # aspen_com = AspenConnection(self.bkp_path)
+        # self.notifyProgress
+        #
+        # stream_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Streams"))
+        # blocks_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Blocks"))
+        #
+        # # Populate the data
+        #
+        # # load the stream tree
+        # stream_input, stream_output = construct_tree_items(stream_raw)
+        # self.model_tree_input.appendRow(stream_input)
+        # self.model_tree_output.appendRow(stream_output)
+        #
+        # # load the blocks tree
+        # blocks_input, blocks_output = construct_tree_items(blocks_raw)
+        # self.model_tree_input.appendRow(blocks_input)
+        # self.model_tree_output.appendRow(blocks_output)
+
 
 if __name__ == '__main__':
     import sys
