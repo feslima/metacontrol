@@ -3,7 +3,8 @@ from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal, QEventLoop
 from PyQt5.QtGui import QBrush, QStandardItemModel
 from PyQt5.QtWidgets import QDialog, QApplication, QProgressDialog
 
-from gui.models.load_simulation import read_simulation_tree_from_fileobject, construct_tree_items
+from gui.models.load_simulation import read_simulation_tree_from_fileobject, read_simulation_tree_from_path, \
+    construct_tree_items
 from gui.models.sim_connections import AspenConnection
 from gui.views.py_files.loadSimulationTree import Ui_Dialog
 
@@ -35,8 +36,17 @@ class ComboboxDelegate(QtWidgets.QItemDelegate):
 
 
 class LoadSimulationTreeDialog(QDialog):
-    def __init__(self, temp_bkp_path):
-        self.bkp_path = temp_bkp_path  # temporary bkp file path
+    def __init__(self, bkp_file_path, streams_file_txt_path=None, blocks_file_txt_path=None):
+        """
+
+        :param bkp_file_path:
+        :param streams_file_txt_path:
+        :param blocks_file_txt_path:
+        """
+        self.bkp_path = bkp_file_path  # temporary bkp file path
+        self.streams_file_txt_path = streams_file_txt_path  # in case the text tree file is available
+        self.blocks_file_txt_path = blocks_file_txt_path
+
         super().__init__()  # initialize the QDialog
         self.ui = Ui_Dialog()  # instantiate the Dialog Window
         self.ui.setupUi(self)  # call the setupUi function to create and lay the window)
@@ -217,19 +227,33 @@ class LoadSimulationTreeDialog(QDialog):
 
         progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nOpening connection...')
 
-        # Open the connection
-        aspen_com = AspenConnection(self.bkp_path)
-        progress_dialog.setValue(1)
+        if self.streams_file_txt_path is not None and self.blocks_file_txt_path is not None:
+            progress_dialog.setValue(1)
+            # if tree text file containing the variables are specified do not load from bkp file
+            progress_dialog.setLabelText(
+                'Please wait while the variable tree is loaded...\nLoading Stream variables...')
+            stream_raw = read_simulation_tree_from_path(self.streams_file_txt_path)
+            progress_dialog.setValue(2)
 
-        progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nLoading Stream variables...')
+            progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nLoading Block variables...')
+            blocks_raw = read_simulation_tree_from_path(self.blocks_file_txt_path)
+            progress_dialog.setValue(3)
 
-        stream_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Streams"))
-        progress_dialog.setValue(2)
+        else:
+            # Open the connection
+            aspen_com = AspenConnection(self.bkp_path)
+            progress_dialog.setValue(1)
 
-        progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nLoading Block variables...')
+            # load the tree from the connection file
+            progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nLoading Stream variables...')
 
-        blocks_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Blocks"))
-        progress_dialog.setValue(3)
+            stream_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Streams"))
+            progress_dialog.setValue(2)
+
+            progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nLoading Block variables...')
+
+            blocks_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Blocks"))
+            progress_dialog.setValue(3)
 
         # Populate the data
 
