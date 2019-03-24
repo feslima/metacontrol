@@ -144,7 +144,9 @@ class LoadSimulationTreeDialog(QDialog):
 
                     table_item_path.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # disable edit of the first col
                     table_view.setItem(row_position, 0, table_item_path)
-                    table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem('Alias_' + str(row_position)))
+                    default_alias = 'Alias_' + str(row_position) if table_view.objectName() == 'tableWidgetInput' \
+                        else 'CV_Alias_' + str(row_position)
+                    table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem(default_alias))
                     table_view.setItem(row_position, 2, table_item_type)
 
                     table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))  # paints the cell background to red
@@ -166,7 +168,9 @@ class LoadSimulationTreeDialog(QDialog):
 
                 table_item_path.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # disable edit of the first col
                 table_view.setItem(row_position, 0, table_item_path)
-                table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem('Alias_' + str(row_position)))
+                default_alias = 'Alias_' + str(row_position) if table_view.objectName() == 'tableWidgetInput' \
+                    else 'CV_Alias_' + str(row_position)
+                table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem(default_alias))
                 table_view.setItem(row_position, 2, table_item_type)
 
                 table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))  # paints the cell background to red
