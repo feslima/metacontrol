@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal, QEventLoop
 from PyQt5.QtGui import QBrush, QStandardItemModel
-from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtWidgets import QDialog, QApplication, QProgressDialog
 
 from gui.models.load_simulation import read_simulation_tree_from_fileobject, construct_tree_items
 from gui.models.sim_connections import AspenConnection
@@ -39,17 +39,7 @@ class LoadSimulationTreeDialog(QDialog):
         self.bkp_path = temp_bkp_path  # temporary bkp file path
         super().__init__()  # initialize the QDialog
         self.ui = Ui_Dialog()  # instantiate the Dialog Window
-        self.ui.setupUi(self)  # call the setupUi function to create and lay the window
-
-        # display the Progress bar
-        self.progressBarAspen = QtWidgets.QProgressBar(self)
-        self.ui.gridLayout.addWidget(self.progressBarAspen, 0, 2, 1, 1)
-        self.progressBarAspen.setVisible(False)
-
-        # create the threading task for aspen connection
-        self.connection_task = AspenThread()
-        self.connection_task.notifyProgress.connect(self.onProgress)
-        self.connection_task.taskFinished.connect(self.onAspenFinished)
+        self.ui.setupUi(self)  # call the setupUi function to create and lay the window)
 
         self.ui.pushButtonOK.clicked.connect(self.okButtonPressed)  # closes window when button is pressed
         self.ui.pushButtonLoadTreeFromFile.clicked.connect(self.loadSimTreeButtonPressed)
@@ -216,29 +206,50 @@ class LoadSimulationTreeDialog(QDialog):
         """
         Open connection with simulation engine and loads the variable tree
         """
-
-        # Disable the ok and load buttons
-        self.ui.pushButtonLoadTreeFromFile.setText("LOADING VARIABLES...")
         self.ui.pushButtonLoadTreeFromFile.setEnabled(False)
         self.ui.pushButtonOK.setEnabled(False)
 
-        # call the task
-        self.onAspenTaskStart()
+        progress_dialog = QProgressDialog('Please wait while the variable tree is loaded...', None, 0, 5, self)
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle('Loading')
+        progress_dialog.show()
+        progress_dialog.setValue(0)
+
+        progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nOpening connection...')
+
+        # Open the connection
+        aspen_com = AspenConnection(self.bkp_path)
+        progress_dialog.setValue(1)
+
+        progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nLoading Stream variables...')
+
+        stream_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Streams"))
+        progress_dialog.setValue(2)
+
+        progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nLoading Block variables...')
+
+        blocks_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Blocks"))
+        progress_dialog.setValue(3)
+
+        # Populate the data
+
+        # load the stream tree
+        progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nConstructing the trees...')
+
+        stream_input, stream_output = construct_tree_items(stream_raw)
+        self.model_tree_input.appendRow(stream_input)
+        self.model_tree_output.appendRow(stream_output)
+        progress_dialog.setValue(4)
+
+        # load the blocks tree
+        blocks_input, blocks_output = construct_tree_items(blocks_raw)
+        self.model_tree_input.appendRow(blocks_input)
+        self.model_tree_output.appendRow(blocks_output)
+        progress_dialog.setValue(5)
 
         # enable ok and load buttons
-        self.ui.pushButtonLoadTreeFromFile.setText("Load Variable Tree")
         self.ui.pushButtonLoadTreeFromFile.setEnabled(True)
         self.ui.pushButtonOK.setEnabled(True)
-
-    def onProgress(self, i):
-        self.progressBarAspen.setValue(i)
-
-    def onAspenTaskStart(self):
-        self.progressBarAspen.setVisible(True)
-        self.connection_task.start()
-
-    def onAspenFinished(self):
-        self.progressBarAspen.setVisible(False)
 
 
 class AspenThread(QThread):
