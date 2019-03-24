@@ -4,7 +4,7 @@ import tempfile
 import time
 
 from win32com import client as win32
-
+import pywintypes
 
 class AspenConnection(object):
     def __init__(self, file_path):
@@ -21,6 +21,17 @@ class AspenConnection(object):
         self._create_temp_folder(parent_folder)
         self._create_temp_aspen_copy()
         self._open_connection()
+
+        # get simulation general data
+        self.simulation_data = {'components': self.GetComponents(),
+                                'therm_method:': self.GetMethod(),
+                                'blocks': self.GetBlocksName(),
+                                'streams': self.GetStreamsName(),
+                                'reactions': self.GetReactions(),
+                                'sens_analysis': self.GetSensitvityAnalysis(),
+                                'calculators': self.GetCalculators(),
+                                'optimizations': self.GetOptimizations(),
+                                'design_specs': self.GetDesignSpecs()}
 
         # initialize temporary files
         self._temp_files_list = []
@@ -69,7 +80,7 @@ class AspenConnection(object):
         while True:
             try:
                 connection_handle.Close()
-            except:
+            except pywintypes.com_error:
                 break
 
     def _traverse_branch(self, node, file_to_write, level=0):
@@ -131,5 +142,62 @@ class AspenConnection(object):
         return self._temp_files_list
 
     def ClearAllTextData(self):
+        """
+        Delete temporary text files
+        """
         for file in self._temp_files_list:
             file.close()
+
+    def GetComponents(self):
+        """
+        Retrieve all components listed in simulation as list object
+        """
+        return [o.Name for o in self._aspen.Tree.FindNode(r"\Data\Components\Specifications\Input\TYPE").Elements]
+
+    def GetMethod(self):
+        """
+        Retrieve selected thermodynamic method
+        """
+        return self._aspen.Tree.FindNode(r"\Data\Properties\Specifications\Input\GOPSETNAME").Value
+
+    def GetBlocksName(self):
+        """
+        Retrieve all blocks names from simulation
+        """
+        return [o.Name for o in self._aspen.Tree.FindNode(r"\Data\Blocks").Elements]
+
+    def GetStreamsName(self):
+        """
+        Retrieve all streams names from simulation
+        """
+        return [o.Name for o in self._aspen.Tree.FindNode(r"\Data\Streams").Elements]
+
+    def GetReactions(self):
+        """
+        Retrieve all reaction names from simulation
+        """
+        return [o.Name for o in self._aspen.Tree.FindNode(r"\Data\Reactions\Reactions").Elements]
+
+    def GetSensitvityAnalysis(self):
+        """
+        Retrieve all senstivity analysis names from simulation
+        """
+        return [o.Name for o in self._aspen.Tree.FindNode(r"\Data\Model Analysis Tools\Sensitivity").Elements]
+
+    def GetCalculators(self):
+        """
+        Retrieve all calculators names from simulation
+        """
+        return [o.Name for o in self._aspen.Tree.FindNode(r"\Data\Flowsheeting Options\Calculator").Elements]
+
+    def GetOptimizations(self):
+        """
+        Retrieve all optimization names from simulation
+        """
+        return [o.Name for o in self._aspen.Tree.FindNode(r"\Data\Model Analysis Tools\Optimization").Elements]
+
+    def GetDesignSpecs(self):
+        """
+        Retrieve all design spec names from simulation
+        """
+        return [o.Name for o in self._aspen.Tree.FindNode(r"\Data\Flowsheeting Options\Design-Spec").Elements]
