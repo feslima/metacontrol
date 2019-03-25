@@ -259,6 +259,9 @@ class LoadSimulationTreeDialog(QDialog):
             blocks_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Blocks"))
             progress_dialog.setValue(3)
 
+            # Destroy the aspen_com object closing files as well
+            aspen_com.Destructor()
+
         # Populate the data
 
         # load the stream tree

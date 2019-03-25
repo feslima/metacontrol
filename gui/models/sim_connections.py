@@ -6,6 +6,7 @@ import time
 from win32com import client as win32
 import pywintypes
 
+
 class AspenConnection(object):
     def __init__(self, file_path):
         self._aspen_original_file_path = file_path
@@ -36,13 +37,13 @@ class AspenConnection(object):
         # initialize temporary files
         self._temp_files_list = []
 
-    def __del__(self):
+    def Destructor(self):
         """
         Object destructor.
         """
 
         # close aspen connection
-        self._close_connection(self._aspen)
+        self.CloseConnection()
 
         # clean up other files from temp dir
         os.remove(self._aspen_temp_file_path)  # temporary .bkp file
@@ -76,10 +77,10 @@ class AspenConnection(object):
         self._aspen = win32.Dispatch('Apwn.Document')
         self._aspen.InitFromArchive2(os.path.abspath(self._aspen_temp_file_path))
 
-    def _close_connection(self, connection_handle):
+    def CloseConnection(self):
         while True:
             try:
-                connection_handle.Close()
+                self._aspen.Close()
             except pywintypes.com_error:
                 break
 
@@ -123,6 +124,7 @@ class AspenConnection(object):
 
     def GenerateTreeFile(self, branch_str):
         # create the txt file
+        self._temp_files_exists = True
         temp_txt = self._create_temp_text_file(branch_str)
 
         # traverse the tree and write results
