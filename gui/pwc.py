@@ -18,9 +18,10 @@ def my_exception_hook(exctype, value, tback):
     # print(exctype, value, traceback)
     error_dialog = QMessageBox()
     error_dialog.setIcon(QMessageBox.Critical)
-    error_dialog.setText(''.join(traceback.format_exception(exctype, value, tback)[-1]))
+    error_dialog.setText(traceback.format_exception(exctype, value, tback)[-1])
+    error_dialog.setDetailedText(''.join(traceback.format_exception(exctype, value, tback)))
 
-    error_dialog.exec()
+    error_dialog.exec_()
     # Call the normal Exception hook after
     sys.__excepthook__(exctype, value, tback)
     sys.exit()
