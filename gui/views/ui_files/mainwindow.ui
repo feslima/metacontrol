@@ -614,8 +614,8 @@ QGroupBox::title {
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="../../resources/icons/icons.qrc">
-                  <normaloff>:/settings/noun_Settings_2309357.svg</normaloff>:/settings/noun_Settings_2309357.svg</iconset>
+                 <iconset resource="../../resources/icons.qrc">
+                  <normaloff>:/sampling/settings_icon.svg</normaloff>:/sampling/settings_icon.svg</iconset>
                 </property>
                </widget>
               </item>
@@ -717,7 +717,7 @@ QGroupBox::title {
   <tabstop>tableView</tabstop>
  </tabstops>
  <resources>
-  <include location="../../resources/icons/icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections>
   <connection>
