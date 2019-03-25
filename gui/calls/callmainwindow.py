@@ -8,6 +8,9 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         # initialization
+        self.streams_file = ''  # for when the tree txt files are specified
+        self.blocks_file = ''
+
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -42,7 +45,15 @@ class MainWindow(QMainWindow):
     # open simulationtree dialog
     def openSimTreeDialog(self):
         if self.sim_filename != "":
-            dialog = LoadSimulationTreeDialog()
+            dialog = LoadSimulationTreeDialog(self.sim_filename, streams_file_txt_path=self.streams_file,
+                                              blocks_file_txt_path=self.blocks_file)
+
+            if dialog.exec_():  # the ok button was pressed, get the variables the user selected
+                vars_list = dialog.return_data
+
+    def setTreeTxtFilesPath(self, streams_file, blocks_file):
+        self.streams_file = streams_file
+        self.blocks_file = blocks_file
 
 
 if __name__ == '__main__':
