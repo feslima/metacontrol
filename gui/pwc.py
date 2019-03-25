@@ -1,9 +1,10 @@
 import sys
 import os
 import tempfile
+import traceback
 from gui.calls.callmainwindow import MainWindow
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 # app initialization
 app = QApplication(sys.argv)
@@ -12,15 +13,19 @@ w = MainWindow()
 w.show()
 
 
-def my_exception_hook(exctype, value, traceback):
+def my_exception_hook(exctype, value, tback):
     # Print the error and traceback
-    print(exctype, value, traceback)
+    # print(exctype, value, traceback)
+    error_dialog = QMessageBox()
+    error_dialog.setIcon(QMessageBox.Critical)
+    error_dialog.setText(''.join(traceback.format_exception(exctype, value, tback)[-1]))
+
+    error_dialog.exec()
     # Call the normal Exception hook after
-    sys._excepthook(exctype, value, traceback)
-    sys.exit(1)
+    sys.__excepthook__(exctype, value, tback)
+    sys.exit()
 
     # Back up the reference to the exceptionhook
-
 
 sys._excepthook = sys.excepthook
 

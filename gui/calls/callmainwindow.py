@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
 
         # signal/socket connections
         self.ui.buttonOpenSimFile.clicked.connect(self.openSimFileDialog)
-        # self.ui.buttonLoadVariables.clicked.connect()
+        self.ui.buttonLoadVariables.clicked.connect(self.openSimTreeDialog)
 
     # open simulation file
     def openSimFileDialog(self):
