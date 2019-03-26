@@ -7,7 +7,6 @@ from gui.models.load_simulation import read_simulation_tree_from_fileobject, rea
     construct_tree_items
 from gui.models.sim_connections import AspenConnection
 from gui.views.py_files.loadSimulationTree import Ui_Dialog
-from gui.models.singleton_db import Database
 
 
 class ComboboxDelegate(QtWidgets.QItemDelegate):
@@ -29,7 +28,10 @@ class ComboboxDelegate(QtWidgets.QItemDelegate):
         value = combo_box.itemText(combo_box.currentIndex())
 
         model.setData(index, value, Qt.EditRole)
-        model.setData(index, QBrush(Qt.white), Qt.BackgroundRole)  # paints the cell background to white
+
+        # paints the cell background back to original color
+        original_backgrd_color = combo_box.palette().color(combo_box.backgroundRole())
+        model.setData(index, QBrush(original_backgrd_color), Qt.BackgroundRole)
 
     def updateEditorGeometry(self, editor, option, index):
         # Updates the editor for the item specified by index according to the style option given.
@@ -37,13 +39,14 @@ class ComboboxDelegate(QtWidgets.QItemDelegate):
 
 
 class LoadSimulationTreeDialog(QDialog):
-    def __init__(self, bkp_file_path, streams_file_txt_path=None, blocks_file_txt_path=None):
+    def __init__(self, bkp_file_path, gui_data_storage_object, streams_file_txt_path=None, blocks_file_txt_path=None):
         """
 
         :param bkp_file_path:
         """
         self.bkp_path = bkp_file_path  # temporary bkp file path
-        self.tree_model_database = Database()  # in case the tree was loaded previously
+        self.gui_data = gui_data_storage_object
+
         self.streams_file_txt_path = streams_file_txt_path
         self.blocks_file_txt_path = blocks_file_txt_path
 
@@ -61,13 +64,17 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.tableWidgetOutput.setColumnWidth(0, 450)
 
         # create the model for the tree if there wasn't one loaded in the database
-        if not self.tree_model_database.hasData():
+        if self.gui_data.getInputTreeModel() is None:
             self.model_tree_input = QStandardItemModel()
-            self.model_tree_output = QStandardItemModel()
-
-            self.tree_model_database.changeData((self.model_tree_input, self.model_tree_output))
+            self.gui_data.setInputTreeModel(self.model_tree_input)
         else:
-            self.model_tree_input, self.model_tree_output = self.tree_model_database.get()
+            self.model_tree_input = self.gui_data.getInputTreeModel()
+
+        if self.gui_data.getOutputTreeModel() is None:
+            self.model_tree_output = QStandardItemModel()
+            self.gui_data.setOutputTreeModel(self.model_tree_output)
+        else:
+            self.model_tree_output = self.gui_data.getOutputTreeModel()
 
         self.model_tree_input.setHorizontalHeaderLabels(['Input variables'])
         self.model_tree_output.setHorizontalHeaderLabels(['Output variables'])
@@ -228,10 +235,8 @@ class LoadSimulationTreeDialog(QDialog):
         progress_dialog.show()
         progress_dialog.setValue(0)
 
-        progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nOpening connection...')
-
         if self.streams_file_txt_path is not None and self.blocks_file_txt_path is not None:
-            progress_dialog.setValue(1)
+            # THIS SECTION IS FOR DEVELOPING PURPOSE
             # if tree text file containing the variables are specified do not load from bkp file
             progress_dialog.setLabelText(
                 'Please wait while the variable tree is loaded...\nLoading Stream variables...')
@@ -242,8 +247,22 @@ class LoadSimulationTreeDialog(QDialog):
             blocks_raw = read_simulation_tree_from_path(self.blocks_file_txt_path)
             progress_dialog.setValue(3)
 
+            # set the simulation data dictionary to fill the form in mainwindow. THIS IS A DUMMY DICTIONARY
+            simulation_data = {'components': ['PROPANE', 'PROPANE'],
+                               'therm_method': 'PENG-ROB',
+                               'blocks': ['TOWER'],
+                               'streams': ['B', 'D', 'F'],
+                               'reactions': [],
+                               'sens_analysis': ['S-1'],
+                               'calculators': ['C-1'],
+                               'optimizations': ['O-1'],
+                               'design_specs': []}
+
+            self.gui_data.setSimulationDataDictionary(simulation_data)
+
         else:
             # Open the connection
+            progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nOpening connection...')
             aspen_com = AspenConnection(self.bkp_path)
             progress_dialog.setValue(1)
 
@@ -257,6 +276,9 @@ class LoadSimulationTreeDialog(QDialog):
 
             blocks_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Blocks"))
             progress_dialog.setValue(3)
+
+            # set the simulation data dictionary to fill the form in mainwindow
+            self.gui_data.setSimulationDataDictionary(aspen_com.GetSimulationData())
 
             # Destroy the aspen_com object closing files as well
             aspen_com.Destructor()

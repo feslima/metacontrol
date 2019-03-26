@@ -22,6 +22,9 @@
   <property name="whatsThis">
    <string/>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <property name="dockOptions">
    <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
@@ -31,6 +34,9 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
@@ -71,10 +77,22 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QGroupBox" name="groupBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="minimumSize">
            <size>
             <width>475</width>
             <height>680</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>800</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="styleSheet">
@@ -262,7 +280,7 @@ QGroupBox::title {
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Select a simulation file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Select a simulation file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -328,12 +346,37 @@ QGroupBox::title {
            <string>Simulation Info</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
-           <item row="3" column="1">
-            <widget class="QTableView" name="tableView">
-             <attribute name="horizontalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-            </widget>
+           <item row="1" column="0">
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="1">
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Maximum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
            <item row="1" column="1">
             <layout class="QFormLayout" name="formLayout">
@@ -345,7 +388,16 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEdit">
+              <widget class="QLineEdit" name="lineEditComponents">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -359,7 +411,16 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEdit_2">
+              <widget class="QLineEdit" name="lineEditMethodName">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -373,7 +434,16 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLineEdit" name="lineEdit_3">
+              <widget class="QLineEdit" name="lineEditBlocks">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -387,7 +457,16 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLineEdit" name="lineEdit_4">
+              <widget class="QLineEdit" name="lineEditStreams">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -401,7 +480,16 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLineEdit" name="lineEdit_5">
+              <widget class="QLineEdit" name="lineEditReactions">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -415,7 +503,16 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLineEdit" name="lineEdit_6">
+              <widget class="QLineEdit" name="lineEditSensAnalysis">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -429,7 +526,16 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QLineEdit" name="lineEdit_7">
+              <widget class="QLineEdit" name="lineEditCalculators">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -450,52 +556,38 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="7" column="1">
-              <widget class="QLineEdit" name="lineEdit_8">
+              <widget class="QLineEdit" name="lineEditOptimizations">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item row="8" column="1">
-              <widget class="QLineEdit" name="lineEdit_9">
+              <widget class="QLineEdit" name="lineEditDesSpecs">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
             </layout>
-           </item>
-           <item row="0" column="1">
-            <spacer name="verticalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Maximum</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="1" column="0">
-            <spacer name="horizontalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
            <item row="1" column="2">
             <spacer name="horizontalSpacer">
@@ -541,6 +633,53 @@ QGroupBox::title {
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="3" column="1">
+            <widget class="QTableWidget" name="tableWidgetSimulationData">
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Components</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Blocks</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Streams</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Reactions</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Sensitivity</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Calculators</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Optimizations</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Design Specs</string>
+              </property>
+             </column>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -705,16 +844,15 @@ QGroupBox::title {
   <tabstop>textBrowserSimFile</tabstop>
   <tabstop>buttonOpenSimFile</tabstop>
   <tabstop>buttonLoadVariables</tabstop>
-  <tabstop>lineEdit</tabstop>
-  <tabstop>lineEdit_2</tabstop>
-  <tabstop>lineEdit_3</tabstop>
-  <tabstop>lineEdit_4</tabstop>
-  <tabstop>lineEdit_5</tabstop>
-  <tabstop>lineEdit_6</tabstop>
-  <tabstop>lineEdit_7</tabstop>
-  <tabstop>lineEdit_8</tabstop>
-  <tabstop>lineEdit_9</tabstop>
-  <tabstop>tableView</tabstop>
+  <tabstop>lineEditComponents</tabstop>
+  <tabstop>lineEditMethodName</tabstop>
+  <tabstop>lineEditBlocks</tabstop>
+  <tabstop>lineEditStreams</tabstop>
+  <tabstop>lineEditReactions</tabstop>
+  <tabstop>lineEditSensAnalysis</tabstop>
+  <tabstop>lineEditCalculators</tabstop>
+  <tabstop>lineEditOptimizations</tabstop>
+  <tabstop>lineEditDesSpecs</tabstop>
  </tabstops>
  <resources>
   <include location="../../resources/icons.qrc"/>

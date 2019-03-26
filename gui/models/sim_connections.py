@@ -24,15 +24,15 @@ class AspenConnection(object):
         self._open_connection()
 
         # get simulation general data
-        self.simulation_data = {'components': self.GetComponents(),
-                                'therm_method:': self.GetMethod(),
-                                'blocks': self.GetBlocksName(),
-                                'streams': self.GetStreamsName(),
-                                'reactions': self.GetReactions(),
-                                'sens_analysis': self.GetSensitvityAnalysis(),
-                                'calculators': self.GetCalculators(),
-                                'optimizations': self.GetOptimizations(),
-                                'design_specs': self.GetDesignSpecs()}
+        self._simulation_data = {'components': self.GetComponents(),
+                                 'therm_method': self.GetMethod(),
+                                 'blocks': self.GetBlocksName(),
+                                 'streams': self.GetStreamsName(),
+                                 'reactions': self.GetReactions(),
+                                 'sens_analysis': self.GetSensitvityAnalysis(),
+                                 'calculators': self.GetCalculators(),
+                                 'optimizations': self.GetOptimizations(),
+                                 'design_specs': self.GetDesignSpecs()}
 
         # initialize temporary files
         self._temp_files_list = []
@@ -111,6 +111,13 @@ class AspenConnection(object):
 
         return self._aspen
 
+    def GetSimulationData(self):
+        """
+        Returns the simulation data dictionary with blocks names, components, streams, etc.
+        :return:
+        """
+        return self._simulation_data
+
     def GetTemporaryFolderPath(self):
         """
         Returns the string of the temporary folder path
@@ -124,7 +131,6 @@ class AspenConnection(object):
 
     def GenerateTreeFile(self, branch_str):
         # create the txt file
-        self._temp_files_exists = True
         temp_txt = self._create_temp_text_file(branch_str)
 
         # traverse the tree and write results

@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication
 
 from gui.calls.callsimulationtree import LoadSimulationTreeDialog
-from gui.models.singleton_db import Database
+from gui.models.data_storage import DataStorage
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -18,8 +18,9 @@ if __name__ == '__main__':
         filepath = r"C:\Users\Felipe\Desktop\GUI\python\infill.bkp"
 
     # w = LoadSimulationTreeDialog(filepath)
-    db_tree_model = Database()
-    w = LoadSimulationTreeDialog(filepath, streams_file_txt_path=stream_file, blocks_file_txt_path=blocks_file)
+    gui_data_storage = DataStorage()
+    w = LoadSimulationTreeDialog(filepath, gui_data_storage,
+                                 streams_file_txt_path=stream_file, blocks_file_txt_path=blocks_file)
 
     w.show()
 
