@@ -2,6 +2,7 @@ import pathlib
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog
 from gui.views.py_files.mainwindow import *
 from gui.calls.callsimulationtree import LoadSimulationTreeDialog
+from gui.models.singleton_db import Database
 
 
 class MainWindow(QMainWindow):
@@ -10,6 +11,9 @@ class MainWindow(QMainWindow):
         # initialization
         self.streams_file = ''  # for when the tree txt files are specified
         self.blocks_file = ''
+
+        # AbstractItem rows database initialization for tree view in load simulation variables dialog
+        self.tree_model_database = Database()
 
         super().__init__()
         self.ui = Ui_MainWindow()
@@ -45,8 +49,7 @@ class MainWindow(QMainWindow):
     # open simulationtree dialog
     def openSimTreeDialog(self):
         if self.sim_filename != "":
-            dialog = LoadSimulationTreeDialog(self.sim_filename, streams_file_txt_path=self.streams_file,
-                                              blocks_file_txt_path=self.blocks_file)
+            dialog = LoadSimulationTreeDialog(self.sim_filename)
 
             if dialog.exec_():  # the ok button was pressed, get the variables the user selected
                 vars_list = dialog.return_data

@@ -7,6 +7,7 @@ from gui.models.load_simulation import read_simulation_tree_from_fileobject, rea
     construct_tree_items
 from gui.models.sim_connections import AspenConnection
 from gui.views.py_files.loadSimulationTree import Ui_Dialog
+from gui.models.singleton_db import Database
 
 
 class ComboboxDelegate(QtWidgets.QItemDelegate):
@@ -40,11 +41,10 @@ class LoadSimulationTreeDialog(QDialog):
         """
 
         :param bkp_file_path:
-        :param streams_file_txt_path:
-        :param blocks_file_txt_path:
         """
         self.bkp_path = bkp_file_path  # temporary bkp file path
-        self.streams_file_txt_path = streams_file_txt_path  # in case the text tree file is available
+        self.tree_model_database = Database()  # in case the tree was loaded previously
+        self.streams_file_txt_path = streams_file_txt_path
         self.blocks_file_txt_path = blocks_file_txt_path
 
         super().__init__()  # initialize the QDialog
@@ -60,9 +60,14 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.tableWidgetInput.setColumnWidth(0, 450)  # first column resizing
         self.ui.tableWidgetOutput.setColumnWidth(0, 450)
 
-        # create the model for the tree
-        self.model_tree_input = QStandardItemModel()
-        self.model_tree_output = QStandardItemModel()
+        # create the model for the tree if there wasn't one loaded in the database
+        if not self.tree_model_database.hasData():
+            self.model_tree_input = QStandardItemModel()
+            self.model_tree_output = QStandardItemModel()
+
+            self.tree_model_database.changeData((self.model_tree_input, self.model_tree_output))
+        else:
+            self.model_tree_input, self.model_tree_output = self.tree_model_database.get()
 
         self.model_tree_input.setHorizontalHeaderLabels(['Input variables'])
         self.model_tree_output.setHorizontalHeaderLabels(['Output variables'])
@@ -137,19 +142,7 @@ class LoadSimulationTreeDialog(QDialog):
                     row_list.append(table_view.model().index(i, 0).data())  # get all rows in table
 
                 if branch_str not in row_list:  # there isn't the value in table. Insert it
-                    table_view.insertRow(row_position)
-
-                    table_item_path = QtWidgets.QTableWidgetItem(branch_str)
-                    table_item_type = QtWidgets.QTableWidgetItem('Choose a type')
-
-                    table_item_path.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # disable edit of the first col
-                    table_view.setItem(row_position, 0, table_item_path)
-                    default_alias = 'Alias_' + str(row_position) if table_view.objectName() == 'tableWidgetInput' \
-                        else 'CV_Alias_' + str(row_position)
-                    table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem(default_alias))
-                    table_view.setItem(row_position, 2, table_item_type)
-
-                    table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))  # paints the cell background to red
+                    self.insertSingleRow(table_view, row_position, branch_str)
 
                 else:
                     # warn the user
@@ -161,24 +154,30 @@ class LoadSimulationTreeDialog(QDialog):
 
                     msg_box.exec()
             else:
-                table_view.insertRow(row_position)  # insert an empty row
-
-                table_item_path = QtWidgets.QTableWidgetItem(branch_str)
-                table_item_type = QtWidgets.QTableWidgetItem('Choose a type')
-
-                table_item_path.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # disable edit of the first col
-                table_view.setItem(row_position, 0, table_item_path)
-                default_alias = 'Alias_' + str(row_position) if table_view.objectName() == 'tableWidgetInput' \
-                    else 'CV_Alias_' + str(row_position)
-                table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem(default_alias))
-                table_view.setItem(row_position, 2, table_item_type)
-
-                table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))  # paints the cell background to red
+                self.insertSingleRow(table_view, row_position, branch_str)
 
                 if table_view.objectName() == 'tableWidgetInput':
                     # set the combobox delegate for type column
                     delegate = ComboboxDelegate()
                     table_view.setItemDelegateForColumn(2, delegate)
+
+    def insertSingleRow(self, table_view, row_position, branch_str):
+        """
+        Insert a single named row into the table view input
+        """
+        table_view.insertRow(row_position)  # insert an empty row
+
+        table_item_path = QtWidgets.QTableWidgetItem(branch_str)
+        table_item_type = QtWidgets.QTableWidgetItem('Choose a type')
+
+        table_item_path.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # disable edit of the first col
+        table_view.setItem(row_position, 0, table_item_path)
+        default_alias = 'Alias_' + str(row_position) if table_view.objectName() == 'tableWidgetInput' \
+            else 'CV_Alias_' + str(row_position)
+        table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem(default_alias))
+        table_view.setItem(row_position, 2, table_item_type)
+
+        table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))  # paints the cell background to red
 
     def okButtonPressed(self):
         # read the data from the tables
@@ -281,38 +280,6 @@ class LoadSimulationTreeDialog(QDialog):
         # enable ok and load buttons
         self.ui.pushButtonLoadTreeFromFile.setEnabled(True)
         self.ui.pushButtonOK.setEnabled(True)
-
-
-class AspenThread(QThread):
-    notifyProgress = pyqtSignal(int)
-    taskFinished = pyqtSignal()
-
-    def run(self):
-        import time
-        for i in range(101):
-            self.notifyProgress.emit(i)
-            time.sleep(0.01)
-        self.taskFinished.emit()
-
-        # Open the connection
-
-        # aspen_com = AspenConnection(self.bkp_path)
-        # self.notifyProgress
-        #
-        # stream_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Streams"))
-        # blocks_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Blocks"))
-        #
-        # # Populate the data
-        #
-        # # load the stream tree
-        # stream_input, stream_output = construct_tree_items(stream_raw)
-        # self.model_tree_input.appendRow(stream_input)
-        # self.model_tree_output.appendRow(stream_output)
-        #
-        # # load the blocks tree
-        # blocks_input, blocks_output = construct_tree_items(blocks_raw)
-        # self.model_tree_input.appendRow(blocks_input)
-        # self.model_tree_output.appendRow(blocks_output)
 
 
 if __name__ == '__main__':
