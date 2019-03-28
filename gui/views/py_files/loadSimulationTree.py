@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_files/loadSimulationTree.ui'
+# Form implementation generated from reading ui file 'ui_files\loadSimulationTree.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -55,6 +55,7 @@ class Ui_Dialog(object):
         self.gridLayout.addWidget(self.treeViewInput, 1, 0, 1, 1)
         self.tableWidgetInput = QtWidgets.QTableWidget(Dialog)
         self.tableWidgetInput.setStyleSheet("")
+        self.tableWidgetInput.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
         self.tableWidgetInput.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableWidgetInput.setRowCount(0)
         self.tableWidgetInput.setObjectName("tableWidgetInput")
