@@ -1,9 +1,22 @@
 import pathlib
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QTableWidgetItem
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRegExp
+from PyQt5.QtGui import QRegExpValidator
+
 from gui.views.py_files.mainwindow import *
 from gui.calls.callsimulationtree import LoadSimulationTreeDialog
 from gui.models.data_storage import DataStorage
+
+
+class ExpressionEditorDelegate(QtWidgets.QItemDelegate):
+
+    def createEditor(self, parent, option, index):
+        line_editor = QtWidgets.QLineEdit(parent)
+        reg_ex = QRegExp("^[a-z$][a-z_$0-9]{7}$")
+        input_validator = QRegExpValidator(reg_ex, line_editor)
+        line_editor.setValidator(input_validator)
+
+        return line_editor
 
 
 class MainWindow(QMainWindow):
@@ -28,6 +41,8 @@ class MainWindow(QMainWindow):
         self.ui.buttonLoadVariables.clicked.connect(self.openSimTreeDialog)
 
         # some widget initializations
+        delegate = ExpressionEditorDelegate()
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(0, delegate)
 
     # open simulation file
     def openSimFileDialog(self):
