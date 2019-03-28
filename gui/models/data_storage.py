@@ -1,4 +1,5 @@
 from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtCore import QAbstractTableModel
 
 
 class DataStorage(object):
@@ -10,6 +11,8 @@ class DataStorage(object):
         self._input_tree_model = None
         self._output_tree_model = None
         self._simulation_data = None
+        self._input_table_model = None
+        self._output_table_model = None
 
     def getInputTreeModel(self):
         return self._input_tree_model
@@ -40,3 +43,23 @@ class DataStorage(object):
             self._simulation_data = simulation_dictionary
         else:
             raise TypeError("Input must be a dictionary object.")
+
+    def getInputTableModel(self):
+        return self._input_table_model
+
+    def setInputTableModel(self, table_model):
+
+        if isinstance(table_model, QAbstractTableModel):
+            self._input_table_model = table_model
+        else:
+            raise TypeError("Input must be a QStandardItemModel class object.")
+
+    def getOutputTableModel(self):
+        return self._output_table_model
+
+    def setOutputTableModel(self, table_model):
+
+        if isinstance(table_model, QAbstractTableModel):
+            self._output_table_model = table_model
+        else:
+            raise TypeError("Input must be a QStandardItemModel class object.")
