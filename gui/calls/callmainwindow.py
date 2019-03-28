@@ -26,6 +26,8 @@ class MainWindow(QMainWindow):
         self.ui.buttonOpenSimFile.clicked.connect(self.openSimFileDialog)
         self.ui.buttonLoadVariables.clicked.connect(self.openSimTreeDialog)
 
+        # some widget initializations
+
     # open simulation file
     def openSimFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -67,6 +69,33 @@ class MainWindow(QMainWindow):
                 self.ui.lineEditCalculators.setText(str(len(simulation_form_data['calculators'])))
                 self.ui.lineEditOptimizations.setText(str(len(simulation_form_data['optimizations'])))
                 self.ui.lineEditDesSpecs.setText(str(len((simulation_form_data['design_specs']))))
+
+                # set alias table data
+                alias_table_view = self.ui.tableWidgetAliasDisplay
+
+                num_rows_to_insert = len(vars_list[0]) + len(vars_list[1])
+
+                new_aliases_to_insert = []
+
+                for input_row in vars_list[0]:
+                    new_aliases_to_insert.append(input_row[1])
+
+                for output_row in vars_list[1]:
+                    new_aliases_to_insert.append(output_row[1])
+
+                num_rows_alias = alias_table_view.rowCount()
+
+                if num_rows_alias != 0:  # alias table is not empty
+                    alias_table_aliases_list = []
+
+                    # get all aliases currently displayed on the table
+                    for i in range(num_rows_alias):
+                        alias_table_aliases_list.append(alias_table_view.model().index(i, 0).data())
+
+                    # get different alias between selection and current ones in display. Add them
+                    diff_alias_list = [new_alias for new_alias in alias_table_aliases_list if new_alias
+                                       not in set(new_aliases_to_insert)]
+
 
     def setTreeTxtFilesPath(self, streams_file, blocks_file):
         self.streams_file = streams_file
