@@ -1,5 +1,6 @@
 import pathlib
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QTableWidgetItem
+from PyQt5.QtCore import Qt
 from gui.views.py_files.mainwindow import *
 from gui.calls.callsimulationtree import LoadSimulationTreeDialog
 from gui.models.data_storage import DataStorage
@@ -56,7 +57,9 @@ class MainWindow(QMainWindow):
 
             if dialog.exec_():
                 # the ok button was pressed, get the variables the user selected and update other ui items
-                vars_list = dialog.return_data
+                vars_list = [self.application_database.getInputTableData(),
+                             self.application_database.getOutputTableData()]
+
                 simulation_form_data = self.application_database.getSimulationDataDictionary()
 
                 # set the simulation form data
@@ -73,29 +76,33 @@ class MainWindow(QMainWindow):
                 # set alias table data
                 alias_table_view = self.ui.tableWidgetAliasDisplay
 
-                num_rows_to_insert = len(vars_list[0]) + len(vars_list[1])
-
                 new_aliases_to_insert = []
+                new_types_to_insert = []
 
                 for input_row in vars_list[0]:
                     new_aliases_to_insert.append(input_row[1])
+                    new_types_to_insert.append(input_row[2])
 
                 for output_row in vars_list[1]:
                     new_aliases_to_insert.append(output_row[1])
+                    new_types_to_insert.append("Candidate (CV)")
 
                 num_rows_alias = alias_table_view.rowCount()
 
                 if num_rows_alias != 0:  # alias table is not empty
-                    alias_table_aliases_list = []
+                    alias_table_view.setRowCount(0)  # delete all the present rows
 
-                    # get all aliases currently displayed on the table
-                    for i in range(num_rows_alias):
-                        alias_table_aliases_list.append(alias_table_view.model().index(i, 0).data())
+                for i in range(len(new_aliases_to_insert)):
+                    alias_table_view.insertRow(i)
 
-                    # get different alias between selection and current ones in display. Add them
-                    diff_alias_list = [new_alias for new_alias in alias_table_aliases_list if new_alias
-                                       not in set(new_aliases_to_insert)]
+                    alias_table_item_name = QTableWidgetItem(new_aliases_to_insert[i])
+                    alias_table_item_type = QTableWidgetItem(new_types_to_insert[i])
 
+                    alias_table_item_name.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                    alias_table_item_type.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+
+                    alias_table_view.setItem(i, 0, alias_table_item_name)
+                    alias_table_view.setItem(i, 1, alias_table_item_type)
 
     def setTreeTxtFilesPath(self, streams_file, blocks_file):
         self.streams_file = streams_file

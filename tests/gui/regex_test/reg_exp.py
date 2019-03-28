@@ -11,7 +11,7 @@ class RegExp(QDialog):
         self.ui = Ui_Dialog()  # instantiate the Dialog Window
         self.ui.setupUi(self)  # call the setupUi function to create and lay the window)
 
-        reg_ex = QRegExp("^[a-zA-Z_$][a-zA-Z_$0-9]{7}$")
+        reg_ex = QRegExp("^[a-z$][a-z_$0-9]{7}$")
         input_validator = QRegExpValidator(reg_ex, self.ui.lineEdit)
         self.ui.lineEdit.setValidator(input_validator)
 

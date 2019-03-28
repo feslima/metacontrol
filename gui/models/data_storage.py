@@ -1,5 +1,4 @@
 from PyQt5.QtGui import QStandardItemModel
-from PyQt5.QtCore import QAbstractTableModel
 
 
 class DataStorage(object):
@@ -11,8 +10,8 @@ class DataStorage(object):
         self._input_tree_model = None
         self._output_tree_model = None
         self._simulation_data = None
-        self._input_table_model = None
-        self._output_table_model = None
+        self._input_table_data = None
+        self._output_table_data = None
 
     def getInputTreeModel(self):
         return self._input_tree_model
@@ -44,22 +43,22 @@ class DataStorage(object):
         else:
             raise TypeError("Input must be a dictionary object.")
 
-    def getInputTableModel(self):
-        return self._input_table_model
+    def getInputTableData(self):
+        return self._input_table_data
 
-    def setInputTableModel(self, table_model):
+    def setInputTableData(self, table_model):
 
-        if isinstance(table_model, QAbstractTableModel):
-            self._input_table_model = table_model
+        if isinstance(table_model, list):
+            self._input_table_data = table_model
         else:
-            raise TypeError("Input must be a QStandardItemModel class object.")
+            raise TypeError("Input must be a list.")
 
-    def getOutputTableModel(self):
-        return self._output_table_model
+    def getOutputTableData(self):
+        return self._output_table_data
 
-    def setOutputTableModel(self, table_model):
+    def setOutputTableData(self, table_model):
 
-        if isinstance(table_model, QAbstractTableModel):
-            self._output_table_model = table_model
+        if isinstance(table_model, list):
+            self._output_table_data = table_model
         else:
-            raise TypeError("Input must be a QStandardItemModel class object.")
+            raise TypeError("Input must be a list.")

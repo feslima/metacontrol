@@ -76,6 +76,17 @@ class LoadSimulationTreeDialog(QDialog):
         else:
             self.model_tree_output = self.gui_data.getOutputTreeModel()
 
+        # do the same to table data
+        if self.gui_data.getInputTableData() is not None:
+            self.insertDataOnTableCreation(self.ui.tableWidgetInput, self.gui_data.getInputTableData())
+
+        if self.gui_data.getOutputTableData() is not None:
+            self.insertDataOnTableCreation(self.ui.tableWidgetOutput, self.gui_data.getOutputTableData())
+
+        # set the combobox delegate for type column
+        delegate = ComboboxDelegate()
+        self.ui.tableWidgetInput.setItemDelegateForColumn(2, delegate)
+
         self.model_tree_input.setHorizontalHeaderLabels(['Input variables'])
         self.model_tree_output.setHorizontalHeaderLabels(['Output variables'])
 
@@ -85,9 +96,6 @@ class LoadSimulationTreeDialog(QDialog):
         # make the qtreeview headers bold
         self.ui.treeViewInput.header().setStyleSheet('QWidget { font: bold }')
         self.ui.treeViewOutput.header().setStyleSheet('QWidget { font: bold }')
-
-        # values to be returned
-        self.return_data = []
 
     def keyPressEvent(self, event):
         """
@@ -102,9 +110,9 @@ class LoadSimulationTreeDialog(QDialog):
             if widget.objectName() == self.ui.tableWidgetInput.objectName() or \
                     widget.objectName() == self.ui.tableWidgetOutput.objectName():  # and is the table widget
                 table_model = widget.selectionModel()
-                indices = table_model.selectedRows()
+                indexes = table_model.selectedIndexes()
 
-                for index in indices:
+                for index in indexes:
                     widget.removeRow(index.row())  # delete selected rows
 
     def treeDoubleClick(self):
@@ -149,7 +157,7 @@ class LoadSimulationTreeDialog(QDialog):
                     row_list.append(table_view.model().index(i, 0).data())  # get all rows in table
 
                 if branch_str not in row_list:  # there isn't the value in table. Insert it
-                    self.insertSingleRow(table_view, row_position, branch_str)
+                    self.insertNewSingleRow(table_view, row_position, branch_str)
 
                 else:
                     # warn the user
@@ -161,14 +169,9 @@ class LoadSimulationTreeDialog(QDialog):
 
                     msg_box.exec()
             else:
-                self.insertSingleRow(table_view, row_position, branch_str)
+                self.insertNewSingleRow(table_view, row_position, branch_str)
 
-                if table_view.objectName() == 'tableWidgetInput':
-                    # set the combobox delegate for type column
-                    delegate = ComboboxDelegate()
-                    table_view.setItemDelegateForColumn(2, delegate)
-
-    def insertSingleRow(self, table_view, row_position, branch_str):
+    def insertNewSingleRow(self, table_view, row_position, branch_str):
         """
         Insert a single named row into the table view input
         """
@@ -185,6 +188,15 @@ class LoadSimulationTreeDialog(QDialog):
         table_view.setItem(row_position, 2, table_item_type)
 
         table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))  # paints the cell background to red
+
+    def insertDataOnTableCreation(self, table_view, table_data):
+        for i in range(len(table_data)):
+            table_view.insertRow(i)
+            for j in range(len(table_data[i])):
+                item_placeholder = QtWidgets.QTableWidgetItem(table_data[i][j])
+                if j == 0:  # disable editing for first column
+                    item_placeholder.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                table_view.setItem(i, j, item_placeholder)
 
     def okButtonPressed(self):
         # read the data from the tables
@@ -217,8 +229,8 @@ class LoadSimulationTreeDialog(QDialog):
 
         else:
             # both tables empty or both filled, proceed as normal
-            self.return_data.append(input_data)
-            self.return_data.append(output_data)
+            self.gui_data.setInputTableData(input_data)
+            self.gui_data.setOutputTableData(output_data)
 
             self.accept()  # close window with accept, so that values are allowed to be returned
 
