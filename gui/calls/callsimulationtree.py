@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal, QEventLoop
-from PyQt5.QtGui import QBrush, QStandardItemModel
+from PyQt5.QtCore import Qt, QRegExp, QEvent
+from PyQt5.QtGui import QBrush, QStandardItemModel, QRegExpValidator
 from PyQt5.QtWidgets import QDialog, QApplication, QProgressDialog
 
 from gui.models.load_simulation import read_simulation_tree_from_fileobject, read_simulation_tree_from_path, \
@@ -38,12 +38,32 @@ class ComboboxDelegate(QtWidgets.QItemDelegate):
         editor.setGeometry(option.rect)
 
 
+class AliasEditorDelegate(QtWidgets.QItemDelegate):
+
+    def createEditor(self, parent, option, index):
+        line_editor = QtWidgets.QLineEdit(parent)
+        reg_ex = QRegExp("^[a-z$][a-z_$0-9]{,9}$")
+        input_validator = QRegExpValidator(reg_ex, line_editor)
+        line_editor.setValidator(input_validator)
+
+        return line_editor
+
+    def setModelData(self, line_editor, model, index):
+        text = line_editor.text()
+
+        model.setData(index, text, Qt.EditRole)
+
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
+
+
 class LoadSimulationTreeDialog(QDialog):
     def __init__(self, bkp_file_path, gui_data_storage_object, streams_file_txt_path=None, blocks_file_txt_path=None):
         """
 
         :param bkp_file_path:
         """
+        # TODO: check for duplicated aliases in tables
         self.bkp_path = bkp_file_path  # temporary bkp file path
         self.gui_data = gui_data_storage_object
 
@@ -60,7 +80,7 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.treeViewInput.doubleClicked.connect(self.treeDoubleClick)  # assign double click event
         self.ui.treeViewOutput.doubleClicked.connect(self.treeDoubleClick)
 
-        self.ui.tableWidgetInput.setColumnWidth(0, 450)  # first column resizing
+        self.ui.tableWidgetInput.setColumnWidth(0, 400)  # first column resizing
         self.ui.tableWidgetOutput.setColumnWidth(0, 450)
 
         # create the model for the tree if there wasn't one loaded in the database
@@ -75,6 +95,18 @@ class LoadSimulationTreeDialog(QDialog):
             self.gui_data.setOutputTreeModel(self.model_tree_output)
         else:
             self.model_tree_output = self.gui_data.getOutputTreeModel()
+
+        # set the alias editor delegate for the alias column
+        self._input_alias_delegate = AliasEditorDelegate()
+        self._output_alias_delegate = AliasEditorDelegate()
+
+        # why the self.: https://stackoverflow.com/questions/46746551/
+        # how-do-i-set-item-delegates-for-multiple-columns-in-a-model-that-is-processed-by
+        # The view does not take ownership of the delegate, so you must keep a reference to it yourself
+        # (otherwise it will be garbage-collected by python):
+
+        self.ui.tableWidgetInput.setItemDelegateForColumn(1, self._input_alias_delegate)
+        self.ui.tableWidgetOutput.setItemDelegateForColumn(1, self._output_alias_delegate)
 
         # do the same to table data
         if self.gui_data.getInputTableData() is not None:
@@ -182,8 +214,8 @@ class LoadSimulationTreeDialog(QDialog):
 
         table_item_path.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # disable edit of the first col
         table_view.setItem(row_position, 0, table_item_path)
-        default_alias = 'Alias_' + str(row_position) if table_view.objectName() == 'tableWidgetInput' \
-            else 'CV_Alias_' + str(row_position)
+        default_alias = 'alias_' + str(row_position) if table_view.objectName() == 'tableWidgetInput' \
+            else 'cv_alias_' + str(row_position)
         table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem(default_alias))
         table_view.setItem(row_position, 2, table_item_type)
 

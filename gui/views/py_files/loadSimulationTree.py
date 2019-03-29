@@ -32,6 +32,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_2.addWidget(self.pushButtonOK)
         self.gridLayout.addLayout(self.horizontalLayout_2, 3, 2, 1, 1)
         self.tableWidgetOutput = QtWidgets.QTableWidget(Dialog)
+        self.tableWidgetOutput.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
         self.tableWidgetOutput.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableWidgetOutput.setObjectName("tableWidgetOutput")
         self.tableWidgetOutput.setColumnCount(2)

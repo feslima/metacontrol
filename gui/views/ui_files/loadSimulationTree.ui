@@ -81,6 +81,9 @@
    </item>
    <item row="2" column="2">
     <widget class="QTableWidget" name="tableWidgetOutput">
+     <property name="editTriggers">
+      <set>QAbstractItemView::AllEditTriggers</set>
+     </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectItems</enum>
      </property>
