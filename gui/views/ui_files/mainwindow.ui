@@ -62,7 +62,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="tabsClosable">
        <bool>false</bool>
@@ -813,7 +813,23 @@ QGroupBox::title {
            <string/>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
-           <item row="2" column="0">
+           <item row="1" column="0">
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="2" column="1">
             <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -829,44 +845,7 @@ QGroupBox::title {
              </property>
             </spacer>
            </item>
-           <item row="3" column="1" colspan="2">
-            <widget class="QGroupBox" name="groupBox_7">
-             <property name="title">
-              <string/>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_8">
-              <item row="0" column="0">
-               <widget class="QLineEdit" name="lineEdit"/>
-              </item>
-              <item row="0" column="1">
-               <widget class="QPushButton" name="pushButton_3">
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="../../resources/icons.qrc">
-                  <normaloff>:/sampling/open_icon.svg</normaloff>:/sampling/open_icon.svg</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QPushButton" name="pushButton_4">
-                <property name="text">
-                 <string>PushButton</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="3">
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>Design of Experiments (DOE) Settings</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
+           <item row="1" column="1">
             <widget class="QRadioButton" name="radioButton">
              <property name="text">
               <string>Set LHS inputs:</string>
@@ -876,7 +855,7 @@ QGroupBox::title {
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="3" column="1">
             <widget class="QRadioButton" name="radioButton_2">
              <property name="text">
               <string>Load data from CSV file:</string>
@@ -886,7 +865,23 @@ QGroupBox::title {
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
+           <item row="4" column="1">
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Maximum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="2" colspan="2">
             <widget class="QGroupBox" name="groupBox_5">
              <property name="enabled">
               <bool>false</bool>
@@ -896,21 +891,39 @@ QGroupBox::title {
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
-               <widget class="QLineEdit" name="lineEdit_10">
-                <property name="readOnly">
+               <widget class="QTableWidget" name="tableWidget_2">
+                <attribute name="horizontalHeaderStretchLastSection">
                  <bool>true</bool>
-                </property>
+                </attribute>
+                <column>
+                 <property name="text">
+                  <string>Variable</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Lower bound</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Upper bound</string>
+                 </property>
+                </column>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton">
                 <property name="text">
-                 <string>PushButton</string>
+                 <string>Generate LHS</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_2">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Latin Hypercube Sampling (LHS) settings&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -923,26 +936,60 @@ QGroupBox::title {
              </layout>
             </widget>
            </item>
-           <item row="4" column="0">
-            <spacer name="verticalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+           <item row="3" column="2" colspan="2">
+            <widget class="QGroupBox" name="groupBox_7">
+             <property name="title">
+              <string/>
              </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QLineEdit" name="lineEdit">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_3">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select .csv file to extract the data from&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../resources/icons.qrc">
+                  <normaloff>:/sampling/open_icon.svg</normaloff>:/sampling/open_icon.svg</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_4">
+                <property name="text">
+                 <string>CSV editor</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_15">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
+             <property name="text">
+              <string>Design of Experiments (DOE) Settings</string>
              </property>
-            </spacer>
+            </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QGroupBox" name="groupBox_4">
           <property name="styleSheet">
            <string notr="true">QGroupBox {
@@ -959,9 +1006,47 @@ QGroupBox::title {
 }</string>
           </property>
           <property name="title">
-           <string>GroupBox</string>
+           <string/>
           </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="1" column="0">
+            <widget class="QTableWidget" name="tableWidget">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>DOE Results</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
+        </item>
+        <item row="1" column="0">
+         <spacer name="verticalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -1033,12 +1118,12 @@ QGroupBox::title {
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>195</x>
-     <y>290</y>
+     <x>211</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>485</x>
-     <y>294</y>
+     <x>661</x>
+     <y>84</y>
     </hint>
    </hints>
   </connection>
@@ -1049,12 +1134,12 @@ QGroupBox::title {
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>179</x>
-     <y>352</y>
+     <x>195</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
-     <x>208</x>
-     <y>328</y>
+     <x>390</x>
+     <y>286</y>
     </hint>
    </hints>
   </connection>

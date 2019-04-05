@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     w = MainWindow()
-    # app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     w.setTreeTxtFilesPath(stream_file, blocks_file)
     w.show()
 
