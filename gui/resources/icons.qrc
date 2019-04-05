@@ -2,4 +2,7 @@
   <qresource prefix="sampling">
     <file>settings_icon.svg</file>
   </qresource>
+  <qresource prefix="loadsim">
+    <file>add_icon.svg</file>
+  </qresource>
 </RCC>
