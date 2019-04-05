@@ -166,7 +166,7 @@ class AspenConnection(object):
         """
         Retrieve selected thermodynamic method
         """
-        return self._aspen.Tree.FindNode(r"\Data\Properties\Specifications\Input\GOPSETNAME").Value
+        return [self._aspen.Tree.FindNode(r"\Data\Properties\Specifications\Input\GOPSETNAME").Value]
 
     def GetBlocksName(self):
         """

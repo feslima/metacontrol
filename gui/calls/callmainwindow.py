@@ -1,10 +1,10 @@
 import pathlib
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QTableWidgetItem
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QTableWidgetItem, QCompleter
+from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QBrush
 
 from gui.views.py_files.mainwindow import *
-from gui.calls.callsimulationtree import LoadSimulationTreeDialog
+from gui.calls.callsimulationtree import LoadSimulationTreeDialog, AliasEditorDelegate
 from gui.models.data_storage import DataStorage
 from gui.models.math_check import ValidMathStr, is_expression_valid
 
@@ -32,11 +32,13 @@ class MainWindow(QMainWindow):
         self.ui.buttonAddExpr.clicked.connect(self.insertRowExpression)
 
         # some widget initializations
-        self.ui.tableWidgetExpressions.setColumnWidth(0, 750)
-        self._math_expr_delegate = ExpressionEditorDelegate()
+        self.ui.tableWidgetExpressions.setColumnWidth(1, 700)
+        self._expr_name_delegate = AliasEditorDelegate()
+        self._math_expr_delegate = ExpressionEditorDelegate(self.ui.tableWidgetAliasDisplay, self.application_database)
         self._expr_type_delegate = ComboxBoxExpressionTypeDelegate()
-        self.ui.tableWidgetExpressions.setItemDelegateForColumn(0, self._math_expr_delegate)
-        self.ui.tableWidgetExpressions.setItemDelegateForColumn(1, self._expr_type_delegate)
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(0, self._expr_name_delegate)
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(1, self._math_expr_delegate)
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(2, self._expr_type_delegate)
 
     # open simulation file
     def openSimFileDialog(self):
@@ -55,6 +57,7 @@ class MainWindow(QMainWindow):
             # it's a valid file. Set its path as string and color. Also make its filepath available to the ui
             self.sim_filename = sim_filename
             self.ui.textBrowserSimFile.setText(sim_filename)
+            self.ui.textBrowserSimFile.setStyleSheet("")
             self.ui.buttonLoadVariables.setEnabled(True)  # deactivate load button
 
     # open simulationtree dialog
@@ -71,18 +74,18 @@ class MainWindow(QMainWindow):
 
                 simulation_form_data = self.application_database.getSimulationDataDictionary()
 
-                # set the simulation form data
+                # -------------------------------- set the simulation form data --------------------------------
                 self.ui.lineEditComponents.setText(str(len(simulation_form_data['components'])))
                 self.ui.lineEditBlocks.setText(str(len(simulation_form_data['blocks'])))
                 self.ui.lineEditStreams.setText(str(len(simulation_form_data['streams'])))
-                self.ui.lineEditMethodName.setText(str(simulation_form_data['therm_method']))
+                self.ui.lineEditMethodName.setText(str(simulation_form_data['therm_method'][0]))
                 self.ui.lineEditReactions.setText(str(len(simulation_form_data['reactions'])))
                 self.ui.lineEditSensAnalysis.setText(str(len(simulation_form_data['sens_analysis'])))
                 self.ui.lineEditCalculators.setText(str(len(simulation_form_data['calculators'])))
                 self.ui.lineEditOptimizations.setText(str(len(simulation_form_data['optimizations'])))
                 self.ui.lineEditDesSpecs.setText(str(len((simulation_form_data['design_specs']))))
 
-                # set alias table data
+                # -------------------------------- set alias table data --------------------------------
                 alias_table_view = self.ui.tableWidgetAliasDisplay
 
                 new_aliases_to_insert = []
@@ -113,10 +116,29 @@ class MainWindow(QMainWindow):
                     alias_table_view.setItem(i, 0, alias_table_item_name)
                     alias_table_view.setItem(i, 1, alias_table_item_type)
 
+                # -------------------------------- set the simulation info table data --------------------------------
+                n_rows = len(simulation_form_data[max(simulation_form_data,
+                                                      key=lambda x: len(set(simulation_form_data[x])))])
+                siminfo_table = self.ui.tableWidgetSimulationData
+
+                # clear the table
+                siminfo_table.setRowCount(0)
+                siminfo_table.setRowCount(n_rows)
+
+                keys_list = [key for key in simulation_form_data.keys() if key != 'therm_method']
+                for col in range(len(keys_list)):
+                    for r in range(len(simulation_form_data[keys_list[col]])):
+                        item = QTableWidgetItem(simulation_form_data[keys_list[col]][r])
+                        item.setTextAlignment(Qt.AlignCenter)
+                        siminfo_table.setItem(r, col, item)
+
     def insertRowExpression(self):
         expr_table_view = self.ui.tableWidgetExpressions
         last_row = expr_table_view.rowCount()
         expr_table_view.insertRow(last_row)
+
+        table_expr_name = QtWidgets.QTableWidgetItem('expr_' + str(last_row))
+        table_expr_name.setTextAlignment(Qt.AlignCenter)
 
         table_expr_item = QtWidgets.QTableWidgetItem('Type expression')
         table_expr_item.setForeground(QBrush(Qt.red))
@@ -125,8 +147,9 @@ class MainWindow(QMainWindow):
         table_item_type = QtWidgets.QTableWidgetItem('Choose a type')
         table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))
 
-        expr_table_view.setItem(last_row, 0, table_expr_item)
-        expr_table_view.setItem(last_row, 1, table_item_type)
+        expr_table_view.setItem(last_row, 0, table_expr_name)
+        expr_table_view.setItem(last_row, 1, table_expr_item)
+        expr_table_view.setItem(last_row, 2, table_item_type)
 
     # mock function to load tree from txt file
     def setTreeTxtFilesPath(self, streams_file, blocks_file):
@@ -136,10 +159,34 @@ class MainWindow(QMainWindow):
 
 class ExpressionEditorDelegate(QtWidgets.QItemDelegate):
 
+    def __init__(self, alias_table, gui_data, parent=None):
+        QtWidgets.QItemDelegate.__init__(self, parent)
+        self.alias_table = alias_table
+        self.gui_data = gui_data
+
     def createEditor(self, parent, option, index):
         line_editor = QtWidgets.QLineEdit(parent)
         line_editor.setAlignment(Qt.AlignCenter)
 
+        completer = QCompleter()
+        line_editor.setCompleter(completer)
+
+        model = QStringListModel()
+        completer.setModel(model)
+        completer.setFilterMode(Qt.MatchContains)
+
+        # get aliases in display and set them to the completer
+        vars_list = [self.gui_data.getInputTableData(),
+                     self.gui_data.getOutputTableData()]
+        if vars_list[0] is not None and vars_list[1] is not None:
+            aliases_in_display = []
+
+            aliases_in_display.extend([input_row[1] for input_row in vars_list[0]])
+            aliases_in_display.extend([output_row[1] for output_row in vars_list[1]])
+
+            model.setStringList(aliases_in_display)
+
+        # insert the validator
         exp_validator = ValidMathStr(line_editor)
         line_editor.setValidator(exp_validator)
 
@@ -147,9 +194,10 @@ class ExpressionEditorDelegate(QtWidgets.QItemDelegate):
 
     def setModelData(self, editor, model, index):
         text = editor.text()
+        aliases_in_display = editor.completer().model().stringList()
 
         model.setData(index, text, Qt.EditRole)
-        if is_expression_valid(text):
+        if is_expression_valid(text, aliases_in_display):
             model.setData(index, QBrush(Qt.green), Qt.ForegroundRole)
         else:
             model.setData(index, QBrush(Qt.red), Qt.ForegroundRole)

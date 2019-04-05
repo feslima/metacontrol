@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="sampling">
+    <file>open_icon.svg</file>
     <file>settings_icon.svg</file>
   </qresource>
   <qresource prefix="loadsim">

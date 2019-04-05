@@ -292,8 +292,8 @@ class LoadSimulationTreeDialog(QDialog):
             progress_dialog.setValue(3)
 
             # set the simulation data dictionary to fill the form in mainwindow. THIS IS A DUMMY DICTIONARY
-            simulation_data = {'components': ['PROPANE', 'PROPANE'],
-                               'therm_method': 'PENG-ROB',
+            simulation_data = {'components': ['PROPANE', 'PROPENE'],
+                               'therm_method': ['PENG-ROB'],
                                'blocks': ['TOWER'],
                                'streams': ['B', 'D', 'F'],
                                'reactions': [],
