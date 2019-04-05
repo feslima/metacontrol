@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1026</width>
-    <height>768</height>
+    <height>859</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -74,8 +74,8 @@
        <attribute name="title">
         <string>Load Simulation</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_6">
+        <item row="0" column="0">
          <widget class="QGroupBox" name="groupBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -86,7 +86,7 @@
           <property name="minimumSize">
            <size>
             <width>475</width>
-            <height>680</height>
+            <height>500</height>
            </size>
           </property>
           <property name="maximumSize">
@@ -113,61 +113,6 @@ QGroupBox::title {
            <string/>
           </property>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="4" column="1">
-            <widget class="QLabel" name="label_11">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Selected variables aliases</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QLabel" name="label_12">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Functions definitions</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_13">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Load Simulation File</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>10</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
            <item row="1" column="2">
             <widget class="QPushButton" name="buttonOpenSimFile">
              <property name="sizePolicy">
@@ -202,6 +147,22 @@ QGroupBox::title {
              </property>
             </widget>
            </item>
+           <item row="3" column="1">
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item row="2" column="2">
             <widget class="QPushButton" name="buttonLoadVariables">
              <property name="enabled">
@@ -227,37 +188,25 @@ QGroupBox::title {
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="5" column="1" colspan="2">
+            <widget class="QTableWidget" name="tableWidgetAliasDisplay">
+             <property name="sortingEnabled">
+              <bool>true</bool>
              </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="1" column="3">
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Alias</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Type</string>
+              </property>
+             </column>
+            </widget>
            </item>
            <item row="1" column="1" rowspan="2">
             <widget class="QTextBrowser" name="textBrowserSimFile">
@@ -285,6 +234,48 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
+           <item row="1" column="3">
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_13">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Load Simulation File</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="label_11">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Selected variables aliases</string>
+             </property>
+            </widget>
+           </item>
            <item row="6" column="1">
             <spacer name="verticalSpacer_6">
              <property name="orientation">
@@ -301,57 +292,31 @@ p, li { white-space: pre-wrap; }
              </property>
             </spacer>
            </item>
-           <item row="5" column="1" colspan="2">
-            <widget class="QTableWidget" name="tableWidgetAliasDisplay">
-             <property name="sortingEnabled">
-              <bool>true</bool>
+           <item row="1" column="0">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-             <column>
-              <property name="text">
-               <string>Alias</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Type</string>
-              </property>
-             </column>
-            </widget>
-           </item>
-           <item row="8" column="1" colspan="2">
-            <widget class="QTableWidget" name="tableWidgetExpressions">
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-             <row>
-              <property name="text">
-               <string>1</string>
-              </property>
-             </row>
-             <column>
-              <property name="text">
-               <string>Expression</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Type</string>
-              </property>
-             </column>
-            </widget>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
         </item>
-        <item>
+        <item row="0" column="1">
          <widget class="QGroupBox" name="groupBox_2">
           <property name="minimumSize">
            <size>
             <width>475</width>
-            <height>680</height>
+            <height>500</height>
            </size>
           </property>
           <property name="styleSheet">
@@ -372,34 +337,21 @@ QGroupBox::title {
            <string/>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
-           <item row="2" column="1">
-            <spacer name="verticalSpacer_7">
+           <item row="1" column="2">
+            <spacer name="horizontalSpacer">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Horizontal</enum>
              </property>
              <property name="sizeType">
               <enum>QSizePolicy::Fixed</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>20</width>
-               <height>10</height>
+               <width>10</width>
+               <height>20</height>
               </size>
              </property>
             </spacer>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLabel" name="label_10">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Description Info</string>
-             </property>
-            </widget>
            </item>
            <item row="1" column="0">
             <spacer name="horizontalSpacer_4">
@@ -417,65 +369,18 @@ QGroupBox::title {
              </property>
             </spacer>
            </item>
-           <item row="4" column="1">
-            <widget class="QTableWidget" name="tableWidgetSimulationData">
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-             <column>
-              <property name="text">
-               <string>Components</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Blocks</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Streams</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Reactions</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Sensitivity</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Calculators</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Optimizations</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Design Specs</string>
-              </property>
-             </column>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <spacer name="horizontalSpacer">
+           <item row="2" column="1">
+            <spacer name="verticalSpacer_7">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Vertical</enum>
              </property>
              <property name="sizeType">
               <enum>QSizePolicy::Fixed</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>10</width>
-               <height>20</height>
+               <width>20</width>
+               <height>10</height>
               </size>
              </property>
             </spacer>
@@ -691,15 +596,31 @@ QGroupBox::title {
              </item>
             </layout>
            </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="label_10">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Description Info</string>
+             </property>
+            </widget>
+           </item>
            <item row="5" column="1">
             <spacer name="verticalSpacer_5">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>40</height>
+               <height>10</height>
               </size>
              </property>
             </spacer>
@@ -715,6 +636,137 @@ QGroupBox::title {
              <property name="text">
               <string>Simulation Info</string>
              </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QTableWidget" name="tableWidgetSimulationData">
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Components</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Blocks</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Streams</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Reactions</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Sensitivity</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Calculators</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Optimizations</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Design Specs</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="styleSheet">
+           <string notr="true">QGroupBox {
+    border: 1px solid gray;
+    border-radius: 9px;
+	font-weight: bold;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    top: 5px;
+    padding: 0 3px 0 3px;
+}</string>
+          </property>
+          <property name="title">
+           <string/>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Functions definitions</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="buttonAddExpr">
+               <property name="text">
+                <string>Add Expression</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../resources/icons.qrc">
+                 <normaloff>:/loadsim/add_icon.svg</normaloff>:/loadsim/add_icon.svg</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QTableWidget" name="tableWidgetExpressions">
+             <property name="editTriggers">
+              <set>QAbstractItemView::AllEditTriggers</set>
+             </property>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Expression</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Type</string>
+              </property>
+             </column>
             </widget>
            </item>
           </layout>
@@ -901,8 +953,8 @@ QGroupBox::title {
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>103</y>
+     <x>292</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
      <x>334</x>
@@ -917,12 +969,12 @@ QGroupBox::title {
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>187</x>
-     <y>208</y>
+     <x>132</x>
+     <y>413</y>
     </hint>
     <hint type="destinationlabel">
-     <x>275</x>
-     <y>219</y>
+     <x>405</x>
+     <y>415</y>
     </hint>
    </hints>
   </connection>

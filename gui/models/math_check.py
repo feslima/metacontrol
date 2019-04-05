@@ -8,11 +8,20 @@ class ValidMathStr(QValidator):
         self.parser = Parser()
 
     def validate(self, string, pos):
-        # print('validate(): ', type(string), type(pos), string, pos)
         try:
             self.parser.parse(string)
-            self.parent().setStyleSheet('QLineEdit { background-color: #c4df9b; }')  # green
+            self.parent().setStyleSheet('border: 3px solid green')  # green
             return QValidator.Acceptable, string, pos
         except Exception:
-            self.parent().setStyleSheet('QLineEdit { background-color: #f6989d; }')  # red
+            self.parent().setStyleSheet('border: 3px solid red')  # red
             return QValidator.Intermediate, string, pos
+
+
+def is_expression_valid(expression):
+    parser = Parser()
+
+    try:
+        parser.parse(expression)
+        return True
+    except Exception:
+        return False

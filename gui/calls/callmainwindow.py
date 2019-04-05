@@ -1,10 +1,12 @@
 import pathlib
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QTableWidgetItem
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QBrush
 
 from gui.views.py_files.mainwindow import *
 from gui.calls.callsimulationtree import LoadSimulationTreeDialog
 from gui.models.data_storage import DataStorage
+from gui.models.math_check import ValidMathStr, is_expression_valid
 
 
 class MainWindow(QMainWindow):
@@ -27,8 +29,14 @@ class MainWindow(QMainWindow):
         # signal/socket connections
         self.ui.buttonOpenSimFile.clicked.connect(self.openSimFileDialog)
         self.ui.buttonLoadVariables.clicked.connect(self.openSimTreeDialog)
+        self.ui.buttonAddExpr.clicked.connect(self.insertRowExpression)
 
         # some widget initializations
+        self.ui.tableWidgetExpressions.setColumnWidth(0, 750)
+        self._math_expr_delegate = ExpressionEditorDelegate()
+        self._expr_type_delegate = ComboxBoxExpressionTypeDelegate()
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(0, self._math_expr_delegate)
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(1, self._expr_type_delegate)
 
     # open simulation file
     def openSimFileDialog(self):
@@ -105,9 +113,73 @@ class MainWindow(QMainWindow):
                     alias_table_view.setItem(i, 0, alias_table_item_name)
                     alias_table_view.setItem(i, 1, alias_table_item_type)
 
+    def insertRowExpression(self):
+        expr_table_view = self.ui.tableWidgetExpressions
+        last_row = expr_table_view.rowCount()
+        expr_table_view.insertRow(last_row)
+
+        table_expr_item = QtWidgets.QTableWidgetItem('Type expression')
+        table_expr_item.setForeground(QBrush(Qt.red))
+        table_expr_item.setTextAlignment(Qt.AlignCenter)
+
+        table_item_type = QtWidgets.QTableWidgetItem('Choose a type')
+        table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))
+
+        expr_table_view.setItem(last_row, 0, table_expr_item)
+        expr_table_view.setItem(last_row, 1, table_item_type)
+
+    # mock function to load tree from txt file
     def setTreeTxtFilesPath(self, streams_file, blocks_file):
         self.streams_file = streams_file
         self.blocks_file = blocks_file
+
+
+class ExpressionEditorDelegate(QtWidgets.QItemDelegate):
+
+    def createEditor(self, parent, option, index):
+        line_editor = QtWidgets.QLineEdit(parent)
+        line_editor.setAlignment(Qt.AlignCenter)
+
+        exp_validator = ValidMathStr(line_editor)
+        line_editor.setValidator(exp_validator)
+
+        return line_editor
+
+    def setModelData(self, editor, model, index):
+        text = editor.text()
+
+        model.setData(index, text, Qt.EditRole)
+        if is_expression_valid(text):
+            model.setData(index, QBrush(Qt.green), Qt.ForegroundRole)
+        else:
+            model.setData(index, QBrush(Qt.red), Qt.ForegroundRole)
+
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
+
+
+class ComboxBoxExpressionTypeDelegate(QtWidgets.QItemDelegate):
+
+    def createEditor(self, parent, option, index):
+        combo_box = QtWidgets.QComboBox(parent)
+        type_list = ["Objective function (J)", "Constraint function"]
+
+        combo_box.addItems(type_list)
+
+        return combo_box
+
+    def setEditorData(self, combo_box, index):
+        combo_box.showPopup()
+
+    def setModelData(self, combo_box, model, index):
+        value = combo_box.itemText(combo_box.currentIndex())
+
+        model.setData(index, value, Qt.EditRole)
+        original_backgrd_color = combo_box.palette().color(combo_box.backgroundRole())
+        model.setData(index, QBrush(original_backgrd_color), Qt.BackgroundRole)
+
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
 
 
 if __name__ == '__main__':
