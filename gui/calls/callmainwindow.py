@@ -10,7 +10,6 @@ from gui.models.math_check import ValidMathStr, is_expression_valid
 
 
 class MainWindow(QMainWindow):
-    # TODO: implement mathematical expression parser (28/03/2019)
     def __init__(self):
         # initialization
         self.streams_file = None  # for when the tree txt files are specified
