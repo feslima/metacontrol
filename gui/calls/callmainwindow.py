@@ -21,6 +21,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setWindowState(Qt.WindowMaximized)
 
         # internal variables initialization
         self.sim_filename = ""
@@ -38,6 +39,8 @@ class MainWindow(QMainWindow):
         self.ui.tableWidgetExpressions.setItemDelegateForColumn(0, self._expr_name_delegate)
         self.ui.tableWidgetExpressions.setItemDelegateForColumn(1, self._math_expr_delegate)
         self.ui.tableWidgetExpressions.setItemDelegateForColumn(2, self._expr_type_delegate)
+        self.ui.tableWidgetAliasDisplay.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.ui.tableWidgetSimulationData.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
     # open simulation file
     def openSimFileDialog(self):
@@ -111,6 +114,9 @@ class MainWindow(QMainWindow):
 
                     alias_table_item_name.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                     alias_table_item_type.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+
+                    alias_table_item_name.setTextAlignment(Qt.AlignCenter)
+                    alias_table_item_type.setTextAlignment(Qt.AlignCenter)
 
                     alias_table_view.setItem(i, 0, alias_table_item_name)
                     alias_table_view.setItem(i, 1, alias_table_item_type)
