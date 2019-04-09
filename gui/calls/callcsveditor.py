@@ -1,6 +1,6 @@
 import csv
 import numpy as np
-from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QCheckBox, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QCheckBox, QHBoxLayout, QWidget, QMessageBox
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QBrush
 
@@ -9,13 +9,13 @@ from gui.views.py_files.csv_editor import *
 
 class ComboBoxDelegate(QtWidgets.QItemDelegate):
 
-    def __init__(self, aliases_list, parent=None):
+    def __init__(self, item_list, parent=None):
         QtWidgets.QItemDelegate.__init__(self, parent)
-        self.alias_list = aliases_list
+        self.item_list = item_list
 
     def createEditor(self, parent, option, index):
         combo_box = QtWidgets.QComboBox(parent)
-        combo_box.addItems(self.alias_list)
+        combo_box.addItems(self.item_list)
 
         return combo_box
 
@@ -28,14 +28,16 @@ class ComboBoxDelegate(QtWidgets.QItemDelegate):
 
         # check if the selected value is repeated
         aliases = [model.data(model.index(1, col)) for col in range(model.columnCount())]
-        aliases_popped = aliases.copy()
-        aliases_popped.pop(aliases.index(value))
-        if value in aliases_popped and value != 'Select Alias':
+
+        if aliases.count(value) > 1:
             # value is present, paint the cell red
             model.setData(index, QBrush(Qt.red), Qt.BackgroundRole)
 
             # change the tooltip to warn the user
-            model.parent().item(index.row(), index.column()).setToolTip('Alias already in use!')
+            if value != 'Select Alias':
+                model.parent().item(index.row(), index.column()).setToolTip('Alias already in use!')
+            else:
+                model.parent().item(index.row(), index.column()).setToolTip('Select an alias for this variable!')
         else:
             original_backgrd_color = editor.palette().color(editor.backgroundRole())
             model.setData(index, QBrush(original_backgrd_color), Qt.BackgroundRole)
@@ -55,6 +57,7 @@ class CsvEditorDialog(QDialog):
         self.ui.setupUi(self)
         self.setWindowFlags(Qt.Window)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowState(Qt.WindowMaximized)
 
         # ---------------------- connections ----------------------
         self.ui.okPushButton.clicked.connect(self.okButtonPressed)
@@ -93,6 +96,7 @@ class CsvEditorDialog(QDialog):
             # combo_box delegate for second row (alias setting)
             self.ui.csvTableWidget.setItem(1, j, QTableWidgetItem('Select Alias'))
             self.ui.csvTableWidget.item(1, j).setTextAlignment(Qt.AlignCenter)
+            self.ui.csvTableWidget.item(1, j).setData(Qt.BackgroundRole, QBrush(Qt.red))
             self._combobox_delegates_dict[str(j)] = ComboBoxDelegate(alias_list)
             self.ui.csvTableWidget.setItemDelegateForRow(1, self._combobox_delegates_dict[str(j)])
 
@@ -103,12 +107,36 @@ class CsvEditorDialog(QDialog):
                 value_item.setTextAlignment(Qt.AlignCenter)
                 self.ui.csvTableWidget.setItem(2 + i, j, value_item)
 
-        self.ui.csvTableWidget.horizontalHeader().setMinimumSectionSize(61)
+        # column width adjustments
+        self.ui.csvTableWidget.horizontalHeader().setMinimumSectionSize(80)
+        self.ui.csvTableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.ui.csvTableWidget.horizontalHeader().setStretchLastSection(True)
 
     def okButtonPressed(self):
-        # TODO: implement data filtering to be returned to the mainwindow (06/04/2015)
-        self.accept()
+        table_view = self.ui.csvTableWidget
+        table_model = table_view.model()
+
+        # warn the user if the aliases are not properly set
+        aliases = [table_model.data(table_model.index(1, col)) for col in range(table_model.columnCount())
+                   if table_view.cellWidget(0, col).findChild(QCheckBox).isChecked()]
+
+        if len(aliases) != len(set(aliases)):
+            msg_box = QtWidgets.QMessageBox()
+            msg_box.setIcon(QtWidgets.QMessageBox.Warning)
+            msg_box.setText("Some aliases set were found to be duplicated or not selected!")
+            msg_box.setWindowTitle("Duplicated alias")
+            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+            msg_box.exec()
+
+        else:
+            # TODO: (09/04/2019) check if the number of columns is equal to the number of aliases chosen. If not, warn
+            # get the checkboxes states
+            # for col in range(table_view.columnCount()):
+            #     if table_view.cellWidget(0, col).findChild(QCheckBox).isChecked():
+
+
+            self.accept()
 
     def _checkbox_changed(self):
         chk_handle = self.sender()

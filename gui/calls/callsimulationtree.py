@@ -188,7 +188,7 @@ class LoadSimulationTreeDialog(QDialog):
                 for i in range(row_position):
                     row_list.append(table_view.model().index(i, 0).data())  # get all rows in table
 
-                if branch_str not in row_list:  # there isn't the value in table. Insert it
+                if branch_str not in row_list:  # the value isn't in the table. Insert it
                     self.insertNewSingleRow(table_view, row_position, branch_str)
 
                 else:

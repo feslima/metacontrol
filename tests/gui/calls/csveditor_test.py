@@ -8,9 +8,10 @@ if __name__ == '__main__':
     import qdarkstyle
 
     base_path = pathlib.Path(__file__).parent.parent
-    file_path = base_path / "csv_editor/cumene_csv.csv"
+    file_path = base_path / "csv_editor/column.csv"
+    # file_path = base_path / "csv_editor/cumene_csv.csv"
 
-    alias_list_test = ['Select Alias', 'xd', 'xb', 'rr', 'df', 'j', 'vf', 'd', 'f']
+    alias_list_test = ['Select Alias', 'RR', 'DF', 'LF', 'VF', 'xD', 'xB', 'QR', 'J']
 
     app = QApplication(sys.argv)
 
