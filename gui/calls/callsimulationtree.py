@@ -238,15 +238,15 @@ class LoadSimulationTreeDialog(QDialog):
         in_model = in_table.model()
         input_data = []
         for row in range(in_model.rowCount()):
-            input_data.append([in_model.data(in_model.index(row, 0)),
-                               in_model.data(in_model.index(row, 1)),
-                               in_model.data(in_model.index(row, 2))])
+            input_data.append({'Path': in_model.data(in_model.index(row, 0)),
+                               'Alias': in_model.data(in_model.index(row, 1)),
+                               'Type': in_model.data(in_model.index(row, 2))})
 
         out_model = out_table.model()
         output_data = []
         for row in range(out_model.rowCount()):
-            output_data.append([out_model.data(out_model.index(row, 0)),
-                                out_model.data(out_model.index(row, 1))])
+            output_data.append({'Path': out_model.data(out_model.index(row, 0)),
+                                'Alias': out_model.data(out_model.index(row, 1))})
 
         if any('Choose a type' in input_data_row for input_data_row in input_data):
             # the user did not choose a type for a selected variable. Alert him to do so.
@@ -311,7 +311,8 @@ class LoadSimulationTreeDialog(QDialog):
             progress_dialog.setValue(1)
 
             # load the tree from the connection file
-            progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nLoading Stream variables...')
+            progress_dialog.setLabelText(
+                'Please wait while the variable tree is loaded...\nLoading Stream variables...')
 
             stream_raw = read_simulation_tree_from_fileobject(aspen_com.GenerateTreeFile(r"\Data\Streams"))
             progress_dialog.setValue(2)
@@ -350,6 +351,7 @@ class LoadSimulationTreeDialog(QDialog):
 
 if __name__ == '__main__':
     import sys
+
     app = QApplication(sys.argv)
 
     import os

@@ -94,11 +94,11 @@ class MainWindow(QMainWindow):
                 new_types_to_insert = []
 
                 for input_row in vars_list[0]:
-                    new_aliases_to_insert.append(input_row[1])
-                    new_types_to_insert.append(input_row[2])
+                    new_aliases_to_insert.append(input_row['Alias'])
+                    new_types_to_insert.append(input_row['Type'])
 
                 for output_row in vars_list[1]:
-                    new_aliases_to_insert.append(output_row[1])
+                    new_aliases_to_insert.append(output_row['Alias'])
                     new_types_to_insert.append("Candidate (CV)")
 
                 num_rows_alias = alias_table_view.rowCount()
