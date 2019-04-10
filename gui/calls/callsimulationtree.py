@@ -248,19 +248,30 @@ class LoadSimulationTreeDialog(QDialog):
             output_data.append({'Path': out_model.data(out_model.index(row, 0)),
                                 'Alias': out_model.data(out_model.index(row, 1))})
 
-        if any('Choose a type' in input_data_row for input_data_row in input_data):
+        input_aliases_list = [entry['Alias'] for entry in input_data]
+        output_aliases_list = [entry['Alias'] for entry in output_data]
+
+        is_alias_duplicated = True if len(input_aliases_list + output_aliases_list) != \
+                                      len(set(input_aliases_list + output_aliases_list)) else False
+        is_input_alias_defined = True if 'Choose a type' in [input_data_row['Type']
+                                                             for input_data_row in input_data] else False
+        if is_input_alias_defined:
             # the user did not choose a type for a selected variable. Alert him to do so.
-            msg_box = QtWidgets.QMessageBox()
-            msg_box.setIcon(QtWidgets.QMessageBox.Warning)
-            msg_box.setText("At least one of the selected input variables does not have a defined type (either MV or "
-                            "d). You have to define it for all of them!")
-            msg_box.setWindowTitle("Input variable without type detected")
-            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msg_box_text = "At least one of the selected input variables does not have a defined type (either MV or " \
+                           "d). You have to define it for all of them!"
+            msg_box_title = "Input variable without type detected"
 
-            msg_box.exec()
+            self.warnTheUserDialog(msg_box_text, msg_box_title)
 
-        else:
-            # both tables empty or both filled, proceed as normal
+        if is_alias_duplicated:
+            # warn the user of duplicate entries
+            msg_box_text = "Duplicated aliases found. Input AND output aliases must be unique."
+            msg_box_title = "Duplicated aliases"
+
+            self.warnTheUserDialog(msg_box_text, msg_box_title)
+
+        if not is_input_alias_defined and not is_alias_duplicated:
+            # input aliases properly defined and no duplicated detected, proceed as normal
             self.gui_data.setInputTableData(input_data)
             self.gui_data.setOutputTableData(output_data)
 
@@ -347,6 +358,15 @@ class LoadSimulationTreeDialog(QDialog):
         # enable ok and load buttons
         self.ui.pushButtonLoadTreeFromFile.setEnabled(True)
         self.ui.pushButtonOK.setEnabled(True)
+
+    def warnTheUserDialog(self, text, box_title):
+        msg_box = QtWidgets.QMessageBox()
+        msg_box.setIcon(QtWidgets.QMessageBox.Warning)
+        msg_box.setText(text)
+        msg_box.setWindowTitle(box_title)
+        msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+        msg_box.exec()
 
 
 if __name__ == '__main__':
