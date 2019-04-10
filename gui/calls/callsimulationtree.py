@@ -224,11 +224,18 @@ class LoadSimulationTreeDialog(QDialog):
     def insertDataOnTableCreation(self, table_view, table_data):
         for i in range(len(table_data)):
             table_view.insertRow(i)
-            for j in range(len(table_data[i])):
-                item_placeholder = QtWidgets.QTableWidgetItem(table_data[i][j])
-                if j == 0:  # disable editing for first column
-                    item_placeholder.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                table_view.setItem(i, j, item_placeholder)
+
+            if table_view.objectName() == 'tableWidgetInput':
+                first_col_item = QtWidgets.QTableWidgetItem(table_data[i]['Path'])
+                first_col_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                table_view.setItem(i, 0, first_col_item)
+                table_view.setItem(i, 1, QtWidgets.QTableWidgetItem(table_data[i]['Alias']))
+                table_view.setItem(i, 2, QtWidgets.QTableWidgetItem(table_data[i]['Type']))
+            else:
+                first_col_item = QtWidgets.QTableWidgetItem(table_data[i]['Path'])
+                first_col_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                table_view.setItem(i, 0, first_col_item)
+                table_view.setItem(i, 1, QtWidgets.QTableWidgetItem(table_data[i]['Alias']))
 
     def okButtonPressed(self):
         # read the data from the tables
