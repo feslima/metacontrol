@@ -347,6 +347,8 @@ class LoadSimulationTreeDialog(QDialog):
             aspen_com.Destructor()
 
         # Populate the data
+        self.ui.treeViewInput.model().removeRows(0, self.ui.treeViewInput.model().rowCount())
+        self.ui.treeViewOutput.model().removeRows(0, self.ui.treeViewOutput.model().rowCount())
 
         # load the stream tree
         progress_dialog.setLabelText('Please wait while the variable tree is loaded...\nConstructing the trees...')
