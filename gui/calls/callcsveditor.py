@@ -120,7 +120,7 @@ class CsvEditorDialog(QDialog):
         aliases = [table_model.data(table_model.index(1, col)) for col in range(table_model.columnCount())
                    if table_view.cellWidget(0, col).findChild(QCheckBox).isChecked()]
 
-        if len(aliases) != len(set(aliases)):
+        if len(aliases) != len(set(aliases)) or 'Select Alias' in aliases:
             msg_box = QtWidgets.QMessageBox()
             msg_box.setIcon(QtWidgets.QMessageBox.Warning)
             msg_box.setText("Some aliases set were found to be duplicated or not selected!")
@@ -130,11 +130,7 @@ class CsvEditorDialog(QDialog):
             msg_box.exec()
 
         else:
-            # TODO: (09/04/2019) check if the number of columns is equal to the number of aliases chosen. If not, warn
-            # get the checkboxes states
-            # for col in range(table_view.columnCount()):
-            #     if table_view.cellWidget(0, col).findChild(QCheckBox).isChecked():
-
+            # concatenate the checked columns
 
             self.accept()
 
