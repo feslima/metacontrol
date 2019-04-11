@@ -30,6 +30,7 @@ class MainWindow(QMainWindow):
         self.ui.buttonOpenSimFile.clicked.connect(self.openSimFileDialog)
         self.ui.buttonLoadVariables.clicked.connect(self.openSimTreeDialog)
         self.ui.buttonAddExpr.clicked.connect(self.insertRowExpression)
+        self.ui.tableWidgetExpressions.itemChanged.connect(self.expressionTableCheck)  # expression table changed event
 
         # some widget initializations
         self.ui.tableWidgetExpressions.setColumnWidth(1, 700)
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
         self.ui.tableWidgetExpressions.setItemDelegateForColumn(2, self._expr_type_delegate)
         self.ui.tableWidgetAliasDisplay.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.ui.tableWidgetSimulationData.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.ui.tabMainWidget.setTabEnabled(1, False)  # disable sampling tab
 
     # open simulation file
     def openSimFileDialog(self):
@@ -121,6 +123,9 @@ class MainWindow(QMainWindow):
                     alias_table_view.setItem(i, 0, alias_table_item_name)
                     alias_table_view.setItem(i, 1, alias_table_item_type)
 
+                # do a check of expressions
+                self.expressionTableCheck()
+
                 # -------------------------------- set the simulation info table data --------------------------------
                 n_rows = len(simulation_form_data[max(simulation_form_data,
                                                       key=lambda x: len(set(simulation_form_data[x])))])
@@ -160,6 +165,27 @@ class MainWindow(QMainWindow):
     def setTreeTxtFilesPath(self, streams_file, blocks_file):
         self.streams_file = streams_file
         self.blocks_file = blocks_file
+
+    def expressionTableCheck(self):
+        """
+        Check if there are duplicated expression names, invalid names and undefined expression types. If everything is
+        ok, enable the sampling tab, otherwise update the expression table information.
+        """
+        # check if there are duplicated aliases
+        expr_table_view = self.ui.tableWidgetExpressions
+        expr_model = expr_table_view.model()
+
+        expr_info = []
+        for row in range(expr_model.rowCount()):
+            expr_info.append({'Name': expr_model.data(row, 0),
+                              'Expr': expr_model.data(row, 1),
+                              'Type': expr_model.data(row, 2)})
+
+        is_name_duplicated = True if len([entry['Name'] for entry in expr_info]) != \
+                                     len(set([entry['Name'] for entry in expr_info])) else False
+
+        # TODO: (10/04/2019) Finish expression check (REMEMBER: only enable the sampling tab is expr table is not
+        #  empty and valid
 
 
 class ExpressionEditorDelegate(QtWidgets.QItemDelegate):

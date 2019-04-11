@@ -67,7 +67,10 @@
       <property name="tabsClosable">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="simulationTab">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
@@ -788,7 +791,10 @@ QGroupBox::title {
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="samplingTab">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <attribute name="title">
         <string>Sampling</string>
        </attribute>
@@ -1051,16 +1057,25 @@ QGroupBox::title {
        </layout>
       </widget>
       <widget class="QWidget" name="tab_3">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <attribute name="title">
         <string>Page</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="tab_4">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <attribute name="title">
         <string>Page</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="tab_5">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <attribute name="title">
         <string>Page</string>
        </attribute>
