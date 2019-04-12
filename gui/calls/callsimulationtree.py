@@ -53,6 +53,15 @@ class AliasEditorDelegate(QtWidgets.QItemDelegate):
 
         model.setData(index, text, Qt.EditRole)
 
+        # check if the alias is duplicated
+        current_aliases = [model.data(model.index(row, index.column())) for row in range(model.rowCount())]
+
+        if current_aliases.count(text) > 1:
+            model.setData(index, QBrush(Qt.red), Qt.BackgroundRole)
+        else:
+            original_backgrd_color = line_editor.palette().color(line_editor.backgroundRole())
+            model.setData(index, QBrush(original_backgrd_color), Qt.BackgroundRole)
+
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
 
