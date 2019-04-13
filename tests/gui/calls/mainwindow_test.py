@@ -13,7 +13,18 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = MainWindow()
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-    w.setTreeTxtFilesPath(stream_file, blocks_file)
+    w.loadsimtab.setTreeTxtFilesPath(stream_file, blocks_file)
     w.show()
 
+    def my_exception_hook(exctype, value, tback):
+        # Print the error and traceback
+        print(exctype, value, tback)
+        # Call the normal Exception hook after
+        sys.__excepthook__(exctype, value, tback)
+        sys.exit()
+
+    sys._excepthook = sys.excepthook
+
+    # Set the exception hook to our wrapping function
+    sys.excepthook = my_exception_hook
     sys.exit(app.exec_())
