@@ -11,10 +11,11 @@ from gui.views.py_files.loadsimtab import Ui_Form
 
 
 class LoadSimTab(QWidget):
-    def __init__(self, application_database, parent_tab, parent_tab_widget):
+    def __init__(self, application_database, parent_tab=None, parent_tab_widget=None):
         # ------------------------------ Form Initialization ----------------------------
         super().__init__()
         self.ui = Ui_Form()
+        parent_tab = parent_tab if parent_tab is not None else self
         self.ui.setupUi(parent_tab)
         self.parentTabMainWidget = parent_tab_widget
 
@@ -277,7 +278,7 @@ class ComboxBoxExpressionTypeDelegate(QItemDelegate):
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
-    w = LoadSimTab(DataStorage())
+    w = LoadSimTab(DataStorage(), None, None)
     w.show()
 
     sys.exit(app.exec_())
