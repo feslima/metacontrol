@@ -127,13 +127,37 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionOpenSimFile">
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/sampling/open_icon.svg</normaloff>:/sampling/open_icon.svg</iconset>
+   </property>
    <property name="text">
-    <string>openSimFile</string>
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Opens a .mtc file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/sampling/save_icon.svg</normaloff>:/sampling/save_icon.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

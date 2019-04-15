@@ -29,6 +29,9 @@ class LoadSimTab(QWidget):
         self.ui.buttonOpenSimFile.clicked.connect(self.openSimFileDialog)
         self.ui.buttonLoadVariables.clicked.connect(self.openSimTreeDialog)
         self.ui.buttonAddExpr.clicked.connect(self.insertRowExpression)
+        # FIXME: the expression table itemChanged signal is connected to a table check, every time a single item changes
+        #   the entire table is checked. This may cause perfomance problems in the future.
+        self.ui.tableWidgetExpressions.itemChanged.connect(self.expressionTableCheck)
 
         # ------------------------------ Widget Initialization ------------------------------
         self.ui.tableWidgetExpressions.setColumnWidth(1, 700)
@@ -47,6 +50,7 @@ class LoadSimTab(QWidget):
         sim_filename, sim_filetype = QFileDialog.getOpenFileName(self, "Select .bkp simulation file", homedir,
                                                                  "BKP files (*.bkp);; Input files (*.inp)")
 
+        self.ui.textBrowserSimFile.setToolTip("")
         if sim_filename == "" or (sim_filetype != "BKP files (*.bkp)" and sim_filetype != "Input files (*.inp)"):
             # user canceled the file dialog or selected invalid file
             if self.ui.textBrowserSimFile.styleSheet() != "color: blue":  # if there isn't an invalid path already
@@ -59,7 +63,7 @@ class LoadSimTab(QWidget):
             self.sim_filename = sim_filename
             self.ui.textBrowserSimFile.setText(sim_filename)
             self.ui.textBrowserSimFile.setStyleSheet("")
-            self.ui.buttonLoadVariables.setEnabled(True)  # deactivate load button
+            self.ui.buttonLoadVariables.setEnabled(True)  # activate load button
 
     # open simulationtree dialog
     def openSimTreeDialog(self):
@@ -70,74 +74,7 @@ class LoadSimTab(QWidget):
 
             if dialog.exec_():
                 # the ok button was pressed, get the variables the user selected and update other ui items
-                vars_list = [self.application_database.getInputTableData(),
-                             self.application_database.getOutputTableData()]
-
-                simulation_form_data = self.application_database.getSimulationDataDictionary()
-
-                # -------------------------------- set the simulation form data --------------------------------
-                self.ui.lineEditComponents.setText(str(len(simulation_form_data['components'])))
-                self.ui.lineEditBlocks.setText(str(len(simulation_form_data['blocks'])))
-                self.ui.lineEditStreams.setText(str(len(simulation_form_data['streams'])))
-                self.ui.lineEditMethodName.setText(str(simulation_form_data['therm_method'][0]))
-                self.ui.lineEditReactions.setText(str(len(simulation_form_data['reactions'])))
-                self.ui.lineEditSensAnalysis.setText(str(len(simulation_form_data['sens_analysis'])))
-                self.ui.lineEditCalculators.setText(str(len(simulation_form_data['calculators'])))
-                self.ui.lineEditOptimizations.setText(str(len(simulation_form_data['optimizations'])))
-                self.ui.lineEditDesSpecs.setText(str(len((simulation_form_data['design_specs']))))
-
-                # -------------------------------- set alias table data --------------------------------
-                alias_table_view = self.ui.tableWidgetAliasDisplay
-
-                new_aliases_to_insert = []
-                new_types_to_insert = []
-
-                for input_row in vars_list[0]:
-                    new_aliases_to_insert.append(input_row['Alias'])
-                    new_types_to_insert.append(input_row['Type'])
-
-                for output_row in vars_list[1]:
-                    new_aliases_to_insert.append(output_row['Alias'])
-                    new_types_to_insert.append("Candidate (CV)")
-
-                num_rows_alias = alias_table_view.rowCount()
-
-                if num_rows_alias != 0:  # alias table is not empty
-                    alias_table_view.setRowCount(0)  # delete all the present rows
-
-                for i in range(len(new_aliases_to_insert)):
-                    alias_table_view.insertRow(i)
-
-                    alias_table_item_name = QTableWidgetItem(new_aliases_to_insert[i])
-                    alias_table_item_type = QTableWidgetItem(new_types_to_insert[i])
-
-                    alias_table_item_name.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                    alias_table_item_type.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-
-                    alias_table_item_name.setTextAlignment(Qt.AlignCenter)
-                    alias_table_item_type.setTextAlignment(Qt.AlignCenter)
-
-                    alias_table_view.setItem(i, 0, alias_table_item_name)
-                    alias_table_view.setItem(i, 1, alias_table_item_type)
-
-                # do a check of expressions
-                self.expressionTableCheck()
-
-                # -------------------------------- set the simulation info table data --------------------------------
-                n_rows = len(simulation_form_data[max(simulation_form_data,
-                                                      key=lambda x: len(set(simulation_form_data[x])))])
-                siminfo_table = self.ui.tableWidgetSimulationData
-
-                # clear the table
-                siminfo_table.setRowCount(0)
-                siminfo_table.setRowCount(n_rows)
-
-                keys_list = [key for key in simulation_form_data.keys() if key != 'therm_method']
-                for col in range(len(keys_list)):
-                    for r in range(len(simulation_form_data[keys_list[col]])):
-                        item = QTableWidgetItem(simulation_form_data[keys_list[col]][r])
-                        item.setTextAlignment(Qt.AlignCenter)
-                        siminfo_table.setItem(r, col, item)
+                self.loadDataIntoAliasTables()
 
     def insertRowExpression(self):
         expr_table_view = self.ui.tableWidgetExpressions
@@ -200,6 +137,98 @@ class LoadSimTab(QWidget):
             self.parentTabMainWidget.setTabEnabled(1, True)  # enable sampling tab
         else:
             self.parentTabMainWidget.setTabEnabled(1, False)  # disable sampling tab
+
+    def loadDataIntoAliasTables(self):
+        vars_list = [self.application_database.getInputTableData(),
+                     self.application_database.getOutputTableData()]
+
+        simulation_form_data = self.application_database.getSimulationDataDictionary()
+
+        # -------------------------------- set the simulation form data --------------------------------
+        self.ui.lineEditComponents.setText(str(len(simulation_form_data['components'])))
+        self.ui.lineEditBlocks.setText(str(len(simulation_form_data['blocks'])))
+        self.ui.lineEditStreams.setText(str(len(simulation_form_data['streams'])))
+        self.ui.lineEditMethodName.setText(str(simulation_form_data['therm_method'][0]))
+        self.ui.lineEditReactions.setText(str(len(simulation_form_data['reactions'])))
+        self.ui.lineEditSensAnalysis.setText(str(len(simulation_form_data['sens_analysis'])))
+        self.ui.lineEditCalculators.setText(str(len(simulation_form_data['calculators'])))
+        self.ui.lineEditOptimizations.setText(str(len(simulation_form_data['optimizations'])))
+        self.ui.lineEditDesSpecs.setText(str(len((simulation_form_data['design_specs']))))
+
+        # -------------------------------- set alias table data --------------------------------
+        alias_table_view = self.ui.tableWidgetAliasDisplay
+
+        new_aliases_to_insert = []
+        new_types_to_insert = []
+
+        for input_row in vars_list[0]:
+            new_aliases_to_insert.append(input_row['Alias'])
+            new_types_to_insert.append(input_row['Type'])
+
+        for output_row in vars_list[1]:
+            new_aliases_to_insert.append(output_row['Alias'])
+            new_types_to_insert.append("Candidate (CV)")
+
+        num_rows_alias = alias_table_view.rowCount()
+
+        if num_rows_alias != 0:  # alias table is not empty
+            alias_table_view.setRowCount(0)  # delete all the present rows
+
+        for i in range(len(new_aliases_to_insert)):
+            alias_table_view.insertRow(i)
+
+            alias_table_item_name = QTableWidgetItem(new_aliases_to_insert[i])
+            alias_table_item_type = QTableWidgetItem(new_types_to_insert[i])
+
+            alias_table_item_name.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            alias_table_item_type.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+
+            alias_table_item_name.setTextAlignment(Qt.AlignCenter)
+            alias_table_item_type.setTextAlignment(Qt.AlignCenter)
+
+            alias_table_view.setItem(i, 0, alias_table_item_name)
+            alias_table_view.setItem(i, 1, alias_table_item_type)
+
+        # do a check of expressions
+        self.expressionTableCheck()
+
+        # -------------------------------- set the simulation info table data --------------------------------
+        n_rows = len(simulation_form_data[max(simulation_form_data,
+                                              key=lambda x: len(set(simulation_form_data[x])))])
+        siminfo_table = self.ui.tableWidgetSimulationData
+
+        # clear the table
+        siminfo_table.setRowCount(0)
+        siminfo_table.setRowCount(n_rows)
+
+        keys_list = [key for key in simulation_form_data.keys() if key != 'therm_method']
+        for col in range(len(keys_list)):
+            for r in range(len(simulation_form_data[keys_list[col]])):
+                item = QTableWidgetItem(simulation_form_data[keys_list[col]][r])
+                item.setTextAlignment(Qt.AlignCenter)
+                siminfo_table.setItem(r, col, item)
+
+    def loadDataIntoExpressionTables(self):
+        expr_list = self.application_database.getExpressionTableData()
+
+        if expr_list is not None:
+            expr_table_view = self.ui.tableWidgetExpressions
+            for row in range(len(expr_list)):
+                expr_table_view.insertRow(expr_table_view.rowCount())
+                table_expr_name = QTableWidgetItem(expr_list[row]['Name'])
+                table_expr_name.setTextAlignment(Qt.AlignCenter)
+
+                table_expr_item = QTableWidgetItem(expr_list[row]['Expr'])
+                table_expr_item.setTextAlignment(Qt.AlignCenter)
+
+                table_item_type = QTableWidgetItem(expr_list[row]['Type'])
+                table_item_type.setTextAlignment(Qt.AlignCenter)
+
+                expr_table_view.setItem(row, 0, table_expr_name)
+                expr_table_view.setItem(row, 1, table_expr_item)
+                expr_table_view.setItem(row, 2, table_item_type)
+
+            self.expressionTableCheck()
 
 
 class ExpressionEditorDelegate(QItemDelegate):
