@@ -6,6 +6,7 @@ class DataStorage(object):
     Application data storage. This is for reuse of application data such as tree models, simulation data, aliases,
     expressions, etc.
     """
+    # FIXME: Fix structure storage for empty (remove None initialization) application and non-empty.
     def __init__(self):
         self._input_tree_model = None
         self._output_tree_model = None
@@ -87,11 +88,51 @@ class DataStorage(object):
 
 
 def write_data(output_file_path, sim_file_path, gui_data_storage):
+    """
+    Writes custom template of .mtc file based on the current instance of the application.
+
+    Parameters
+    ----------
+    output_file_path: str
+        Output file path string to where the user wants the file to be stored.
+    sim_file_path: str
+        File path of simulation file (e.g. .bkp, .hsc, etc.) currently in use.
+    gui_data_storage : DataStorage
+        Application data storage object. This is the source of info to write.
+    """
     sim_info = gui_data_storage.getSimulationDataDictionary()
+    if sim_info is None:
+        sim_info = {'components': [],
+                    'therm_method': [],
+                    'blocks': [],
+                    'streams': [],
+                    'reactions': [],
+                    'sens_analysis': [],
+                    'calculators': [],
+                    'optimizations': [],
+                    'design_specs': []}
+
     input_table_var = gui_data_storage.getInputTableData()
+    if input_table_var is None or len(input_table_var) == 0:
+        input_table_var = [{'Path': "", 'Alias': '', 'Type': ''}]
+
     output_table_var = gui_data_storage.getOutputTableData()
+    if output_table_var is None or len(output_table_var) == 0:
+        output_table_var = [{'Path': "", 'Alias': '', 'Type': ''}]
+
     expr_table = gui_data_storage.getExpressionTableData()
+    if expr_table is None or len(expr_table) == 0:
+        expr_table = [{'Name': '', 'Expr': '', 'Type': ''}]
+
     doe_table = gui_data_storage.getDoeData()
+    if doe_table is None:
+        doe_table = {'lb': [''],
+                     'ub': [''],
+                     'lhs': {'n_samples': '', 'n_iter': '', 'inc_vertices': False},
+                     'csv': {'active': True,
+                             'filepath': '',
+                             'check_flags': [False],
+                             'alias_index': ['']}}
 
     template_str = """// LOAD SIMULATION //
 SIM FILENAME: {sim_filename}
@@ -204,12 +245,16 @@ def read_data(mtc_file_path, gui_data_storage):
         inpt_table_var.append({'Path': input_path_list[row],
                                'Alias': input_alias_list[row],
                                'Type': input_type_list[row]})
+    inpt_table_var = [] if len(inpt_table_var) == 1 and all(value == '' for value in inpt_table_var[0]) \
+        else inpt_table_var  # for empty fields
 
     outpt_table_var = []
     for row in range(len(output_alias_list)):
         outpt_table_var.append({'Path': output_path_list[row],
                                 'Alias': output_alias_list[row],
                                 'Type': output_type_list[row]})
+    outpt_table_var = [] if len(outpt_table_var) == 1 and all(value == '' for value in outpt_table_var[0]) \
+        else outpt_table_var  # for empty fields
 
     gui_data_storage.setInputTableData(inpt_table_var)
     gui_data_storage.setOutputTableData(outpt_table_var)
@@ -225,7 +270,8 @@ def read_data(mtc_file_path, gui_data_storage):
         expr_table.append({'Name': expr_name_list[row],
                            'Expr': expr_str_list[row],
                            'Type': expr_type_list[row]})
-
+        expr_table = [] if len(expr_table) == 1 and all(value == '' for value in expr_table[0]) \
+            else expr_table  # for empty fields
     gui_data_storage.setExpressionTableData(expr_table)
 
     # -------------------------- SAMPLING --------------------------

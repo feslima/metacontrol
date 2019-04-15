@@ -18,8 +18,11 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowState(Qt.WindowMaximized)
+        self.setWindowTitle('Metacontrol - untitled.mtc')
 
         self.ui.tabMainWidget.setTabEnabled(1, False)  # disable the sampling tab
+
+        self.save_file_name = ""
 
         # --------------------------------- Connections ---------------------------------
         self.ui.actionOpen.triggered.connect(self.openFile)
@@ -35,26 +38,29 @@ class MainWindow(QMainWindow):
         homedir = str(pathlib.Path.home())
         mtc_filename, _ = QFileDialog.getOpenFileName(self, "Select the .mtc simulation file", homedir,
                                                       "Metacontrol files (*.mtc)")
-        sim_file_name = read_data(mtc_filename, self.application_database)
+        if mtc_filename != "":  # user did not click cancel on the dialog
+            self.save_file_name = mtc_filename
+            self.setWindowTitle("Metacontrol - " + mtc_filename)
+            sim_file_name = read_data(mtc_filename, self.application_database)
 
-        if pathlib.Path(sim_file_name).is_file():
-            # file exists, place it
-            self.loadsimtab.sim_filename = sim_file_name
-            self.loadsimtab.ui.textBrowserSimFile.setText(sim_file_name)
-            self.loadsimtab.ui.textBrowserSimFile.setStyleSheet("")
-            self.loadsimtab.ui.buttonLoadVariables.setEnabled(True)  # activate load button
-        else:
-            self.loadsimtab.sim_filename = ""
-            self.loadsimtab.ui.textBrowserSimFile.setText(sim_file_name)
-            self.loadsimtab.ui.textBrowserSimFile.setStyleSheet("color: red")
-            self.loadsimtab.ui.buttonLoadVariables.setEnabled(False)  # deactivate load button
-            self.loadsimtab.ui.setToolTip("This file is not valid. Check if it exists in the specified directory.")
+            if pathlib.Path(sim_file_name).is_file():
+                # file exists, place it
+                self.loadsimtab.sim_filename = sim_file_name
+                self.loadsimtab.ui.textBrowserSimFile.setText(sim_file_name)
+                self.loadsimtab.ui.textBrowserSimFile.setStyleSheet("")
+                self.loadsimtab.ui.buttonLoadVariables.setEnabled(True)  # activate load button
+            else:
+                if sim_file_name == "":
+                    self.loadsimtab.ui.textBrowserSimFile.setText("Select a simulation file.")
+                self.loadsimtab.sim_filename = ""
+                self.loadsimtab.ui.textBrowserSimFile.setStyleSheet("color: red")
+                self.loadsimtab.ui.buttonLoadVariables.setEnabled(False)  # deactivate load button
 
-        # clear the tables and place the data
-        self.loadsimtab.ui.tableWidgetAliasDisplay.setRowCount(0)
-        self.loadsimtab.ui.tableWidgetExpressions.setRowCount(0)
-        self.loadsimtab.loadDataIntoAliasTables()
-        self.loadsimtab.loadDataIntoExpressionTables()
+            # clear the tables and place the data
+            self.loadsimtab.ui.tableWidgetAliasDisplay.setRowCount(0)
+            self.loadsimtab.ui.tableWidgetExpressions.setRowCount(0)
+            self.loadsimtab.loadDataIntoAliasTables()
+            self.loadsimtab.loadDataIntoExpressionTables()
 
     def saveFile(self):
         pass
