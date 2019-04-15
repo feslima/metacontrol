@@ -12,6 +12,8 @@ class DataStorage(object):
         self._simulation_data = None
         self._input_table_data = None
         self._output_table_data = None
+        self._expression_table_data = None
+        self._doe_data = None
 
     def getInputTreeModel(self):
         return self._input_tree_model
@@ -62,3 +64,23 @@ class DataStorage(object):
             self._output_table_data = table_model
         else:
             raise TypeError("Input must be a list.")
+
+    def getExpressionTableData(self):
+        return self._expression_table_data
+
+    def setExpressionTableData(self, expression_data):
+
+        if isinstance(expression_data, list):
+            self._expression_table_data = expression_data
+        else:
+            raise TypeError("Input must be a list.")
+
+    def getDoeData(self):
+        return self._doe_data
+
+    def setDoeData(self, doe_data):
+
+        if isinstance(doe_data, dict):
+            self._doe_data = doe_data
+        else:
+            raise TypeError("Input must be a dictionary object.")

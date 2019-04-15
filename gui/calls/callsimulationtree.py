@@ -323,11 +323,11 @@ class LoadSimulationTreeDialog(QDialog):
                                'therm_method': ['PENG-ROB'],
                                'blocks': ['TOWER'],
                                'streams': ['B', 'D', 'F'],
-                               'reactions': [],
+                               'reactions': [''],
                                'sens_analysis': ['S-1'],
                                'calculators': ['C-1'],
                                'optimizations': ['O-1'],
-                               'design_specs': []}
+                               'design_specs': ['']}
 
             self.gui_data.setSimulationDataDictionary(simulation_data)
 
