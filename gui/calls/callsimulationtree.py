@@ -11,12 +11,16 @@ from gui.views.py_files.loadSimulationTree import Ui_Dialog
 
 class ComboboxDelegate(QtWidgets.QItemDelegate):
 
+    def __init__(self, item_list, parent=None):
+        QtWidgets.QItemDelegate.__init__(self, parent)
+        self.item_list = item_list
+
     def createEditor(self, parent, option, index):
         # Returns the widget used to edit the item specified by index for editing.
         # The parent widget and style option are used to control how the editor widget appears.
         combo_box = QtWidgets.QComboBox(parent)
-        li = ["Manipulated (MV)", "Disturbance (d)"]
-        combo_box.addItems(li)
+        # item_list = ["Manipulated (MV)", "Disturbance (d)", "Candidate (CV)"]
+        combo_box.addItems(self.item_list)
         return combo_box
 
     def setEditorData(self, combo_box, index):
@@ -39,6 +43,10 @@ class ComboboxDelegate(QtWidgets.QItemDelegate):
 
 
 class AliasEditorDelegate(QtWidgets.QItemDelegate):
+
+    def __init__(self, alias_table=None, parent=None):
+        QtWidgets.QItemDelegate.__init__(self, parent)
+        self.alias_table = alias_table
 
     def createEditor(self, parent, option, index):
         line_editor = QtWidgets.QLineEdit(parent)
@@ -90,7 +98,7 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.treeViewOutput.doubleClicked.connect(self.treeDoubleClick)
 
         self.ui.tableWidgetInput.setColumnWidth(0, 400)  # first column resizing
-        self.ui.tableWidgetOutput.setColumnWidth(0, 450)
+        self.ui.tableWidgetOutput.setColumnWidth(0, 400)
 
         # create the model for the tree if there wasn't one loaded in the database
         if self.gui_data.getInputTreeModel() is None:
@@ -125,8 +133,10 @@ class LoadSimulationTreeDialog(QDialog):
             self.insertDataOnTableCreation(self.ui.tableWidgetOutput, self.gui_data.getOutputTableData())
 
         # set the combobox delegate for type column
-        delegate = ComboboxDelegate()
-        self.ui.tableWidgetInput.setItemDelegateForColumn(2, delegate)
+        self.input_delegate = ComboboxDelegate(["Manipulated (MV)", "Disturbance (d)", "Auxiliary"])
+        self.ui.tableWidgetInput.setItemDelegateForColumn(2, self.input_delegate)
+        self.output_delegate = ComboboxDelegate(["Candidate (CV)", "Auxiliary"])
+        self.ui.tableWidgetOutput.setItemDelegateForColumn(2, self.output_delegate)
 
         self.model_tree_input.setHorizontalHeaderLabels(['Input variables'])
         self.model_tree_output.setHorizontalHeaderLabels(['Output variables'])
@@ -226,7 +236,9 @@ class LoadSimulationTreeDialog(QDialog):
         default_alias = 'alias_' + str(row_position) if table_view.objectName() == 'tableWidgetInput' \
             else 'cv_alias_' + str(row_position)
         table_view.setItem(row_position, 1, QtWidgets.QTableWidgetItem(default_alias))
+        table_view.item(row_position, 1).setTextAlignment(Qt.AlignCenter)
         table_view.setItem(row_position, 2, table_item_type)
+        table_view.item(row_position, 2).setTextAlignment(Qt.AlignCenter)
 
         table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))  # paints the cell background to red
 
@@ -234,17 +246,13 @@ class LoadSimulationTreeDialog(QDialog):
         for i in range(len(table_data)):
             table_view.insertRow(i)
 
-            if table_view.objectName() == 'tableWidgetInput':
-                first_col_item = QtWidgets.QTableWidgetItem(table_data[i]['Path'])
-                first_col_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                table_view.setItem(i, 0, first_col_item)
-                table_view.setItem(i, 1, QtWidgets.QTableWidgetItem(table_data[i]['Alias']))
-                table_view.setItem(i, 2, QtWidgets.QTableWidgetItem(table_data[i]['Type']))
-            else:
-                first_col_item = QtWidgets.QTableWidgetItem(table_data[i]['Path'])
-                first_col_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                table_view.setItem(i, 0, first_col_item)
-                table_view.setItem(i, 1, QtWidgets.QTableWidgetItem(table_data[i]['Alias']))
+            first_col_item = QtWidgets.QTableWidgetItem(table_data[i]['Path'])
+            first_col_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            table_view.setItem(i, 0, first_col_item)
+            table_view.setItem(i, 1, QtWidgets.QTableWidgetItem(table_data[i]['Alias']))
+            table_view.setItem(i, 2, QtWidgets.QTableWidgetItem(table_data[i]['Type']))
+            table_view.item(i, 1).setTextAlignment(Qt.AlignCenter)
+            table_view.item(i, 2).setTextAlignment(Qt.AlignCenter)
 
     def okButtonPressed(self):
         # read the data from the tables
@@ -262,18 +270,22 @@ class LoadSimulationTreeDialog(QDialog):
         output_data = []
         for row in range(out_model.rowCount()):
             output_data.append({'Path': out_model.data(out_model.index(row, 0)),
-                                'Alias': out_model.data(out_model.index(row, 1))})
+                                'Alias': out_model.data(out_model.index(row, 1)),
+                                'Type': out_model.data(out_model.index(row, 2))})
 
         input_aliases_list = [entry['Alias'] for entry in input_data]
         output_aliases_list = [entry['Alias'] for entry in output_data]
 
         is_alias_duplicated = True if len(input_aliases_list + output_aliases_list) != \
                                       len(set(input_aliases_list + output_aliases_list)) else False
-        is_input_alias_defined = True if 'Choose a type' in [input_data_row['Type']
+        is_input_alias_not_defined = True if 'Choose a type' in [input_data_row['Type']
                                                              for input_data_row in input_data] else False
-        if is_input_alias_defined:
+
+        is_output_alias_not_defined = True if 'Choose a type' in [output_data_row['Type']
+                                                              for output_data_row in output_data] else False
+        if is_input_alias_not_defined or is_output_alias_not_defined:
             # the user did not choose a type for a selected variable. Alert him to do so.
-            msg_box_text = "At least one of the selected input variables does not have a defined type (either MV or " \
+            msg_box_text = "At least one of the selected variables does not have a defined type (either MV or " \
                            "d). You have to define it for all of them!"
             msg_box_title = "Input variable without type detected"
 
@@ -286,7 +298,7 @@ class LoadSimulationTreeDialog(QDialog):
 
             self.warnTheUserDialog(msg_box_text, msg_box_title)
 
-        if not is_input_alias_defined and not is_alias_duplicated:
+        if not is_input_alias_not_defined and not is_output_alias_not_defined and not is_alias_duplicated:
             # input aliases properly defined and no duplicated detected, proceed as normal
             self.gui_data.setInputTableData(input_data)
             self.gui_data.setOutputTableData(output_data)

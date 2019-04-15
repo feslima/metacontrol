@@ -35,7 +35,7 @@ class LoadSimTab(QWidget):
 
         # ------------------------------ Widget Initialization ------------------------------
         self.ui.tableWidgetExpressions.setColumnWidth(1, 700)
-        self._expr_name_delegate = AliasEditorDelegate()
+        self._expr_name_delegate = ExpressionAliasEditorDelegate(self.ui.tableWidgetAliasDisplay)
         self._math_expr_delegate = ExpressionEditorDelegate(self.ui.tableWidgetAliasDisplay, self.application_database)
         self._expr_type_delegate = ComboxBoxExpressionTypeDelegate()
         self.ui.tableWidgetExpressions.setItemDelegateForColumn(0, self._expr_name_delegate)
@@ -167,7 +167,7 @@ class LoadSimTab(QWidget):
 
         for output_row in vars_list[1]:
             new_aliases_to_insert.append(output_row['Alias'])
-            new_types_to_insert.append("Candidate (CV)")
+            new_types_to_insert.append(output_row['Type'])
 
         num_rows_alias = alias_table_view.rowCount()
 
@@ -231,6 +231,28 @@ class LoadSimTab(QWidget):
             self.expressionTableCheck()
 
 
+class ExpressionAliasEditorDelegate(AliasEditorDelegate):
+
+    def setModelData(self, line_editor, model, index):
+        alias_model = self.alias_table.model()
+        # override of alias editor delegate to check for duplicates between expressions and aliases
+        text = line_editor.text()
+
+        model.setData(index, text, Qt.EditRole)
+
+        # check if the alias is duplicated
+        current_expr_names = [model.data(model.index(row, index.column())) for row in range(model.rowCount())]
+        current_aliases = [alias_model.data(alias_model.index(row, 0)) for row in range(alias_model.rowCount())]
+
+        if current_expr_names.count(text) > 1 or text in current_aliases:
+            model.setData(index, QBrush(Qt.red), Qt.BackgroundRole)
+            model.parent().item(index.row(), index.column()).setToolTip('Expression already in use as an alias!')
+        else:
+            original_backgrd_color = line_editor.palette().color(line_editor.backgroundRole())
+            model.setData(index, QBrush(original_backgrd_color), Qt.BackgroundRole)
+            model.parent().item(index.row(), index.column()).setToolTip('')
+
+
 class ExpressionEditorDelegate(QItemDelegate):
 
     def __init__(self, alias_table, gui_data, parent=None):
@@ -284,7 +306,7 @@ class ComboxBoxExpressionTypeDelegate(QItemDelegate):
 
     def createEditor(self, parent, option, index):
         combo_box = QComboBox(parent)
-        type_list = ["Objective function (J)", "Constraint function"]
+        type_list = ["Objective function (J)", "Constraint function", "Candidate (CV)"]
 
         combo_box.addItems(type_list)
 
