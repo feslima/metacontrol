@@ -213,8 +213,12 @@ def read_data(mtc_file_path, gui_data_storage):
                 'reactions': lambda_re_fun('REACTIONS'),
                 'sens_analysis': lambda_re_fun('SENSITIVITY ANALYSIS'),
                 'calculators': lambda_re_fun('CALCULATORS'),
-                'optimizations': lambda_re_fun('CALCULATORS'),
+                'optimizations': lambda_re_fun('OPTIMIZATIONS'),
                 'design_specs': lambda_re_fun('DESIGN SPECS')}
+
+    # check if the fields are empty and replace them properly
+    sim_info = {key: ('' if isinstance(value, list) and value[0] == '' and key != 'therm_method' else value)
+                for key, value in sim_info.items()}
 
     gui_data_storage.setSimulationDataDictionary(sim_info)
 
@@ -231,20 +235,22 @@ def read_data(mtc_file_path, gui_data_storage):
     output_type_list = re.search('TYPE: (.*)\n', var_output_raw_str_block.group(1)).group(1).split('|')
 
     inpt_table_var = []
-    for row in range(len(input_alias_list)):
-        inpt_table_var.append({'Path': input_path_list[row],
-                               'Alias': input_alias_list[row],
-                               'Type': input_type_list[row]})
-    inpt_table_var = [] if len(inpt_table_var) == 1 and all(value == '' for value in inpt_table_var[0]) \
-        else inpt_table_var  # for empty fields
+    if len(input_alias_list) == 1 and input_alias_list[0] == '':  # list of single element and the element is ''
+        pass
+    else:
+        for row in range(len(input_alias_list)):
+            inpt_table_var.append({'Path': input_path_list[row],
+                                   'Alias': input_alias_list[row],
+                                   'Type': input_type_list[row]})
 
     outpt_table_var = []
-    for row in range(len(output_alias_list)):
-        outpt_table_var.append({'Path': output_path_list[row],
-                                'Alias': output_alias_list[row],
-                                'Type': output_type_list[row]})
-    outpt_table_var = [] if len(outpt_table_var) == 1 and all(value == '' for value in outpt_table_var[0]) \
-        else outpt_table_var  # for empty fields
+    if len(output_alias_list) == 1 and output_alias_list[0] == '':
+        pass
+    else:
+        for row in range(len(output_alias_list)):
+            outpt_table_var.append({'Path': output_path_list[row],
+                                    'Alias': output_alias_list[row],
+                                    'Type': output_type_list[row]})
 
     gui_data_storage.setInputTableData(inpt_table_var)
     gui_data_storage.setOutputTableData(outpt_table_var)
@@ -256,12 +262,14 @@ def read_data(mtc_file_path, gui_data_storage):
     expr_type_list = re.search('TYPE: (.*)\n', expr_raw_str_data.group(1)).group(1).split('|')
 
     expr_table = []
-    for row in range(len(expr_name_list)):
-        expr_table.append({'Name': expr_name_list[row],
-                           'Expr': expr_str_list[row],
-                           'Type': expr_type_list[row]})
-        expr_table = [] if len(expr_table) == 1 and all(value == '' for value in expr_table[0]) \
-            else expr_table  # for empty fields
+    if len(expr_name_list) == 1 and expr_name_list[0] == '':  # list of single element and the element is ''
+        pass
+    else:
+        for row in range(len(expr_name_list)):
+            expr_table.append({'Name': expr_name_list[row],
+                               'Expr': expr_str_list[row],
+                               'Type': expr_type_list[row]})
+
     gui_data_storage.setExpressionTableData(expr_table)
 
     # -------------------------- SAMPLING --------------------------
