@@ -6,15 +6,30 @@ class DataStorage(object):
     Application data storage. This is for reuse of application data such as tree models, simulation data, aliases,
     expressions, etc.
     """
+
     # FIXME: Fix structure storage for empty (remove None initialization) application and non-empty.
     def __init__(self):
-        self._input_tree_model = None
-        self._output_tree_model = None
-        self._simulation_data = None
-        self._input_table_data = None
-        self._output_table_data = None
-        self._expression_table_data = None
-        self._doe_data = None
+        self._input_tree_model = QStandardItemModel()
+        self._output_tree_model = QStandardItemModel()
+        self._simulation_data = {'components': '',
+                                 'therm_method': '',
+                                 'blocks': '',
+                                 'streams': '',
+                                 'reactions': '',
+                                 'sens_analysis': '',
+                                 'calculators': '',
+                                 'optimizations': '',
+                                 'design_specs': ''}
+        self._input_table_data = []
+        self._output_table_data = []
+        self._expression_table_data = []
+        self._doe_data = {'lb': [''],
+                          'ub': [''],
+                          'lhs': {'n_samples': '', 'n_iter': '', 'inc_vertices': False},
+                          'csv': {'active': True,
+                                  'filepath': '',
+                                  'check_flags': [False],
+                                  'alias_index': ['']}}
 
     def getInputTreeModel(self):
         return self._input_tree_model
@@ -101,38 +116,10 @@ def write_data(output_file_path, sim_file_path, gui_data_storage):
         Application data storage object. This is the source of info to write.
     """
     sim_info = gui_data_storage.getSimulationDataDictionary()
-    if sim_info is None:
-        sim_info = {'components': [],
-                    'therm_method': [],
-                    'blocks': [],
-                    'streams': [],
-                    'reactions': [],
-                    'sens_analysis': [],
-                    'calculators': [],
-                    'optimizations': [],
-                    'design_specs': []}
-
     input_table_var = gui_data_storage.getInputTableData()
-    if input_table_var is None or len(input_table_var) == 0:
-        input_table_var = [{'Path': "", 'Alias': '', 'Type': ''}]
-
     output_table_var = gui_data_storage.getOutputTableData()
-    if output_table_var is None or len(output_table_var) == 0:
-        output_table_var = [{'Path': "", 'Alias': '', 'Type': ''}]
-
     expr_table = gui_data_storage.getExpressionTableData()
-    if expr_table is None or len(expr_table) == 0:
-        expr_table = [{'Name': '', 'Expr': '', 'Type': ''}]
-
     doe_table = gui_data_storage.getDoeData()
-    if doe_table is None:
-        doe_table = {'lb': [''],
-                     'ub': [''],
-                     'lhs': {'n_samples': '', 'n_iter': '', 'inc_vertices': False},
-                     'csv': {'active': True,
-                             'filepath': '',
-                             'check_flags': [False],
-                             'alias_index': ['']}}
 
     template_str = """// LOAD SIMULATION //
 SIM FILENAME: {sim_filename}
