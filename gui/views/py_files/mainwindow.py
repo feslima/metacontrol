@@ -86,8 +86,11 @@ class Ui_MainWindow(object):
         icon1.addPixmap(QtGui.QPixmap(":/sampling/save_icon.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSave.setIcon(icon1)
         self.actionSave.setObjectName("actionSave")
+        self.actionSave_As = QtWidgets.QAction(MainWindow)
+        self.actionSave_As.setObjectName("actionSave_As")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionSave_As)
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -108,5 +111,6 @@ class Ui_MainWindow(object):
         self.actionOpen.setShortcut(_translate("MainWindow", "Ctrl+O"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
+        self.actionSave_As.setText(_translate("MainWindow", "Save As..."))
 
 from gui.resources import icons_rc

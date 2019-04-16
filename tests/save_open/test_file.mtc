@@ -29,14 +29,14 @@ USER EXPRESSIONS:
 
 // SAMPLING //
 INPUT SETTINGS:
-    LOWER BOUNDS: 7.0|0.1
-    UPPER BOUNDS: 7.0|0.1
+    LOWER BOUNDS: 
+    UPPER BOUNDS: 
     LHS:
-        NUMBER OF SAMPLES: 50
-        NUMBER OF ITERATIONS: 100
+        NUMBER OF SAMPLES: 
+        NUMBER OF ITERATIONS: 
         INCLUDE VERTICES: False
     CSV:
         ACTIVE: True
-        FILENAME: C:\Users\Felipe\PycharmProjects\metacontrol\tests\gui\csv_editor\column.csv
-        CHECK FLAGS: False|False|True|True|True|True|True|True|True|True|True|True
-        ALIAS INDEX: 0|1|2|3|4|5|6|7|8|9
+        FILENAME: 
+        CHECK FLAGS: False
+        ALIAS INDEX: 

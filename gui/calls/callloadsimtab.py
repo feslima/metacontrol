@@ -38,11 +38,30 @@ class LoadSimTab(QWidget):
         self._expr_name_delegate = ExpressionAliasEditorDelegate(self.ui.tableWidgetAliasDisplay)
         self._math_expr_delegate = ExpressionEditorDelegate(self.ui.tableWidgetAliasDisplay, self.application_database)
         self._expr_type_delegate = ComboxBoxExpressionTypeDelegate()
+        # update the table when the user changes an element
+        self._expr_name_delegate.closeEditor.connect(self.updateExpressionDatabase)
+        self._math_expr_delegate.closeEditor.connect(self.updateExpressionDatabase)
+        self._expr_type_delegate.closeEditor.connect(self.updateExpressionDatabase)
+
         self.ui.tableWidgetExpressions.setItemDelegateForColumn(0, self._expr_name_delegate)
         self.ui.tableWidgetExpressions.setItemDelegateForColumn(1, self._math_expr_delegate)
         self.ui.tableWidgetExpressions.setItemDelegateForColumn(2, self._expr_type_delegate)
         self.ui.tableWidgetAliasDisplay.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.tableWidgetSimulationData.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+    # update the application database when the user changes an element in the expressions table
+    def updateExpressionDatabase(self):
+        # retrieve the current data in table
+        table_view = self.ui.tableWidgetExpressions
+        table_model = table_view.model()
+
+        expr_info = []
+        for row in range(table_model.rowCount()):
+            expr_info.append({'Name': table_model.data(table_model.index(row, 0)),
+                              'Expr': table_model.data(table_model.index(row, 1)),
+                              'Type': table_model.data(table_model.index(row, 2))})
+
+        self.application_database.setExpressionTableData(expr_info)  # store the data
 
     # open simulation file
     def openSimFileDialog(self):
@@ -194,42 +213,46 @@ class LoadSimTab(QWidget):
         self.expressionTableCheck()
 
         # -------------------------------- set the simulation info table data --------------------------------
-        n_rows = len(simulation_form_data[max(simulation_form_data,
-                                              key=lambda x: len(set(simulation_form_data[x])))])
-        siminfo_table = self.ui.tableWidgetSimulationData
+        if all(simulation_form_data[key] == '' and simulation_form_data['therm_method'] == ['']
+               for key in simulation_form_data.keys() if key != 'therm_method'):
+            # dictionary is empty
+            pass
+        else:
+            n_rows = len(simulation_form_data[max(simulation_form_data,
+                                                  key=lambda x: len(set(simulation_form_data[x])))])
+            siminfo_table = self.ui.tableWidgetSimulationData
 
-        # clear the table
-        siminfo_table.setRowCount(0)
-        siminfo_table.setRowCount(n_rows)
+            # clear the table
+            siminfo_table.setRowCount(0)
+            siminfo_table.setRowCount(n_rows)
 
-        keys_list = [key for key in simulation_form_data.keys() if key != 'therm_method']
-        for col in range(len(keys_list)):
-            for r in range(len(simulation_form_data[keys_list[col]])):
-                item = QTableWidgetItem(simulation_form_data[keys_list[col]][r])
-                item.setTextAlignment(Qt.AlignCenter)
-                siminfo_table.setItem(r, col, item)
+            keys_list = [key for key in simulation_form_data.keys() if key != 'therm_method']
+            for col in range(len(keys_list)):
+                for r in range(len(simulation_form_data[keys_list[col]])):
+                    item = QTableWidgetItem(simulation_form_data[keys_list[col]][r])
+                    item.setTextAlignment(Qt.AlignCenter)
+                    siminfo_table.setItem(r, col, item)
 
     def loadDataIntoExpressionTables(self):
         expr_list = self.application_database.getExpressionTableData()
 
-        if expr_list is not None:
-            expr_table_view = self.ui.tableWidgetExpressions
-            for row in range(len(expr_list)):
-                expr_table_view.insertRow(expr_table_view.rowCount())
-                table_expr_name = QTableWidgetItem(expr_list[row]['Name'])
-                table_expr_name.setTextAlignment(Qt.AlignCenter)
+        expr_table_view = self.ui.tableWidgetExpressions
+        for row in range(len(expr_list)):
+            expr_table_view.insertRow(expr_table_view.rowCount())
+            table_expr_name = QTableWidgetItem(expr_list[row]['Name'])
+            table_expr_name.setTextAlignment(Qt.AlignCenter)
 
-                table_expr_item = QTableWidgetItem(expr_list[row]['Expr'])
-                table_expr_item.setTextAlignment(Qt.AlignCenter)
+            table_expr_item = QTableWidgetItem(expr_list[row]['Expr'])
+            table_expr_item.setTextAlignment(Qt.AlignCenter)
 
-                table_item_type = QTableWidgetItem(expr_list[row]['Type'])
-                table_item_type.setTextAlignment(Qt.AlignCenter)
+            table_item_type = QTableWidgetItem(expr_list[row]['Type'])
+            table_item_type.setTextAlignment(Qt.AlignCenter)
 
-                expr_table_view.setItem(row, 0, table_expr_name)
-                expr_table_view.setItem(row, 1, table_expr_item)
-                expr_table_view.setItem(row, 2, table_item_type)
+            expr_table_view.setItem(row, 0, table_expr_name)
+            expr_table_view.setItem(row, 1, table_expr_item)
+            expr_table_view.setItem(row, 2, table_item_type)
 
-            self.expressionTableCheck()
+        self.expressionTableCheck()
 
 
 class ExpressionAliasEditorDelegate(AliasEditorDelegate):

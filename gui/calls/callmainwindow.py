@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         # --------------------------------- Connections ---------------------------------
         self.ui.actionOpen.triggered.connect(self.openFile)
         self.ui.actionSave.triggered.connect(self.saveFile)
+        self.ui.actionSave_As.triggered.connect(self.saveFileAs)
 
         # --------------------------------- load the tab widgets ---------------------------------
         self.loadsimtab = LoadSimTab(self.application_database, parent_tab=self.ui.simulationTab,
@@ -63,7 +64,30 @@ class MainWindow(QMainWindow):
             self.loadsimtab.loadDataIntoExpressionTables()
 
     def saveFile(self):
-        pass
+        # get the current file name
+        current_mtc_name = self.windowTitle().split(' - ')[1]
+
+        if pathlib.Path(current_mtc_name).is_file():
+            # current file does exists
+            write_data(current_mtc_name, self.loadsimtab.sim_filename, self.application_database)
+        else:
+            # file doesn't exist, prompt the user
+            self.saveFileAs()
+
+    def saveFileAs(self):
+        # prompt the user to choose file location and name to save
+        mtc_file_name, _ = QFileDialog.getSaveFileName(self, "Select where to save the .mtc file",
+                                                             str(pathlib.Path.home()), "Metacontrol files (*.mtc)")
+        if mtc_file_name == '':
+            # user canceled the dialog
+            pass
+        else:
+            self.save_file_name = mtc_file_name
+            # change the window title
+            self.setWindowTitle("Metacontrol - " + mtc_file_name)
+
+            # write the data
+            write_data(mtc_file_name, self.loadsimtab.sim_filename, self.application_database)
 
 
 if __name__ == '__main__':
