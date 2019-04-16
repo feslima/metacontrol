@@ -5,6 +5,9 @@ class DataStorage(object):
     """
     Application data storage. This is for reuse of application data such as tree models, simulation data, aliases,
     expressions, etc.
+
+    For tables, initialize and store empty tables as empty list.
+    For forms, dictionaries must be initialized and empty stored with empty strings as values.
     """
 
     # FIXME: Fix structure storage for empty (remove None initialization) application and non-empty.
