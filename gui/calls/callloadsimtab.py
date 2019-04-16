@@ -1,8 +1,8 @@
 import pathlib
 from PyQt5.QtWidgets import QApplication, QFileDialog, QTableWidgetItem, QCompleter, QWidget, \
-    QComboBox, QItemDelegate, QHeaderView, QLineEdit
+    QComboBox, QItemDelegate, QHeaderView, QLineEdit, QPushButton
 from PyQt5.QtCore import Qt, QStringListModel
-from PyQt5.QtGui import QBrush
+from PyQt5.QtGui import QBrush, QIcon, QPixmap
 
 from gui.calls.callsimulationtree import LoadSimulationTreeDialog, AliasEditorDelegate
 from gui.models.data_storage import DataStorage
@@ -11,6 +11,12 @@ from gui.views.py_files.loadsimtab import Ui_Form
 
 
 class LoadSimTab(QWidget):
+    # expression table column indexes
+    EXPR_DELETE_COL_IDX = 0
+    EXPR_NAME_COL_IDX = 1
+    EXPR_EXPR_COL_IDX = 2
+    EXPR_TYPE_COL_IDX = 3
+
     def __init__(self, application_database, parent_tab=None, parent_tab_widget=None):
         # ------------------------------ Form Initialization ----------------------------
         super().__init__()
@@ -34,7 +40,7 @@ class LoadSimTab(QWidget):
         self.application_database.exprDataChanged.connect(self.expressionTableCheck)
 
         # ------------------------------ Widget Initialization ------------------------------
-        self.ui.tableWidgetExpressions.setColumnWidth(1, 700)
+        self.ui.tableWidgetExpressions.setColumnWidth(2, 700)
         self._expr_name_delegate = ExpressionAliasEditorDelegate(self.ui.tableWidgetAliasDisplay)
         self._math_expr_delegate = ExpressionEditorDelegate(self.ui.tableWidgetAliasDisplay, self.application_database)
         self._expr_type_delegate = ComboxBoxExpressionTypeDelegate()
@@ -43,11 +49,18 @@ class LoadSimTab(QWidget):
         self._math_expr_delegate.closeEditor.connect(self.updateExpressionDatabase)
         self._expr_type_delegate.closeEditor.connect(self.updateExpressionDatabase)
 
-        self.ui.tableWidgetExpressions.setItemDelegateForColumn(0, self._expr_name_delegate)
-        self.ui.tableWidgetExpressions.setItemDelegateForColumn(1, self._math_expr_delegate)
-        self.ui.tableWidgetExpressions.setItemDelegateForColumn(2, self._expr_type_delegate)
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(self.EXPR_NAME_COL_IDX, self._expr_name_delegate)
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(self.EXPR_EXPR_COL_IDX, self._math_expr_delegate)
+        self.ui.tableWidgetExpressions.setItemDelegateForColumn(self.EXPR_TYPE_COL_IDX, self._expr_type_delegate)
         self.ui.tableWidgetAliasDisplay.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.tableWidgetSimulationData.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+    def deleteExpressionRow(self):
+        # delete selected row
+        self.ui.tableWidgetExpressions.removeRow(self.ui.tableWidgetExpressions.indexAt(self.sender().pos()).row())
+
+        # and update the expression storage
+        self.updateExpressionDatabase()
 
     # update the application database when the user changes an element in the expressions table
     def updateExpressionDatabase(self):
@@ -57,9 +70,9 @@ class LoadSimTab(QWidget):
 
         expr_info = []
         for row in range(table_model.rowCount()):
-            expr_info.append({'Name': table_model.data(table_model.index(row, 0)),
-                              'Expr': table_model.data(table_model.index(row, 1)),
-                              'Type': table_model.data(table_model.index(row, 2))})
+            expr_info.append({'Name': table_model.data(table_model.index(row, self.EXPR_NAME_COL_IDX)),
+                              'Expr': table_model.data(table_model.index(row, self.EXPR_EXPR_COL_IDX)),
+                              'Type': table_model.data(table_model.index(row, self.EXPR_TYPE_COL_IDX))})
 
         self.application_database.setExpressionTableData(expr_info)  # store the data
 
@@ -100,6 +113,12 @@ class LoadSimTab(QWidget):
         last_row = expr_table_view.rowCount()
         expr_table_view.insertRow(last_row)
 
+        delete_button = QPushButton(expr_table_view)
+        delete_button.clicked.connect(self.deleteExpressionRow)
+        icon = QIcon()
+        icon.addPixmap(QPixmap(":/loadsim/delete_icon.svg"), QIcon.Normal, QIcon.Off)
+        delete_button.setIcon(icon)
+
         table_expr_name = QTableWidgetItem('expr_' + str(last_row))
         table_expr_name.setTextAlignment(Qt.AlignCenter)
 
@@ -110,9 +129,10 @@ class LoadSimTab(QWidget):
         table_item_type = QTableWidgetItem('Choose a type')
         table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))
 
-        expr_table_view.setItem(last_row, 0, table_expr_name)
-        expr_table_view.setItem(last_row, 1, table_expr_item)
-        expr_table_view.setItem(last_row, 2, table_item_type)
+        expr_table_view.setCellWidget(last_row, self.EXPR_DELETE_COL_IDX, delete_button)
+        expr_table_view.setItem(last_row, self.EXPR_NAME_COL_IDX, table_expr_name)
+        expr_table_view.setItem(last_row, self.EXPR_EXPR_COL_IDX, table_expr_item)
+        expr_table_view.setItem(last_row, self.EXPR_TYPE_COL_IDX, table_item_type)
 
         # append the row to the data
         current_table = self.application_database.getExpressionTableData()
@@ -142,11 +162,11 @@ class LoadSimTab(QWidget):
         expr_info = []
         expr_valid_check = []
         for row in range(expr_model.rowCount()):
-            expr_info.append({'Name': expr_model.data(expr_model.index(row, 0)),
-                              'Expr': expr_model.data(expr_model.index(row, 1)),
-                              'Type': expr_model.data(expr_model.index(row, 2))})
+            expr_info.append({'Name': expr_model.data(expr_model.index(row, self.EXPR_NAME_COL_IDX)),
+                              'Expr': expr_model.data(expr_model.index(row, self.EXPR_EXPR_COL_IDX)),
+                              'Type': expr_model.data(expr_model.index(row, self.EXPR_TYPE_COL_IDX))})
 
-            expr_valid_check.append(is_expression_valid(expr_model.data(expr_model.index(row, 1)), alias_list))
+            expr_valid_check.append(is_expression_valid(expr_model.data(expr_model.index(row, 2)), alias_list))
 
         expr_name = [entry['Name'] for entry in expr_info]
         is_name_duplicated = True if len(expr_name + alias_list) != \
@@ -158,9 +178,9 @@ class LoadSimTab(QWidget):
         # if the expression is not valid, update the expression table colors
         for row in range(expr_model.rowCount()):
             if expr_valid_check[row]:
-                expr_model.setData(expr_model.index(row, 1), QBrush(Qt.green), Qt.ForegroundRole)
+                expr_model.setData(expr_model.index(row, self.EXPR_EXPR_COL_IDX), QBrush(Qt.green), Qt.ForegroundRole)
             else:
-                expr_model.setData(expr_model.index(row, 1), QBrush(Qt.red), Qt.ForegroundRole)
+                expr_model.setData(expr_model.index(row, self.EXPR_EXPR_COL_IDX), QBrush(Qt.red), Qt.ForegroundRole)
 
         if is_exprs_valid and not is_name_duplicated and is_exprs_defined:
             self.parentTabMainWidget.setTabEnabled(1, True)  # enable sampling tab
@@ -248,6 +268,12 @@ class LoadSimTab(QWidget):
 
         expr_table_view = self.ui.tableWidgetExpressions
         for row in range(len(expr_list)):
+            delete_button = QPushButton(expr_table_view)
+            delete_button.clicked.connect(self.deleteExpressionRow)
+            icon = QIcon()
+            icon.addPixmap(QPixmap(":/loadsim/delete_icon.svg"), QIcon.Normal, QIcon.Off)
+            delete_button.setIcon(icon)
+
             expr_table_view.insertRow(expr_table_view.rowCount())
             table_expr_name = QTableWidgetItem(expr_list[row]['Name'])
             table_expr_name.setTextAlignment(Qt.AlignCenter)
@@ -258,9 +284,10 @@ class LoadSimTab(QWidget):
             table_item_type = QTableWidgetItem(expr_list[row]['Type'])
             table_item_type.setTextAlignment(Qt.AlignCenter)
 
-            expr_table_view.setItem(row, 0, table_expr_name)
-            expr_table_view.setItem(row, 1, table_expr_item)
-            expr_table_view.setItem(row, 2, table_item_type)
+            expr_table_view.setCellWidget(row, self.EXPR_DELETE_COL_IDX, delete_button)
+            expr_table_view.setItem(row, self.EXPR_NAME_COL_IDX, table_expr_name)
+            expr_table_view.setItem(row, self.EXPR_EXPR_COL_IDX, table_expr_item)
+            expr_table_view.setItem(row, self.EXPR_TYPE_COL_IDX, table_item_type)
 
         self.expressionTableCheck()
 
