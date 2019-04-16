@@ -145,15 +145,16 @@ class LoadSimTab(QWidget):
         simulation_form_data = self.application_database.getSimulationDataDictionary()
 
         # -------------------------------- set the simulation form data --------------------------------
-        self.ui.lineEditComponents.setText(str(len(simulation_form_data['components'])))
-        self.ui.lineEditBlocks.setText(str(len(simulation_form_data['blocks'])))
-        self.ui.lineEditStreams.setText(str(len(simulation_form_data['streams'])))
+        siminfo_lmb_fun = lambda x: '' if simulation_form_data[x] == '' else str(len(simulation_form_data[x]))
+        self.ui.lineEditComponents.setText(siminfo_lmb_fun('components'))
+        self.ui.lineEditBlocks.setText(siminfo_lmb_fun('blocks'))
+        self.ui.lineEditStreams.setText(siminfo_lmb_fun('streams'))
         self.ui.lineEditMethodName.setText(str(simulation_form_data['therm_method'][0]))
-        self.ui.lineEditReactions.setText(str(len(simulation_form_data['reactions'])))
-        self.ui.lineEditSensAnalysis.setText(str(len(simulation_form_data['sens_analysis'])))
-        self.ui.lineEditCalculators.setText(str(len(simulation_form_data['calculators'])))
-        self.ui.lineEditOptimizations.setText(str(len(simulation_form_data['optimizations'])))
-        self.ui.lineEditDesSpecs.setText(str(len((simulation_form_data['design_specs']))))
+        self.ui.lineEditReactions.setText(siminfo_lmb_fun('reactions'))
+        self.ui.lineEditSensAnalysis.setText(siminfo_lmb_fun('sens_analysis'))
+        self.ui.lineEditCalculators.setText(siminfo_lmb_fun('calculators'))
+        self.ui.lineEditOptimizations.setText(siminfo_lmb_fun('optimizations'))
+        self.ui.lineEditDesSpecs.setText(siminfo_lmb_fun('design_specs'))
 
         # -------------------------------- set alias table data --------------------------------
         alias_table_view = self.ui.tableWidgetAliasDisplay
