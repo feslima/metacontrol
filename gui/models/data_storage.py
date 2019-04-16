@@ -1,7 +1,8 @@
 from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtCore import QObject, pyqtSignal
 
 
-class DataStorage(object):
+class DataStorage(QObject):
     """
     Application data storage. This is for reuse of application data such as tree models, simulation data, aliases,
     expressions, etc.
@@ -10,8 +11,13 @@ class DataStorage(object):
     For forms, dictionaries must be initialized and empty stored with empty strings as values.
     """
 
+    # signals
+    aliasDataChanged = pyqtSignal()
+    exprDataChanged = pyqtSignal()
+
     # FIXME: Fix structure storage for empty (remove None initialization) application and non-empty.
     def __init__(self):
+        super().__init__()
         self._input_tree_model = QStandardItemModel()
         self._output_tree_model = QStandardItemModel()
         self._simulation_data = {'components': '',
@@ -71,6 +77,7 @@ class DataStorage(object):
 
         if isinstance(table_model, list):
             self._input_table_data = table_model
+            self.aliasDataChanged.emit()
         else:
             raise TypeError("Input must be a list.")
 
@@ -81,6 +88,7 @@ class DataStorage(object):
 
         if isinstance(table_model, list):
             self._output_table_data = table_model
+            self.aliasDataChanged.emit()
         else:
             raise TypeError("Input must be a list.")
 
@@ -91,6 +99,7 @@ class DataStorage(object):
 
         if isinstance(expression_data, list):
             self._expression_table_data = expression_data
+            self.exprDataChanged.emit()
         else:
             raise TypeError("Input must be a list.")
 
