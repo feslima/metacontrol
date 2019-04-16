@@ -15,7 +15,7 @@ class DataStorage(object):
         self._input_tree_model = QStandardItemModel()
         self._output_tree_model = QStandardItemModel()
         self._simulation_data = {'components': '',
-                                 'therm_method': '',
+                                 'therm_method': [''],
                                  'blocks': '',
                                  'streams': '',
                                  'reactions': '',
