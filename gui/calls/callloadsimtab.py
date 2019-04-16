@@ -29,9 +29,9 @@ class LoadSimTab(QWidget):
         self.ui.buttonOpenSimFile.clicked.connect(self.openSimFileDialog)
         self.ui.buttonLoadVariables.clicked.connect(self.openSimTreeDialog)
         self.ui.buttonAddExpr.clicked.connect(self.insertRowExpression)
-        # FIXME: the expression table itemChanged signal is connected to a table check, every time a single item changes
-        #   the entire table is checked. This may cause perfomance problems in the future.
-        self.ui.tableWidgetExpressions.itemChanged.connect(self.expressionTableCheck)
+
+        # do a check every time the expression table changes
+        self.application_database.exprDataChanged.connect(self.expressionTableCheck)
 
         # ------------------------------ Widget Initialization ------------------------------
         self.ui.tableWidgetExpressions.setColumnWidth(1, 700)
@@ -114,6 +114,13 @@ class LoadSimTab(QWidget):
         expr_table_view.setItem(last_row, 1, table_expr_item)
         expr_table_view.setItem(last_row, 2, table_item_type)
 
+        # append the row to the data
+        current_table = self.application_database.getExpressionTableData()
+        current_table.append({'Name': table_expr_name.text(),
+                              'Expr': table_expr_item.text(),
+                              'Type': table_item_type.text()})
+        self.application_database.setExpressionTableData(current_table)
+
     # mock function to load tree from txt file
     def setTreeTxtFilesPath(self, streams_file, blocks_file):
         self.streams_file = streams_file
@@ -141,9 +148,12 @@ class LoadSimTab(QWidget):
 
             expr_valid_check.append(is_expression_valid(expr_model.data(expr_model.index(row, 1)), alias_list))
 
-        is_name_duplicated = True if len([entry['Name'] for entry in expr_info]) != \
-                                     len(set([entry['Name'] for entry in expr_info])) else False
+        expr_name = [entry['Name'] for entry in expr_info]
+        is_name_duplicated = True if len(expr_name + alias_list) != \
+                                     len(set(expr_name + alias_list)) else False
         is_exprs_valid = True if len(expr_valid_check) != 0 and all(expr_valid_check) else False
+
+        is_exprs_defined = True if all([entry['Type'] != 'Choose a type' for entry in expr_info]) else False
 
         # if the expression is not valid, update the expression table colors
         for row in range(expr_model.rowCount()):
@@ -152,7 +162,7 @@ class LoadSimTab(QWidget):
             else:
                 expr_model.setData(expr_model.index(row, 1), QBrush(Qt.red), Qt.ForegroundRole)
 
-        if is_exprs_valid and not is_name_duplicated:
+        if is_exprs_valid and not is_name_duplicated and is_exprs_defined:
             self.parentTabMainWidget.setTabEnabled(1, True)  # enable sampling tab
         else:
             self.parentTabMainWidget.setTabEnabled(1, False)  # disable sampling tab
@@ -352,6 +362,7 @@ class ComboxBoxExpressionTypeDelegate(QItemDelegate):
 
 if __name__ == '__main__':
     import sys
+
     app = QApplication(sys.argv)
     w = LoadSimTab(DataStorage(), None, None)
     w.show()
