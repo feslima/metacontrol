@@ -24,15 +24,25 @@ class MainWindow(QMainWindow):
 
         self.save_file_name = ""
 
+        # --------------------------------- load the tab widgets ---------------------------------
+        self.loadsimtab = LoadSimTab(self.application_database, parent_tab=self.ui.simulationTab,
+                                     parent_tab_widget=self.ui.tabMainWidget)
+        self.doeTab = DoeTab(self.application_database, parent_widget=self.ui.samplingTab)
+
         # --------------------------------- Connections ---------------------------------
         self.ui.actionOpen.triggered.connect(self.openFile)
         self.ui.actionSave.triggered.connect(self.saveFile)
         self.ui.actionSave_As.triggered.connect(self.saveFileAs)
 
-        # --------------------------------- load the tab widgets ---------------------------------
-        self.loadsimtab = LoadSimTab(self.application_database, parent_tab=self.ui.simulationTab,
-                                     parent_tab_widget=self.ui.tabMainWidget)
-        self.doeTab = DoeTab(self.application_database, parent_widget=self.ui.samplingTab)
+        # connections between ui
+        self.application_database.aliasDataChanged.connect(self.doeTab.loadInputVariables)
+        # self.application_database.exprDataChanged.connect(self.testFunExpr)
+
+    def testFunAlias(self):
+        print('Alias Data Changed')
+
+    def testFunExpr(self):
+        print('Expr Data Changed')
 
     def openFile(self):
         # Prompt the user to select the .mtc file
