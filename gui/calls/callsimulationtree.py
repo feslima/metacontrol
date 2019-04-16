@@ -100,18 +100,9 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.tableWidgetInput.setColumnWidth(0, 400)  # first column resizing
         self.ui.tableWidgetOutput.setColumnWidth(0, 400)
 
-        # create the model for the tree if there wasn't one loaded in the database
-        if self.gui_data.getInputTreeModel() is None:
-            self.model_tree_input = QStandardItemModel()
-            self.gui_data.setInputTreeModel(self.model_tree_input)
-        else:
-            self.model_tree_input = self.gui_data.getInputTreeModel()
-
-        if self.gui_data.getOutputTreeModel() is None:
-            self.model_tree_output = QStandardItemModel()
-            self.gui_data.setOutputTreeModel(self.model_tree_output)
-        else:
-            self.model_tree_output = self.gui_data.getOutputTreeModel()
+        # create the model for the tree
+        self.model_tree_input = self.gui_data.getInputTreeModel()
+        self.model_tree_output = self.gui_data.getOutputTreeModel()
 
         # set the alias editor delegate for the alias column
         self._input_alias_delegate = AliasEditorDelegate()
@@ -125,11 +116,11 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.tableWidgetInput.setItemDelegateForColumn(1, self._input_alias_delegate)
         self.ui.tableWidgetOutput.setItemDelegateForColumn(1, self._output_alias_delegate)
 
-        # do the same to table data
-        if self.gui_data.getInputTableData() is not None:
+        # read the variables table data
+        if len(self.gui_data.getInputTableData()) != 0:  # check for empty table
             self.insertDataOnTableCreation(self.ui.tableWidgetInput, self.gui_data.getInputTableData())
 
-        if self.gui_data.getOutputTableData() is not None:
+        if len(self.gui_data.getOutputTableData()) != 0:
             self.insertDataOnTableCreation(self.ui.tableWidgetOutput, self.gui_data.getOutputTableData())
 
         # set the combobox delegate for type column
@@ -279,10 +270,10 @@ class LoadSimulationTreeDialog(QDialog):
         is_alias_duplicated = True if len(input_aliases_list + output_aliases_list) != \
                                       len(set(input_aliases_list + output_aliases_list)) else False
         is_input_alias_not_defined = True if 'Choose a type' in [input_data_row['Type']
-                                                             for input_data_row in input_data] else False
+                                                                 for input_data_row in input_data] else False
 
         is_output_alias_not_defined = True if 'Choose a type' in [output_data_row['Type']
-                                                              for output_data_row in output_data] else False
+                                                                  for output_data_row in output_data] else False
         if is_input_alias_not_defined or is_output_alias_not_defined:
             # the user did not choose a type for a selected variable. Alert him to do so.
             msg_box_text = "At least one of the selected variables does not have a defined type (either MV or " \
