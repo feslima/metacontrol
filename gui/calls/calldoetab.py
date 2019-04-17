@@ -1,6 +1,7 @@
 import pathlib
-from PyQt5.QtWidgets import QApplication, QWidget, QHeaderView, QFileDialog, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QWidget, QHeaderView, QFileDialog, QTableWidgetItem, QItemDelegate, QLineEdit
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QDoubleValidator, QBrush
 
 from gui.views.py_files.doetab import Ui_Form
 
@@ -19,11 +20,14 @@ class DoeTab(QWidget):
         self.ui.tableWidgetInputVariables.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.tableWidgetResultsDoe.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        # input vars
-        # self.loadInputVariables()
+        self.lb_itemdelegate = BoundEditorDelegate()
+        self.ub_itemdelegate = BoundEditorDelegate()
+        self.ui.tableWidgetInputVariables.setItemDelegateForColumn(1, self.lb_itemdelegate)
+        self.ui.tableWidgetInputVariables.setItemDelegateForColumn(2, self.ub_itemdelegate)
 
         # ------------------------------ Signals/Slots ------------------------------
         self.ui.openCsvFilePushButton.clicked.connect(self.openCsvFileDialog)
+        # FIXME: (16/04/2019) connect closeEditor signal of inputVariables table to update the DOE storage.
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -43,7 +47,7 @@ class DoeTab(QWidget):
         # clear the table rows
         table_view.setRowCount(0)
 
-        # insert the aliases
+        # insert the aliases and validators
         for row in range(len(mv_alias_list)):
             table_view.insertRow(row)
             alias_item = QTableWidgetItem(mv_alias_list[row])
@@ -51,6 +55,44 @@ class DoeTab(QWidget):
             alias_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # disable the edit
 
             table_view.setItem(row, 0, alias_item)
+
+            # FIXME: (16/04/2019) read default values from data storage. If storage value is empty, set defaults 0 and 1
+            table_view.setItem(row, 1, QTableWidgetItem('0.0'))
+            table_view.item(row, 1).setTextAlignment(Qt.AlignCenter)
+            table_view.setItem(row, 2, QTableWidgetItem('1.0'))
+            table_view.item(row, 2).setTextAlignment(Qt.AlignCenter)
+
+
+class BoundEditorDelegate(QItemDelegate):
+
+    def createEditor(self, parent, option, index):
+        line_editor = QLineEdit(parent)
+        double_validator = QDoubleValidator(line_editor)
+        line_editor.setValidator(double_validator)
+
+        return line_editor
+
+    def setModelData(self, editor, model, index):
+        text = editor.text()
+
+        model.setData(index, text, Qt.EditRole)
+
+        # check if bounds are set correctly
+        if float(model.data(model.index(index.row(), 1))) >= float(model.data(model.index(index.row(), 2))) or \
+                float(model.data(model.index(index.row(), 2))) <= float(model.data(model.index(index.row(), 1))):
+            model.setData(model.index(index.row(), 1), QBrush(Qt.red), Qt.BackgroundRole)
+            model.setData(model.index(index.row(), 2), QBrush(Qt.red), Qt.BackgroundRole)
+            model.parent().item(index.row(), 1).setToolTip('Lower bound must be less than upper bound!')
+            model.parent().item(index.row(), 2).setToolTip('Upper bound must be greater than lower bound!')
+        else:
+            original_backgrd_color = editor.palette().color(editor.backgroundRole())
+            model.setData(model.index(index.row(), 1), QBrush(original_backgrd_color), Qt.BackgroundRole)
+            model.setData(model.index(index.row(), 2), QBrush(original_backgrd_color), Qt.BackgroundRole)
+            model.parent().item(index.row(), 1).setToolTip('')
+            model.parent().item(index.row(), 2).setToolTip('')
+
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
 
 
 if __name__ == "__main__":

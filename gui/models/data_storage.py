@@ -15,7 +15,6 @@ class DataStorage(QObject):
     aliasDataChanged = pyqtSignal()
     exprDataChanged = pyqtSignal()
 
-    # FIXME: Fix structure storage for empty (remove None initialization) application and non-empty.
     def __init__(self):
         super().__init__()
         self._input_tree_model = QStandardItemModel()

@@ -36,13 +36,6 @@ class MainWindow(QMainWindow):
 
         # connections between ui
         self.application_database.aliasDataChanged.connect(self.doeTab.loadInputVariables)
-        # self.application_database.exprDataChanged.connect(self.testFunExpr)
-
-    def testFunAlias(self):
-        print('Alias Data Changed')
-
-    def testFunExpr(self):
-        print('Expr Data Changed')
 
     def openFile(self):
         # Prompt the user to select the .mtc file
