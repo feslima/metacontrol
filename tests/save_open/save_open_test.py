@@ -1,5 +1,5 @@
 import pathlib
-from gui.models.data_storage import DataStorage, read_data
+from gui.models.data_storage import DataStorage, read_data, write_data
 
 mock = DataStorage()
 simulation_data = {'components': ['PROPANE', 'PROPENE'],
@@ -32,14 +32,15 @@ expr_table_data = [{'Name': 'lf', 'Expr': 'l / f', 'Type': 'Candidate (CV)'},
                    {'Name': 'c2', 'Expr': '0.995 - xd', 'Type': 'Constraint function'},
                    {'Name': 'j', 'Expr': '-(20*d + (10 - 20*xb)*b - 70*qr)', 'Type': 'Objective function (J)'}]
 
-doe_table_data = {'lb': [7., 0.1],
-                  'ub': [25., 0.9],
-                  'lhs': {'n_samples': 50, 'n_iter': 100, 'inc_vertices': False},
-                  'csv': {'active': True,
+doe_table_data = {'mv': [{'name': 'rr', 'lb': 7., 'ub': 25.0},
+                         {'name': 'df', 'lb': 0.1, 'ub': 0.9}],
+                  'lhs': {'n_samples': 50, 'n_iter': 10, 'inc_vertices': False},
+                  'csv': {'active': False,
                           'filepath': r'C:\Users\Felipe\PycharmProjects\metacontrol\tests\gui\csv_editor\column.csv',
                           'check_flags': [False, False, True, True, True, True, True, True, True, True, True, True],
-                          'alias_index': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}}
+                          'alias_list': ['rr', 'df', 'd', 'xb', 'b', 'qr', 'l', 'v', 'f', 'xd']}}
 
+# mock.setDoeData(doe_table_data)
 mock.setSimulationDataDictionary(simulation_data)
 mock.setInputTableData(input_table_data)
 mock.setOutputTableData(output_table_data)
@@ -49,5 +50,5 @@ mock.setDoeData(doe_table_data)
 sim_file_name = r'C:\Users\Felipe\Desktop\GUI\python\infill.bkp'
 out_file = pathlib.Path(__file__).parent / "test_file.mtc"
 
-# write_data(out_file, sim_file_name, mock)
+write_data(out_file, sim_file_name, mock)
 read_data(out_file, DataStorage())

@@ -30,9 +30,9 @@ USER EXPRESSIONS:
 // SAMPLING //
 INPUT SETTINGS:
     MVS:
-        NAMES: rr|df
-        LOWER BOUNDS: 7.0|0.1
-        UPPER BOUNDS: 25.0|0.9
+        NAMES: rr|df|f
+        LOWER BOUNDS: 7.0|0.1|0.1
+        UPPER BOUNDS: 25.0|0.9|1.0
     LHS:
         NUMBER OF SAMPLES: 50
         NUMBER OF ITERATIONS: 10

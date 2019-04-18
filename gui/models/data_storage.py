@@ -12,8 +12,10 @@ class DataStorage(QObject):
     """
 
     # signals
-    aliasDataChanged = pyqtSignal()
+    inputAliasDataChanged = pyqtSignal()
+    outputAliasDataChanged = pyqtSignal()
     exprDataChanged = pyqtSignal()
+    doeDataChanged = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -31,8 +33,7 @@ class DataStorage(QObject):
         self._input_table_data = []
         self._output_table_data = []
         self._expression_table_data = []
-        self._doe_data = {'lb': [''],
-                          'ub': [''],
+        self._doe_data = {'mv': [],
                           'lhs': {'n_samples': '', 'n_iter': '', 'inc_vertices': False},
                           'csv': {'active': True,
                                   'filepath': '',
@@ -76,7 +77,27 @@ class DataStorage(QObject):
 
         if isinstance(table_model, list):
             self._input_table_data = table_model
-            self.aliasDataChanged.emit()
+
+            # NOTE: this update is to ensure that the doe MV's are in conformity with alias inputs that are MV's
+            # update mvs in doe data
+            mv_input_list = [row['Alias'] for row in table_model if row['Type'] == 'Manipulated (MV)']
+            mv_doe_list = [entry['name'] for entry in self._doe_data['mv']]
+
+            # delete items from doe list that are not present in input list (this is for sanitation purposes)
+            doe_to_remove = [doe for doe in mv_doe_list if doe not in mv_input_list]
+            for k in doe_to_remove:
+                [self._doe_data['mv'].pop(idx) for idx, entry in enumerate(self._doe_data['mv']) if
+                 entry['name'] == k]
+
+            # add items from input list that are not present in doe
+            doe_to_insert = [inp for inp in mv_input_list if inp not in mv_doe_list]
+            for k in doe_to_insert:
+                self._doe_data['mv'].append({'name': k, 'lb': 0.0, 'ub': 1.0})
+            self.inputAliasDataChanged.emit()
+
+            if len(doe_to_remove) != 0 or len(doe_to_insert) != 0:
+                # if there were changes in doe_data mvs, notify other objects
+                self.doeDataChanged.emit()
         else:
             raise TypeError("Input must be a list.")
 
@@ -87,7 +108,7 @@ class DataStorage(QObject):
 
         if isinstance(table_model, list):
             self._output_table_data = table_model
-            self.aliasDataChanged.emit()
+            self.outputAliasDataChanged.emit()
         else:
             raise TypeError("Input must be a list.")
 
@@ -109,6 +130,7 @@ class DataStorage(QObject):
 
         if isinstance(doe_data, dict):
             self._doe_data = doe_data
+            self.doeDataChanged.emit()
         else:
             raise TypeError("Input must be a dictionary object.")
 
@@ -163,8 +185,10 @@ USER EXPRESSIONS:
 
 // SAMPLING //
 INPUT SETTINGS:
-    LOWER BOUNDS: {lower_bounds}
-    UPPER BOUNDS: {upper_bounds}
+    MVS:
+        NAMES: {names}
+        LOWER BOUNDS: {lower_bounds}
+        UPPER BOUNDS: {upper_bounds}
     LHS:
         NUMBER OF SAMPLES: {n_samples}
         NUMBER OF ITERATIONS: {n_iter_lhs}
@@ -173,7 +197,8 @@ INPUT SETTINGS:
         ACTIVE: {csv_active}
         FILENAME: {csv_filename}
         CHECK FLAGS: {csv_check_flags}
-        ALIAS INDEX: {csv_alias_index}""".format(
+        ALIAS LIST: {csv_alias_list}
+""".format(
         sim_filename=sim_file_path, components='|'.join(sim_info['components']),
         therm_model=sim_info['therm_method'][0], blocks='|'.join(sim_info['blocks']),
         streams='|'.join(sim_info['streams']), reactions='|'.join(sim_info['reactions']),
@@ -188,13 +213,14 @@ INPUT SETTINGS:
         expr_names='|'.join([entry['Name'] for entry in expr_table]),
         expr_str='|'.join([entry['Expr'] for entry in expr_table]),
         expr_types='|'.join([entry['Type'] for entry in expr_table]),
-        lower_bounds='|'.join((map(str, doe_table['lb']))),
-        upper_bounds='|'.join((map(str, doe_table['ub']))),
+        names='|'.join([entry['name'] for entry in doe_table['mv']]),
+        lower_bounds='|'.join([str(entry['lb']) for entry in doe_table['mv']]),
+        upper_bounds='|'.join([str(entry['ub']) for entry in doe_table['mv']]),
         n_samples=doe_table['lhs']['n_samples'], n_iter_lhs=doe_table['lhs']['n_iter'],
         inc_vertices=doe_table['lhs']['inc_vertices'], csv_active=doe_table['csv']['active'],
         csv_filename=doe_table['csv']['filepath'],
         csv_check_flags='|'.join(map(str, doe_table['csv']['check_flags'])),
-        csv_alias_index='|'.join(map(str, doe_table['csv']['alias_index']))
+        csv_alias_list='|'.join(map(str, doe_table['csv']['alias_list']))
     )
 
     with open(output_file_path, 'w') as file:
@@ -282,5 +308,42 @@ def read_data(mtc_file_path, gui_data_storage):
 
     # -------------------------- SAMPLING --------------------------
     # TODO: (14/04/2019) Implement sampling (DOE) tab load data.
+    samp_raw_str_block = re.search('// SAMPLING //\n(.*\n*)', mtc_str, flags=re.DOTALL)
+    samp_mv_raw_str_block = re.search('MVS:\n(.*\n*)LHS:', samp_raw_str_block.group(1), flags=re.DOTALL)
+    samp_mv_alias_list = re.search('NAMES: (.*)\n', samp_mv_raw_str_block.group(1)).group(1).split('|')
+    samp_mv_lb_list = re.search('LOWER BOUNDS: (.*)\n', samp_mv_raw_str_block.group(1)).group(1).split('|')
+    samp_mv_ub_list = re.search('UPPER BOUNDS: (.*)\n', samp_mv_raw_str_block.group(1)).group(1).split('|')
+
+    mv_info = []
+    if len(samp_mv_alias_list) == 1 and samp_mv_alias_list[0] == '':
+        pass
+    else:
+        for idx, mv in enumerate(samp_mv_alias_list):
+            mv_info.append({'name': mv, 'lb': float(samp_mv_lb_list[idx]), 'ub': float(samp_mv_ub_list[idx])})
+
+    samp_lhs_raw_str_block = re.search('LHS:\n(.*\n*)CSV:', samp_raw_str_block.group(1), flags=re.DOTALL)
+    lhs_n_samples = int(re.search('NUMBER OF SAMPLES: (.*)\n', samp_lhs_raw_str_block.group(1)).group(1))
+    lhs_n_iter = int(re.search('NUMBER OF ITERATIONS: (.*)\n', samp_lhs_raw_str_block.group(1)).group(1))
+    lhs_inc_vert = 'True' == re.search('INCLUDE VERTICES: (.*)\n', samp_lhs_raw_str_block.group(1)).group(1)
+
+    lhs_info = {'n_samples': lhs_n_samples, 'n_iter_lhs': lhs_n_iter, 'inc_vertices': lhs_inc_vert}
+
+    samp_csv_raw_str_block = re.search('CSV:\n(.*\n*)', samp_raw_str_block.group(1), flags=re.DOTALL)
+    csv_active = 'True' == re.search('ACTIVE: (.*)\n', samp_csv_raw_str_block.group(1)).group(1)
+    csv_filepath = re.search('FILENAME: (.*)\n', samp_csv_raw_str_block.group(1)).group(1)
+    csv_check_flags = [flag == 'True' for flag in
+                       re.search('CHECK FLAGS: (.*)\n', samp_csv_raw_str_block.group(1)).group(1).split('|')]
+    csv_alias_list = re.search('ALIAS LIST: (.*)\n', samp_csv_raw_str_block.group(1)).group(1).split('|')
+
+    csv_info = {'active': csv_active,
+                'filepath': csv_filepath,
+                'check_flags': csv_check_flags,
+                'alias_list': csv_alias_list}
+
+    doe_table = {'mv': mv_info,
+                 'lhs': lhs_info,
+                 'csv': csv_info}
+
+    gui_data_storage.setDoeData(doe_table)
 
     return sim_file_name

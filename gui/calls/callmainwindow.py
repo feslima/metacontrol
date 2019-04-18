@@ -34,9 +34,6 @@ class MainWindow(QMainWindow):
         self.ui.actionSave.triggered.connect(self.saveFile)
         self.ui.actionSave_As.triggered.connect(self.saveFileAs)
 
-        # connections between ui
-        self.application_database.aliasDataChanged.connect(self.doeTab.loadInputVariables)
-
     def openFile(self):
         # Prompt the user to select the .mtc file
         homedir = str(pathlib.Path.home())
