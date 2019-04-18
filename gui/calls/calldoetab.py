@@ -20,14 +20,16 @@ class DoeTab(QWidget):
         self.ui.tableWidgetInputVariables.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.tableWidgetResultsDoe.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        self.lb_itemdelegate = BoundEditorDelegate()
-        self.ub_itemdelegate = BoundEditorDelegate()
-        self.ui.tableWidgetInputVariables.setItemDelegateForColumn(1, self.lb_itemdelegate)
-        self.ui.tableWidgetInputVariables.setItemDelegateForColumn(2, self.ub_itemdelegate)
+        self._lb_itemdelegate = BoundEditorDelegate()
+        self._ub_itemdelegate = BoundEditorDelegate()
+        self.ui.tableWidgetInputVariables.setItemDelegateForColumn(1, self._lb_itemdelegate)
+        self.ui.tableWidgetInputVariables.setItemDelegateForColumn(2, self._ub_itemdelegate)
 
         # ------------------------------ Signals/Slots ------------------------------
+        self.application_database.doeDataChanged.connect(self.loadInputVariables)
         self.ui.openCsvFilePushButton.clicked.connect(self.openCsvFileDialog)
-        # FIXME: (16/04/2019) connect closeEditor signal of inputVariables table to update the DOE storage.
+        self._lb_itemdelegate.closeEditor.connect(self.updateDoeStorage)
+        self._ub_itemdelegate.closeEditor.connect(self.updateDoeStorage)
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -37,10 +39,10 @@ class DoeTab(QWidget):
             self.ui.lineEditCsvFilePath.setText(sim_filename)
 
     def loadInputVariables(self):
-        # load the MV aliases in the variable table
-        input_alias_data = self.application_database.getInputTableData()
+        # load the MV aliases into the variable table
+        mv_alias_data = self.application_database.getDoeData()
 
-        mv_alias_list = [row['Alias'] for row in input_alias_data if row['Type'] == 'Manipulated (MV)']
+        mv_alias_list, lb_list, ub_list = zip(*[row.values() for row in mv_alias_data['mv']])
 
         table_view = self.ui.tableWidgetInputVariables
 
@@ -56,11 +58,56 @@ class DoeTab(QWidget):
 
             table_view.setItem(row, 0, alias_item)
 
-            # FIXME: (16/04/2019) read default values from data storage. If storage value is empty, set defaults 0 and 1
-            table_view.setItem(row, 1, QTableWidgetItem('0.0'))
+            table_view.setItem(row, 1, QTableWidgetItem(str(lb_list[row])))
             table_view.item(row, 1).setTextAlignment(Qt.AlignCenter)
-            table_view.setItem(row, 2, QTableWidgetItem('1.0'))
+            table_view.setItem(row, 2, QTableWidgetItem(str(ub_list[row])))
             table_view.item(row, 2).setTextAlignment(Qt.AlignCenter)
+
+        self.inputTableCheck()
+
+    # check the input variables table
+    def inputTableCheck(self):
+        table_view = self.ui.tableWidgetInputVariables
+
+        lb_list = []
+        ub_list = []
+        flag_list = []
+        for row in range(table_view.rowCount()):
+            lb_list.append(float(table_view.item(row, 1).text()))
+            ub_list.append(float(table_view.item(row, 2).text()))
+            flag_list.append(lb_list[row] < ub_list[row])
+
+        is_bound_set = all(flag_list)
+
+        if is_bound_set:  # activate or deactivate the gen lhs button and paint/repaint cells
+            self.ui.genLhsPushButton.setEnabled(True)
+
+            org_color = table_view.palette().color(table_view.backgroundRole())
+
+            for row in range(table_view.rowCount()):
+                table_view.model().setData(table_view.model().index(row, 1), QBrush(org_color), Qt.BackgroundRole)
+                table_view.model().setData(table_view.model().index(row, 2), QBrush(org_color), Qt.BackgroundRole)
+        else:
+            row_to_paint = [idx for idx, e in enumerate(flag_list) if e is False]
+            for row in row_to_paint:
+                table_view.model().setData(table_view.model().index(row, 1), QBrush(Qt.red), Qt.BackgroundRole)
+                table_view.model().setData(table_view.model().index(row, 2), QBrush(Qt.red), Qt.BackgroundRole)
+            self.ui.genLhsPushButton.setEnabled(False)
+
+    # update the doe data storage
+    def updateDoeStorage(self):
+        table_view = self.ui.tableWidgetInputVariables
+        mv_bound_info = []
+        for row in range(table_view.rowCount()):
+            mv_bound_info.append({'name': table_view.item(row, 0).text(),
+                                  'lb': table_view.item(row, 1).text(),
+                                  'ub': table_view.item(row, 2).text()})
+
+        current_doe_data = self.application_database.getDoeData()
+
+        current_doe_data['mv'] = mv_bound_info
+
+        self.application_database.setDoeData(current_doe_data)
 
 
 class BoundEditorDelegate(QItemDelegate):
@@ -76,20 +123,6 @@ class BoundEditorDelegate(QItemDelegate):
         text = editor.text()
 
         model.setData(index, text, Qt.EditRole)
-
-        # check if bounds are set correctly
-        if float(model.data(model.index(index.row(), 1))) >= float(model.data(model.index(index.row(), 2))) or \
-                float(model.data(model.index(index.row(), 2))) <= float(model.data(model.index(index.row(), 1))):
-            model.setData(model.index(index.row(), 1), QBrush(Qt.red), Qt.BackgroundRole)
-            model.setData(model.index(index.row(), 2), QBrush(Qt.red), Qt.BackgroundRole)
-            model.parent().item(index.row(), 1).setToolTip('Lower bound must be less than upper bound!')
-            model.parent().item(index.row(), 2).setToolTip('Upper bound must be greater than lower bound!')
-        else:
-            original_backgrd_color = editor.palette().color(editor.backgroundRole())
-            model.setData(model.index(index.row(), 1), QBrush(original_backgrd_color), Qt.BackgroundRole)
-            model.setData(model.index(index.row(), 2), QBrush(original_backgrd_color), Qt.BackgroundRole)
-            model.parent().item(index.row(), 1).setToolTip('')
-            model.parent().item(index.row(), 2).setToolTip('')
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
