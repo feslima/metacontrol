@@ -286,7 +286,10 @@ def read_data(mtc_file_path, gui_data_storage):
                                     'Alias': output_alias_list[row],
                                     'Type': output_type_list[row]})
 
+    gui_data_storage.blockSignals(True)
     gui_data_storage.setInputTableData(inpt_table_var)
+    gui_data_storage.blockSignals(False)
+
     gui_data_storage.setOutputTableData(outpt_table_var)
 
     # -------------------------- expression table data --------------------------
@@ -326,7 +329,7 @@ def read_data(mtc_file_path, gui_data_storage):
     lhs_n_iter = int(re.search('NUMBER OF ITERATIONS: (.*)\n', samp_lhs_raw_str_block.group(1)).group(1))
     lhs_inc_vert = 'True' == re.search('INCLUDE VERTICES: (.*)\n', samp_lhs_raw_str_block.group(1)).group(1)
 
-    lhs_info = {'n_samples': lhs_n_samples, 'n_iter_lhs': lhs_n_iter, 'inc_vertices': lhs_inc_vert}
+    lhs_info = {'n_samples': lhs_n_samples, 'n_iter': lhs_n_iter, 'inc_vertices': lhs_inc_vert}
 
     samp_csv_raw_str_block = re.search('CSV:\n(.*\n*)', samp_raw_str_block.group(1), flags=re.DOTALL)
     csv_active = 'True' == re.search('ACTIVE: (.*)\n', samp_csv_raw_str_block.group(1)).group(1)
