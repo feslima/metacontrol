@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QBrush
 
 from gui.views.py_files.doetab import Ui_Form
+from gui.calls.calllhssettings import LhsSettingsDialog
+from gui.models.sampling import lhs
 
 
 class DoeTab(QWidget):
@@ -30,6 +32,8 @@ class DoeTab(QWidget):
         self.ui.openCsvFilePushButton.clicked.connect(self.openCsvFileDialog)
         self._lb_itemdelegate.closeEditor.connect(self.updateDoeStorage)
         self._ub_itemdelegate.closeEditor.connect(self.updateDoeStorage)
+        self.ui.lhsSettingsPushButton.clicked.connect(self.openLhsSettingsDialog)
+        self.ui.genLhsPushButton.clicked.connect(self.generateLhsPressed)
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -37,6 +41,10 @@ class DoeTab(QWidget):
                                                       "CSV files (*.csv)")
         if sim_filename != "":
             self.ui.lineEditCsvFilePath.setText(sim_filename)
+
+    def openLhsSettingsDialog(self):
+        dialog = LhsSettingsDialog(self.application_database)
+        dialog.exec_()
 
     def loadInputVariables(self):
         # load the MV aliases into the variable table
@@ -109,6 +117,21 @@ class DoeTab(QWidget):
 
         self.application_database.setDoeData(current_doe_data)
 
+    def generateLhsPressed(self):
+        input_table_view = self.ui.tableWidgetInputVariables
+
+        lb_list = []
+        ub_list = []
+        for row in range(input_table_view.rowCount()):
+            lb_list.append(float(input_table_view.item(row, 1).text()))
+            ub_list.append(float(input_table_view.item(row, 2).text()))
+
+        current_lhs_data = self.application_database.getDoeData()['lhs']
+
+        lhs_table = lhs(current_lhs_data['n_samples'], lb_list, ub_list, current_lhs_data['n_iter'],
+                        current_lhs_data['inc_vertices'])
+
+        print(lhs_table)
 
 class BoundEditorDelegate(QItemDelegate):
 
