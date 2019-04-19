@@ -133,6 +133,7 @@ class Ui_Form(object):
         self.tableWidgetResultsDoe.setObjectName("tableWidgetResultsDoe")
         self.tableWidgetResultsDoe.setColumnCount(0)
         self.tableWidgetResultsDoe.setRowCount(0)
+        self.tableWidgetResultsDoe.horizontalHeader().setVisible(False)
         self.tableWidgetResultsDoe.horizontalHeader().setStretchLastSection(True)
         self.gridLayout_9.addWidget(self.tableWidgetResultsDoe, 1, 0, 1, 1)
         self.label_17 = QtWidgets.QLabel(self.groupBox_4)

@@ -29,11 +29,17 @@ class DoeTab(QWidget):
 
         # ------------------------------ Signals/Slots ------------------------------
         self.application_database.doeDataChanged.connect(self.loadInputVariables)
+        self.application_database.inputAliasDataChanged.connect(self.loadResultsTable)
+        self.application_database.outputAliasDataChanged.connect(self.loadResultsTable)
+        self.application_database.exprDataChanged.connect(self.loadResultsTable)
         self.ui.openCsvFilePushButton.clicked.connect(self.openCsvFileDialog)
         self._lb_itemdelegate.closeEditor.connect(self.updateDoeStorage)
         self._ub_itemdelegate.closeEditor.connect(self.updateDoeStorage)
         self.ui.lhsSettingsPushButton.clicked.connect(self.openLhsSettingsDialog)
         self.ui.genLhsPushButton.clicked.connect(self.generateLhsPressed)
+
+        # ------------------------------ Internal variables ------------------------------
+        self._doe_results_table = None
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -72,6 +78,48 @@ class DoeTab(QWidget):
             table_view.item(row, 2).setTextAlignment(Qt.AlignCenter)
 
         self.inputTableCheck()
+
+    def loadResultsTable(self):
+        # load the headers
+        results_table_view = self.ui.tableWidgetResultsDoe
+        input_alias_list = [row['Alias'] for row in self.application_database.getInputTableData()
+                            if row['Type'] == 'Manipulated (MV)']
+        output_alias_list = [row['Alias'] for row in self.application_database.getOutputTableData()]
+
+        expr_list = [row['Name'] for row in self.application_database.getExpressionTableData()]
+
+        # clear the table
+        results_table_view.setColumnCount(0)
+        results_table_view.setRowCount(0)
+
+        # place the headers in the first and second rows
+        results_table_view.setRowCount(2)
+        results_table_view.setColumnCount(len(input_alias_list + output_alias_list + expr_list))
+        results_table_view.setSpan(0, 0, 1, len(input_alias_list))
+        results_table_view.setItem(0, 0, QTableWidgetItem('Inputs'))
+        results_table_view.item(0, 0).setTextAlignment(Qt.AlignCenter)
+        results_table_view.setSpan(0, 2, 1, len(output_alias_list + expr_list))
+        results_table_view.setItem(0, 2, QTableWidgetItem('Outputs'))
+        results_table_view.item(0, 2).setTextAlignment(Qt.AlignCenter)
+
+        # place the subheaders (alias) in the second row
+        all_alias = input_alias_list + output_alias_list + expr_list
+        for j in range(len(all_alias)):
+            item_place_holder = QTableWidgetItem(all_alias[j])
+            results_table_view.setItem(1, j, item_place_holder)
+            item_place_holder.setTextAlignment(Qt.AlignCenter)
+
+        if self._doe_results_table is not None:
+            results_table_view.setRowCount(self._doe_results_table.shape[0] + 2)  # expand the rows
+
+            for row in range(self._doe_results_table.shape[0]):
+                for col in range(self._doe_results_table.shape[1]):
+                    item_place_holder = QTableWidgetItem(str(self._doe_results_table[row, col]))
+                    results_table_view.setItem(2 + row, col, item_place_holder)
+                    item_place_holder.setTextAlignment(Qt.AlignCenter)
+
+        # results_table_view.setHorizontalHeaderLabels(alias_list + expr_list)
+
 
     # check the input variables table
     def inputTableCheck(self):
@@ -131,7 +179,8 @@ class DoeTab(QWidget):
         lhs_table = lhs(current_lhs_data['n_samples'], lb_list, ub_list, current_lhs_data['n_iter'],
                         current_lhs_data['inc_vertices'])
 
-        print(lhs_table)
+        self._doe_results_table = lhs_table
+        self.loadResultsTable()
 
 class BoundEditorDelegate(QItemDelegate):
 
