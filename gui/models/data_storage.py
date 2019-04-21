@@ -310,7 +310,6 @@ def read_data(mtc_file_path, gui_data_storage):
     gui_data_storage.setExpressionTableData(expr_table)
 
     # -------------------------- SAMPLING --------------------------
-    # TODO: (14/04/2019) Implement sampling (DOE) tab load data.
     samp_raw_str_block = re.search('// SAMPLING //\n(.*\n*)', mtc_str, flags=re.DOTALL)
     samp_mv_raw_str_block = re.search('MVS:\n(.*\n*)LHS:', samp_raw_str_block.group(1), flags=re.DOTALL)
     samp_mv_alias_list = re.search('NAMES: (.*)\n', samp_mv_raw_str_block.group(1)).group(1).split('|')
