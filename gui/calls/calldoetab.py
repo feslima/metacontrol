@@ -4,8 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QBrush
 
 from gui.views.py_files.doetab import Ui_Form
-from gui.calls.calllhssettings import LhsSettingsDialog
-from gui.models.sampling import lhs
+from gui.calls.callsamplingassistant import SamplingAssistantDialog
 
 
 class DoeTab(QWidget):
@@ -35,11 +34,14 @@ class DoeTab(QWidget):
         self.ui.openCsvFilePushButton.clicked.connect(self.openCsvFileDialog)
         self._lb_itemdelegate.closeEditor.connect(self.updateDoeStorage)
         self._ub_itemdelegate.closeEditor.connect(self.updateDoeStorage)
-        self.ui.lhsSettingsPushButton.clicked.connect(self.openLhsSettingsDialog)
-        self.ui.genLhsPushButton.clicked.connect(self.generateLhsPressed)
+        self.ui.openSamplerPushButton.clicked.connect(self.openSamplingAssistant)
 
         # ------------------------------ Internal variables ------------------------------
         self._doe_results_table = None
+
+    def openSamplingAssistant(self):
+        samp_dialog = SamplingAssistantDialog(self.application_database)
+        samp_dialog.exec_()
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -47,10 +49,6 @@ class DoeTab(QWidget):
                                                       "CSV files (*.csv)")
         if sim_filename != "":
             self.ui.lineEditCsvFilePath.setText(sim_filename)
-
-    def openLhsSettingsDialog(self):
-        dialog = LhsSettingsDialog(self.application_database)
-        dialog.exec_()
 
     def loadInputVariables(self):
         # load the MV aliases into the variable table
@@ -120,7 +118,6 @@ class DoeTab(QWidget):
 
         # results_table_view.setHorizontalHeaderLabels(alias_list + expr_list)
 
-
     # check the input variables table
     def inputTableCheck(self):
         table_view = self.ui.tableWidgetInputVariables
@@ -135,8 +132,7 @@ class DoeTab(QWidget):
 
         is_bound_set = all(flag_list)
 
-        if is_bound_set:  # activate or deactivate the gen lhs button and paint/repaint cells
-            self.ui.genLhsPushButton.setEnabled(True)
+        if is_bound_set:  # paint/repaint cells
 
             org_color = table_view.palette().color(table_view.backgroundRole())
 
@@ -148,7 +144,6 @@ class DoeTab(QWidget):
             for row in row_to_paint:
                 table_view.model().setData(table_view.model().index(row, 1), QBrush(Qt.red), Qt.BackgroundRole)
                 table_view.model().setData(table_view.model().index(row, 2), QBrush(Qt.red), Qt.BackgroundRole)
-            self.ui.genLhsPushButton.setEnabled(False)
 
     # update the doe data storage
     def updateDoeStorage(self):
@@ -165,22 +160,6 @@ class DoeTab(QWidget):
 
         self.application_database.setDoeData(current_doe_data)
 
-    def generateLhsPressed(self):
-        input_table_view = self.ui.tableWidgetInputVariables
-
-        lb_list = []
-        ub_list = []
-        for row in range(input_table_view.rowCount()):
-            lb_list.append(float(input_table_view.item(row, 1).text()))
-            ub_list.append(float(input_table_view.item(row, 2).text()))
-
-        current_lhs_data = self.application_database.getDoeData()['lhs']
-
-        lhs_table = lhs(current_lhs_data['n_samples'], lb_list, ub_list, current_lhs_data['n_iter'],
-                        current_lhs_data['inc_vertices'])
-
-        self._doe_results_table = lhs_table
-        self.loadResultsTable()
 
 class BoundEditorDelegate(QItemDelegate):
 
@@ -203,9 +182,19 @@ class BoundEditorDelegate(QItemDelegate):
 if __name__ == "__main__":
     import sys
     from gui.models.data_storage import DataStorage
+    from tests.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
+        doe_table_data
 
     app = QApplication(sys.argv)
-    w = DoeTab(DataStorage())
+
+    mock_storage = DataStorage()
+    mock_storage.setDoeData(doe_table_data)
+    mock_storage.setSimulationDataDictionary(simulation_data)
+    mock_storage.setInputTableData(input_table_data)
+    mock_storage.setOutputTableData(output_table_data)
+    mock_storage.setExpressionTableData(expr_table_data)
+
+    w = DoeTab(mock_storage)
     w.show()
 
 

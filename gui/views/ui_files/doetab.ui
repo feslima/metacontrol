@@ -125,42 +125,9 @@ QGroupBox::title {
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QPushButton" name="genLhsPushButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Generates the Latin Hypercube Sampling (LHS) when &lt;span style=&quot; text-decoration: underline;&quot;&gt;all&lt;/span&gt; the variables in the table above have their lower and upper bounds defined. Default number of points is 10 * number of variables. To change this, click on the settings button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
+          <widget class="QPushButton" name="openSamplerPushButton">
            <property name="text">
-            <string>Generate LHS</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="lhsSettingsPushButton">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Latin Hypercube Sampling (LHS) settings&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/icons.qrc">
-             <normaloff>:/sampling/settings_icon.svg</normaloff>:/sampling/settings_icon.svg</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="sampleDataPushButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Query the simulation engine to sample the model. May take a while depending on model complexity and number of samples.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>Sample Data</string>
+            <string>Open Sampling Assistant</string>
            </property>
           </widget>
          </item>
