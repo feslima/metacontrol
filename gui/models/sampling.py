@@ -1,15 +1,16 @@
 from pydace.aux_functions import lhsdesign
 import numpy as np
+import pythoncom, win32com.client
 
-from PyQt5.QtCore import QThread, pyqtSignal, QEventLoop, QTimer
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import QThread, pyqtSignal
 
 from gui.models.data_storage import DataStorage
+from gui.models.sim_connections import AspenConnection
+
 
 # TODO: (21/04/2019) Implement Thread that samples the data while keeping the GUI responsive
 
 def lhs(n_samples: int, lb: list, ub: list, n_iter: int, inc_vertices: bool):
-
     lb = np.asarray(lb)
     ub = np.asarray(ub)
 
@@ -22,18 +23,49 @@ class SamplerThread(QThread):
     performed
     """
 
-    caseSampled = pyqtSignal(list)
+    caseSampled = pyqtSignal(int, object)
 
-    def __init__(self, input_design_data, ):
-        QThread.__init__(self)
+    def __init__(self, input_design_data: np.ndarray, app_data: DataStorage,
+                 parent=None):
+        QThread.__init__(self, parent)
+        self._input_des_data = input_design_data
+        self._app_data = app_data
+
+        # https://stackoverflow.com/questions/26764978/using-win32com-with-multithreading
+        # initialize
+        pythoncom.CoInitialize()
+        self._aspen_connection = AspenConnection(app_data.getSimulationFilePath())
+
+        # create id
+        self._aspen_id = pythoncom.CoMarshalInterThreadInterfaceInStream(pythoncom.IID_IDispatch,
+                                                                         self._aspen_connection.GetConnectionObject())
+
+        # clean up
+        self.finished.connect(self.__del__)
+
+    def __del__(self):
+        self._aspen_connection.Destructor()  # kill the connection on thread cleanup
 
     def run(self):
-        # test function
-        count = 0
-        while count < 10:
-            self.sleep(1)
-            count += 1
-            self.caseSampled.emit(np.random.rand())
+        # initialize
+        pythoncom.CoInitialize()
+
+        # get instance from id
+        aspen_con = win32com.client.Dispatch(
+            pythoncom.CoGetInterfaceAndReleaseStream(self._aspen_id, pythoncom.IID_IDispatch)
+        )
+
+        max_rows = self._input_des_data.shape[0]
+        for row in range(max_rows):
+            # self.msleep(10/max_rows * 1e3)
+            self.caseSampled.emit(row + 1,
+                                  runCase(self._app_data, self._input_des_data[row, :].flatten().tolist(),
+                                          aspen_con)
+                                  )
+
+            if self.isInterruptionRequested():  # to allow task abortion
+                self.__del__()
+                return
 
 
 def runCase(app_data: DataStorage, mv_values: list, aspen_obj):

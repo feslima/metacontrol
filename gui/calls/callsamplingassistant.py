@@ -3,16 +3,16 @@ from PyQt5.QtCore import Qt, pyqtSignal
 
 from gui.views.py_files.samplingassistant import Ui_Dialog
 from gui.calls.calllhssettings import LhsSettingsDialog
+from gui.models.sampling import SamplerThread, lhs
+from gui.models.data_storage import DataStorage
 
-from gui.models.sampling import lhs
 
-
-# TODO: (19/04/2016) implement sampling procedure and visualization
+# TODO: (21/04/2016)  return sampled values to the doetab
 
 class SamplingAssistantDialog(QDialog):
     inputDesignChanged = pyqtSignal()
 
-    def __init__(self, application_database):
+    def __init__(self, application_database: DataStorage):
         # ------------------------------ Form Initialization ----------------------------
         super().__init__()
         self.ui = Ui_Dialog()
@@ -62,6 +62,7 @@ class SamplingAssistantDialog(QDialog):
         self.ui.genLhsPushButton.clicked.connect(self.generateLhsPressed)
         self.ui.lhsSettingsPushButton.clicked.connect(self.openLhsSettingsDialog)
         self.ui.cancelPushButton.clicked.connect(self.reject)
+        self.ui.abortSamplingPushButton.clicked.connect(self.abortButtonPressed)
 
         self.inputDesignChanged.connect(self.enableSampleDataButton)
         self.inputDesignChanged.connect(self.displayInputDesignData)
@@ -111,6 +112,7 @@ Generate the lhs data and make it available to the GUI
                             lhs_app_data['inc_vertices'])
 
             self._setInputDesign(lhs_table)  # store the data and fire the signal
+            self.ui.displayProgressBar.setMaximum(lhs_table.shape[0])
 
     def displayInputDesignData(self):
         """
@@ -120,6 +122,8 @@ Grabs the input design table stored in the GUI and displays it
         lhs_table = self._getInputDesing()
 
         if lhs_table is not None:
+            sampler_table_view.setRowCount(2)  # flush the table
+            self.ui.displayProgressBar.setValue(0)  # flush the progress bar
             sampler_table_view.setRowCount(lhs_table.shape[0] + 2)  # expand the rows
 
             for row in range(lhs_table.shape[0]):
@@ -133,7 +137,47 @@ Grabs the input design table stored in the GUI and displays it
 
     def sampleData(self):
         # TODO: Remember to disable all other buttons that generate new input designs until the sampling is finished
-        self.accept()
+        # disable buttons
+        self.onSamplingStarted()
+
+        # create the thread object
+        self.sampler = SamplerThread(self._getInputDesing(), self.application_database)
+        self.sampler.caseSampled.connect(self.onCaseSampled)
+        self.sampler.finished.connect(self.onSamplingFinished)
+        self.sampler.start()
+
+        # self.accept()
+
+    def onSamplingStarted(self):
+        # disable gen lhs and sample buttons
+        self.ui.genLhsPushButton.setEnabled(False)
+        self.ui.sampDataPushButton.setEnabled(False)
+
+        # enable the abort button
+        self.ui.abortSamplingPushButton.setEnabled(True)
+
+    def onSamplingFinished(self):
+        # enable gen lhs and sample buttons
+        self.ui.genLhsPushButton.setEnabled(True)
+        self.ui.sampDataPushButton.setEnabled(True)
+
+        # disable the abort button
+        self.ui.abortSamplingPushButton.setEnabled(False)
+
+    def onCaseSampled(self, row, sampled_values):
+        # receives single case sampled data and row to place it in the output columns of the display table
+        self.ui.displayProgressBar.setValue(row)
+
+        sampler_table_view = self.ui.samplerDisplayTableWidget
+        input_offset = self._getInputDesing().shape[1] + 1
+        for col_idx, col in enumerate(sampled_values.values()):
+            sampled_values_placeholder = QTableWidgetItem(str(col))
+            sampler_table_view.setItem(1 + row, input_offset + col_idx, sampled_values_placeholder)
+            sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
+
+    def abortButtonPressed(self):
+        # stops the thread execution
+        self.sampler.requestInterruption()
 
 
 if __name__ == "__main__":
@@ -141,11 +185,12 @@ if __name__ == "__main__":
     from gui.models.data_storage import DataStorage
 
     from tests.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
-        doe_table_data
+        doe_table_data, sim_file_name
 
     app = QApplication(sys.argv)
 
     mock_storage = DataStorage()
+    mock_storage.setSimulationFilePath(sim_file_name)
     mock_storage.setSimulationDataDictionary(simulation_data)
     mock_storage.setInputTableData(input_table_data)
     mock_storage.setOutputTableData(output_table_data)
