@@ -15,7 +15,7 @@ SIM INFO:
 PWC VARIABLES:
     INPUT:
         ALIAS: rr|df
-        PATH: \Data\Blocks\TOWER\Output\MOLE_RR|\Data\Blocks\TOWER\Output\MOLE_DFR
+        PATH: \Data\Blocks\TOWER\Input\BASIS_RR|\Data\Blocks\TOWER\Input\D:F
         TYPE: Manipulated (MV)|Manipulated (MV)
     OUTPUT:
         ALIAS: d|xb|b|qr|l|v|f|xd
