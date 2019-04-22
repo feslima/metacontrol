@@ -8,8 +8,6 @@ from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
 
 
-# TODO: (21/04/2019) Implement Thread that samples the data while keeping the GUI responsive
-
 def lhs(n_samples: int, lb: list, ub: list, n_iter: int, inc_vertices: bool):
     lb = np.asarray(lb)
     ub = np.asarray(ub)
@@ -44,7 +42,7 @@ class SamplerThread(QThread):
         self.finished.connect(self.__del__)
 
     def __del__(self):
-        self._aspen_connection.Destructor()  # kill the connection on thread cleanup
+        self._aspen_connection.CloseConnection()  # kill the connection on thread cleanup
 
     def run(self):
         # initialize
@@ -64,7 +62,6 @@ class SamplerThread(QThread):
                                   )
 
             if self.isInterruptionRequested():  # to allow task abortion
-                self.__del__()
                 return
 
 
