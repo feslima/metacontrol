@@ -17,7 +17,7 @@ class LoadSimTab(QWidget):
     EXPR_EXPR_COL_IDX = 2
     EXPR_TYPE_COL_IDX = 3
 
-    def __init__(self, application_database, parent_tab=None, parent_tab_widget=None):
+    def __init__(self, application_database: DataStorage, parent_tab=None, parent_tab_widget=None):
         # ------------------------------ Form Initialization ----------------------------
         super().__init__()
         self.ui = Ui_Form()
