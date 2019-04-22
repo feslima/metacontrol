@@ -1,20 +1,22 @@
 import csv
 import numpy as np
-from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QCheckBox, QHBoxLayout, QWidget, QMessageBox
+from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QCheckBox, QHBoxLayout, QWidget, QItemDelegate, \
+    QComboBox, QMessageBox, QHeaderView
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QBrush
 
-from gui.views.py_files.csv_editor import *
+from gui.views.py_files.csv_editor import Ui_Dialog
+from gui.models.data_storage import DataStorage
 
 
-class ComboBoxDelegate(QtWidgets.QItemDelegate):
+class ComboBoxDelegate(QItemDelegate):
 
     def __init__(self, item_list, parent=None):
-        QtWidgets.QItemDelegate.__init__(self, parent)
+        QItemDelegate.__init__(self, parent)
         self.item_list = item_list
 
     def createEditor(self, parent, option, index):
-        combo_box = QtWidgets.QComboBox(parent)
+        combo_box = QComboBox(parent)
         combo_box.addItems(self.item_list)
 
         return combo_box
@@ -70,7 +72,7 @@ class CsvEditorDialog(QDialog):
 
         # read the numbers
         data_values = np.genfromtxt(csv_filepath, delimiter=',', skip_header=1,
-                                    converters={1: lambda x: 1. if x == b"'ok'" else 0.})
+                                    converters={1: lambda x: 1. if x == b"OK" or x == b"ok" else 0.})
         col_count = len(headers)
         self.ui.csvTableWidget.setColumnCount(col_count)
         self._combobox_delegates_dict = {}
@@ -109,7 +111,7 @@ class CsvEditorDialog(QDialog):
 
         # column width adjustments
         self.ui.csvTableWidget.horizontalHeader().setMinimumSectionSize(80)
-        self.ui.csvTableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.ui.csvTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.csvTableWidget.horizontalHeader().setStretchLastSection(True)
 
     def okButtonPressed(self):
@@ -121,16 +123,17 @@ class CsvEditorDialog(QDialog):
                    if table_view.cellWidget(0, col).findChild(QCheckBox).isChecked()]
 
         if len(aliases) != len(set(aliases)) or 'Select Alias' in aliases:
-            msg_box = QtWidgets.QMessageBox()
-            msg_box.setIcon(QtWidgets.QMessageBox.Warning)
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
             msg_box.setText("Some aliases set were found to be duplicated or not selected!")
             msg_box.setWindowTitle("Duplicated alias")
-            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msg_box.setStandardButtons(QMessageBox.Ok)
 
             msg_box.exec()
 
         else:
-            # concatenate the checked columns
+            # TODO: (22/04/2019) Think about a proper way to store the selected columns names-checkflags pairs in the
+            #   mtc extension.
 
             self.accept()
 
@@ -153,8 +156,25 @@ class CsvEditorDialog(QDialog):
 
 if __name__ == '__main__':
     import sys
+    from tests_.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
+        doe_table_data
+
     app = QApplication(sys.argv)
-    w = CsvEditorDialog()
+
+    mock_storage = DataStorage()
+    mock_storage.setDoeData(doe_table_data)
+    mock_storage.setSimulationDataDictionary(simulation_data)
+    mock_storage.setInputTableData(input_table_data)
+    mock_storage.setOutputTableData(output_table_data)
+    mock_storage.setExpressionTableData(expr_table_data)
+
+    alias_list = [entry['Alias'] for entry in mock_storage.getInputTableData()
+                  if entry['Type'] == 'Manipulated (MV)'] + \
+                 [entry['Alias'] for entry in mock_storage.getOutputTableData()]
+
+    csv_test = r"C:\Users\Felipe\csv_test.csv"
+    # csv_test = mock_storage.getDoeData()['csv']['filepath']
+    w = CsvEditorDialog(csv_test, alias_list)
     w.show()
 
     sys.exit(app.exec_())
