@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QApplication, QDialog, QTableWidgetItem, QHeaderView, QMessageBox, QStatusBar
+from PyQt5.QtWidgets import QApplication, QDialog, QTableWidgetItem, QHeaderView, QMessageBox, QStatusBar, \
+    QFileDialog
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QResizeEvent
 
@@ -8,9 +9,9 @@ from gui.models.sampling import SamplerThread, lhs
 from gui.models.data_storage import DataStorage
 
 from py_expression_eval import Parser
+import csv
+import pathlib
 
-
-# TODO: (21/04/2016)  return sampled values to the doetab
 
 class SamplingAssistantDialog(QDialog):
     inputDesignChanged = pyqtSignal()
@@ -69,9 +70,10 @@ class SamplingAssistantDialog(QDialog):
         # ------------------------------ Signals/Slots ------------------------------
         self.ui.sampDataPushButton.clicked.connect(self.sampleData)
         self.ui.donePushButton.clicked.connect(self.accept)
+        self.ui.cancelPushButton.clicked.connect(self.reject)
+        self.ui.exportCsvPushButton.clicked.connect(self.exportCsv)
         self.ui.genLhsPushButton.clicked.connect(self.generateLhsPressed)
         self.ui.lhsSettingsPushButton.clicked.connect(self.openLhsSettingsDialog)
-        self.ui.cancelPushButton.clicked.connect(self.reject)
         self.ui.abortSamplingPushButton.clicked.connect(self.abortButtonPressed)
 
         self.inputDesignChanged.connect(self.enableSampleDataButton)
@@ -79,6 +81,7 @@ class SamplingAssistantDialog(QDialog):
 
         # ------------------------------ Internal variables ------------------------------
         self._input_design = None
+        self.sampled_data = []
         self.parser = Parser()
 
     def _setInputDesign(self, input_design):
@@ -185,8 +188,6 @@ Grabs the input design table stored in the GUI and displays it
 
     def onCaseSampled(self, row, sampled_values):
         # receives single case sampled data and row to place it in the output columns of the display table
-        self.ui.displayProgressBar.setValue(row)
-
         sampler_table_view = self.ui.samplerDisplayTableWidget
         input_offset = self._getInputDesing().shape[1] + 1
         output_offset = input_offset + len(sampled_values.values())
@@ -202,9 +203,40 @@ Grabs the input design table stored in the GUI and displays it
             sampler_table_view.setItem(1 + row, output_offset + col_idx, expr_value_placeholder)
             expr_value_placeholder.setTextAlignment(Qt.AlignCenter)
 
+        self.sampled_data.append([float(sampler_table_view.item(1 + row, col).text())
+                                  for col in range(sampler_table_view.columnCount())])
+
+        self.ui.displayProgressBar.setValue(row)
+
     def abortButtonPressed(self):
         # stops the thread execution
         self.sampler.requestInterruption()
+
+    def exportCsv(self):
+        # query the user to save the file
+        csv_file_name, _ = QFileDialog.getSaveFileName(self, "Select where to save the .csv file",
+                                                       str(pathlib.Path.home()), "Comma Separated Values files (*.csv)")
+        if csv_file_name == '':
+            # user canceled the dialog
+            pass
+        else:
+            sampler_table_view = self.ui.samplerDisplayTableWidget
+
+            # get the headers names
+            headers = ['case'] + [sampler_table_view.item(1, col).text()
+                                  for col in range(1, sampler_table_view.columnCount())]
+
+            # read the data from the table
+            csv_data = []
+            with open(csv_file_name, 'w', newline='') as csv_file:
+                csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                csv_writer.writerow(headers)
+
+                for row in range(2, sampler_table_view.rowCount()):
+                    row_txt_list = [sampler_table_view.item(row, col).text()
+                                    for col in range(sampler_table_view.columnCount())]
+                    csv_data.append(row_txt_list)
+                    csv_writer.writerow(row_txt_list)
 
     def resizeEvent(self, e: QResizeEvent):
         results_table_view = self.ui.samplerDisplayTableWidget
@@ -228,7 +260,7 @@ if __name__ == "__main__":
     import sys
     from gui.models.data_storage import DataStorage
 
-    from tests.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
+    from tests_.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
         doe_table_data, sim_file_name
 
     app = QApplication(sys.argv)
@@ -257,5 +289,8 @@ if __name__ == "__main__":
 
     # Set the exception hook to our wrapping function
     sys.excepthook = my_exception_hook
+
+    if w.exec():
+        print(w.sampled_data)
 
     sys.exit(app.exec_())

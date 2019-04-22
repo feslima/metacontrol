@@ -40,7 +40,7 @@ if __name__ == "__main__":
     import sys
     from gui.models.data_storage import DataStorage
 
-    from tests.gui.mock_data import doe_table_data
+    from tests_.gui.mock_data import doe_table_data
 
     app = QApplication(sys.argv)
 
