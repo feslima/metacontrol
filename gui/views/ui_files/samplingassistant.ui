@@ -23,56 +23,7 @@
    <string>Sampling Assistant</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="2">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="3">
-    <widget class="QPushButton" name="sampDataPushButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Query the simulation engine to sample the model. May take a while depending on model complexity and number of samples.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="text">
-      <string>Sample Data</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>10</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="4">
-    <widget class="QPushButton" name="cancelPushButton">
-     <property name="text">
-      <string>Cancel</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="5">
+   <item row="0" column="0" colspan="8">
     <widget class="QGroupBox" name="groupBox">
      <property name="styleSheet">
       <string notr="true">QGroupBox {
@@ -216,7 +167,72 @@ QGroupBox::title {
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" colspan="5">
+   <item row="1" column="4">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="4">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="7">
+    <widget class="QPushButton" name="cancelPushButton">
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="5">
+    <widget class="QPushButton" name="sampDataPushButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Query the simulation engine to sample the model. May take a while depending on model complexity and number of samples.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Sample Data</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="abortSamplingPushButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aborts the sampling&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Abort</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="7">
+    <layout class="QHBoxLayout" name="horizontalLayout"/>
+   </item>
+   <item row="2" column="0" colspan="8">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="styleSheet">
       <string notr="true">QGroupBox {
@@ -243,6 +259,9 @@ QGroupBox::title {
         </property>
         <attribute name="horizontalHeaderVisible">
          <bool>true</bool>
+        </attribute>
+        <attribute name="horizontalHeaderCascadingSectionResizes">
+         <bool>false</bool>
         </attribute>
         <attribute name="horizontalHeaderStretchLastSection">
          <bool>true</bool>
@@ -275,16 +294,33 @@ QGroupBox::title {
      </layout>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QPushButton" name="abortSamplingPushButton">
+   <item row="3" column="3">
+    <widget class="QPushButton" name="exportCsvPushButton">
      <property name="enabled">
       <bool>false</bool>
      </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aborts the sampling&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
      <property name="text">
-      <string>Abort</string>
+      <string>Export as CSV</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="6">
+    <widget class="QPushButton" name="donePushButton">
+     <property name="text">
+      <string>Done</string>
      </property>
     </widget>
    </item>

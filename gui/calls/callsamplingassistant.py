@@ -1,10 +1,13 @@
-from PyQt5.QtWidgets import QApplication, QDialog, QTableWidgetItem, QHeaderView, QMessageBox
+from PyQt5.QtWidgets import QApplication, QDialog, QTableWidgetItem, QHeaderView, QMessageBox, QStatusBar
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QResizeEvent
 
 from gui.views.py_files.samplingassistant import Ui_Dialog
 from gui.calls.calllhssettings import LhsSettingsDialog
 from gui.models.sampling import SamplerThread, lhs
 from gui.models.data_storage import DataStorage
+
+from py_expression_eval import Parser
 
 
 # TODO: (21/04/2016)  return sampled values to the doetab
@@ -24,11 +27,17 @@ class SamplingAssistantDialog(QDialog):
         self.application_database = application_database
 
         # ------------------------------ WidgetInitialization ------------------------------
-        # load the internal headers
+        # status bar
+        self.statBar = QStatusBar(self)
+        self.ui.horizontalLayout.addWidget(self.statBar)
+
         results_table_view = self.ui.samplerDisplayTableWidget
+
+        # set the table results headerview to stretch
         results_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         results_table_view.horizontalHeader().setMinimumSectionSize(50)
 
+        # load the internal headers
         input_alias_list = [row['Alias'] for row in self.application_database.getInputTableData()
                             if row['Type'] == 'Manipulated (MV)']
         output_alias_list = [row['Alias'] for row in self.application_database.getOutputTableData()]
@@ -59,6 +68,7 @@ class SamplingAssistantDialog(QDialog):
 
         # ------------------------------ Signals/Slots ------------------------------
         self.ui.sampDataPushButton.clicked.connect(self.sampleData)
+        self.ui.donePushButton.clicked.connect(self.accept)
         self.ui.genLhsPushButton.clicked.connect(self.generateLhsPressed)
         self.ui.lhsSettingsPushButton.clicked.connect(self.openLhsSettingsDialog)
         self.ui.cancelPushButton.clicked.connect(self.reject)
@@ -69,6 +79,7 @@ class SamplingAssistantDialog(QDialog):
 
         # ------------------------------ Internal variables ------------------------------
         self._input_design = None
+        self.parser = Parser()
 
     def _setInputDesign(self, input_design):
         # input design values setter to allow signal emission
@@ -136,32 +147,40 @@ Grabs the input design table stored in the GUI and displays it
                     item_place_holder.setTextAlignment(Qt.AlignCenter)
 
     def sampleData(self):
-        # TODO: Remember to disable all other buttons that generate new input designs until the sampling is finished
         # disable buttons
         self.onSamplingStarted()
+
+        # change status bar text
+        self.statBar.showMessage('Opening connection to simulator engine...')
+
+        # reset progress bar value
+        self.ui.displayProgressBar.setValue(0)
 
         # create the thread object
         self.sampler = SamplerThread(self._getInputDesing(), self.application_database)
         self.sampler.caseSampled.connect(self.onCaseSampled)
+        self.sampler.started.connect(self.statBar.clearMessage)
         self.sampler.finished.connect(self.onSamplingFinished)
         self.sampler.start()
 
         # self.accept()
 
     def onSamplingStarted(self):
-        # disable gen lhs and sample buttons
+        # disable gen lhs, sample and export buttons
         self.ui.genLhsPushButton.setEnabled(False)
         self.ui.sampDataPushButton.setEnabled(False)
+        self.ui.exportCsvPushButton.setEnabled(False)
 
         # enable the abort button
         self.ui.abortSamplingPushButton.setEnabled(True)
 
     def onSamplingFinished(self):
-        # enable gen lhs and sample buttons
+        # enable gen lhs, sample and export buttons
         self.ui.genLhsPushButton.setEnabled(True)
         self.ui.sampDataPushButton.setEnabled(True)
+        self.ui.exportCsvPushButton.setEnabled(True)
 
-        # disable the abort button
+        # disable the abort button and sample data
         self.ui.abortSamplingPushButton.setEnabled(False)
 
     def onCaseSampled(self, row, sampled_values):
@@ -170,14 +189,39 @@ Grabs the input design table stored in the GUI and displays it
 
         sampler_table_view = self.ui.samplerDisplayTableWidget
         input_offset = self._getInputDesing().shape[1] + 1
+        output_offset = input_offset + len(sampled_values.values())
+
         for col_idx, col in enumerate(sampled_values.values()):
             sampled_values_placeholder = QTableWidgetItem(str(col))
             sampler_table_view.setItem(1 + row, input_offset + col_idx, sampled_values_placeholder)
             sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
 
+        for col_idx, expr_dict in enumerate(self.application_database.getExpressionTableData()):
+            expr_value = self.parser.parse(expr_dict['Expr']).evaluate(sampled_values)
+            expr_value_placeholder = QTableWidgetItem(str(expr_value))
+            sampler_table_view.setItem(1 + row, output_offset + col_idx, expr_value_placeholder)
+            expr_value_placeholder.setTextAlignment(Qt.AlignCenter)
+
     def abortButtonPressed(self):
         # stops the thread execution
         self.sampler.requestInterruption()
+
+    def resizeEvent(self, e: QResizeEvent):
+        results_table_view = self.ui.samplerDisplayTableWidget
+
+        # set the table results headerview to stretch
+        results_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        # store the column width values
+        col_widths = [results_table_view.horizontalHeader().sectionSize(j)
+                      for j in range(results_table_view.columnCount())]
+
+        if results_table_view.rowCount() > 2:  # if the table is not empty, resize the columns
+            # set the mode to interactive
+            results_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+
+            # resize the columns to the widths stored
+            [results_table_view.horizontalHeader().resizeSection(j, value) for j, value in enumerate(col_widths)]
 
 
 if __name__ == "__main__":
