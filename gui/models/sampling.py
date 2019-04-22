@@ -101,12 +101,12 @@ Samples a single case of DOE.
     # get the output
     res_dict = {}
     if aspen_obj.Tree.FindNode(r"\Data\Results Summary\Run-Status\Output\UOSSTAT2").Value == 8:
+        res_dict['success'] = 'ok'
         for out_var in out_data:
             res_dict[out_var['Alias']] = aspen_obj.Tree.FindNode(out_var['Path']).Value
-        res_dict['success'] = 'ok'
     else:
+        res_dict['success'] = 'error'
         for out_var in out_data:
             res_dict[out_var['Alias']] = 0.0
-        res_dict['success'] = 'error'
 
     return res_dict

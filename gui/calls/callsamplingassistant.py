@@ -12,11 +12,13 @@ from py_expression_eval import Parser
 import csv
 import pathlib
 
-# FIXME: (22/04/2019) include the convergence flag from sampling as second column (color the table and include data in
-#  csv export)
 
 class SamplingAssistantDialog(QDialog):
     inputDesignChanged = pyqtSignal()
+
+    # consts
+    INPUT_COL_OFFSET = 2
+    HEADER_OFFSET = 2
 
     def __init__(self, application_database: DataStorage):
         # ------------------------------ Form Initialization ----------------------------
@@ -48,25 +50,29 @@ class SamplingAssistantDialog(QDialog):
         expr_list = [row['Name'] for row in self.application_database.getExpressionTableData()]
 
         # place the headers in the first and second rows
-        results_table_view.setRowCount(2)
-        results_table_view.setColumnCount(1 + len(input_alias_list + output_alias_list + expr_list))
-        results_table_view.setSpan(0, 0, 2, 1)
+        results_table_view.setRowCount(self.HEADER_OFFSET)
+        results_table_view.setColumnCount(self.INPUT_COL_OFFSET + len(input_alias_list + output_alias_list + expr_list))
+        results_table_view.setSpan(0, 0, self.HEADER_OFFSET, 1)
         results_table_view.setItem(0, 0, QTableWidgetItem('Case Number'))
         results_table_view.item(0, 0).setTextAlignment(Qt.AlignCenter)
 
-        results_table_view.setSpan(0, 1, 1, len(input_alias_list))
-        results_table_view.setItem(0, 1, QTableWidgetItem('Inputs'))
+        results_table_view.setSpan(0, 1, self.HEADER_OFFSET, 1)
+        results_table_view.setItem(0, 1, QTableWidgetItem('Status'))
         results_table_view.item(0, 1).setTextAlignment(Qt.AlignCenter)
 
-        results_table_view.setSpan(0, 3, 1, len(output_alias_list + expr_list))
-        results_table_view.setItem(0, 3, QTableWidgetItem('Outputs'))
-        results_table_view.item(0, 3).setTextAlignment(Qt.AlignCenter)
+        results_table_view.setSpan(0, self.INPUT_COL_OFFSET, 1, len(input_alias_list))
+        results_table_view.setItem(0, self.INPUT_COL_OFFSET, QTableWidgetItem('Inputs'))
+        results_table_view.item(0, self.INPUT_COL_OFFSET).setTextAlignment(Qt.AlignCenter)
+
+        results_table_view.setSpan(0, self.INPUT_COL_OFFSET + self.HEADER_OFFSET, 1, len(output_alias_list + expr_list))
+        results_table_view.setItem(0, self.INPUT_COL_OFFSET + self.HEADER_OFFSET, QTableWidgetItem('Outputs'))
+        results_table_view.item(0, self.INPUT_COL_OFFSET + self.HEADER_OFFSET).setTextAlignment(Qt.AlignCenter)
 
         # place the subheaders (alias) in the second row
         all_alias = input_alias_list + output_alias_list + expr_list
         for j in range(len(all_alias)):
             item_place_holder = QTableWidgetItem(all_alias[j])
-            results_table_view.setItem(1, j + 1, item_place_holder)
+            results_table_view.setItem(1, j + self.INPUT_COL_OFFSET, item_place_holder)
             item_place_holder.setTextAlignment(Qt.AlignCenter)
 
         # ------------------------------ Signals/Slots ------------------------------
@@ -138,17 +144,17 @@ Grabs the input design table stored in the GUI and displays it
         lhs_table = self._getInputDesing()
 
         if lhs_table is not None:
-            sampler_table_view.setRowCount(2)  # flush the table
+            sampler_table_view.setRowCount(self.HEADER_OFFSET)  # flush the table
             self.ui.displayProgressBar.setValue(0)  # flush the progress bar
-            sampler_table_view.setRowCount(lhs_table.shape[0] + 2)  # expand the rows
+            sampler_table_view.setRowCount(lhs_table.shape[0] + self.HEADER_OFFSET)  # expand the rows
 
             for row in range(lhs_table.shape[0]):
                 case_num_item_placeholder = QTableWidgetItem(str(row + 1))
-                sampler_table_view.setItem(2 + row, 0, case_num_item_placeholder)
+                sampler_table_view.setItem(self.HEADER_OFFSET + row, 0, case_num_item_placeholder)
                 case_num_item_placeholder.setTextAlignment(Qt.AlignCenter)
                 for col in range(lhs_table.shape[1]):
                     item_place_holder = QTableWidgetItem(str(lhs_table[row, col]))
-                    sampler_table_view.setItem(2 + row, 1 + col, item_place_holder)
+                    sampler_table_view.setItem(self.HEADER_OFFSET + row, self.INPUT_COL_OFFSET + col, item_place_holder)
                     item_place_holder.setTextAlignment(Qt.AlignCenter)
 
     def sampleData(self):
@@ -167,8 +173,6 @@ Grabs the input design table stored in the GUI and displays it
         self.sampler.started.connect(self.statBar.clearMessage)
         self.sampler.finished.connect(self.onSamplingFinished)
         self.sampler.start()
-
-        # self.accept()
 
     def onSamplingStarted(self):
         # disable gen lhs, sample and export buttons
@@ -191,22 +195,31 @@ Grabs the input design table stored in the GUI and displays it
     def onCaseSampled(self, row, sampled_values):
         # receives single case sampled data and row to place it in the output columns of the display table
         sampler_table_view = self.ui.samplerDisplayTableWidget
-        input_offset = self._getInputDesing().shape[1] + 1
-        output_offset = input_offset + len(sampled_values.values())
+        output_offset = self._getInputDesing().shape[1] + self.INPUT_COL_OFFSET
+
+        # place the convergence flag
+        sampled_values_placeholder = QTableWidgetItem(sampled_values['success'])
+        sampler_table_view.setItem(1 + row, 1, sampled_values_placeholder)
+        sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
+
+        # delete the dict key
+        del sampled_values['success']
+        output_expr_offset = output_offset + len(sampled_values.values())
 
         for col_idx, col in enumerate(sampled_values.values()):
             sampled_values_placeholder = QTableWidgetItem(str(col))
-            sampler_table_view.setItem(1 + row, input_offset + col_idx, sampled_values_placeholder)
+            sampler_table_view.setItem(1 + row, output_offset + col_idx, sampled_values_placeholder)
             sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
 
         for col_idx, expr_dict in enumerate(self.application_database.getExpressionTableData()):
             expr_value = self.parser.parse(expr_dict['Expr']).evaluate(sampled_values)
             expr_value_placeholder = QTableWidgetItem(str(expr_value))
-            sampler_table_view.setItem(1 + row, output_offset + col_idx, expr_value_placeholder)
+            sampler_table_view.setItem(1 + row, output_expr_offset + col_idx, expr_value_placeholder)
             expr_value_placeholder.setTextAlignment(Qt.AlignCenter)
 
-        self.sampled_data.append([float(sampler_table_view.item(1 + row, col).text())
-                                  for col in range(sampler_table_view.columnCount())])
+        self.sampled_data.append([sampler_table_view.item(1 + row, 1).text()] +
+                                 [float(sampler_table_view.item(1 + row, col).text())
+                                  for col in range(self.INPUT_COL_OFFSET, sampler_table_view.columnCount())])
 
         self.ui.displayProgressBar.setValue(row)
 
@@ -225,8 +238,8 @@ Grabs the input design table stored in the GUI and displays it
             sampler_table_view = self.ui.samplerDisplayTableWidget
 
             # get the headers names
-            headers = ['case'] + [sampler_table_view.item(1, col).text()
-                                  for col in range(1, sampler_table_view.columnCount())]
+            headers = ['case', 'status'] + [sampler_table_view.item(1, col).text()
+                                            for col in range(self.INPUT_COL_OFFSET, sampler_table_view.columnCount())]
 
             # read the data from the table
             csv_data = []
@@ -234,7 +247,7 @@ Grabs the input design table stored in the GUI and displays it
                 csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 csv_writer.writerow(headers)
 
-                for row in range(2, sampler_table_view.rowCount()):
+                for row in range(self.HEADER_OFFSET, sampler_table_view.rowCount()):
                     row_txt_list = [sampler_table_view.item(row, col).text()
                                     for col in range(sampler_table_view.columnCount())]
                     csv_data.append(row_txt_list)
