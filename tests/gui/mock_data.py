@@ -36,3 +36,5 @@ doe_table_data = {'mv': [{'name': 'rr', 'lb': 7., 'ub': 25.0},
                           'check_flags': [False, False, True, True, True, True, True, True, True, True, True, True],
                           'alias_list': ['rr', 'df', 'd', 'xb', 'b', 'qr', 'l', 'v', 'f', 'xd']}
                   }
+
+sim_file_name = r'C:\Users\Felipe\Desktop\GUI\python\infill.bkp'

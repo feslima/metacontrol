@@ -19,6 +19,7 @@ class DataStorage(QObject):
 
     def __init__(self):
         super().__init__()
+        self._rigorous_model_file_path = ''
         self._input_tree_model = QStandardItemModel()
         self._output_tree_model = QStandardItemModel()
         self._simulation_data = {'components': '',
@@ -39,6 +40,15 @@ class DataStorage(QObject):
                                   'filepath': '',
                                   'check_flags': [False],
                                   'alias_index': ['']}}
+
+    def getSimulationFilePath(self):
+        return self._rigorous_model_file_path
+
+    def setSimulationFilePath(self, filepath):
+        if isinstance(filepath, str):
+            self._rigorous_model_file_path = filepath
+        else:
+            raise TypeError('Rigorous model filepath must be a string.')
 
     def getInputTreeModel(self):
         return self._input_tree_model
