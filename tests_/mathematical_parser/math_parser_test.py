@@ -1,6 +1,6 @@
 import re
 
-from tests.gui.math_parser.math_parser import Ui_Dialog
+from tests_.gui.math_parser.math_parser import Ui_Dialog
 from PyQt5.QtWidgets import QDialog, QApplication
 
 from gui.models.math_check import ValidMathStr

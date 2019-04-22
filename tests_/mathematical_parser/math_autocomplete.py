@@ -1,4 +1,4 @@
-from tests.gui.math_parser.math_autocomplete import Ui_Dialog
+from tests_.gui.math_parser.math_autocomplete import Ui_Dialog
 from PyQt5.QtWidgets import QApplication, QDialog, QCompleter
 from PyQt5.QtCore import QStringListModel
 

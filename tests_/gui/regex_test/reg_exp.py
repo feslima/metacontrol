@@ -2,7 +2,7 @@ from PyQt5.QtCore import QRegExp
 from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtWidgets import QDialog, QApplication
 
-from tests.gui.regex_test.expr_val import *
+from tests_.gui.regex_test.expr_val import *
 
 
 class RegExp(QDialog):

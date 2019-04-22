@@ -1,7 +1,7 @@
 import pathlib
 from gui.models.data_storage import DataStorage, read_data, write_data
 
-from tests.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, doe_table_data, \
+from tests_.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, doe_table_data, \
     sim_file_name
 
 mock = DataStorage()
