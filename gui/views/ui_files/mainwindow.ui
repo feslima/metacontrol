@@ -90,12 +90,12 @@
         <string>Sampling</string>
        </attribute>
       </widget>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="metamodelTab">
        <property name="enabled">
         <bool>true</bool>
        </property>
        <attribute name="title">
-        <string>Page</string>
+        <string>Metamodel</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="tab_4">

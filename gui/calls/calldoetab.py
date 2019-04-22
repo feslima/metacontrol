@@ -5,10 +5,12 @@ from PyQt5.QtGui import QDoubleValidator, QBrush
 
 from gui.views.py_files.doetab import Ui_Form
 from gui.calls.callsamplingassistant import SamplingAssistantDialog
+from gui.models.data_storage import DataStorage
+from gui.calls.callcsveditor import CsvEditorDialog
 
 
 class DoeTab(QWidget):
-    def __init__(self, application_database, parent_widget=None):
+    def __init__(self, application_database: DataStorage, parent_widget=None):
         # ------------------------------ Form Initialization ----------------------------
         super().__init__()
         self.ui = Ui_Form()
@@ -35,20 +37,37 @@ class DoeTab(QWidget):
         self._lb_itemdelegate.closeEditor.connect(self.updateDoeStorage)
         self._ub_itemdelegate.closeEditor.connect(self.updateDoeStorage)
         self.ui.openSamplerPushButton.clicked.connect(self.openSamplingAssistant)
+        self.ui.csvEditorRadioButton.toggled['bool'].connect(self.updateDoeCsvStorage)
+        self.ui.csvEditorPushButton.clicked.connect(self.openCsvEditorDialog)
 
         # ------------------------------ Internal variables ------------------------------
         self._doe_results_table = None
 
     def openSamplingAssistant(self):
         samp_dialog = SamplingAssistantDialog(self.application_database)
-        samp_dialog.exec_()
+
+        if samp_dialog.exec_():
+            self.application_database.setSampledData(samp_dialog.sampled_data)
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
-        sim_filename, _ = QFileDialog.getOpenFileName(self, "Select .csv containing DOE data", homedir,
+        csv_filename, _ = QFileDialog.getOpenFileName(self, "Select .csv containing DOE data", homedir,
                                                       "CSV files (*.csv)")
-        if sim_filename != "":
-            self.ui.lineEditCsvFilePath.setText(sim_filename)
+        if csv_filename != "":
+            self.ui.lineEditCsvFilePath.setText(csv_filename)
+            # enable the CSV Editor button
+            self.ui.csvEditorPushButton.setEnabled(True)
+
+            csv_doe_data = self.application_database.getDoeData()['csv']
+            csv_doe_data['filepath'] = csv_filename
+
+    def openCsvEditorDialog(self):
+        alias_list = [entry['Alias'] for entry in self.application_database.getInputTableData()
+                      if entry['Type'] == 'Manipulated (MV)'] + \
+            [entry['Alias'] for entry in self.application_database.getOutputTableData()]
+
+        csv_editor_dialog = CsvEditorDialog(self.ui.lineEditCsvFilePath.text(), alias_list)
+        csv_editor_dialog.exec_()
 
     def loadInputVariables(self):
         # load the MV aliases into the variable table
@@ -160,6 +179,11 @@ class DoeTab(QWidget):
 
         self.application_database.setDoeData(current_doe_data)
 
+    def updateDoeCsvStorage(self):
+        csv_doe_data = self.application_database.getDoeData()['csv']
+
+        csv_doe_data['active'] = True if self.ui.csvEditorRadioButton.isChecked() else False
+
 
 class BoundEditorDelegate(QItemDelegate):
 
@@ -182,7 +206,7 @@ class BoundEditorDelegate(QItemDelegate):
 if __name__ == "__main__":
     import sys
     from gui.models.data_storage import DataStorage
-    from tests.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
+    from tests_.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
         doe_table_data
 
     app = QApplication(sys.argv)

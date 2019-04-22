@@ -16,6 +16,7 @@ class DataStorage(QObject):
     outputAliasDataChanged = pyqtSignal()
     exprDataChanged = pyqtSignal()
     doeDataChanged = pyqtSignal()
+    sampledDataChanged = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -39,7 +40,8 @@ class DataStorage(QObject):
                           'csv': {'active': True,
                                   'filepath': '',
                                   'check_flags': [False],
-                                  'alias_index': ['']}}
+                                  'alias_index': ['']},
+                          'sampled': []}
 
     def getSimulationFilePath(self):
         return self._rigorous_model_file_path
@@ -143,6 +145,17 @@ class DataStorage(QObject):
             self.doeDataChanged.emit()
         else:
             raise TypeError("Input must be a dictionary object.")
+
+    def getSampledData(self):
+        return self._doe_data['sampled']
+
+    def setSampledData(self, sampled_data):
+
+        if isinstance(sampled_data, list):
+            self._doe_data['sampled'] = sampled_data
+            self.sampledDataChanged.emit()
+        else:
+            raise TypeError("Input must be a list.")
 
 
 def write_data(output_file_path, sim_file_path, gui_data_storage):

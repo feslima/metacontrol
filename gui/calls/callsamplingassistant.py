@@ -12,6 +12,8 @@ from py_expression_eval import Parser
 import csv
 import pathlib
 
+# FIXME: (22/04/2019) include the convergence flag from sampling as second column (color the table and include data in
+#  csv export)
 
 class SamplingAssistantDialog(QDialog):
     inputDesignChanged = pyqtSignal()

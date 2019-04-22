@@ -21,6 +21,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Metacontrol - untitled.mtc')
 
         self.ui.tabMainWidget.setTabEnabled(1, False)  # disable the sampling tab
+        self.ui.tabMainWidget.setTabEnabled(2, False)  # disable the metamodel tab
 
         self.save_file_name = ""
 
