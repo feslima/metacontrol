@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="50cm" height="49cm" viewBox="-2973 2 982 969" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g>
+    <path style="fill: #84c0f1" d="M -2897.2 521.183 C -2871.03,641.139 -2794.69,748.009 -2732.53,836.339 C -2670.38,924.671 -2603.85,912.675 -2477.36,827.615 C -2350.86,742.555 -2257.07,633.323 -2181.83,516.821 C -2106.58,400.317 -2016.07,142.776 -2025.89,128.6 C -2035.7,114.423 -2194.73,331.071 -2277.79,333.615 C -2360.85,336.159 -2456.27,106.244 -2597.31,171.129 C -2738.35,236.014 -2923.37,401.227 -2897.2,521.183z"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 20; stroke: #84c0f1" d="M -2897.2 521.183 C -2871.03,641.139 -2794.69,748.009 -2732.53,836.339 C -2670.38,924.671 -2603.85,912.675 -2477.36,827.615 C -2350.86,742.555 -2257.07,633.323 -2181.83,516.821 C -2106.58,400.317 -2016.07,142.776 -2025.89,128.6 C -2035.7,114.423 -2194.73,331.071 -2277.79,333.615 C -2360.85,336.159 -2456.27,106.244 -2597.31,171.129 C -2738.35,236.014 -2923.37,401.227 -2897.2,521.183"/>
+  </g>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 20; stroke: #000000" x1="-2954.11" y1="944.251" x2="-2053.77" y2="944.251"/>
+    <polygon style="fill: #000000" points="-2046.27,944.251 -2056.27,949.251 -2053.77,944.251 -2056.27,939.251 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 20; stroke: #000000" points="-2046.27,944.251 -2056.27,949.251 -2053.77,944.251 -2056.27,939.251 "/>
+  </g>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 20; stroke: #000000" x1="-2944.65" y1="946.853" x2="-2945.17" y2="80.2188"/>
+    <polygon style="fill: #000000" points="-2945.17,72.7188 -2940.17,82.7159 -2945.17,80.2188 -2950.17,82.7218 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 20; stroke: #000000" points="-2945.17,72.7188 -2940.17,82.7159 -2945.17,80.2188 -2950.17,82.7218 "/>
+  </g>
+  <path style="fill: none; fill-opacity:0; stroke-width: 20; stroke-dasharray: 20; stroke: #000000" d="M -2901.76 515.64 C -2774.17,863.512 -2540.22,826.298 -2468.25,773.954 C -2396.27,721.61 -2220.4,625.98 -2025.89,128.6"/>
+  <g>
+    <rect style="fill: #000000" x="-2035.7" y="113.332" width="26.1722" height="23.9912"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 5; stroke: #000000" x="-2035.7" y="113.332" width="26.1722" height="23.9912"/>
+  </g>
+  <path style="fill: none; fill-opacity:0; stroke-width: 20; stroke: #ff0000" d="M -2888.68 503.645 C -2527.8,1189.93 -2222.2,344.329 -2058.72,94.4907"/>
+  <g>
+    <rect style="fill: #000000" x="-2914.85" y="491.649" width="26.1722" height="23.9912"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 5; stroke: #000000" x="-2914.85" y="491.649" width="26.1722" height="23.9912"/>
+  </g>
+  <path style="fill: none; fill-opacity:0; stroke-width: 20; stroke: #45c146" d="M -2889.85 392.97 C -2717.12,844.838 -2476.53,1057.66 -2181.97,15.1298"/>
+  <path style="fill: none; fill-opacity:0; stroke-width: 20; stroke: #000000" d="M -2914.85 503.645 C -2637.28,985.618 -2377.97,804.43 -2025.89,128.6"/>
+  <g>
+    <ellipse style="fill: #000000" cx="-2019.93" cy="117.055" rx="27.9463" ry="27.3517"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" cx="-2019.93" cy="117.055" rx="27.9463" ry="27.3517"/>
+  </g>
+  <g>
+    <ellipse style="fill: #000000" cx="-2911.08" cy="497.895" rx="27.9463" ry="27.3517"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" cx="-2911.08" cy="497.895" rx="27.9463" ry="27.3517"/>
+  </g>
+</svg>

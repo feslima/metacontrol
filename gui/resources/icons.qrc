@@ -4,6 +4,9 @@
     <file>open_icon.svg</file>
     <file>settings_icon.svg</file>
   </qresource>
+  <qresource prefix="mainwindow">
+    <file>metacontrol_icon.svg</file>
+  </qresource>
   <qresource prefix="loadsim">
     <file>delete_icon.svg</file>
     <file>add_icon.svg</file>
