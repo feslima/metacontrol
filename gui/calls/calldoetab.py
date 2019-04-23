@@ -45,9 +45,7 @@ class DoeTab(QWidget):
 
     def openSamplingAssistant(self):
         samp_dialog = SamplingAssistantDialog(self.application_database)
-
-        if samp_dialog.exec_():
-            self.application_database.sampled_data = samp_dialog.sampled_data
+        samp_dialog.exec_()
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -58,15 +56,10 @@ class DoeTab(QWidget):
             # enable the CSV Editor button
             self.ui.csvEditorPushButton.setEnabled(True)
 
-            csv_doe_data = self.application_database.doe_data['csv']
-            csv_doe_data['filepath'] = csv_filename
+            self.application_database.csv_filepath = csv_filename
 
     def openCsvEditorDialog(self):
-        alias_list = [entry['Alias'] for entry in self.application_database.input_table_data
-                      if entry['Type'] == 'Manipulated (MV)'] + \
-            [entry['Alias'] for entry in self.application_database.output_table_data]
-
-        csv_editor_dialog = CsvEditorDialog(self.ui.lineEditCsvFilePath.text(), alias_list)
+        csv_editor_dialog = CsvEditorDialog(self.application_database)
         csv_editor_dialog.exec_()
 
     def loadInputVariables(self):

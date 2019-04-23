@@ -1,6 +1,7 @@
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtCore import QObject, pyqtSignal
 
+# FIXME: (23/04/2019) Find a proper way to store the sampled data to be implemented on samplingassistant and csveditor.
 
 class DataStorage(QObject):
     """

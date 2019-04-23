@@ -2,7 +2,7 @@ import csv
 import numpy as np
 from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QCheckBox, QHBoxLayout, QWidget, QItemDelegate, \
     QComboBox, QMessageBox, QHeaderView
-from PyQt5.QtCore import Qt, QStringListModel
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush
 
 from gui.views.py_files.csv_editor import Ui_Dialog
@@ -52,7 +52,7 @@ class ComboBoxDelegate(QItemDelegate):
 
 
 class CsvEditorDialog(QDialog):
-    def __init__(self, csv_filepath, alias_list, application_data: DataStorage):
+    def __init__(self, application_data: DataStorage):
         # ---------------------- dialog initialization ----------------------
         super().__init__()
         self.ui = Ui_Dialog()
@@ -67,6 +67,8 @@ class CsvEditorDialog(QDialog):
         self.ui.okPushButton.clicked.connect(self.okButtonPressed)
 
         # ---------------------- table initialization ----------------------
+        csv_filepath = self.application_data.csv_filepath
+
         with open(csv_filepath, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file)
 
@@ -85,7 +87,7 @@ class CsvEditorDialog(QDialog):
             # create the column headers
             item = QTableWidgetItem(headers[j])
 
-            # checkbox for first row of table
+            # create checkboxes for first row of table
             item_check_widget_ph = QWidget()
             item_check = QCheckBox()
             item_check.setChecked(True)
@@ -97,13 +99,6 @@ class CsvEditorDialog(QDialog):
             self.ui.csvTableWidget.setHorizontalHeaderItem(j, item)
             self.ui.csvTableWidget.setCellWidget(0, j, item_check_widget_ph)
 
-            # combo_box delegate for second row (alias setting)
-            self.ui.csvTableWidget.setItem(1, j, QTableWidgetItem('Select Alias'))
-            self.ui.csvTableWidget.item(1, j).setTextAlignment(Qt.AlignCenter)
-            self.ui.csvTableWidget.item(1, j).setData(Qt.BackgroundRole, QBrush(Qt.red))
-            self._combobox_delegates_dict[str(j)] = ComboBoxDelegate(alias_list)
-            self.ui.csvTableWidget.setItemDelegateForRow(1, self._combobox_delegates_dict[str(j)])
-
             # insert the values
             for i in range(data_values.shape[0]):
                 value_item = QTableWidgetItem(str(data_values[i, j]))
@@ -111,10 +106,44 @@ class CsvEditorDialog(QDialog):
                 value_item.setTextAlignment(Qt.AlignCenter)
                 self.ui.csvTableWidget.setItem(2 + i, j, value_item)
 
+        self.readPairInfoFromStorage()
+
         # column width adjustments
         self.ui.csvTableWidget.horizontalHeader().setMinimumSectionSize(80)
         self.ui.csvTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.csvTableWidget.horizontalHeader().setStretchLastSection(True)
+
+    def readPairInfoFromStorage(self):
+        pair_info = self.application_data.csv_pair_info
+
+        table_view = self.ui.csvTableWidget
+
+        alias_list = [entry['Alias'] for entry in self.application_data.input_table_data
+                      if entry['Type'] == 'Manipulated (MV)'] + \
+                     [entry['Alias'] for entry in self.application_data.output_table_data]
+
+        table_view.setItemDelegateForRow(1, ComboBoxDelegate(alias_list))
+
+        if len(pair_info) == 0:  # no pair info defined, set every thing to default (Select Alias - red)
+            for col in range(table_view.columnCount()):
+                # combo_box delegate for second row (alias setting)
+                alias_default_item = QTableWidgetItem('Select Alias')
+                alias_default_item.setTextAlignment(Qt.AlignCenter)
+                alias_default_item.setData(Qt.BackgroundRole, QBrush(Qt.red))
+                table_view.setItem(1, col, alias_default_item)
+
+        else:  # pair defined
+            for pair in pair_info:
+                alias_item = QTableWidgetItem(pair['alias'])
+                alias_item.setTextAlignment(Qt.AlignCenter)
+                if pair['alias'] == 'Select Alias':
+                    alias_item.setData(Qt.BackgroundRole, QBrush(Qt.red))
+                else:
+                    alias_item.setData(Qt.BackgroundRole, QBrush(table_view.item(2, 0).background()))
+                table_view.setItem(1, pair['index'], alias_item)
+
+                # update checkboxes
+                table_view.cellWidget(0, pair['index']).findChild(QCheckBox).setChecked(pair['status'])
 
     def okButtonPressed(self):
         table_view = self.ui.csvTableWidget
@@ -176,13 +205,24 @@ if __name__ == '__main__':
     mock_storage.output_table_data = output_table_data
     mock_storage.expression_table_data = expr_table_data
 
-    alias_list = [entry['Alias'] for entry in mock_storage.input_table_data
-                  if entry['Type'] == 'Manipulated (MV)'] + \
-                 [entry['Alias'] for entry in mock_storage.output_table_data]
+    pair_info_empty = []
 
-    # csv_test = r"C:\Users\Felipe\csv_test.csv"
-    csv_test = mock_storage.doe_data['csv']['filepath']
-    w = CsvEditorDialog(csv_test, alias_list, mock_storage)
+    pair_info_scrambled = [{'status': False, 'alias': 'Select Alias', 'index': 0},
+                           {'status': False, 'alias': 'Select Alias', 'index': 1},
+                           {'status': True, 'alias': 'df', 'index': 2},
+                           {'status': True, 'alias': 'rr', 'index': 3},
+                           {'status': True, 'alias': 'd', 'index': 4},
+                           {'status': True, 'alias': 'b', 'index': 5},
+                           {'status': True, 'alias': 'xb', 'index': 6},
+                           {'status': True, 'alias': 'qr', 'index': 7},
+                           {'status': True, 'alias': 'l', 'index': 8},
+                           {'status': True, 'alias': 'v', 'index': 9},
+                           {'status': True, 'alias': 'f', 'index': 10},
+                           {'status': True, 'alias': 'xd', 'index': 11}]
+
+    mock_storage.csv_pair_info = pair_info_scrambled
+
+    w = CsvEditorDialog(mock_storage)
     w.show()
 
     sys.exit(app.exec_())

@@ -12,6 +12,10 @@ from py_expression_eval import Parser
 import csv
 import pathlib
 
+# FIXME: (23/04/2019) fix overlap warning when changing the amount of MVs in callsimulationtree. This is resulting in
+#  output header not being properly merged
+
+# FIXME: (23/04/2019) remove expression calculation from sampling. Do it on doetab when the results tab is displayed.
 
 class SamplingAssistantDialog(QDialog):
     inputDesignChanged = pyqtSignal()
@@ -77,7 +81,7 @@ class SamplingAssistantDialog(QDialog):
 
         # ------------------------------ Signals/Slots ------------------------------
         self.ui.sampDataPushButton.clicked.connect(self.sampleData)
-        self.ui.donePushButton.clicked.connect(self.accept)
+        self.ui.donePushButton.clicked.connect(self.doneButtonPressed)
         self.ui.cancelPushButton.clicked.connect(self.reject)
         self.ui.exportCsvPushButton.clicked.connect(self.exportCsv)
         self.ui.genLhsPushButton.clicked.connect(self.generateLhsPressed)
@@ -91,6 +95,12 @@ class SamplingAssistantDialog(QDialog):
         self._input_design = None
         self.sampled_data = []
         self.parser = Parser()
+
+    def doneButtonPressed(self):
+        # store the sampled data
+        self.application_database.sampled_data = self.sampled_data
+
+        self.accept()
 
     def _setInputDesign(self, input_design):
         # input design values setter to allow signal emission
