@@ -39,6 +39,8 @@ INPUT SETTINGS:
         INCLUDE VERTICES: False
     CSV:
         ACTIVE: False
-        FILENAME: C:\Users\Felipe\PycharmProjects\metacontrol\tests\gui\csv_editor\column.csv
-        CHECK FLAGS: False|False|True|True|True|True|True|True|True|True|True|True
-        ALIAS LIST: rr|df|d|xb|b|qr|l|v|f|xd
+        FILENAME: C:\Users\Felipe\PycharmProjects\metacontrol\tests_\gui\csv_editor\column.csv
+        PAIR INFO:
+            ALIAS: rr|df|d|xb|b|qr|l|v|f|xd
+            STATUS: True|True|True|True|True|True|True|True|True|True
+            INDEX: 2|3|4|5|6|7|8|9|10|11

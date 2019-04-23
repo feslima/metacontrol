@@ -39,8 +39,7 @@ class DataStorage(QObject):
                           'lhs': {'n_samples': '', 'n_iter': '', 'inc_vertices': False},
                           'csv': {'active': True,
                                   'filepath': '',
-                                  'check_flags': [False],
-                                  'alias_index': ['']},
+                                  'pair_info': []},
                           'sampled': []}
 
     def getSimulationFilePath(self):
@@ -219,8 +218,10 @@ INPUT SETTINGS:
     CSV:
         ACTIVE: {csv_active}
         FILENAME: {csv_filename}
-        CHECK FLAGS: {csv_check_flags}
-        ALIAS LIST: {csv_alias_list}
+        PAIR INFO:
+            ALIAS: {csv_pair_alias}
+            STATUS: {csv_pair_status}
+            INDEX: {csv_pair_index}
 """.format(
         sim_filename=sim_file_path, components='|'.join(sim_info['components']),
         therm_model=sim_info['therm_method'][0], blocks='|'.join(sim_info['blocks']),
@@ -242,8 +243,9 @@ INPUT SETTINGS:
         n_samples=doe_table['lhs']['n_samples'], n_iter_lhs=doe_table['lhs']['n_iter'],
         inc_vertices=doe_table['lhs']['inc_vertices'], csv_active=doe_table['csv']['active'],
         csv_filename=doe_table['csv']['filepath'],
-        csv_check_flags='|'.join(map(str, doe_table['csv']['check_flags'])),
-        csv_alias_list='|'.join(map(str, doe_table['csv']['alias_list']))
+        csv_pair_alias='|'.join([entry['alias'] for entry in doe_table['csv']['pair_info']]),
+        csv_pair_status='|'.join([str(entry['status']) for entry in doe_table['csv']['pair_info']]),
+        csv_pair_index='|'.join([str(entry['index'])for entry in doe_table['csv']['pair_info']])
     )
 
     with open(output_file_path, 'w') as file:
@@ -356,14 +358,24 @@ def read_data(mtc_file_path, gui_data_storage):
     samp_csv_raw_str_block = re.search('CSV:\n(.*\n*)', samp_raw_str_block.group(1), flags=re.DOTALL)
     csv_active = 'True' == re.search('ACTIVE: (.*)\n', samp_csv_raw_str_block.group(1)).group(1)
     csv_filepath = re.search('FILENAME: (.*)\n', samp_csv_raw_str_block.group(1)).group(1)
-    csv_check_flags = [flag == 'True' for flag in
-                       re.search('CHECK FLAGS: (.*)\n', samp_csv_raw_str_block.group(1)).group(1).split('|')]
-    csv_alias_list = re.search('ALIAS LIST: (.*)\n', samp_csv_raw_str_block.group(1)).group(1).split('|')
+
+    csv_pair_raw_str_block = re.search('PAIR INFO:\n(.*\n*)', samp_csv_raw_str_block.group(1), flags=re.DOTALL)
+    csv_pair_info_alias = re.search('ALIAS: (.*)\n', csv_pair_raw_str_block.group(1)).group(1).split('|')
+    csv_pair_info_status = re.search('STATUS: (.*)\n', csv_pair_raw_str_block.group(1)).group(1).split('|')
+    csv_pair_info_index = re.search('INDEX: (.*)\n', csv_pair_raw_str_block.group(1)).group(1).split('|')
+
+    csv_pair_info = []
+    if len(csv_pair_info_alias) == 1 and csv_pair_info_alias[0] == '':
+        pass
+    else:
+        for row in range(len(csv_pair_info_alias)):
+            csv_pair_info.append({'alias': csv_pair_info_alias[row],
+                                  'status': 'True' == csv_pair_info_status[row],
+                                  'index': int(csv_pair_info_index[row])})
 
     csv_info = {'active': csv_active,
                 'filepath': csv_filepath,
-                'check_flags': csv_check_flags,
-                'alias_list': csv_alias_list}
+                'pair_info': csv_pair_info}
 
     doe_table = {'mv': mv_info,
                  'lhs': lhs_info,

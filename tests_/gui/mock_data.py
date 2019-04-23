@@ -33,8 +33,16 @@ doe_table_data = {'mv': [{'name': 'rr', 'lb': 7., 'ub': 25.0},
                   'lhs': {'n_samples': 50, 'n_iter': 10, 'inc_vertices': False},
                   'csv': {'active': False,
                           'filepath': r'C:\Users\Felipe\PycharmProjects\metacontrol\tests_\gui\csv_editor\column.csv',
-                          'check_flags': [False, False, True, True, True, True, True, True, True, True, True, True],
-                          'alias_list': ['rr', 'df', 'd', 'xb', 'b', 'qr', 'l', 'v', 'f', 'xd']}
+                          'pair_info': [{'status': True, 'alias': 'rr', 'index': 2},
+                                        {'status': True, 'alias': 'df', 'index': 3},
+                                        {'status': True, 'alias': 'd',  'index': 4},
+                                        {'status': True, 'alias': 'xb', 'index': 5},
+                                        {'status': True, 'alias': 'b',  'index': 6},
+                                        {'status': True, 'alias': 'qr', 'index': 7},
+                                        {'status': True, 'alias': 'l',  'index': 8},
+                                        {'status': True, 'alias': 'v',  'index': 9},
+                                        {'status': True, 'alias': 'f',  'index': 10},
+                                        {'status': True, 'alias': 'xd', 'index': 11}]}
                   }
 
 sim_file_name = r'C:\Users\Felipe\Desktop\GUI\python\infill.bkp'
