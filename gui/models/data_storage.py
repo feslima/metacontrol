@@ -162,6 +162,17 @@ class DataStorage(QObject):
             raise TypeError("Input must be a dictionary object.")
 
     @property
+    def csv_filepath(self):
+        return self._doe_data['csv']['filepath']
+
+    @csv_filepath.setter
+    def csv_filepath(self, filepath):
+        if isinstance(filepath, str):
+            self._doe_data['csv']['filepath'] = filepath
+        else:
+            raise TypeError('CSV filepath must be a string.')
+
+    @property
     def csv_pair_info(self):
         return self._doe_data['csv']['pair_info']
 
