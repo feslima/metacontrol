@@ -162,6 +162,18 @@ class DataStorage(QObject):
             raise TypeError("Input must be a dictionary object.")
 
     @property
+    def csv_pair_info(self):
+        return self._doe_data['csv']['pair_info']
+
+    @csv_pair_info.setter
+    def csv_pair_info(self, pair_info):
+
+        if isinstance(pair_info, list):
+            self._doe_data['csv']['pair_info'] = pair_info
+        else:
+            raise TypeError("Input must be a list.")
+
+    @property
     def sampled_data(self):
         return self._doe_data['sampled']
 

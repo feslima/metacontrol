@@ -52,7 +52,7 @@ class ComboBoxDelegate(QItemDelegate):
 
 
 class CsvEditorDialog(QDialog):
-    def __init__(self, csv_filepath, alias_list):
+    def __init__(self, csv_filepath, alias_list, application_data: DataStorage):
         # ---------------------- dialog initialization ----------------------
         super().__init__()
         self.ui = Ui_Dialog()
@@ -60,6 +60,8 @@ class CsvEditorDialog(QDialog):
         self.setWindowFlags(Qt.Window)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowState(Qt.WindowMaximized)
+
+        self.application_data = application_data
 
         # ---------------------- connections ----------------------
         self.ui.okPushButton.clicked.connect(self.okButtonPressed)
@@ -132,9 +134,15 @@ class CsvEditorDialog(QDialog):
             msg_box.exec()
 
         else:
-            # TODO: (22/04/2019) Think about a proper way to store the selected columns names-checkflags pairs in the
-            #   mtc extension.
+            # get status flags and aliases from combo boxes
+            pair_info = []
+            for col in range(table_model.columnCount()):
+                pair_info.append({'status': table_view.cellWidget(0, col).findChild(QCheckBox).isChecked(),
+                                  'alias': table_model.data(table_model.index(1, col)),
+                                  'index': col})
 
+            # set the app storage
+            self.application_data.csv_pair_info = pair_info
             self.accept()
 
     def _checkbox_changed(self):
@@ -162,19 +170,19 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     mock_storage = DataStorage()
-    mock_storage.setDoeData(doe_table_data)
-    mock_storage.setSimulationDataDictionary(simulation_data)
-    mock_storage.setInputTableData(input_table_data)
-    mock_storage.setOutputTableData(output_table_data)
-    mock_storage.setExpressionTableData(expr_table_data)
+    mock_storage.doe_data = doe_table_data
+    mock_storage.simulation_data = simulation_data
+    mock_storage.input_table_data = input_table_data
+    mock_storage.output_table_data = output_table_data
+    mock_storage.expression_table_data = expr_table_data
 
-    alias_list = [entry['Alias'] for entry in mock_storage.getInputTableData()
+    alias_list = [entry['Alias'] for entry in mock_storage.input_table_data
                   if entry['Type'] == 'Manipulated (MV)'] + \
-                 [entry['Alias'] for entry in mock_storage.getOutputTableData()]
+                 [entry['Alias'] for entry in mock_storage.output_table_data]
 
-    csv_test = r"C:\Users\Felipe\csv_test.csv"
-    # csv_test = mock_storage.getDoeData()['csv']['filepath']
-    w = CsvEditorDialog(csv_test, alias_list)
+    # csv_test = r"C:\Users\Felipe\csv_test.csv"
+    csv_test = mock_storage.doe_data['csv']['filepath']
+    w = CsvEditorDialog(csv_test, alias_list, mock_storage)
     w.show()
 
     sys.exit(app.exec_())
