@@ -43,11 +43,11 @@ class SamplingAssistantDialog(QDialog):
         results_table_view.horizontalHeader().setMinimumSectionSize(50)
 
         # load the internal headers
-        input_alias_list = [row['Alias'] for row in self.application_database.getInputTableData()
+        input_alias_list = [row['Alias'] for row in self.application_database.input_table_data
                             if row['Type'] == 'Manipulated (MV)']
-        output_alias_list = [row['Alias'] for row in self.application_database.getOutputTableData()]
+        output_alias_list = [row['Alias'] for row in self.application_database.output_table_data]
 
-        expr_list = [row['Name'] for row in self.application_database.getExpressionTableData()]
+        expr_list = [row['Name'] for row in self.application_database.expression_table_data]
 
         # place the headers in the first and second rows
         results_table_view.setRowCount(self.HEADER_OFFSET)
@@ -123,7 +123,7 @@ Generate the lhs data and make it available to the GUI
                                            QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes or self._getInputDesing() is None:
-            doe_app_data = self.application_database.getDoeData()
+            doe_app_data = self.application_database.doe_data
             mv_app_data = doe_app_data['mv']
             lhs_app_data = doe_app_data['lhs']
 
@@ -211,7 +211,7 @@ Grabs the input design table stored in the GUI and displays it
             sampler_table_view.setItem(1 + row, output_offset + col_idx, sampled_values_placeholder)
             sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
 
-        for col_idx, expr_dict in enumerate(self.application_database.getExpressionTableData()):
+        for col_idx, expr_dict in enumerate(self.application_database.expression_table_data):
             expr_value = self.parser.parse(expr_dict['Expr']).evaluate(sampled_values)
             expr_value_placeholder = QTableWidgetItem(str(expr_value))
             sampler_table_view.setItem(1 + row, output_expr_offset + col_idx, expr_value_placeholder)
@@ -281,12 +281,12 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     mock_storage = DataStorage()
-    mock_storage.setSimulationFilePath(sim_file_name)
-    mock_storage.setSimulationDataDictionary(simulation_data)
-    mock_storage.setInputTableData(input_table_data)
-    mock_storage.setOutputTableData(output_table_data)
-    mock_storage.setExpressionTableData(expr_table_data)
-    mock_storage.setDoeData(doe_table_data)
+    mock_storage.rigorous_model_filepath = sim_file_name
+    mock_storage.simulation_data = simulation_data
+    mock_storage.input_table_data = input_table_data
+    mock_storage.output_table_data = output_table_data
+    mock_storage.expression_table_data = expr_table_data
+    mock_storage.doe_data = doe_table_data
 
     w = SamplingAssistantDialog(mock_storage)
     w.show()

@@ -14,7 +14,7 @@ class LhsSettingsDialog(QDialog):
         self.application_database = application_database
 
         # ------------------------------ WidgetInitialization ------------------------------
-        self.current_doe_data = self.application_database.getDoeData()
+        self.current_doe_data = self.application_database.doe_data
         self.lhs_data = self.current_doe_data['lhs']
         self.ui.lineEditNSamples.setText(str(self.lhs_data['n_samples']))
         self.ui.lineEditNIter.setText(str(self.lhs_data['n_iter']))
@@ -33,7 +33,7 @@ class LhsSettingsDialog(QDialog):
         self.lhs_data['n_samples'] = int(self.ui.lineEditNSamples.text())
         self.lhs_data['n_iter'] = int(self.ui.lineEditNIter.text())
         self.lhs_data['inc_vertices'] = self.ui.checkBoxIncVertices.isChecked()
-        self.application_database.setDoeData(self.current_doe_data)
+        self.application_database.doe_data = self.current_doe_data
 
 
 if __name__ == "__main__":
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     mock_storage = DataStorage()
-    mock_storage.setDoeData(doe_table_data)
+    mock_storage.doe_data = doe_table_data
     w = LhsSettingsDialog(mock_storage)
     w.show()
 
@@ -64,6 +64,6 @@ if __name__ == "__main__":
     sys.excepthook = my_exception_hook
 
     if w.exec_():
-        print(mock_storage.getDoeData()['lhs'])
+        print(mock_storage.doe_data['lhs'])
 
     sys.exit(app.exec_())

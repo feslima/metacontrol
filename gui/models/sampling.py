@@ -32,7 +32,7 @@ class SamplerThread(QThread):
         # https://stackoverflow.com/questions/26764978/using-win32com-with-multithreading
         # initialize
         pythoncom.CoInitialize()
-        self._aspen_connection = AspenConnection(app_data.getSimulationFilePath())
+        self._aspen_connection = AspenConnection(app_data.rigorous_model_filepath)
 
         # create id
         self._aspen_id = pythoncom.CoMarshalInterThreadInterfaceInStream(pythoncom.IID_IDispatch,
@@ -84,11 +84,11 @@ Samples a single case of DOE.
         Dictionary with output alias as keys and values as data sampled.
     """
     # get mv from doe data
-    mv_alias_list = [entry['name'] for entry in app_data.getDoeData()['mv']]
+    mv_alias_list = [entry['name'] for entry in app_data.doe_data['mv']]
 
     # input/ output data
-    inp_data = app_data.getInputTableData()
-    out_data = app_data.getOutputTableData()
+    inp_data = app_data.input_table_data
+    out_data = app_data.output_table_data
 
     # get the paths to feed to the aspen obj
     for i in range(len(mv_alias_list)):

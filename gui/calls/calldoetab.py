@@ -47,7 +47,7 @@ class DoeTab(QWidget):
         samp_dialog = SamplingAssistantDialog(self.application_database)
 
         if samp_dialog.exec_():
-            self.application_database.setSampledData(samp_dialog.sampled_data)
+            self.application_database.sampled_data = samp_dialog.sampled_data
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -58,20 +58,20 @@ class DoeTab(QWidget):
             # enable the CSV Editor button
             self.ui.csvEditorPushButton.setEnabled(True)
 
-            csv_doe_data = self.application_database.getDoeData()['csv']
+            csv_doe_data = self.application_database.doe_data['csv']
             csv_doe_data['filepath'] = csv_filename
 
     def openCsvEditorDialog(self):
-        alias_list = [entry['Alias'] for entry in self.application_database.getInputTableData()
+        alias_list = [entry['Alias'] for entry in self.application_database.input_table_data
                       if entry['Type'] == 'Manipulated (MV)'] + \
-            [entry['Alias'] for entry in self.application_database.getOutputTableData()]
+            [entry['Alias'] for entry in self.application_database.output_table_data]
 
         csv_editor_dialog = CsvEditorDialog(self.ui.lineEditCsvFilePath.text(), alias_list)
         csv_editor_dialog.exec_()
 
     def loadInputVariables(self):
         # load the MV aliases into the variable table
-        mv_alias_data = self.application_database.getDoeData()
+        mv_alias_data = self.application_database.doe_data
 
         mv_alias_list, lb_list, ub_list = zip(*[row.values() for row in mv_alias_data['mv']])
 
@@ -99,11 +99,11 @@ class DoeTab(QWidget):
     def loadResultsTable(self):
         # load the headers
         results_table_view = self.ui.tableWidgetResultsDoe
-        input_alias_list = [row['Alias'] for row in self.application_database.getInputTableData()
+        input_alias_list = [row['Alias'] for row in self.application_database.input_table_data
                             if row['Type'] == 'Manipulated (MV)']
-        output_alias_list = [row['Alias'] for row in self.application_database.getOutputTableData()]
+        output_alias_list = [row['Alias'] for row in self.application_database.output_table_data]
 
-        expr_list = [row['Name'] for row in self.application_database.getExpressionTableData()]
+        expr_list = [row['Name'] for row in self.application_database.expression_table_data]
 
         # clear the table
         results_table_view.setColumnCount(0)
@@ -173,14 +173,14 @@ class DoeTab(QWidget):
                                   'lb': table_view.item(row, 1).text(),
                                   'ub': table_view.item(row, 2).text()})
 
-        current_doe_data = self.application_database.getDoeData()
+        current_doe_data = self.application_database.doe_data
 
         current_doe_data['mv'] = mv_bound_info
 
-        self.application_database.setDoeData(current_doe_data)
+        self.application_database.doe_data = current_doe_data
 
     def updateDoeCsvStorage(self):
-        csv_doe_data = self.application_database.getDoeData()['csv']
+        csv_doe_data = self.application_database.doe_data['csv']
 
         csv_doe_data['active'] = True if self.ui.csvEditorRadioButton.isChecked() else False
 
@@ -212,11 +212,11 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     mock_storage = DataStorage()
-    mock_storage.setDoeData(doe_table_data)
-    mock_storage.setSimulationDataDictionary(simulation_data)
-    mock_storage.setInputTableData(input_table_data)
-    mock_storage.setOutputTableData(output_table_data)
-    mock_storage.setExpressionTableData(expr_table_data)
+    mock_storage.doe_data = doe_table_data
+    mock_storage.simulation_data = simulation_data
+    mock_storage.input_table_data = input_table_data
+    mock_storage.output_table_data = output_table_data
+    mock_storage.expression_table_data = expr_table_data
 
     w = DoeTab(mock_storage)
     w.show()

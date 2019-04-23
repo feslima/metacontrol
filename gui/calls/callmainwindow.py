@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
             if pathlib.Path(sim_file_name).is_file():
                 # file exists, place it
                 self.loadsimtab.sim_filename = sim_file_name
-                self.application_database.setSimulationFilePath(sim_file_name)
+                self.application_database.rigorous_model_filepath = sim_file_name
                 self.loadsimtab.ui.textBrowserSimFile.setText(sim_file_name)
                 self.loadsimtab.ui.textBrowserSimFile.setStyleSheet("")
                 self.loadsimtab.ui.buttonLoadVariables.setEnabled(True)  # activate load button

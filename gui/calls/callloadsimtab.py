@@ -74,7 +74,7 @@ class LoadSimTab(QWidget):
                               'Expr': table_model.data(table_model.index(row, self.EXPR_EXPR_COL_IDX)),
                               'Type': table_model.data(table_model.index(row, self.EXPR_TYPE_COL_IDX))})
 
-        self.application_database.setExpressionTableData(expr_info)  # store the data
+        self.application_database.expression_table_data = expr_info  # store the data
 
     # open simulation file
     def openSimFileDialog(self):
@@ -135,11 +135,11 @@ class LoadSimTab(QWidget):
         expr_table_view.setItem(last_row, self.EXPR_TYPE_COL_IDX, table_item_type)
 
         # append the row to the data
-        current_table = self.application_database.getExpressionTableData()
+        current_table = self.application_database.expression_table_data
         current_table.append({'Name': table_expr_name.text(),
                               'Expr': table_expr_item.text(),
                               'Type': table_item_type.text()})
-        self.application_database.setExpressionTableData(current_table)
+        self.application_database.expression_table_data = current_table
 
     # mock function to load tree from txt file
     def setTreeTxtFilesPath(self, streams_file, blocks_file):
@@ -188,10 +188,10 @@ class LoadSimTab(QWidget):
             self.parentTabMainWidget.setTabEnabled(1, False)  # disable sampling tab
 
     def loadDataIntoAliasTables(self):
-        vars_list = [self.application_database.getInputTableData(),
-                     self.application_database.getOutputTableData()]
+        vars_list = [self.application_database.input_table_data,
+                     self.application_database.output_table_data]
 
-        simulation_form_data = self.application_database.getSimulationDataDictionary()
+        simulation_form_data = self.application_database.simulation_data
 
         # -------------------------------- set the simulation form data --------------------------------
         siminfo_lmb_fun = lambda x: '' if simulation_form_data[x] == '' else str(len(simulation_form_data[x]))
@@ -264,7 +264,7 @@ class LoadSimTab(QWidget):
                     siminfo_table.setItem(r, col, item)
 
     def loadDataIntoExpressionTables(self):
-        expr_list = self.application_database.getExpressionTableData()
+        expr_list = self.application_database.expression_table_data
 
         expr_table_view = self.ui.tableWidgetExpressions
         for row in range(len(expr_list)):
@@ -333,8 +333,8 @@ class ExpressionEditorDelegate(QItemDelegate):
         completer.setFilterMode(Qt.MatchContains)
 
         # get aliases in display and set them to the completer
-        vars_list = [self.gui_data.getInputTableData(),
-                     self.gui_data.getOutputTableData()]
+        vars_list = [self.gui_data.input_table_data,
+                     self.gui_data.output_table_data]
         if vars_list[0] is not None and vars_list[1] is not None:
             aliases_in_display = []
 

@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QDialog, QApplication, QProgressDialog
 from gui.models.load_simulation import read_simulation_tree_from_fileobject, read_simulation_tree_from_path, \
     construct_tree_items
 from gui.models.sim_connections import AspenConnection
+from gui.models.data_storage import DataStorage
 from gui.views.py_files.loadSimulationTree import Ui_Dialog
 
 
@@ -75,7 +76,8 @@ class AliasEditorDelegate(QtWidgets.QItemDelegate):
 
 
 class LoadSimulationTreeDialog(QDialog):
-    def __init__(self, bkp_file_path, gui_data_storage_object, streams_file_txt_path=None, blocks_file_txt_path=None):
+    def __init__(self, bkp_file_path, gui_data_storage_object: DataStorage,
+                 streams_file_txt_path=None, blocks_file_txt_path=None):
         """
 
         :param bkp_file_path:
@@ -101,8 +103,8 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.tableWidgetOutput.setColumnWidth(0, 400)
 
         # create the model for the tree
-        self.model_tree_input = self.gui_data.getInputTreeModel()
-        self.model_tree_output = self.gui_data.getOutputTreeModel()
+        self.model_tree_input = self.gui_data.input_tree_model
+        self.model_tree_output = self.gui_data.output_tree_model
 
         # set the alias editor delegate for the alias column
         self._input_alias_delegate = AliasEditorDelegate()
@@ -117,11 +119,11 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.tableWidgetOutput.setItemDelegateForColumn(1, self._output_alias_delegate)
 
         # read the variables table data
-        if len(self.gui_data.getInputTableData()) != 0:  # check for empty table
-            self.insertDataOnTableCreation(self.ui.tableWidgetInput, self.gui_data.getInputTableData())
+        if len(self.gui_data.input_table_data) != 0:  # check for empty table
+            self.insertDataOnTableCreation(self.ui.tableWidgetInput, self.gui_data.input_table_data)
 
-        if len(self.gui_data.getOutputTableData()) != 0:
-            self.insertDataOnTableCreation(self.ui.tableWidgetOutput, self.gui_data.getOutputTableData())
+        if len(self.gui_data.output_table_data) != 0:
+            self.insertDataOnTableCreation(self.ui.tableWidgetOutput, self.gui_data.output_table_data)
 
         # set the combobox delegate for type column
         self.input_delegate = ComboboxDelegate(["Manipulated (MV)", "Disturbance (d)", "Auxiliary"])
@@ -291,8 +293,8 @@ class LoadSimulationTreeDialog(QDialog):
 
         if not is_input_alias_not_defined and not is_output_alias_not_defined and not is_alias_duplicated:
             # input aliases properly defined and no duplicated detected, proceed as normal
-            self.gui_data.setInputTableData(input_data)
-            self.gui_data.setOutputTableData(output_data)
+            self.gui_data.input_table_data = input_data
+            self.gui_data.output_table_data = output_data
 
             self.accept()  # close window with accept, so that values are allowed to be returned
 
@@ -332,7 +334,7 @@ class LoadSimulationTreeDialog(QDialog):
                                'optimizations': ['O-1'],
                                'design_specs': ['']}
 
-            self.gui_data.setSimulationDataDictionary(simulation_data)
+            self.gui_data.simulation_data = simulation_data
 
         else:
             # Open the connection
@@ -353,7 +355,7 @@ class LoadSimulationTreeDialog(QDialog):
             progress_dialog.setValue(3)
 
             # set the simulation data dictionary to fill the form in mainwindow
-            self.gui_data.setSimulationDataDictionary(aspen_com.GetSimulationData())
+            self.gui_data.simulation_data = aspen_com.GetSimulationData()
 
             # Destroy the aspen_com object closing files as well
             aspen_com.Destructor()

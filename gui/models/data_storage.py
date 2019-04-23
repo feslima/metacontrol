@@ -42,49 +42,59 @@ class DataStorage(QObject):
                                   'pair_info': []},
                           'sampled': []}
 
-    def getSimulationFilePath(self):
+    @property
+    def rigorous_model_filepath(self):
         return self._rigorous_model_file_path
 
-    def setSimulationFilePath(self, filepath):
+    @rigorous_model_filepath.setter
+    def rigorous_model_filepath(self, filepath):
         if isinstance(filepath, str):
             self._rigorous_model_file_path = filepath
         else:
             raise TypeError('Rigorous model filepath must be a string.')
 
-    def getInputTreeModel(self):
+    @property
+    def input_tree_model(self):
         return self._input_tree_model
 
-    def setInputTreeModel(self, tree_model):
+    @input_tree_model.setter
+    def input_tree_model(self, tree_model):
 
         if isinstance(tree_model, QStandardItemModel):
             self._input_tree_model = tree_model
         else:
             raise TypeError("Input must be a QStandardItemModel class object.")
 
-    def getOutputTreeModel(self):
+    @property
+    def output_tree_model(self):
         return self._output_tree_model
 
-    def setOutputTreeModel(self, tree_model):
+    @output_tree_model.setter
+    def output_tree_model(self, tree_model):
 
         if isinstance(tree_model, QStandardItemModel):
             self._output_tree_model = tree_model
         else:
             raise TypeError("Input must be a QStandardItemModel class object.")
 
-    def getSimulationDataDictionary(self):
+    @property
+    def simulation_data(self):
         return self._simulation_data
 
-    def setSimulationDataDictionary(self, simulation_dictionary):
+    @ simulation_data.setter
+    def simulation_data(self, simulation_dictionary):
 
         if isinstance(simulation_dictionary, dict):
             self._simulation_data = simulation_dictionary
         else:
             raise TypeError("Input must be a dictionary object.")
 
-    def getInputTableData(self):
+    @property
+    def input_table_data(self):
         return self._input_table_data
 
-    def setInputTableData(self, table_model):
+    @input_table_data.setter
+    def input_table_data(self, table_model):
 
         if isinstance(table_model, list):
             self._input_table_data = table_model
@@ -112,10 +122,12 @@ class DataStorage(QObject):
         else:
             raise TypeError("Input must be a list.")
 
-    def getOutputTableData(self):
+    @property
+    def output_table_data(self):
         return self._output_table_data
 
-    def setOutputTableData(self, table_model):
+    @output_table_data.setter
+    def output_table_data(self, table_model):
 
         if isinstance(table_model, list):
             self._output_table_data = table_model
@@ -123,10 +135,12 @@ class DataStorage(QObject):
         else:
             raise TypeError("Input must be a list.")
 
-    def getExpressionTableData(self):
+    @property
+    def expression_table_data(self):
         return self._expression_table_data
 
-    def setExpressionTableData(self, expression_data):
+    @expression_table_data.setter
+    def expression_table_data(self, expression_data):
 
         if isinstance(expression_data, list):
             self._expression_table_data = expression_data
@@ -134,24 +148,28 @@ class DataStorage(QObject):
         else:
             raise TypeError("Input must be a list.")
 
-    def getDoeData(self):
+    @property
+    def doe_data(self):
         return self._doe_data
 
-    def setDoeData(self, doe_data):
+    @doe_data.setter
+    def doe_data(self, doe_dict):
 
-        if isinstance(doe_data, dict):
-            self._doe_data = doe_data
+        if isinstance(doe_dict, dict):
+            self._doe_data = doe_dict
             self.doeDataChanged.emit()
         else:
             raise TypeError("Input must be a dictionary object.")
 
-    def getSampledData(self):
+    @property
+    def sampled_data(self):
         return self._doe_data['sampled']
 
-    def setSampledData(self, sampled_data):
+    @sampled_data.setter
+    def sampled_data(self, sampled_data_list):
 
-        if isinstance(sampled_data, list):
-            self._doe_data['sampled'] = sampled_data
+        if isinstance(sampled_data_list, list):
+            self._doe_data['sampled'] = sampled_data_list
             self.sampledDataChanged.emit()
         else:
             raise TypeError("Input must be a list.")
@@ -170,11 +188,11 @@ def write_data(output_file_path, sim_file_path, gui_data_storage):
     gui_data_storage : DataStorage
         Application data storage object. This is the source of info to write.
     """
-    sim_info = gui_data_storage.getSimulationDataDictionary()
-    input_table_var = gui_data_storage.getInputTableData()
-    output_table_var = gui_data_storage.getOutputTableData()
-    expr_table = gui_data_storage.getExpressionTableData()
-    doe_table = gui_data_storage.getDoeData()
+    sim_info = gui_data_storage.simulation_data
+    input_table_var = gui_data_storage.input_table_data
+    output_table_var = gui_data_storage.output_table_data
+    expr_table = gui_data_storage.expression_table_data
+    doe_table = gui_data_storage.doe_data
 
     template_str = """// LOAD SIMULATION //
 SIM FILENAME: {sim_filename}
@@ -252,7 +270,7 @@ INPUT SETTINGS:
         file.write(template_str)
 
 
-def read_data(mtc_file_path, gui_data_storage):
+def read_data(mtc_file_path, gui_data_storage: DataStorage):
     import re
 
     # read the file
@@ -279,7 +297,7 @@ def read_data(mtc_file_path, gui_data_storage):
     sim_info = {key: ('' if isinstance(value, list) and value[0] == '' and key != 'therm_method' else value)
                 for key, value in sim_info.items()}
 
-    gui_data_storage.setSimulationDataDictionary(sim_info)
+    gui_data_storage.simulation_data = sim_info
 
     # -------------------------- variables (alias + path) info data --------------------------
     pwc_var_raw_str_block = re.search('PWC VARIABLES:\n(.*\n*)USER EXPRESSIONS:', mtc_str, flags=re.DOTALL)
@@ -312,10 +330,10 @@ def read_data(mtc_file_path, gui_data_storage):
                                     'Type': output_type_list[row]})
 
     gui_data_storage.blockSignals(True)
-    gui_data_storage.setInputTableData(inpt_table_var)
+    gui_data_storage.input_table_data = inpt_table_var
     gui_data_storage.blockSignals(False)
 
-    gui_data_storage.setOutputTableData(outpt_table_var)
+    gui_data_storage.output_table_data = outpt_table_var
 
     # -------------------------- expression table data --------------------------
     expr_raw_str_data = re.search('USER EXPRESSIONS:\n(.*\n*)// SAMPLING //', mtc_str, flags=re.DOTALL)
@@ -332,7 +350,7 @@ def read_data(mtc_file_path, gui_data_storage):
                                'Expr': expr_str_list[row],
                                'Type': expr_type_list[row]})
 
-    gui_data_storage.setExpressionTableData(expr_table)
+    gui_data_storage.expression_table_data = expr_table
 
     # -------------------------- SAMPLING --------------------------
     samp_raw_str_block = re.search('// SAMPLING //\n(.*\n*)', mtc_str, flags=re.DOTALL)
@@ -381,6 +399,6 @@ def read_data(mtc_file_path, gui_data_storage):
                  'lhs': lhs_info,
                  'csv': csv_info}
 
-    gui_data_storage.setDoeData(doe_table)
+    gui_data_storage.doe_data = doe_table
 
     return sim_file_name
