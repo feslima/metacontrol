@@ -82,7 +82,6 @@ class LoadSimulationTreeDialog(QDialog):
 
         :param bkp_file_path:
         """
-        # TODO: check for duplicated aliases in tables
         self.bkp_path = bkp_file_path  # temporary bkp file path
         self.gui_data = gui_data_storage_object
 

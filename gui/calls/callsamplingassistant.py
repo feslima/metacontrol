@@ -8,14 +8,9 @@ from gui.calls.calllhssettings import LhsSettingsDialog
 from gui.models.sampling import SamplerThread, lhs
 from gui.models.data_storage import DataStorage
 
-from py_expression_eval import Parser
 import csv
 import pathlib
 
-# FIXME: (23/04/2019) fix overlap warning when changing the amount of MVs in callsimulationtree. This is resulting in
-#  output header not being properly merged
-
-# FIXME: (23/04/2019) remove expression calculation from sampling. Do it on doetab when the results tab is displayed.
 
 class SamplingAssistantDialog(QDialog):
     inputDesignChanged = pyqtSignal()
@@ -51,11 +46,9 @@ class SamplingAssistantDialog(QDialog):
                             if row['Type'] == 'Manipulated (MV)']
         output_alias_list = [row['Alias'] for row in self.application_database.output_table_data]
 
-        expr_list = [row['Name'] for row in self.application_database.expression_table_data]
-
         # place the headers in the first and second rows
         results_table_view.setRowCount(self.HEADER_OFFSET)
-        results_table_view.setColumnCount(self.INPUT_COL_OFFSET + len(input_alias_list + output_alias_list + expr_list))
+        results_table_view.setColumnCount(self.INPUT_COL_OFFSET + len(input_alias_list + output_alias_list))
         results_table_view.setSpan(0, 0, self.HEADER_OFFSET, 1)
         results_table_view.setItem(0, 0, QTableWidgetItem('Case Number'))
         results_table_view.item(0, 0).setTextAlignment(Qt.AlignCenter)
@@ -68,12 +61,12 @@ class SamplingAssistantDialog(QDialog):
         results_table_view.setItem(0, self.INPUT_COL_OFFSET, QTableWidgetItem('Inputs'))
         results_table_view.item(0, self.INPUT_COL_OFFSET).setTextAlignment(Qt.AlignCenter)
 
-        results_table_view.setSpan(0, self.INPUT_COL_OFFSET + self.HEADER_OFFSET, 1, len(output_alias_list + expr_list))
+        results_table_view.setSpan(0, self.INPUT_COL_OFFSET + self.HEADER_OFFSET, 1, len(output_alias_list))
         results_table_view.setItem(0, self.INPUT_COL_OFFSET + self.HEADER_OFFSET, QTableWidgetItem('Outputs'))
         results_table_view.item(0, self.INPUT_COL_OFFSET + self.HEADER_OFFSET).setTextAlignment(Qt.AlignCenter)
 
         # place the subheaders (alias) in the second row
-        all_alias = input_alias_list + output_alias_list + expr_list
+        all_alias = input_alias_list + output_alias_list
         for j in range(len(all_alias)):
             item_place_holder = QTableWidgetItem(all_alias[j])
             results_table_view.setItem(1, j + self.INPUT_COL_OFFSET, item_place_holder)
@@ -94,7 +87,6 @@ class SamplingAssistantDialog(QDialog):
         # ------------------------------ Internal variables ------------------------------
         self._input_design = None
         self.sampled_data = []
-        self.parser = Parser()
 
     def doneButtonPressed(self):
         # store the sampled data
@@ -214,18 +206,11 @@ Grabs the input design table stored in the GUI and displays it
 
         # delete the dict key
         del sampled_values['success']
-        output_expr_offset = output_offset + len(sampled_values.values())
 
         for col_idx, col in enumerate(sampled_values.values()):
             sampled_values_placeholder = QTableWidgetItem(str(col))
             sampler_table_view.setItem(1 + row, output_offset + col_idx, sampled_values_placeholder)
             sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
-
-        for col_idx, expr_dict in enumerate(self.application_database.expression_table_data):
-            expr_value = self.parser.parse(expr_dict['Expr']).evaluate(sampled_values)
-            expr_value_placeholder = QTableWidgetItem(str(expr_value))
-            sampler_table_view.setItem(1 + row, output_expr_offset + col_idx, expr_value_placeholder)
-            expr_value_placeholder.setTextAlignment(Qt.AlignCenter)
 
         self.sampled_data.append([sampler_table_view.item(1 + row, 1).text()] +
                                  [float(sampler_table_view.item(1 + row, col).text())
