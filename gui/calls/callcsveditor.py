@@ -1,13 +1,17 @@
 import csv
-import numpy as np
 from PyQt5.QtWidgets import QDialog, QApplication, QTableWidgetItem, QCheckBox, QHBoxLayout, QWidget, QItemDelegate, \
-    QComboBox, QMessageBox, QHeaderView
+    QComboBox, QMessageBox, QHeaderView, QFileDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush
 
 from gui.views.py_files.csv_editor import Ui_Dialog
 from gui.models.data_storage import DataStorage
+from gui.calls.callconvergenceselector import ConvergenceSelectorDialog
 
+import numpy as np
+import pathlib
+
+# FIXME: (25/04/2019) ask the user to set which column in the csv is the convergence flag one
 
 class ComboBoxDelegate(QItemDelegate):
 
@@ -64,7 +68,8 @@ class CsvEditorDialog(QDialog):
         self.application_data = application_data
 
         # ---------------------- connections ----------------------
-        self.ui.okPushButton.clicked.connect(self.okButtonPressed)
+        # self.ui.okPushButton.clicked.connect(self.okButtonPressed)
+        self.ui.openCsvFilePushButton.clicked.connect(self.openCsvFileDialog)
 
         # ---------------------- table initialization ----------------------
         csv_filepath = self.application_data.csv_filepath
@@ -112,6 +117,30 @@ class CsvEditorDialog(QDialog):
         self.ui.csvTableWidget.horizontalHeader().setMinimumSectionSize(80)
         self.ui.csvTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.csvTableWidget.horizontalHeader().setStretchLastSection(True)
+
+    def openCsvFileDialog(self):
+        homedir = str(pathlib.Path.home())  # home directory (platform independent)
+        csv_filename, _ = QFileDialog.getOpenFileName(self, "Select .csv containing DOE data", homedir,
+                                                      "CSV files (*.csv)")
+
+        # if the csv is valid
+        if csv_filename != "":
+            self.ui.lineEditCsvFilePath.setText(csv_filename)
+            # ask the user which header is the convergence flag
+
+            with open(csv_filename, mode='r') as csv_file:
+                csv_reader = csv.DictReader(csv_file)
+
+                headers = csv_reader.fieldnames
+
+            conv_dialog = ConvergenceSelectorDialog(headers)
+
+            status_index = None
+            if conv_dialog.exec():
+                status_index = headers.index()
+
+            # self.ui.loadFilePushButton.setEnabled(True)
+
 
     def readPairInfoFromStorage(self):
         pair_info = self.application_data.csv_pair_info
@@ -172,6 +201,25 @@ class CsvEditorDialog(QDialog):
 
             # set the app storage
             self.application_data.csv_pair_info = pair_info
+
+            input_alias_list = [row['Alias'] for row in self.application_data.input_table_data
+                                if row['Type'] == 'Manipulated (MV)']
+            output_alias_list = [row['Alias'] for row in self.application_data.output_table_data]
+
+            # store the raw checked numbers as np array
+            raw_data = []
+            for row in range(2, table_view.rowCount()):
+                raw_data.append([float(table_view.item(row, col).text()) for col in range(table_view.columnCount())])
+
+            raw_np = np.asarray(raw_data)
+            # raw_np = raw_np[:, [flag['status'] for flag in pair_info]]  # extract checked columns
+
+            # find the column indexes of inputs and outputs
+            input_indexes = [table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in input_alias_list]
+            output_indexes = [table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in output_alias_list]
+
+            # reorganize the data to set inputs before outputs (the order is the same as input/output table data
+            reorg_data = raw_np[:, input_indexes + output_indexes].tolist()
             self.accept()
 
     def _checkbox_changed(self):
@@ -210,14 +258,14 @@ if __name__ == '__main__':
     pair_info_scrambled = [{'status': False, 'alias': 'Select Alias', 'index': 0},
                            {'status': False, 'alias': 'Select Alias', 'index': 1},
                            {'status': True, 'alias': 'df', 'index': 2},
-                           {'status': True, 'alias': 'rr', 'index': 3},
-                           {'status': True, 'alias': 'd', 'index': 4},
-                           {'status': True, 'alias': 'b', 'index': 5},
+                           {'status': True, 'alias': 'b', 'index': 3},
+                           {'status': True, 'alias': 'd',  'index': 4},
+                           {'status': True, 'alias': 'rr',  'index': 5},
                            {'status': True, 'alias': 'xb', 'index': 6},
                            {'status': True, 'alias': 'qr', 'index': 7},
-                           {'status': True, 'alias': 'l', 'index': 8},
-                           {'status': True, 'alias': 'v', 'index': 9},
-                           {'status': True, 'alias': 'f', 'index': 10},
+                           {'status': True, 'alias': 'l',  'index': 8},
+                           {'status': True, 'alias': 'v',  'index': 9},
+                           {'status': True, 'alias': 'f',  'index': 10},
                            {'status': True, 'alias': 'xd', 'index': 11}]
 
     mock_storage.csv_pair_info = pair_info_scrambled
