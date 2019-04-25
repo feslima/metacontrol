@@ -37,14 +37,22 @@ doe_table_data = {'mv': [{'name': 'rr', 'lb': 7., 'ub': 25.0},
                                         {'status': False, 'alias': 'Select Alias', 'index': 1},
                                         {'status': True, 'alias': 'rr', 'index': 2},
                                         {'status': True, 'alias': 'df', 'index': 3},
-                                        {'status': True, 'alias': 'd', 'index': 4},
+                                        {'status': True, 'alias': 'd',  'index': 4},
                                         {'status': True, 'alias': 'xb', 'index': 5},
-                                        {'status': True, 'alias': 'b', 'index': 6},
+                                        {'status': True, 'alias': 'b',  'index': 6},
                                         {'status': True, 'alias': 'qr', 'index': 7},
-                                        {'status': True, 'alias': 'l', 'index': 8},
-                                        {'status': True, 'alias': 'v', 'index': 9},
-                                        {'status': True, 'alias': 'f', 'index': 10},
-                                        {'status': True, 'alias': 'xd', 'index': 11}]}
+                                        {'status': True, 'alias': 'l',  'index': 8},
+                                        {'status': True, 'alias': 'v',  'index': 9},
+                                        {'status': True, 'alias': 'f',  'index': 10},
+                                        {'status': True, 'alias': 'xd', 'index': 11}
+                                        ]
+                          },
+                  'sampled': {'input_index': [2, 3],
+                              'constraint_index': [2, 3],
+                              'objective_index': [4],
+                              'convergence_flag': [],
+                              'data': []
+                              }
                   }
 
 sim_file_name = r'C:\Users\Felipe\Desktop\GUI\python\infill.bkp'

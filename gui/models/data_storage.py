@@ -1,6 +1,8 @@
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtCore import QObject, pyqtSignal
 
+import numpy as np
+
 # FIXME: (23/04/2019) Find a proper way to store the sampled data to be implemented on samplingassistant and csveditor.
 
 class DataStorage(QObject):
@@ -41,7 +43,12 @@ class DataStorage(QObject):
                           'csv': {'active': True,
                                   'filepath': '',
                                   'pair_info': []},
-                          'sampled': []}
+                          'sampled': {'input_index': [],
+                                      'constraint_index': [],
+                                      'objective_index': [],
+                                      'convergence_flag': [],
+                                      'data': []}
+                          }
 
     @property
     def rigorous_model_filepath(self):
@@ -187,16 +194,41 @@ class DataStorage(QObject):
 
     @property
     def sampled_data(self):
-        return self._doe_data['sampled']
+        # raw sampled data list
+        return self._doe_data['sampled']['data']
 
     @sampled_data.setter
-    def sampled_data(self, sampled_data_list):
+    def sampled_data(self, sampled_data_array):
+        # first element of each sublist (first column of array) must be flags for convergence
+        if isinstance(sampled_data_array, list):
+            if len(sampled_data_array) == 0:  # table is empty
+                self._doe_data['sampled']['convergence_flag'] = []
+                self._doe_data['sampled']['data'] = sampled_data_array
+            else:
+                # extract convergence flag column and store in a variable apart
+                cast_samp = np.asfarray(sampled_data_array)
+                self._doe_data['sampled']['convergence_flag'] = cast_samp[:, 0].tolist()
+                self._doe_data['sampled']['data'] = cast_samp[:, 1:].tolist()
 
-        if isinstance(sampled_data_list, list):
-            self._doe_data['sampled'] = sampled_data_list
             self.sampledDataChanged.emit()
         else:
             raise TypeError("Input must be a list.")
+
+    @property
+    def sampled_data_indexes(self):
+        # indexes of sampled_data property. These are the column indexes of sampled data array
+        return {'input_index': self._doe_data['sampled']['input_index'],
+                'constraint_index': self._doe_data['sampled']['constraint_index'],
+                'objective_index': self._doe_data['sampled']['objective_index']}
+
+    @sampled_data_indexes.setter
+    def sampled_data_indexes(self, input_index):
+        if isinstance(input_index, dict):
+            self._doe_data['sampled']['input_index'] = input_index['input_index']
+            self._doe_data['sampled']['constraint_index'] = input_index['constraint_index']
+            self._doe_data['sampled']['objective_index'] = input_index['objective_index']
+        else:
+            raise TypeError('Input must be a dict.')
 
 
 def write_data(output_file_path, sim_file_path, gui_data_storage):
@@ -264,6 +296,12 @@ INPUT SETTINGS:
             ALIAS: {csv_pair_alias}
             STATUS: {csv_pair_status}
             INDEX: {csv_pair_index}
+        SAMPLED:
+            INPUT INDEX:
+            CONSTRAINT INDEX:
+            OBJECTIVE INDEX:
+            CONVERGENCE FLAG:
+            DATA:
 """.format(
         sim_filename=sim_file_path, components='|'.join(sim_info['components']),
         therm_model=sim_info['therm_method'][0], blocks='|'.join(sim_info['blocks']),
