@@ -212,7 +212,9 @@ Grabs the input design table stored in the GUI and displays it
             sampler_table_view.setItem(1 + row, output_offset + col_idx, sampled_values_placeholder)
             sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
 
-        self.sampled_data.append([sampler_table_view.item(1 + row, 1).text()] +
+        # status flag conversion
+        status = 1.0 if sampler_table_view.item(1 + row, 1).text() == "ok" else 0.0
+        self.sampled_data.append([status] +
                                  [float(sampler_table_view.item(1 + row, col).text())
                                   for col in range(self.INPUT_COL_OFFSET, sampler_table_view.columnCount())])
 
@@ -299,8 +301,5 @@ if __name__ == "__main__":
 
     # Set the exception hook to our wrapping function
     sys.excepthook = my_exception_hook
-
-    if w.exec():
-        print(w.sampled_data)
 
     sys.exit(app.exec_())
