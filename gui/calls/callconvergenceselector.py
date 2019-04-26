@@ -15,16 +15,31 @@ class ConvergenceSelectorDialog(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         # ------------------------------ WidgetInitialization ------------------------------
-        self.ui.comboBox.addItems(header_list)
+        self.ui.convergenceComboBox.addItems(header_list)
 
         # ------------------------------ Signals/Slots ------------------------------
-        self.ui.comboBox.currentIndexChanged.connect(self.indexChanged)
+        self.ui.convergenceComboBox.currentIndexChanged.connect(self.statusIndexChanged)
+        self.ui.caseComboBox.currentIndexChanged.connect(self.caseIndexChanged)
 
         # ------------------------------ Internal Variables ------------------------------
         self.status_index = None
+        self.case_name = 'None'
+        self.header_list = header_list.copy()
 
-    def indexChanged(self):
-        self.status_index = self.ui.comboBox.currentIndex()
+    def statusIndexChanged(self):
+        self.status_index = self.ui.convergenceComboBox.currentIndex()
+        if self.status_index is not None:
+            self.ui.caseComboBox.setEnabled(True)
+            h_list = self.header_list.copy()
+            h_list.remove(self.header_list[self.status_index])
+            self.ui.caseComboBox.clear()
+            self.ui.caseComboBox.addItems(['None'] + h_list)
+
+        else:
+            self.ui.caseComboBox.setEnabled(False)
+
+    def caseIndexChanged(self):
+        self.case_name = self.ui.caseComboBox.currentText()
 
 
 if __name__ == "__main__":
@@ -33,12 +48,13 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     header_list = ['case', 'status', 'rr', 'df', 'd', 'xb', 'b', 'qr', 'l', 'v', 'f', 'xd']
-    status_index = 0
-    w = ConvergenceSelectorDialog(header_list, status_index)
+
+    w = ConvergenceSelectorDialog(header_list)
     w.show()
 
     if w.exec():
-        print(status_index)
+        print(w.status_index)
+        print(w.case_name)
 
     def my_exception_hook(exctype, value, tback):
         # Print the error and traceback
