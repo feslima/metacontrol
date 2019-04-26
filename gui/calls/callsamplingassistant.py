@@ -89,9 +89,6 @@ class SamplingAssistantDialog(QDialog):
         self.sampled_data = []
 
     def doneButtonPressed(self):
-        # store the sampled data
-        self.application_database.sampled_data = self.sampled_data
-
         self.accept()
 
     def _setInputDesign(self, input_design):

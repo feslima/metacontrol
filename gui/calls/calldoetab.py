@@ -1,4 +1,6 @@
-import pathlib
+import numpy as np
+from py_expression_eval import Parser
+
 from PyQt5.QtWidgets import QApplication, QWidget, QHeaderView, QFileDialog, QTableWidgetItem, QItemDelegate, QLineEdit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QBrush
@@ -29,38 +31,101 @@ class DoeTab(QWidget):
         self.ui.tableWidgetInputVariables.setItemDelegateForColumn(2, self._ub_itemdelegate)
 
         # ------------------------------ Signals/Slots ------------------------------
-        self.application_database.doeDataChanged.connect(self.loadInputVariables)
+        self.application_database.doeMvDataChanged.connect(self.loadInputVariables)
         self.application_database.inputAliasDataChanged.connect(self.loadResultsTable)
         self.application_database.outputAliasDataChanged.connect(self.loadResultsTable)
         self.application_database.exprDataChanged.connect(self.loadResultsTable)
-        self.ui.openCsvFilePushButton.clicked.connect(self.openCsvFileDialog)
         self._lb_itemdelegate.closeEditor.connect(self.updateDoeStorage)
         self._ub_itemdelegate.closeEditor.connect(self.updateDoeStorage)
         self.ui.openSamplerPushButton.clicked.connect(self.openSamplingAssistant)
+        self.ui.csvImportPushButton.clicked.connect(self.openCsvImportDialog)
         self.ui.csvEditorRadioButton.toggled['bool'].connect(self.updateDoeCsvStorage)
-        self.ui.csvEditorPushButton.clicked.connect(self.openCsvEditorDialog)
 
         # ------------------------------ Internal variables ------------------------------
         self._doe_results_table = None
+        self.parser = Parser()
 
     def openSamplingAssistant(self):
         samp_dialog = SamplingAssistantDialog(self.application_database)
         samp_dialog.exec_()
 
-    def openCsvFileDialog(self):
-        homedir = str(pathlib.Path.home())  # home directory (platform independent)
-        csv_filename, _ = QFileDialog.getOpenFileName(self, "Select .csv containing DOE data", homedir,
-                                                      "CSV files (*.csv)")
-        if csv_filename != "":
-            self.ui.lineEditCsvFilePath.setText(csv_filename)
-            # enable the CSV Editor button
-            self.ui.csvEditorPushButton.setEnabled(True)
-
-            self.application_database.csv_filepath = csv_filename
-
-    def openCsvEditorDialog(self):
+    def openCsvImportDialog(self):
         csv_editor_dialog = CsvEditorDialog(self.application_database)
-        csv_editor_dialog.exec_()
+        if csv_editor_dialog.exec_():
+            self._set_data_from_samp_dialog(csv_editor_dialog.sampled_data)
+
+    def _set_data_from_samp_dialog(self, samp_data):
+        if len(samp_data) == 0:  # table is empty
+            input_index = []
+            const_index = []
+            obj_index = []
+            conv_flags = []
+        else:
+            cast_samp = np.asfarray(samp_data)
+            conv_flags = cast_samp[:, 0].tolist()
+            samp_data = cast_samp[:, 1:].tolist()
+
+            # display the data
+            results_table_view = self.ui.tableWidgetResultsDoe
+            input_alias_list = [row['Alias'] for row in self.application_database.input_table_data
+                                if row['Type'] == 'Manipulated (MV)']
+            output_alias_list = [row['Alias'] for row in self.application_database.output_table_data]
+            expr_list = [row['Name'] for row in self.application_database.expression_table_data]
+
+            results_table_view.setRowCount(2)
+            results_table_view.setColumnCount(1 + len(input_alias_list + output_alias_list + expr_list))
+            results_table_view.setSpan(0, 0, 2, 1)
+            results_table_view.setItem(0, 0, QTableWidgetItem('Case Number'))
+            results_table_view.item(0, 0).setTextAlignment(Qt.AlignCenter)
+
+            results_table_view.setSpan(0, 1, 1, len(input_alias_list))
+            results_table_view.setItem(0, 1, QTableWidgetItem('Inputs'))
+            results_table_view.item(0, 1).setTextAlignment(Qt.AlignCenter)
+
+            results_table_view.setSpan(0, 3, 1, len(output_alias_list + expr_list))
+            results_table_view.setItem(0, 3, QTableWidgetItem('Outputs'))
+            results_table_view.item(0, 3).setTextAlignment(Qt.AlignCenter)
+
+            # place the subheaders (alias) in the second row
+            all_alias = input_alias_list + output_alias_list + expr_list
+            for j in range(len(all_alias)):
+                item_place_holder = QTableWidgetItem(all_alias[j])
+                results_table_view.setItem(1, j + 1, item_place_holder)
+                item_place_holder.setTextAlignment(Qt.AlignCenter)
+
+            rows, cols_samp = cast_samp.shape
+            for row in range(rows):
+                case_num_placeholder = QTableWidgetItem(str(row + 1))
+                case_num_placeholder.setTextAlignment(Qt.AlignCenter)
+                results_table_view.setItem(2 + row, 0, case_num_placeholder)
+
+                expr_var_values_dict = dict(zip(output_alias_list, cast_samp[row, :].tolist()))
+
+                for col in range(cols_samp):
+                    sampled_values_placeholder = QTableWidgetItem(str(cast_samp[row, col]))
+                    sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
+                    results_table_view.setItem(row + 2, col + 1, sampled_values_placeholder)
+
+                # evaluate the expressions
+                for col_idx, expr_dict in enumerate(self.application_database.expression_table_data):
+                    expr_value = self.parser.parse(expr_dict['Expr']).evaluate(expr_var_values_dict)
+                    expr_value_placeholder = QTableWidgetItem(str(expr_value))
+                    expr_value_placeholder.setTextAlignment(Qt.AlignCenter)
+                    results_table_view.setItem(row + 2, cols_samp + col_idx, expr_value_placeholder)
+
+            # set the input, constraint and objective indexes
+            input_indexes = [results_table_view.findItems(alias, Qt.MatchExactly)[0].column()
+                             for alias in input_alias_list]
+            output_indexes = [results_table_view.findItems(alias, Qt.MatchExactly)[0].column()
+                              for alias in output_alias_list]
+            const_index = [results_table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in
+                           [row['Name'] for row in self.application_database.expression_table_data
+                            if row['Type'] == 'Constraint function']]
+            obj_index = [results_table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in
+                         [row['Name'] for row in self.application_database.expression_table_data
+                          if row['Type'] == 'Objective function (J)']]
+
+
 
     def loadInputVariables(self):
         # load the MV aliases into the variable table
@@ -166,16 +231,14 @@ class DoeTab(QWidget):
                                   'lb': table_view.item(row, 1).text(),
                                   'ub': table_view.item(row, 2).text()})
 
-        current_doe_data = self.application_database.doe_data
-
-        current_doe_data['mv'] = mv_bound_info
-
-        self.application_database.doe_data = current_doe_data
+        self.application_database.doe_mv_data = mv_bound_info
 
     def updateDoeCsvStorage(self):
-        csv_doe_data = self.application_database.doe_data['csv']
+        csv_doe_data = self.application_database.doe_csv_data
 
         csv_doe_data['active'] = True if self.ui.csvEditorRadioButton.isChecked() else False
+
+        self.application_database.doe_csv_data = csv_doe_data
 
 
 class BoundEditorDelegate(QItemDelegate):
@@ -199,17 +262,9 @@ class BoundEditorDelegate(QItemDelegate):
 if __name__ == "__main__":
     import sys
     from gui.models.data_storage import DataStorage
-    from tests_.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
-        doe_table_data
+    from tests_.gui.mock_data import mock_storage
 
     app = QApplication(sys.argv)
-
-    mock_storage = DataStorage()
-    mock_storage.doe_data = doe_table_data
-    mock_storage.simulation_data = simulation_data
-    mock_storage.input_table_data = input_table_data
-    mock_storage.output_table_data = output_table_data
-    mock_storage.expression_table_data = expr_table_data
 
     w = DoeTab(mock_storage)
     w.show()

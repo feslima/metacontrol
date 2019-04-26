@@ -68,55 +68,17 @@ class CsvEditorDialog(QDialog):
         self.application_data = application_data
 
         # ---------------------- connections ----------------------
-        # self.ui.okPushButton.clicked.connect(self.okButtonPressed)
+        self.ui.okPushButton.clicked.connect(self.okButtonPressed)
         self.ui.openCsvFilePushButton.clicked.connect(self.openCsvFileDialog)
-
-        # ---------------------- table initialization ----------------------
-        csv_filepath = self.application_data.csv_filepath
-
-        with open(csv_filepath, mode='r') as csv_file:
-            csv_reader = csv.DictReader(csv_file)
-
-            headers = csv_reader.fieldnames
-
-        # read the numbers
-        data_values = np.genfromtxt(csv_filepath, delimiter=',', skip_header=1,
-                                    converters={1: lambda x: 1. if x == b"OK" or x == b"ok" else 0.})
-        col_count = len(headers)
-        self.ui.csvTableWidget.setColumnCount(col_count)
-        self._combobox_delegates_dict = {}
-
-        # add 2 rows (first for checkboxes, second one for combo_boxes
-        self.ui.csvTableWidget.setRowCount(data_values.shape[0] + 2)
-        for j in range(col_count):
-            # create the column headers
-            item = QTableWidgetItem(headers[j])
-
-            # create checkboxes for first row of table
-            item_check_widget_ph = QWidget()
-            item_check = QCheckBox()
-            item_check.setChecked(True)
-            item_check.stateChanged.connect(self._checkbox_changed)  # connect the signal
-            item_check_layout = QHBoxLayout(item_check_widget_ph)
-            item_check_layout.addWidget(item_check)
-            item_check_layout.setAlignment(Qt.AlignCenter)
-            item_check_layout.setContentsMargins(0, 0, 0, 0)
-            self.ui.csvTableWidget.setHorizontalHeaderItem(j, item)
-            self.ui.csvTableWidget.setCellWidget(0, j, item_check_widget_ph)
-
-            # insert the values
-            for i in range(data_values.shape[0]):
-                value_item = QTableWidgetItem(str(data_values[i, j]))
-                value_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                value_item.setTextAlignment(Qt.AlignCenter)
-                self.ui.csvTableWidget.setItem(2 + i, j, value_item)
-
-        self.readPairInfoFromStorage()
 
         # column width adjustments
         self.ui.csvTableWidget.horizontalHeader().setMinimumSectionSize(80)
         self.ui.csvTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.csvTableWidget.horizontalHeader().setStretchLastSection(True)
+
+        # ---------------------- internal variables ----------------------
+        self.sampled_data = []
+        self._convergence_index = None
 
     def openCsvFileDialog(self):
         homedir = str(pathlib.Path.home())  # home directory (platform independent)
@@ -126,6 +88,7 @@ class CsvEditorDialog(QDialog):
         # if the csv is valid
         if csv_filename != "":
             self.ui.lineEditCsvFilePath.setText(csv_filename)
+            self.application_data.doe_csv_data['filepath'] = csv_filename
             # ask the user which header is the convergence flag
 
             with open(csv_filename, mode='r') as csv_file:
@@ -135,15 +98,49 @@ class CsvEditorDialog(QDialog):
 
             conv_dialog = ConvergenceSelectorDialog(headers)
 
-            status_index = None
+            # after the user has set the index, read the csv file
             if conv_dialog.exec():
-                status_index = headers.index()
+                status_index = conv_dialog.status_index
+                self._convergence_index = status_index
 
-            # self.ui.loadFilePushButton.setEnabled(True)
+                if status_index is not None:
+                    # read the numbers
+                    data_values = np.genfromtxt(csv_filename, delimiter=',', skip_header=1,
+                                                converters={status_index:
+                                                                lambda x: 1. if x == b"OK" or x == b"ok" else 0.})
 
+                    col_count = len(headers)
+                    self.ui.csvTableWidget.setColumnCount(col_count)
+
+                    # add 2 rows (first for checkboxes, second one for combo_boxes
+                    self.ui.csvTableWidget.setRowCount(data_values.shape[0] + 2)
+                    for j in range(col_count):
+                        # create the column headers
+                        item = QTableWidgetItem(headers[j])
+
+                        # create checkboxes for first row of table
+                        item_check_widget_ph = QWidget()
+                        item_check = QCheckBox()
+                        item_check.setChecked(True)
+                        item_check.stateChanged.connect(self._checkbox_changed)  # connect the signal
+                        item_check_layout = QHBoxLayout(item_check_widget_ph)
+                        item_check_layout.addWidget(item_check)
+                        item_check_layout.setAlignment(Qt.AlignCenter)
+                        item_check_layout.setContentsMargins(0, 0, 0, 0)
+                        self.ui.csvTableWidget.setHorizontalHeaderItem(j, item)
+                        self.ui.csvTableWidget.setCellWidget(0, j, item_check_widget_ph)
+
+                        # insert the values
+                        for i in range(data_values.shape[0]):
+                            value_item = QTableWidgetItem(str(data_values[i, j]))
+                            value_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                            value_item.setTextAlignment(Qt.AlignCenter)
+                            self.ui.csvTableWidget.setItem(2 + i, j, value_item)
+
+                    self.readPairInfoFromStorage()
 
     def readPairInfoFromStorage(self):
-        pair_info = self.application_data.csv_pair_info
+        pair_info = self.application_data.doe_csv_data['pair_info']
 
         table_view = self.ui.csvTableWidget
 
@@ -200,7 +197,7 @@ class CsvEditorDialog(QDialog):
                                   'index': col})
 
             # set the app storage
-            self.application_data.csv_pair_info = pair_info
+            self.application_data.doe_csv_pair_info = pair_info
 
             input_alias_list = [row['Alias'] for row in self.application_data.input_table_data
                                 if row['Type'] == 'Manipulated (MV)']
@@ -208,6 +205,9 @@ class CsvEditorDialog(QDialog):
 
             # store the raw checked numbers as np array
             raw_data = []
+            # FIXME: (25/04/2019) this implementation assumes that the first two columns are case and convergence flags
+            #   fix it to get the columns indexes that are not these two. Include an option ins convergeceselector to
+            #   ask which column is the case one.
             for row in range(2, table_view.rowCount()):
                 raw_data.append([float(table_view.item(row, col).text()) for col in range(table_view.columnCount())])
 
@@ -219,7 +219,7 @@ class CsvEditorDialog(QDialog):
             output_indexes = [table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in output_alias_list]
 
             # reorganize the data to set inputs before outputs (the order is the same as input/output table data
-            reorg_data = raw_np[:, input_indexes + output_indexes].tolist()
+            self.sampled_data = raw_np[:, input_indexes + output_indexes].tolist()
             self.accept()
 
     def _checkbox_changed(self):
@@ -268,9 +268,22 @@ if __name__ == '__main__':
                            {'status': True, 'alias': 'f',  'index': 10},
                            {'status': True, 'alias': 'xd', 'index': 11}]
 
-    mock_storage.csv_pair_info = pair_info_scrambled
+    mock_storage.doe_csv_pair_info = pair_info_scrambled
 
-    w = CsvEditorDialog(mock_storage)
+    w = CsvEditorDialog(DataStorage())
     w.show()
+
+    def my_exception_hook(exctype, value, tback):
+        # Print the error and traceback
+        print(exctype, value, tback)
+        # Call the normal Exception hook after
+        sys.__excepthook__(exctype, value, tback)
+        sys.exit()
+
+
+    sys._excepthook = sys.excepthook
+
+    # Set the exception hook to our wrapping function
+    sys.excepthook = my_exception_hook
 
     sys.exit(app.exec_())
