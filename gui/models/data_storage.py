@@ -18,8 +18,10 @@ class DataStorage(QObject):
     inputAliasDataChanged = pyqtSignal()
     outputAliasDataChanged = pyqtSignal()
     exprDataChanged = pyqtSignal()
-    doeDataChanged = pyqtSignal()
-    sampledDataChanged = pyqtSignal()
+    doeMvDataChanged = pyqtSignal()
+    doeLhsDataChanged = pyqtSignal()
+    doeCsvDataChanged = pyqtSignal()
+    doeSampledDataChanged = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -126,7 +128,7 @@ class DataStorage(QObject):
 
             if len(doe_to_remove) != 0 or len(doe_to_insert) != 0:
                 # if there were changes in doe_data mvs, notify other objects
-                self.doeDataChanged.emit()
+                self.doeMvDataChanged.emit()
         else:
             raise TypeError("Input must be a list.")
 
@@ -157,78 +159,56 @@ class DataStorage(QObject):
             raise TypeError("Input must be a list.")
 
     @property
-    def doe_data(self):
+    def doe_data(self):  # This property is read only (no setter)
         return self._doe_data
 
-    @doe_data.setter
-    def doe_data(self, doe_dict):
+    @property
+    def doe_mv_data(self):
+        return self._doe_data['mv']
 
-        if isinstance(doe_dict, dict):
-            self._doe_data = doe_dict
-            self.doeDataChanged.emit()
+    @doe_mv_data.setter
+    def doe_mv_data(self, mv_data):
+        if isinstance(mv_data, list):
+            self._doe_data['mv'] = mv_data
+            self.doeMvDataChanged.emit()
+        else:
+            raise TypeError("Input must be a list")
+
+    @property
+    def doe_lhs_data(self):
+        return self._doe_data['lhs']
+
+    @doe_lhs_data.setter
+    def doe_lhs_data(self, lhs_data):
+        if isinstance(lhs_data, dict):
+            self._doe_data['lhs'] = lhs_data
+            self.doeLhsDataChanged.emit()
         else:
             raise TypeError("Input must be a dictionary object.")
 
     @property
-    def csv_filepath(self):
-        return self._doe_data['csv']['filepath']
+    def doe_csv_data(self):
+        return self._doe_data['csv']
 
-    @csv_filepath.setter
-    def csv_filepath(self, filepath):
-        if isinstance(filepath, str):
-            self._doe_data['csv']['filepath'] = filepath
+    @doe_csv_data.setter
+    def doe_csv_data(self, csv_data):
+        if isinstance(csv_data, dict):
+            self._doe_data['csv'] = csv_data
         else:
-            raise TypeError('CSV filepath must be a string.')
+            raise TypeError('Input must be a dictionary object.')
 
     @property
-    def csv_pair_info(self):
-        return self._doe_data['csv']['pair_info']
+    def doe_sampled_data(self):
+        return self._doe_data['sampled']
 
-    @csv_pair_info.setter
-    def csv_pair_info(self, pair_info):
-
-        if isinstance(pair_info, list):
-            self._doe_data['csv']['pair_info'] = pair_info
-        else:
-            raise TypeError("Input must be a list.")
-
-    @property
-    def sampled_data(self):
-        # raw sampled data list
-        return self._doe_data['sampled']['data']
-
-    @sampled_data.setter
-    def sampled_data(self, sampled_data_array):
+    @doe_sampled_data.setter
+    def doe_sampled_data(self, sampled_data_dict):
         # first element of each sublist (first column of array) must be flags for convergence
-        if isinstance(sampled_data_array, list):
-            if len(sampled_data_array) == 0:  # table is empty
-                self._doe_data['sampled']['convergence_flag'] = []
-                self._doe_data['sampled']['data'] = sampled_data_array
-            else:
-                # extract convergence flag column and store in a variable apart
-                cast_samp = np.asfarray(sampled_data_array)
-                self._doe_data['sampled']['convergence_flag'] = cast_samp[:, 0].tolist()
-                self._doe_data['sampled']['data'] = cast_samp[:, 1:].tolist()
-
-            self.sampledDataChanged.emit()
+        if isinstance(sampled_data_dict, dict):
+            self._doe_data['sampled'] = sampled_data_dict
+            self.doeSampledDataChanged.emit()
         else:
-            raise TypeError("Input must be a list.")
-
-    @property
-    def sampled_data_indexes(self):
-        # indexes of sampled_data property. These are the column indexes of sampled data array
-        return {'input_index': self._doe_data['sampled']['input_index'],
-                'constraint_index': self._doe_data['sampled']['constraint_index'],
-                'objective_index': self._doe_data['sampled']['objective_index']}
-
-    @sampled_data_indexes.setter
-    def sampled_data_indexes(self, input_index):
-        if isinstance(input_index, dict):
-            self._doe_data['sampled']['input_index'] = input_index['input_index']
-            self._doe_data['sampled']['constraint_index'] = input_index['constraint_index']
-            self._doe_data['sampled']['objective_index'] = input_index['objective_index']
-        else:
-            raise TypeError('Input must be a dict.')
+            raise TypeError("Input must be a dictionary object.")
 
 
 def write_data(output_file_path, sim_file_path, gui_data_storage):

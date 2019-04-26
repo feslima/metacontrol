@@ -2,10 +2,11 @@ from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5.QtGui import QIntValidator
 
 from gui.views.py_files.lhssettings import Ui_Dialog
+from gui.models.data_storage import DataStorage
 
 
 class LhsSettingsDialog(QDialog):
-    def __init__(self, application_database):
+    def __init__(self, application_database: DataStorage):
         # ------------------------------ Form Initialization ----------------------------
         super().__init__()
         self.ui = Ui_Dialog()
@@ -14,8 +15,7 @@ class LhsSettingsDialog(QDialog):
         self.application_database = application_database
 
         # ------------------------------ WidgetInitialization ------------------------------
-        self.current_doe_data = self.application_database.doe_data
-        self.lhs_data = self.current_doe_data['lhs']
+        self.lhs_data = self.application_database.doe_lhs_data
         self.ui.lineEditNSamples.setText(str(self.lhs_data['n_samples']))
         self.ui.lineEditNIter.setText(str(self.lhs_data['n_iter']))
         self.ui.checkBoxIncVertices.setChecked(self.lhs_data['inc_vertices'])
@@ -33,7 +33,7 @@ class LhsSettingsDialog(QDialog):
         self.lhs_data['n_samples'] = int(self.ui.lineEditNSamples.text())
         self.lhs_data['n_iter'] = int(self.ui.lineEditNIter.text())
         self.lhs_data['inc_vertices'] = self.ui.checkBoxIncVertices.isChecked()
-        self.application_database.doe_data = self.current_doe_data
+        self.application_database.doe_lhs_data = self.lhs_data
 
 
 if __name__ == "__main__":
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     mock_storage = DataStorage()
-    mock_storage.doe_data = doe_table_data
+    mock_storage.doe_lhs_data = doe_table_data['lhs']
     w = LhsSettingsDialog(mock_storage)
     w.show()
 

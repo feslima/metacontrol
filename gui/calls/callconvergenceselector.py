@@ -6,7 +6,7 @@ from gui.views.py_files.convergenceselector import Ui_Dialog
 
 
 class ConvergenceSelectorDialog(QDialog):
-    def __init__(self, header_list: list, status_index: int):
+    def __init__(self, header_list: list):
         # ---------------------- dialog initialization ----------------------
         super().__init__()
         self.ui = Ui_Dialog()
@@ -21,7 +21,7 @@ class ConvergenceSelectorDialog(QDialog):
         self.ui.comboBox.currentIndexChanged.connect(self.indexChanged)
 
         # ------------------------------ Internal Variables ------------------------------
-        self.status_index = status_index
+        self.status_index = None
 
     def indexChanged(self):
         self.status_index = self.ui.comboBox.currentIndex()

@@ -56,3 +56,17 @@ doe_table_data = {'mv': [{'name': 'rr', 'lb': 7., 'ub': 25.0},
                   }
 
 sim_file_name = r'C:\Users\Felipe\Desktop\GUI\python\infill.bkp'
+
+from gui.models.data_storage import DataStorage
+
+mock_storage = DataStorage()
+mock_storage.doe_mv_data = doe_table_data['mv']
+mock_storage.doe_lhs_data = doe_table_data['lhs']
+mock_storage.doe_csv_data = doe_table_data['csv']
+for k in mock_storage.doe_sampled_data.keys():
+    mock_storage.doe_sampled_data[k] = doe_table_data['sampled'][k]
+# mock_storage.doe_sampled_data = doe_table_data['sampled']['data']
+mock_storage.simulation_data = simulation_data
+mock_storage.input_table_data = input_table_data
+mock_storage.output_table_data = output_table_data
+mock_storage.expression_table_data = expr_table_data
