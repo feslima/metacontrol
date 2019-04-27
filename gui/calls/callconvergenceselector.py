@@ -11,11 +11,10 @@ class ConvergenceSelectorDialog(QDialog):
         super().__init__()
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        self.setWindowFlags(Qt.Window)
-        self.setWindowModality(Qt.WindowModal)
 
         # ------------------------------ WidgetInitialization ------------------------------
-        self.ui.convergenceComboBox.addItems(header_list)
+        self.ui.convergenceComboBox.addItems(['Select header'] + header_list)
+        self.ui.convergenceComboBox.setCurrentIndex(0)
 
         # ------------------------------ Signals/Slots ------------------------------
         self.ui.convergenceComboBox.currentIndexChanged.connect(self.statusIndexChanged)
@@ -27,16 +26,20 @@ class ConvergenceSelectorDialog(QDialog):
         self.header_list = header_list.copy()
 
     def statusIndexChanged(self):
-        self.status_index = self.ui.convergenceComboBox.currentIndex()
-        if self.status_index is not None:
-            self.ui.caseComboBox.setEnabled(True)
-            h_list = self.header_list.copy()
-            h_list.remove(self.header_list[self.status_index])
-            self.ui.caseComboBox.clear()
-            self.ui.caseComboBox.addItems(['None'] + h_list)
+        if self.ui.convergenceComboBox.currentText() == 'Select header':
+            self.ui.caseComboBox.setEnabled(False)
 
         else:
-            self.ui.caseComboBox.setEnabled(False)
+            self.status_index = self.header_list.index(self.ui.convergenceComboBox.currentText())
+            if self.status_index is not None:
+                self.ui.caseComboBox.setEnabled(True)
+                h_list = self.header_list.copy()
+                h_list.remove(self.header_list[self.status_index])
+                self.ui.caseComboBox.clear()
+                self.ui.caseComboBox.addItems(['None'] + h_list)
+
+            else:
+                self.ui.caseComboBox.setEnabled(False)
 
     def caseIndexChanged(self):
         self.case_name = self.ui.caseComboBox.currentText()
