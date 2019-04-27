@@ -11,7 +11,9 @@ from gui.calls.callconvergenceselector import ConvergenceSelectorDialog
 import numpy as np
 import pathlib
 
-# FIXME: (25/04/2019) ask the user to set which column in the csv is the convergence flag one
+
+# FIXME: (27/04/2019) fix bug when the csv has more columns than aliases. (Crashing when changing state of check box
+#   whose alias field is blank)
 
 class ComboBoxDelegate(QItemDelegate):
 
@@ -62,7 +64,6 @@ class CsvEditorDialog(QDialog):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.setWindowFlags(Qt.Window)
-        self.setWindowModality(Qt.WindowModal)
         self.setWindowState(Qt.WindowMaximized)
 
         self.application_data = application_data
@@ -89,13 +90,13 @@ class CsvEditorDialog(QDialog):
         if csv_filename != "":
             self.ui.lineEditCsvFilePath.setText(csv_filename)
             self.application_data.doe_csv_data['filepath'] = csv_filename
-            # ask the user which header is the convergence flag
 
             with open(csv_filename, mode='r') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
 
                 headers = csv_reader.fieldnames
 
+            # ask the user which header is the convergence flag and case number
             conv_dialog = ConvergenceSelectorDialog(headers)
 
             # after the user has set the index, read the csv file
@@ -108,6 +109,19 @@ class CsvEditorDialog(QDialog):
                     data_values = np.genfromtxt(csv_filename, delimiter=',', skip_header=1,
                                                 converters={status_index:
                                                                 lambda x: 1. if x == b"OK" or x == b"ok" else 0.})
+
+                    # rearrange the case number column to be the first and convergence be the second
+                    if conv_dialog.case_name == 'None':  # no  case column, create one
+                        data_values = data_values[:,
+                                      [status_index] + [i for i in range(data_values.shape[1]) if i != status_index]]
+                        data_values = np.insert(data_values, 0, range(data_values.shape[0]), axis=1)  # case num
+
+                    else:  # there is a case column, find its column index and shift it
+                        case_index = headers.index(conv_dialog.case_name)
+                        data_values = data_values[:,
+                                      [case_index, status_index] +
+                                      [i for i in range(data_values.shape[1]) if i != case_index and i != status_index]]
+                        headers.insert(0, headers.pop(headers.index(conv_dialog.case_name)))
 
                     col_count = len(headers)
                     self.ui.csvTableWidget.setColumnCount(col_count)
@@ -175,52 +189,56 @@ class CsvEditorDialog(QDialog):
         table_view = self.ui.csvTableWidget
         table_model = table_view.model()
 
-        # warn the user if the aliases are not properly set
-        aliases = [table_model.data(table_model.index(1, col)) for col in range(table_model.columnCount())
-                   if table_view.cellWidget(0, col).findChild(QCheckBox).isChecked()]
-
-        if len(aliases) != len(set(aliases)) or 'Select Alias' in aliases:
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Warning)
-            msg_box.setText("Some aliases set were found to be duplicated or not selected!")
-            msg_box.setWindowTitle("Duplicated alias")
-            msg_box.setStandardButtons(QMessageBox.Ok)
-
-            msg_box.exec()
-
-        else:
-            # get status flags and aliases from combo boxes
-            pair_info = []
-            for col in range(table_model.columnCount()):
-                pair_info.append({'status': table_view.cellWidget(0, col).findChild(QCheckBox).isChecked(),
-                                  'alias': table_model.data(table_model.index(1, col)),
-                                  'index': col})
-
-            # set the app storage
-            self.application_data.doe_csv_pair_info = pair_info
-
-            input_alias_list = [row['Alias'] for row in self.application_data.input_table_data
-                                if row['Type'] == 'Manipulated (MV)']
-            output_alias_list = [row['Alias'] for row in self.application_data.output_table_data]
-
-            # store the raw checked numbers as np array
-            raw_data = []
-            # FIXME: (25/04/2019) this implementation assumes that the first two columns are case and convergence flags
-            #   fix it to get the columns indexes that are not these two. Include an option ins convergeceselector to
-            #   ask which column is the case one.
-            for row in range(2, table_view.rowCount()):
-                raw_data.append([float(table_view.item(row, col).text()) for col in range(table_view.columnCount())])
-
-            raw_np = np.asarray(raw_data)
-            # raw_np = raw_np[:, [flag['status'] for flag in pair_info]]  # extract checked columns
-
-            # find the column indexes of inputs and outputs
-            input_indexes = [table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in input_alias_list]
-            output_indexes = [table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in output_alias_list]
-
-            # reorganize the data to set inputs before outputs (the order is the same as input/output table data
-            self.sampled_data = raw_np[:, input_indexes + output_indexes].tolist()
+        if table_view.rowCount() == 0:
             self.accept()
+        else:
+
+            # warn the user if the aliases are not properly set
+            aliases = [table_model.data(table_model.index(1, col)) for col in range(table_model.columnCount())
+                       if table_view.cellWidget(0, col).findChild(QCheckBox).isChecked()]
+
+            if len(aliases) != len(set(aliases)) or 'Select Alias' in aliases:
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Warning)
+                msg_box.setText("Some aliases set were found to be duplicated or not selected!")
+                msg_box.setWindowTitle("Duplicated alias")
+                msg_box.setStandardButtons(QMessageBox.Ok)
+
+                msg_box.exec()
+
+            else:
+                # get status flags and aliases from combo boxes
+                pair_info = []
+                for col in range(table_model.columnCount()):
+                    pair_info.append({'status': table_view.cellWidget(0, col).findChild(QCheckBox).isChecked(),
+                                      'alias': table_model.data(table_model.index(1, col)),
+                                      'index': col})
+
+                # set the app storage
+                self.application_data.doe_csv_pair_info = pair_info
+
+                input_alias_list = [row['Alias'] for row in self.application_data.input_table_data
+                                    if row['Type'] == 'Manipulated (MV)']
+                output_alias_list = [row['Alias'] for row in self.application_data.output_table_data]
+
+                # store the raw checked numbers as np array
+                raw_data = []
+                conv_data = []
+                for row in range(2, table_view.rowCount()):
+                    raw_data.append([float(table_view.item(row, col).text()) for col in range(table_view.columnCount())])
+                    conv_data.append(float(table_view.item(row, 1).text()))
+
+                raw_np = np.asarray(raw_data)
+                conv_np = np.asarray(conv_data).reshape((-1, 1))
+                # raw_np = raw_np[:, [flag['status'] for flag in pair_info]]  # extract checked columns
+
+                # find the column indexes of inputs and outputs
+                input_indexes = [table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in input_alias_list]
+                output_indexes = [table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in output_alias_list]
+
+                # reorganize the data to set inputs before outputs (the order is the same as input/output table data
+                self.sampled_data = np.hstack((conv_np, raw_np[:, input_indexes + output_indexes])).tolist()
+                self.accept()
 
     def _checkbox_changed(self):
         chk_handle = self.sender()
@@ -241,17 +259,9 @@ class CsvEditorDialog(QDialog):
 
 if __name__ == '__main__':
     import sys
-    from tests_.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
-        doe_table_data
+    from tests_.gui.mock_data import mock_storage
 
     app = QApplication(sys.argv)
-
-    mock_storage = DataStorage()
-    mock_storage.doe_data = doe_table_data
-    mock_storage.simulation_data = simulation_data
-    mock_storage.input_table_data = input_table_data
-    mock_storage.output_table_data = output_table_data
-    mock_storage.expression_table_data = expr_table_data
 
     pair_info_empty = []
 
@@ -259,19 +269,20 @@ if __name__ == '__main__':
                            {'status': False, 'alias': 'Select Alias', 'index': 1},
                            {'status': True, 'alias': 'df', 'index': 2},
                            {'status': True, 'alias': 'b', 'index': 3},
-                           {'status': True, 'alias': 'd',  'index': 4},
-                           {'status': True, 'alias': 'rr',  'index': 5},
+                           {'status': True, 'alias': 'd', 'index': 4},
+                           {'status': True, 'alias': 'rr', 'index': 5},
                            {'status': True, 'alias': 'xb', 'index': 6},
                            {'status': True, 'alias': 'qr', 'index': 7},
-                           {'status': True, 'alias': 'l',  'index': 8},
-                           {'status': True, 'alias': 'v',  'index': 9},
-                           {'status': True, 'alias': 'f',  'index': 10},
+                           {'status': True, 'alias': 'l', 'index': 8},
+                           {'status': True, 'alias': 'v', 'index': 9},
+                           {'status': True, 'alias': 'f', 'index': 10},
                            {'status': True, 'alias': 'xd', 'index': 11}]
 
-    mock_storage.doe_csv_pair_info = pair_info_scrambled
+    # mock_storage.doe_csv_pair_info = pair_info_scrambled
 
-    w = CsvEditorDialog(DataStorage())
+    w = CsvEditorDialog(mock_storage)
     w.show()
+
 
     def my_exception_hook(exctype, value, tback):
         # Print the error and traceback
