@@ -35,11 +35,10 @@ class DoeTab(QWidget):
         self.application_database.inputAliasDataChanged.connect(self.loadResultsTable)
         self.application_database.outputAliasDataChanged.connect(self.loadResultsTable)
         self.application_database.exprDataChanged.connect(self.loadResultsTable)
-        self._lb_itemdelegate.closeEditor.connect(self.updateDoeStorage)
-        self._ub_itemdelegate.closeEditor.connect(self.updateDoeStorage)
+        self._lb_itemdelegate.closeEditor.connect(self.updateDoeMvStorage)
+        self._ub_itemdelegate.closeEditor.connect(self.updateDoeMvStorage)
         self.ui.openSamplerPushButton.clicked.connect(self.openSamplingAssistant)
         self.ui.csvImportPushButton.clicked.connect(self.openCsvImportDialog)
-        self.ui.csvEditorRadioButton.toggled['bool'].connect(self.updateDoeCsvStorage)
 
         # ------------------------------ Internal variables ------------------------------
         self._doe_results_table = None
@@ -47,7 +46,8 @@ class DoeTab(QWidget):
 
     def openSamplingAssistant(self):
         samp_dialog = SamplingAssistantDialog(self.application_database)
-        samp_dialog.exec_()
+        if samp_dialog.exec_():
+            self._set_data_from_samp_dialog(samp_dialog.sampled_data)
 
     def openCsvImportDialog(self):
         csv_editor_dialog = CsvEditorDialog(self.application_database)
@@ -63,7 +63,7 @@ class DoeTab(QWidget):
         else:
             cast_samp = np.asfarray(samp_data)
             conv_flags = cast_samp[:, 0].tolist()
-            samp_data = cast_samp[:, 1:].tolist()
+            samp_data = cast_samp[:, 1:]
 
             # display the data
             results_table_view = self.ui.tableWidgetResultsDoe
@@ -93,16 +93,18 @@ class DoeTab(QWidget):
                 results_table_view.setItem(1, j + 1, item_place_holder)
                 item_place_holder.setTextAlignment(Qt.AlignCenter)
 
-            rows, cols_samp = cast_samp.shape
+            # expando rows and place data
+            rows, cols_samp = samp_data.shape
+            results_table_view.setRowCount(2 + rows)
             for row in range(rows):
                 case_num_placeholder = QTableWidgetItem(str(row + 1))
                 case_num_placeholder.setTextAlignment(Qt.AlignCenter)
                 results_table_view.setItem(2 + row, 0, case_num_placeholder)
 
-                expr_var_values_dict = dict(zip(output_alias_list, cast_samp[row, :].tolist()))
+                expr_var_values_dict = dict(zip(output_alias_list, samp_data[row, len(input_alias_list):].tolist()))
 
                 for col in range(cols_samp):
-                    sampled_values_placeholder = QTableWidgetItem(str(cast_samp[row, col]))
+                    sampled_values_placeholder = QTableWidgetItem(str(samp_data[row, col]))
                     sampled_values_placeholder.setTextAlignment(Qt.AlignCenter)
                     results_table_view.setItem(row + 2, col + 1, sampled_values_placeholder)
 
@@ -111,13 +113,11 @@ class DoeTab(QWidget):
                     expr_value = self.parser.parse(expr_dict['Expr']).evaluate(expr_var_values_dict)
                     expr_value_placeholder = QTableWidgetItem(str(expr_value))
                     expr_value_placeholder.setTextAlignment(Qt.AlignCenter)
-                    results_table_view.setItem(row + 2, cols_samp + col_idx, expr_value_placeholder)
+                    results_table_view.setItem(row + 2, cols_samp + col_idx + 1, expr_value_placeholder)
 
             # set the input, constraint and objective indexes
-            input_indexes = [results_table_view.findItems(alias, Qt.MatchExactly)[0].column()
-                             for alias in input_alias_list]
-            output_indexes = [results_table_view.findItems(alias, Qt.MatchExactly)[0].column()
-                              for alias in output_alias_list]
+            input_index = [results_table_view.findItems(alias, Qt.MatchExactly)[0].column()
+                           for alias in input_alias_list]
             const_index = [results_table_view.findItems(alias, Qt.MatchExactly)[0].column() for alias in
                            [row['Name'] for row in self.application_database.expression_table_data
                             if row['Type'] == 'Constraint function']]
@@ -125,7 +125,14 @@ class DoeTab(QWidget):
                          [row['Name'] for row in self.application_database.expression_table_data
                           if row['Type'] == 'Objective function (J)']]
 
+            # uncast the data from np to list
+            samp_data = samp_data.tolist()
 
+        self.application_database.doe_sampled_data = {'input_index': input_index,
+                                                      'constraint_index': const_index,
+                                                      'objective_index': obj_index,
+                                                      'convergence_flag': conv_flags,
+                                                      'data': samp_data}
 
     def loadInputVariables(self):
         # load the MV aliases into the variable table
@@ -223,7 +230,7 @@ class DoeTab(QWidget):
                 table_view.model().setData(table_view.model().index(row, 2), QBrush(Qt.red), Qt.BackgroundRole)
 
     # update the doe data storage
-    def updateDoeStorage(self):
+    def updateDoeMvStorage(self):
         table_view = self.ui.tableWidgetInputVariables
         mv_bound_info = []
         for row in range(table_view.rowCount()):
@@ -232,13 +239,6 @@ class DoeTab(QWidget):
                                   'ub': table_view.item(row, 2).text()})
 
         self.application_database.doe_mv_data = mv_bound_info
-
-    def updateDoeCsvStorage(self):
-        csv_doe_data = self.application_database.doe_csv_data
-
-        csv_doe_data['active'] = True if self.ui.csvEditorRadioButton.isChecked() else False
-
-        self.application_database.doe_csv_data = csv_doe_data
 
 
 class BoundEditorDelegate(QItemDelegate):
