@@ -122,9 +122,8 @@ Generate the lhs data and make it available to the GUI
                                            QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes or self._getInputDesing() is None:
-            doe_app_data = self.application_database.doe_data
-            mv_app_data = doe_app_data['mv']
-            lhs_app_data = doe_app_data['lhs']
+            mv_app_data = self.application_database.doe_mv_data
+            lhs_app_data = self.application_database.doe_lhs_data
 
             lb_list = [entry['lb'] for entry in mv_app_data]
             ub_list = [entry['ub'] for entry in mv_app_data]
@@ -269,18 +268,9 @@ if __name__ == "__main__":
     import sys
     from gui.models.data_storage import DataStorage
 
-    from tests_.gui.mock_data import simulation_data, input_table_data, output_table_data, expr_table_data, \
-        doe_table_data, sim_file_name
+    from tests_.gui.mock_data import mock_storage
 
     app = QApplication(sys.argv)
-
-    mock_storage = DataStorage()
-    mock_storage.rigorous_model_filepath = sim_file_name
-    mock_storage.simulation_data = simulation_data
-    mock_storage.input_table_data = input_table_data
-    mock_storage.output_table_data = output_table_data
-    mock_storage.expression_table_data = expr_table_data
-    mock_storage.doe_data = doe_table_data
 
     w = SamplingAssistantDialog(mock_storage)
     w.show()

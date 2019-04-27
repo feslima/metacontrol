@@ -60,6 +60,7 @@ sim_file_name = r'C:\Users\Felipe\Desktop\GUI\python\infill.bkp'
 from gui.models.data_storage import DataStorage
 
 mock_storage = DataStorage()
+mock_storage.rigorous_model_filepath = sim_file_name
 mock_storage.doe_mv_data = doe_table_data['mv']
 mock_storage.doe_lhs_data = doe_table_data['lhs']
 mock_storage.doe_csv_data = doe_table_data['csv']
