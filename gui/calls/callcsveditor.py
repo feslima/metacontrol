@@ -12,9 +12,6 @@ import numpy as np
 import pathlib
 
 
-# FIXME: (27/04/2019) fix bug when the csv has more columns than aliases. (Crashing when changing state of check box
-#   whose alias field is blank)
-
 class ComboBoxDelegate(QItemDelegate):
 
     def __init__(self, item_list, parent=None):
@@ -127,6 +124,7 @@ class CsvEditorDialog(QDialog):
                     self.ui.csvTableWidget.setColumnCount(col_count)
 
                     # add 2 rows (first for checkboxes, second one for combo_boxes
+                    self.ui.csvTableWidget.setRowCount(0)
                     self.ui.csvTableWidget.setRowCount(data_values.shape[0] + 2)
                     for j in range(col_count):
                         # create the column headers
@@ -135,7 +133,7 @@ class CsvEditorDialog(QDialog):
                         # create checkboxes for first row of table
                         item_check_widget_ph = QWidget()
                         item_check = QCheckBox()
-                        item_check.setChecked(True)
+                        item_check.setChecked(False)
                         item_check.stateChanged.connect(self._checkbox_changed)  # connect the signal
                         item_check_layout = QHBoxLayout(item_check_widget_ph)
                         item_check_layout.addWidget(item_check)
@@ -164,15 +162,19 @@ class CsvEditorDialog(QDialog):
 
         table_view.setItemDelegateForRow(1, ComboBoxDelegate(alias_list))
 
-        if len(pair_info) == 0:  # no pair info defined, set every thing to default (Select Alias - red)
-            for col in range(table_view.columnCount()):
-                # combo_box delegate for second row (alias setting)
-                alias_default_item = QTableWidgetItem('Select Alias')
-                alias_default_item.setTextAlignment(Qt.AlignCenter)
-                alias_default_item.setData(Qt.BackgroundRole, QBrush(Qt.red))
-                table_view.setItem(1, col, alias_default_item)
+        # set every thing to default (Select Alias - red)
+        for col in range(table_view.columnCount()):
+            # combo_box delegate for second row (alias setting)
+            alias_default_item = QTableWidgetItem('Select Alias')
+            alias_default_item.setTextAlignment(Qt.AlignCenter)
+            alias_default_item.setData(Qt.BackgroundRole, QBrush(Qt.red))
+            table_view.setItem(1, col, alias_default_item)
 
-        else:  # pair defined
+            table_view.cellWidget(0, col).findChild(QCheckBox).stateChanged.emit(
+                table_view.cellWidget(0, col).findChild(QCheckBox).checkState())
+
+        if len(pair_info) != 0:
+            # FIXME: (28/04/2019) disable the item if the pair['status'] is false
             for pair in pair_info:
                 alias_item = QTableWidgetItem(pair['alias'])
                 alias_item.setTextAlignment(Qt.AlignCenter)
@@ -215,7 +217,7 @@ class CsvEditorDialog(QDialog):
                                       'index': col})
 
                 # set the app storage
-                self.application_data.doe_csv_pair_info = pair_info
+                self.application_data.doe_csv_data['pair_info'] = pair_info
 
                 input_alias_list = [row['Alias'] for row in self.application_data.input_table_data
                                     if row['Type'] == 'Manipulated (MV)']
@@ -238,6 +240,7 @@ class CsvEditorDialog(QDialog):
 
                 # reorganize the data to set inputs before outputs (the order is the same as input/output table data
                 self.sampled_data = np.hstack((conv_np, raw_np[:, input_indexes + output_indexes])).tolist()
+
                 self.accept()
 
     def _checkbox_changed(self):
@@ -278,7 +281,8 @@ if __name__ == '__main__':
                            {'status': True, 'alias': 'f', 'index': 10},
                            {'status': True, 'alias': 'xd', 'index': 11}]
 
-    # mock_storage.doe_csv_pair_info = pair_info_scrambled
+    # mock_storage.doe_csv_data['pair_info'] = pair_info_empty
+    # mock_storage.doe_csv_data['pair_info'] = pair_info_scrambled
 
     w = CsvEditorDialog(mock_storage)
     w.show()
