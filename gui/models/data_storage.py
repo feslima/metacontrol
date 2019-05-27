@@ -437,10 +437,8 @@ def read_data(mtc_file_path, gui_data_storage: DataStorage):
                 'filepath': csv_filepath,
                 'pair_info': csv_pair_info}
 
-    doe_table = {'mv': mv_info,
-                 'lhs': lhs_info,
-                 'csv': csv_info}
-
-    gui_data_storage.doe_data = doe_table
+    gui_data_storage.doe_mv_data = mv_info
+    gui_data_storage.doe_lhs_data = lhs_info
+    gui_data_storage.doe_csv_data = csv_info
 
     return sim_file_name

@@ -267,10 +267,12 @@ Grabs the input design table stored in the GUI and displays it
 if __name__ == "__main__":
     import sys
     from gui.models.data_storage import DataStorage
-
+    import qdarkstyle
     from tests_.gui.mock_data import mock_storage
 
     app = QApplication(sys.argv)
+
+    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
     w = SamplingAssistantDialog(mock_storage)
     w.show()
