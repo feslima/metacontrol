@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QResizeEvent
 
 from gui.views.py_files.samplingassistant import Ui_Dialog
-from gui.calls.calllhssettings import LhsSettingsDialog
+from gui.calls.dialogs.calllhssettings import LhsSettingsDialog
 from gui.models.sampling import SamplerThread, lhs
 from gui.models.data_storage import DataStorage
 

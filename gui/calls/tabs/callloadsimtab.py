@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog, QTableWidgetItem, QComple
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QBrush, QIcon, QPixmap
 
-from gui.calls.callsimulationtree import LoadSimulationTreeDialog, AliasEditorDelegate
+from gui.calls.dialogs.callsimulationtree import LoadSimulationTreeDialog, AliasEditorDelegate
 from gui.models.data_storage import DataStorage
 from gui.models.math_check import ValidMathStr, is_expression_valid
 from gui.views.py_files.loadsimtab import Ui_Form

@@ -4,8 +4,8 @@ from PyQt5.QtCore import Qt
 
 from gui.views.py_files.mainwindow import *
 from gui.models.data_storage import DataStorage, read_data, write_data
-from gui.calls.callloadsimtab import LoadSimTab
-from gui.calls.calldoetab import DoeTab
+from gui.calls.tabs.callloadsimtab import LoadSimTab
+from gui.calls.tabs.calldoetab import DoeTab
 
 
 class MainWindow(QMainWindow):

@@ -1,14 +1,14 @@
 import numpy as np
 from py_expression_eval import Parser
 
-from PyQt5.QtWidgets import QApplication, QWidget, QHeaderView, QFileDialog, QTableWidgetItem, QItemDelegate, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QHeaderView, QTableWidgetItem, QItemDelegate, QLineEdit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QBrush
 
 from gui.views.py_files.doetab import Ui_Form
-from gui.calls.callsamplingassistant import SamplingAssistantDialog
+from gui.calls.dialogs.callsamplingassistant import SamplingAssistantDialog
 from gui.models.data_storage import DataStorage
-from gui.calls.callcsveditor import CsvEditorDialog
+from gui.calls.dialogs.callcsveditor import CsvEditorDialog
 
 
 class DoeTab(QWidget):

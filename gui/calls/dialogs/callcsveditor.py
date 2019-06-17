@@ -6,7 +6,7 @@ from PyQt5.QtGui import QBrush
 
 from gui.views.py_files.csv_editor import Ui_Dialog
 from gui.models.data_storage import DataStorage
-from gui.calls.callconvergenceselector import ConvergenceSelectorDialog
+from gui.calls.dialogs.callconvergenceselector import ConvergenceSelectorDialog
 
 import numpy as np
 import pathlib

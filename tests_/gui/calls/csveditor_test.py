@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import QApplication
-from gui.calls.callcsveditor import CsvEditorDialog
+from gui.calls.dialogs.callcsveditor import CsvEditorDialog
 
 if __name__ == '__main__':
     import sys
     import pathlib
-    import csv
     import qdarkstyle
 
     base_path = pathlib.Path(__file__).parent.parent

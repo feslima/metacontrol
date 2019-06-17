@@ -2,7 +2,7 @@ import sys
 import traceback
 from PyQt5.QtWidgets import QApplication, QMessageBox
 sys.path.extend(['C:\\Users\\Felipe\\PycharmProjects\\metacontrol', 'C:/Users/Felipe/PycharmProjects/metacontrol'])
-from gui.calls.callsimulationtree import LoadSimulationTreeDialog
+from gui.calls.dialogs.callsimulationtree import LoadSimulationTreeDialog
 from gui.models.data_storage import DataStorage
 
 if __name__ == '__main__':
