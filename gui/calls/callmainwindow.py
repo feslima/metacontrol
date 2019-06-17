@@ -29,6 +29,7 @@ class MainWindow(QMainWindow):
         self.loadsimtab = LoadSimTab(self.application_database, parent_tab=self.ui.simulationTab,
                                      parent_tab_widget=self.ui.tabMainWidget)
         self.doeTab = DoeTab(self.application_database, parent_widget=self.ui.samplingTab)
+        self.metamodelTab = MetamodelTab(parent_widget=self.ui.metamodelTab)
 
         # --------------------------------- Connections ---------------------------------
         self.ui.actionOpen.triggered.connect(self.openFile)
@@ -99,4 +100,17 @@ if __name__ == '__main__':
     w = MainWindow()
     w.show()
 
+
+    def my_exception_hook(exctype, value, tback):
+        # Print the error and traceback
+        print(exctype, value, tback)
+        # Call the normal Exception hook after
+        sys.__excepthook__(exctype, value, tback)
+        sys.exit()
+
+
+    sys._excepthook = sys.excepthook
+
+    # Set the exception hook to our wrapping function
+    sys.excepthook = my_exception_hook
     sys.exit(app.exec_())
