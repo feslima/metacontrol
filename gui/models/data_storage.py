@@ -14,11 +14,12 @@ class DataStorage(QObject):
     """
 
     # signals to be fired when an attribute changes
-    inputAliasDataChanged = pyqtSignal()
-    outputAliasDataChanged = pyqtSignal()
-    exprDataChanged = pyqtSignal()
-    doeMvBoundsChanged = pyqtSignal()
-    doeSampledDataChanged = pyqtSignal()
+    simulation_file_changed = pyqtSignal()
+    input_alias_data_changed = pyqtSignal()
+    output_alias_data_changed = pyqtSignal()
+    expr_data_changed = pyqtSignal()
+    doe_mv_bounds_changed = pyqtSignal()
+    doe_sampled_data_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -63,6 +64,7 @@ class DataStorage(QObject):
         if isinstance(filepath, str):
             if pathlib.Path(filepath).is_file() or filepath == '':
                 self._simulation_file = filepath
+                self.simulation_file_changed.emit()
             else:
                 raise FileNotFoundError("{0} is not a valid file path."
                                         .format(filepath))
@@ -163,11 +165,11 @@ class DataStorage(QObject):
             for k in doe_to_insert:
                 self._doe_data['mv_bounds'].append(
                     {'name': k, 'lb': 0.0, 'ub': 1.0})
-            self.inputAliasDataChanged.emit()
+            self.input_alias_data_changed.emit()
 
             if len(doe_to_remove) != 0 or len(doe_to_insert) != 0:
                 # if there were changes in doe_data mvs, notify other objects
-                self.doeMvBoundsChanged.emit()
+                self.doe_mv_bounds_changed.emit()
         else:
             raise TypeError("Input table data must be a list.")
 
@@ -181,7 +183,7 @@ class DataStorage(QObject):
     def output_table_data(self, value: list):
         if isinstance(value, list):
             self._output_table_data = value
-            self.outputAliasDataChanged.emit()
+            self.output_alias_data_changed.emit()
         else:
             raise TypeError("Output table data must be a list.")
 
@@ -195,7 +197,7 @@ class DataStorage(QObject):
     def expression_table_data(self, value: list):
         if isinstance(value, list):
             self._expression_table_data = value
-            self.exprDataChanged.emit()
+            self.expr_data_changed.emit()
         else:
             raise TypeError("Expression table data must be a list.")
 
@@ -209,7 +211,7 @@ class DataStorage(QObject):
     def doe_mv_bounds(self, value: list):
         if isinstance(value, list):
             self._doe_data['mv_bounds'] = value
-            self.doeMvBoundsChanged.emit()
+            self.doe_mv_bounds_changed.emit()
         else:
             raise TypeError("MV bounds table data must be a list.")
 
