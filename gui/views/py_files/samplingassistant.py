@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_files\samplingassistant.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\samplingassistant.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -176,4 +176,4 @@ class Ui_Dialog(object):
         self.exportCsvPushButton.setText(_translate("Dialog", "Export as CSV"))
         self.donePushButton.setText(_translate("Dialog", "Done"))
 
-from gui.resources import icons_rc
+import icons_rc
