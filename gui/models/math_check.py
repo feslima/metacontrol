@@ -17,10 +17,10 @@ class ValidMathStr(QValidator):
             return QValidator.Intermediate, string, pos
 
 
-def is_expression_valid(expression, alias_list):
+def is_expression_valid(expression: str, alias_list: list) -> bool:
     """
-    Check if a mathematical string expression is valid by attempting to parse it and checking if all the variables in it
-    exist in the aliases list
+    Check if a mathematical string expression is valid by attempting to parse
+    it and checking if all the variables in it exist in the aliases list.
 
     Parameters
     ----------
