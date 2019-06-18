@@ -392,4 +392,4 @@ class Ui_Form(object):
         item = self.tableWidgetExpressions.horizontalHeaderItem(3)
         item.setText(_translate("Form", "Type"))
 
-import icons_rc
+from gui.resources import icons_rc

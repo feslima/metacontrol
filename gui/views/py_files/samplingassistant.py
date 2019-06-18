@@ -176,4 +176,4 @@ class Ui_Dialog(object):
         self.exportCsvPushButton.setText(_translate("Dialog", "Export as CSV"))
         self.donePushButton.setText(_translate("Dialog", "Done"))
 
-import icons_rc
+from gui.resources import icons_rc

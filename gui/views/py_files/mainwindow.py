@@ -116,4 +116,4 @@ class Ui_MainWindow(object):
         self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.actionSave_As.setText(_translate("MainWindow", "Save As..."))
 
-import icons_rc
+from gui.resources import icons_rc

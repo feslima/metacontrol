@@ -50,4 +50,4 @@ class Ui_Dialog(object):
         self.loadFilePushButton.setText(_translate("Dialog", "Load file"))
         self.okPushButton.setText(_translate("Dialog", "OK"))
 
-import icons_rc
+from gui.resources import icons_rc

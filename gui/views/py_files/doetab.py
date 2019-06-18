@@ -142,4 +142,4 @@ class Ui_Form(object):
         item.setText(_translate("Form", "Upper bound"))
         self.csvImportPushButton.setText(_translate("Form", "Import from CSV"))
 
-import icons_rc
+from gui.resources import icons_rc
