@@ -14,6 +14,11 @@ class AspenConnection:
     ----------
     file_path : str
         Full path string to the .bkp or .inp file.
+
+    Notes
+    -----
+        Explicitly call the close_connection() function to destroy the
+        connection!
     """
 
     # ------------------------------ CONSTANTS -------------------------------
@@ -36,13 +41,6 @@ class AspenConnection:
             raise FileNotFoundError("Couldn't find the specified .bkp file.")
 
         self._aspen = None
-
-    def __del__(self):
-        """Connection object destructor. If you wan't to keep the connection 
-        alive (without explicitly killing it), keep a reference of this object
-        to avoid garbage collection.
-        """
-        self.close_connection()
 
     # --------------------------- PRIVATE FUNCTIONS --------------------------
     def _check_simulation_results(self) -> None:
@@ -239,13 +237,11 @@ class AspenConnection:
     def close_connection(self) -> None:
         """Closes the COM/OLE server and connection of an Aspen Plus application.
         """
-        while True:
+        while self._aspen is not None:
             try:
-                if self._aspen is not None:
-                    self._aspen.Quit()
+                self._aspen.Quit()
             except pywintypes.com_error:
                 self._aspen = None
-                break
 
     def get_simulation_data(self) -> dict:
         """Returns the simulation data dictionary with blocks names, components,
