@@ -38,6 +38,10 @@ class AspenConnection:
         self._aspen = None
 
     def __del__(self):
+        """Connection object destructor. If you wan't to keep the connection 
+        alive (without explicitly killing it), keep a reference of this object
+        to avoid garbage collection.
+        """
         self.close_connection()
 
     # --------------------------- PRIVATE FUNCTIONS --------------------------
