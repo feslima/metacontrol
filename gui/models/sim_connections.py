@@ -238,7 +238,7 @@ class AspenConnection:
         while True:
             try:
                 if self._aspen is not None:
-                    self._aspen.Close()
+                    self._aspen.Quit()
             except pywintypes.com_error:
                 self._aspen = None
                 break
