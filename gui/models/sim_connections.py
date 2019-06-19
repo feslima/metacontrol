@@ -237,11 +237,8 @@ class AspenConnection:
     def close_connection(self) -> None:
         """Closes the COM/OLE server and connection of an Aspen Plus application.
         """
-        while self._aspen is not None:
-            try:
-                self._aspen.Quit()
-            except pywintypes.com_error:
-                self._aspen = None
+        self._aspen.Quit()
+        self._aspen = None
 
     def get_simulation_data(self) -> dict:
         """Returns the simulation data dictionary with blocks names, components,
