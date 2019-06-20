@@ -10,11 +10,12 @@ class ValidMathStr(QValidator):
     def validate(self, string, pos):
         try:
             self.parser.parse(string)
-            self.parent().setStyleSheet('border: 3px solid green')  # green
-            return QValidator.Acceptable, string, pos
         except Exception:
             self.parent().setStyleSheet('border: 3px solid red')  # red
             return QValidator.Intermediate, string, pos
+        else:
+            self.parent().setStyleSheet('border: 3px solid green')  # green
+            return QValidator.Acceptable, string, pos
 
 
 def is_expression_valid(expression: str, alias_list: list) -> bool:
@@ -37,7 +38,8 @@ def is_expression_valid(expression: str, alias_list: list) -> bool:
     parser = Parser()
 
     try:
-        expr_var = parser.parse(expression).variables()
-        return all(item in alias_list for item in expr_var)
+        expr_var = parser.parse(expression)
     except Exception:
         return False
+    else:
+        return all(item in alias_list for item in expr_var.variables())

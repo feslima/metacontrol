@@ -1,6 +1,12 @@
-import pathlib
 import json
+import pathlib
+
 from PyQt5.QtCore import QObject, pyqtSignal
+
+from gui.models.math_check import is_expression_valid
+
+# TODO: Implement class object to handle temporary file/folder creation for the
+# application
 
 
 class DataStorage(QObject):
@@ -15,11 +21,14 @@ class DataStorage(QObject):
 
     # signals to be fired when an attribute changes
     simulation_file_changed = pyqtSignal()
+    simulation_info_changed = pyqtSignal()
     input_alias_data_changed = pyqtSignal()
     output_alias_data_changed = pyqtSignal()
     expr_data_changed = pyqtSignal()
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
+
+    sampling_enabled = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -51,6 +60,9 @@ class DataStorage(QObject):
                                       'convergence_flag': [],
                                       'data': []}
                           }
+        # --------------------------- SIGNALS/SLOTS ---------------------------
+        # whenever expression data changes, perform a simulation setup check
+        self.expr_data_changed.connect(self.check_simulation_setup)
 
     # ------------------------------ PROPERTIES ------------------------------
     @property
@@ -122,7 +134,14 @@ class DataStorage(QObject):
                         'reactions', 'sens_analysis', 'calculators',
                         'optimizations', 'design_specs']
 
-            self._check_keys(key_list, dictionary, self._simulation_data)
+            try:
+                self._check_keys(key_list, dictionary, self._simulation_data)
+            except KeyError as ke:
+                # re-raise the KeyError exception
+                raise ke
+            else:
+                # if the values are properly set, emit the signal
+                self.simulation_info_changed.emit()
         else:
             raise KeyError("Simulation data must be a dictionary object.")
 
@@ -133,14 +152,14 @@ class DataStorage(QObject):
         return self._input_table_data
 
     @input_table_data.setter
-    def input_table_data(self, table_model: list):
-        if isinstance(table_model, list):
-            self._input_table_data = table_model
+    def input_table_data(self, value: list):
+        if isinstance(value, list):
+            self._input_table_data = value
 
             # NOTE: this update is to ensure that the doe MV's are in
             # conformity with alias inputs that are MV's.
             mv_input_list = [row['Alias']
-                             for row in table_model if
+                             for row in value if
                              row['Type'] == 'Manipulated (MV)']
             mv_doe_list = [entry['name']
                            for entry in self._doe_data['mv_bounds']]
@@ -279,7 +298,7 @@ class DataStorage(QObject):
                 'mtc_input_table': self.input_table_data,
                 'mtc_output_table': self.output_table_data,
                 'mtc_expr_table': self.expression_table_data,
-                },
+            },
             'doe_info': {
                 'mtc_mv_bounds': self.doe_mv_bounds
             }
@@ -315,6 +334,42 @@ class DataStorage(QObject):
 
         # doetab
         self.doe_mv_bounds = doe_info['mtc_mv_bounds']
+
+    def check_simulation_setup(self):
+        """Checks if there are aliases and expressions are mathematically
+        valid. Also checks if expression types are defined, and there are no
+        duplicates between expression names and variable aliases.
+
+        If everything is ok, emits a signal with a boolean value where True
+        means that the sampling phase is good to go, otherwise the value is
+        False.
+        """
+        # get aliases
+        aliases = [row['Alias'] for row in self.input_table_data +
+                   self.output_table_data]
+
+        # get expression names
+        expr_names = [row['Name'] for row in self.expression_table_data]
+
+        # get expressions validity
+        expr_valid_check = [is_expression_valid(row['Expr'], aliases)
+                            for row in self.expression_table_data]
+
+        is_name_duplicated = True if len(expr_names + aliases) != \
+            len(set(expr_names + aliases)) else False
+
+        is_exprs_valid = True if len(expr_valid_check) != 0 \
+            and all(expr_valid_check) else False
+
+        is_expr_defined = True if all(row['Type'] != 'Choose a type' for row
+                                      in self.expression_table_data) else False
+
+        if is_exprs_valid and not is_name_duplicated and is_expr_defined:
+            # everything is ok, proceed to sampling
+            self.sampling_enabled.emit(True)
+        else:
+            # not ok, can't proceed to sampling
+            self.sampling_enabled.emit(False)
 
 
 if __name__ == "__main__":

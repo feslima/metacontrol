@@ -237,8 +237,9 @@ class AspenConnection:
     def close_connection(self) -> None:
         """Closes the COM/OLE server and connection of an Aspen Plus application.
         """
-        self._aspen.Quit()
-        self._aspen = None
+        if self._aspen is not None:
+            self._aspen.Quit()
+            self._aspen = None
 
     def get_simulation_data(self) -> dict:
         """Returns the simulation data dictionary with blocks names, components,
