@@ -398,40 +398,13 @@ class LoadSimulationTreeDialog(QDialog):
 
 if __name__ == "__main__":
     import sys
-    import json
-    import pathlib
     from gui.calls.base import my_exception_hook
+    from tests_.mock_data import LOADSIM_SAMPLING_MOCK_DS
 
     app = QApplication(sys.argv)
 
-    # store bkp test file in home dir
-    ds = DataStorage()
-    filepath = str(pathlib.Path().home() / "infill.bkp")
-    ds.simulation_file = filepath
-
-    # load the test tree
-    jsonfilepath = r"C:\Users\Felipe\Desktop\GUI\python\infill.json"
-
-    with open(jsonfilepath, 'r') as jfile:
-        tree = json.load(jfile)
-
-    root_input = tree['input']
-    root_output = tree['output']
-
-    ds.tree_model_input = root_input
-    ds.tree_model_output = root_output
-
-    # some input/output variables
-    ds.input_table_data = [{'Path': r"\Data\Blocks\TOWER\Input\BASIS_RR", 'Alias': 'rr', 'Type': 'Manipulated (MV)'},
-                           {'Path': r"\Data\Blocks\TOWER\Input\D:F", 'Alias': 'df', 'Type': 'Manipulated (MV)'}]
-    ds.output_table_data = [{'Path': r"\Data\Streams\D\Output\TOT_FLOW", 'Alias': 'd', 'Type': 'Auxiliary'},
-                            {'Path': r"\Data\Streams\B\Output\MOLEFRAC\MIXED\PROPENE", 'Alias': 'xb', 'Type': 'Candidate (CV)'},
-                            {'Path': r"\Data\Streams\B\Output\TOT_FLOW", 'Alias': 'b', 'Type': 'Auxiliary'},
-                            {'Path': r"\Data\Blocks\TOWER\Output\REB_DUTY", 'Alias': 'qr', 'Type': 'Auxiliary'},
-                            {'Path': r"\Data\Blocks\TOWER\Output\MOLE_L1", 'Alias': 'l', 'Type': 'Auxiliary'},
-                            {'Path': r"\Data\Blocks\TOWER\Output\MOLE_VN", 'Alias': 'v', 'Type': 'Auxiliary'},
-                            {'Path': r"\Data\Streams\FEED\Output\TOT_FLOW", 'Alias': 'f', 'Type': 'Auxiliary'},
-                            {'Path': r"\Data\Streams\D\Output\MOLEFRAC\MIXED\PROPENE", 'Alias': 'xd', 'Type': 'Candidate (CV)'}]
+    # Load application storage mock
+    ds = LOADSIM_SAMPLING_MOCK_DS
 
     # start the application
     w = LoadSimulationTreeDialog(ds)

@@ -1,6 +1,6 @@
 {
     "simulation_info": {
-        "sim_filename": "C:/Users/Felipe/infill.bkp",
+        "sim_filename": "C:/Users/Felipe/PycharmProjects/metacontrol/tests_/model_files/infill.bkp",
         "sim_info": {
             "components": [
                 "PROPENE",
