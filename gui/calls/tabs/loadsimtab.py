@@ -190,6 +190,13 @@ class LoadSimTab(QWidget):
     def insert_expression_row(self, expr_dict: dict = None):
         """Inserts a single expression data dictionary into the expression
         table.
+
+        Parameters
+        ----------
+        expr_dict : dict (optional)
+            If `expr_dict` is not specified (None), a new expression is
+            inserted into the table. Otherwise, an already existing expression
+            is inserted into the table (does not call update_expr_data method).
         """
         expr_table_view = self.ui.tableWidgetExpressions
         n_rows = expr_table_view.rowCount()
@@ -229,6 +236,8 @@ class LoadSimTab(QWidget):
             expr_math.setForeground(QBrush(Qt.green))
         else:
             expr_math.setForeground(QBrush(Qt.red))
+
+        if expr_dict['Type'] == 'Choose a type':
             expr_type.setData(Qt.BackgroundRole, QBrush(Qt.red))
 
         # insert the items into the table
