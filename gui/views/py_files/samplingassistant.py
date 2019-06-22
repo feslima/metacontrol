@@ -159,7 +159,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Sampling Assistant"))
-        self.genLhsPushButton.setToolTip(_translate("Dialog", "<html><head/><body><p align=\"justify\">Generates the Latin Hypercube Sampling (LHS) when <span style=\" text-decoration: underline;\">all</span> the variables in the table above have their lower and upper bounds defined. Default number of points is 10 * number of variables. To change this, click on the settings button.</p></body></html>"))
+        self.genLhsPushButton.setToolTip(_translate("Dialog", "<html><head/><body><p align=\"justify\">Generates the Latin Hypercube Sampling (LHS) when <span style=\" text-decoration: underline;\">all</span> the manipulated variables have their lower and upper bounds defined. Default number of points is 10 * number of variables. To change this, click on the settings button.</p></body></html>"))
         self.genLhsPushButton.setText(_translate("Dialog", "Generate LHS"))
         self.lhsSettingsPushButton.setToolTip(_translate("Dialog", "<html><head/><body><p>Latin Hypercube Sampling (LHS) settings</p></body></html>"))
         self.genRectGridPushButton.setText(_translate("Dialog", "Generate Grid"))

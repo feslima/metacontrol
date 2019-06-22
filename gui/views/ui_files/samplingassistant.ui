@@ -58,7 +58,7 @@ QGroupBox::title {
             <bool>true</bool>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Generates the Latin Hypercube Sampling (LHS) when &lt;span style=&quot; text-decoration: underline;&quot;&gt;all&lt;/span&gt; the variables in the table above have their lower and upper bounds defined. Default number of points is 10 * number of variables. To change this, click on the settings button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Generates the Latin Hypercube Sampling (LHS) when &lt;span style=&quot; text-decoration: underline;&quot;&gt;all&lt;/span&gt; the manipulated variables have their lower and upper bounds defined. Default number of points is 10 * number of variables. To change this, click on the settings button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Generate LHS</string>

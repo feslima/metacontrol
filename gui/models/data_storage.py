@@ -48,8 +48,8 @@ class DataStorage(QObject):
         self._output_table_data = []
         self._expression_table_data = []
         self._doe_data = {'mv_bounds': [],
-                          'lhs': {'n_samples': '',
-                                  'n_iter': '',
+                          'lhs': {'n_samples': 50,
+                                  'n_iter': 5,
                                   'inc_vertices': False},
                           'csv': {'active': True,
                                   'filepath': '',
@@ -235,18 +235,18 @@ class DataStorage(QObject):
             raise TypeError("MV bounds table data must be a list.")
 
     @property
-    def doe_lhs_data(self):
+    def doe_lhs_settings(self):
         """LHS info (dict) to read/write into LHS settings dialog.
         Keys are: 'n_samples', 'n_iter', 'inc_vertices'."""
         return self._doe_data['lhs']
 
-    @doe_lhs_data.setter
-    def doe_lhs_data(self, value: dict):
+    @doe_lhs_settings.setter
+    def doe_lhs_settings(self, value: dict):
         if isinstance(value, dict):
             key_list = ['n_samples', 'n_iter', 'inc_vertices']
             self._check_keys(key_list, value, self._doe_data['lhs'])
         else:
-            raise KeyError("LHS info data must be a dictionary object.")
+            raise KeyError("LHS settings must be a dictionary object.")
 
     # ---------------------------- PRIVATE METHODS ---------------------------
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
