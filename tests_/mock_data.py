@@ -22,3 +22,8 @@ LOADSIM_SAMPLING_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)
 _mtc_lhs_settings = {'n_samples': '50', 'n_iter': '10', 'inc_vertices': False}
 LHSSETTINGS_MOCK_DS = DataStorage()
 LHSSETTINGS_MOCK_DS.doe_lhs_settings = _mtc_lhs_settings
+
+# doetab and sampling assistant
+DOE_TAB_MOCK_DS = DataStorage()
+DOE_TAB_MOCK_DS.load(MTC_FOLDER_PATH / 'sampling_assistant.mtc')
+DOE_TAB_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)

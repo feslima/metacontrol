@@ -2,11 +2,32 @@ import sys
 import traceback
 
 from PyQt5.QtCore import QAbstractItemModel, QRegExp, Qt
-from PyQt5.QtGui import QBrush, QRegExpValidator
+from PyQt5.QtGui import QBrush, QRegExpValidator, QDoubleValidator
 from PyQt5.QtWidgets import QComboBox, QItemDelegate, QLineEdit, QMessageBox
 
 # TODO: Check entire alias column for duplicates and implement behavior for the
 # entire column instead of only the current cell.
+
+
+class DoubleEditorDelegate(QItemDelegate):
+    """Base item delegate for inserting double values throughout application.
+
+    """
+
+    def createEditor(self, parent, option, index):
+        line_editor = QLineEdit(parent)
+        double_validator = QDoubleValidator(parent=line_editor)
+        line_editor.setValidator(double_validator)
+
+        return line_editor
+
+    def setModelData(self, editor, model, index):
+        text = editor.text()
+
+        model.setData(index, text, Qt.EditRole)
+
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
 
 
 class AliasEditorDelegate(QItemDelegate):

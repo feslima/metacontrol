@@ -1,6 +1,7 @@
 import json
 import pathlib
 
+import pandas as pd
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from gui.models.math_check import is_expression_valid
@@ -29,6 +30,7 @@ class DataStorage(QObject):
     doe_sampled_data_changed = pyqtSignal()
 
     sampling_enabled = pyqtSignal(bool)
+    metamodel_enabled = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -54,15 +56,14 @@ class DataStorage(QObject):
                           'csv': {'active': True,
                                   'filepath': '',
                                   'pair_info': []},
-                          'sampled': {'input_index': [],
-                                      'constraint_index': [],
-                                      'objective_index': [],
-                                      'convergence_flag': [],
-                                      'data': []}
+                          'sampled': {}
                           }
         # --------------------------- SIGNALS/SLOTS ---------------------------
         # whenever expression data changes, perform a simulation setup check
         self.expr_data_changed.connect(self.check_simulation_setup)
+
+        # whenever sampled data changes, perform a DOE setup check
+        self.doe_sampled_data_changed.connect(self.check_sampling_setup)
 
     # ------------------------------ PROPERTIES ------------------------------
     @property
@@ -246,7 +247,21 @@ class DataStorage(QObject):
             key_list = ['n_samples', 'n_iter', 'inc_vertices']
             self._check_keys(key_list, value, self._doe_data['lhs'])
         else:
-            raise KeyError("LHS settings must be a dictionary object.")
+            raise TypeError("LHS settings must be a dictionary object.")
+
+    @property
+    def doe_sampled_data(self):
+        """Sampled data dictionary. This dictionary is JSON compatible
+        (dumped from pandas.DataFrame.to_dict('list'))."""
+        return self._doe_data['sampled']
+
+    @doe_sampled_data.setter
+    def doe_sampled_data(self, value: dict):
+        if isinstance(value, dict):
+            self._doe_data['sampled'] = value
+            self.doe_sampled_data_changed.emit()
+        else:
+            raise TypeError("Sampled data must be a dictionary object")
 
     # ---------------------------- PRIVATE METHODS ---------------------------
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
@@ -300,7 +315,8 @@ class DataStorage(QObject):
                 'mtc_expr_table': self.expression_table_data,
             },
             'doe_info': {
-                'mtc_mv_bounds': self.doe_mv_bounds
+                'mtc_mv_bounds': self.doe_mv_bounds,
+                'mtc_sampled_data': self.doe_sampled_data
             }
         }
 
@@ -334,6 +350,7 @@ class DataStorage(QObject):
 
         # doetab
         self.doe_mv_bounds = doe_info['mtc_mv_bounds']
+        self.doe_sampled_data = doe_info['mtc_sampled_data']
 
     def check_simulation_setup(self):
         """Checks if there are aliases and expressions are mathematically
@@ -370,6 +387,32 @@ class DataStorage(QObject):
         else:
             # not ok, can't proceed to sampling
             self.sampling_enabled.emit(False)
+
+    def check_sampling_setup(self):
+        """Checks if sampling data contains the data for all input/output
+        variables and is not empty.
+
+        If everything is ok, emits a signal with a boolean value where True
+        means that the metamodel construction phase is good to go, otherwise
+        the value is False.
+        """
+        input_alias = [row['Alias'] for row in self.input_table_data
+                       if row['Type'] == 'Manipulated (MV)']
+        output_alias = [row['Alias']
+                        for row in self.output_table_data]
+        aliases = input_alias + output_alias
+
+        # build the DataFrame
+        df = pd.DataFrame(self.doe_sampled_data)
+
+        is_sampling_empty = df.empty
+
+        is_alias_sampled = all(alias in df.columns for alias in aliases)
+
+        if is_alias_sampled and not is_sampling_empty:
+            self.metamodel_enabled.emit(True)
+        else:
+            self.metamodel_enabled.emit(False)
 
 
 if __name__ == "__main__":
