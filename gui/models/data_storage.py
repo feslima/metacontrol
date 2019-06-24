@@ -53,8 +53,8 @@ class DataStorage(QObject):
                           'lhs': {'n_samples': 50,
                                   'n_iter': 5,
                                   'inc_vertices': False},
-                          'csv': {'active': True,
-                                  'filepath': '',
+                          'csv': {'filepath': '',
+                                  'convergence_index': '',
                                   'pair_info': []},
                           'sampled': {}
                           }
@@ -248,6 +248,20 @@ class DataStorage(QObject):
             self._check_keys(key_list, value, self._doe_data['lhs'])
         else:
             raise TypeError("LHS settings must be a dictionary object.")
+
+    @property
+    def doe_csv_settings(self):
+        """CSV info (dict) to read/write into csveditor dialog.
+        Keys are: 'filepath', 'convergence_index', pair_info"""
+        return self._doe_data['csv']
+
+    @doe_csv_settings.setter
+    def doe_csv_settings(self, value: dict):
+        if isinstance(value, dict):
+            key_list = ['filepath', 'convergence_index', 'pair_info']
+            self._check_keys(key_list, value, self._doe_data['csv'])
+        else:
+            raise TypeError("CSV editor settings must be a dictionary object.")
 
     @property
     def doe_sampled_data(self):
