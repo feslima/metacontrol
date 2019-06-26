@@ -1,9 +1,11 @@
 import sys
 import traceback
 
-from PyQt5.QtCore import QAbstractItemModel, QRegExp, Qt
-from PyQt5.QtGui import QBrush, QRegExpValidator, QDoubleValidator
-from PyQt5.QtWidgets import QComboBox, QItemDelegate, QLineEdit, QMessageBox
+from PyQt5.QtCore import QAbstractItemModel, QEvent, QModelIndex, QRegExp, Qt
+from PyQt5.QtGui import QBrush, QDoubleValidator, QPainter, QRegExpValidator
+from PyQt5.QtWidgets import (QComboBox, QItemDelegate, QLineEdit, QMessageBox,
+                             QSizePolicy, QSpacerItem, QStyleOptionViewItem,
+                             QWidget, QTextEdit)
 
 # TODO: Check entire alias column for duplicates and implement behavior for the
 # entire column instead of only the current cell.
@@ -129,15 +131,69 @@ class ComboBoxDelegate(QItemDelegate):
         editor.setGeometry(option.rect)
 
 
+class CheckBoxDelegate(QItemDelegate):
+    """Base class used to create checbox delegates to be placed inside table
+    models.
+    """
+
+    def __init__(self, parent=None):
+        QItemDelegate.__init__(self, parent)
+
+    def createEditor(self, parent, option, index):
+        return None
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem,
+              index: QModelIndex):
+        self.drawCheck(painter, option, option.rect, Qt.Unchecked
+                       if index.data(Qt.CheckStateRole) == Qt.Unchecked
+                       else Qt.Checked)
+
+    def editorEvent(self, event: QEvent, model: QAbstractItemModel,
+                    option: QStyleOptionViewItem, index: QModelIndex):
+        if not int(index.flags() & Qt.ItemIsEditable) > 0:
+            return False
+
+        if event.type() == QEvent.MouseButtonPress and \
+                event.button() == Qt.LeftButton:
+            self.setModelData(None, model, index)
+            return True
+
+        return False
+
+    def setModelData(self, editor: QWidget, model: QAbstractItemModel,
+                     index: QModelIndex):
+        # change the state of the checkbox, i.e. if the current state is
+        # unchecked send the value 1 to the model.setData, otherwise send 0
+        model.setData(index, 1 if index.data(Qt.CheckStateRole) == Qt.Unchecked
+                      else 0, Qt.EditRole)
+
+
+class ErrorMessageBox(QMessageBox):
+    def __init__(self, icon, title, text, buttons, parent, flags):
+        super().__init__(icon, title, text, buttons, parent, flags)
+
+    def resizeEvent(self, a0):
+        result = super().resizeEvent(a0)
+
+        details_box = self.findChild(QTextEdit)
+
+        if details_box is not None:
+            details_box.setFixedSize(details_box.sizeHint())
+
+        return result
+
+
 def my_exception_hook(exctype, value, tback):
     """Exception hook to catch exceptions from PyQt and show the error message
     as a dialog box.
     """
     # Show the dialog
-    error_dialog = QMessageBox()
-    error_dialog.setIcon(QMessageBox.Critical)
-    error_dialog.setWindowTitle("Application ERROR!")
-    error_dialog.setText(traceback.format_exception(exctype, value, tback)[-1])
+    error_dialog = ErrorMessageBox(QMessageBox.Critical, "Application ERROR!",
+                                   traceback.format_exception(
+                                       exctype, value, tback)[-1],
+                                   QMessageBox.NoButton, None,
+                                   Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint)
+
     error_dialog.setDetailedText(
         ''.join(traceback.format_exception(exctype, value, tback)))
 
