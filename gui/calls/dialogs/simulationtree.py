@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QDialog, QMessageBox,
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
 from gui.views.py_files.loadsimulationtree import Ui_Dialog
-from gui.calls.base import AliasEditorDelegate, ComboBoxDelegate
+from gui.calls.base import AliasEditorDelegate, ComboBoxDelegate, warn_the_user
 
 # TODO: Include units in table display.
 
@@ -306,17 +306,6 @@ class LoadSimulationTreeDialog(QDialog):
                                  'Type': model.data(model.index(row, 2))})
 
             return var_list
-
-        # subfuction to display warnings about variables selection to the user
-        def warn_the_user(msg_text: str, msg_title: str) -> None:
-            msg_box = QMessageBox(
-                QMessageBox.Warning,
-                msg_title,
-                msg_text,
-                buttons=QMessageBox.Ok,
-                parent=None
-            )
-            msg_box.exec_()
 
         input_var_data = table_into_list(self.ui.tableWidgetInput)
         output_var_data = table_into_list(self.ui.tableWidgetOutput)

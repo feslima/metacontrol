@@ -183,6 +183,26 @@ class ErrorMessageBox(QMessageBox):
         return result
 
 
+def warn_the_user(msg_text: str, msg_title: str) -> None:
+    """Function to display warnings to the user.
+
+    Parameters
+    ----------
+    msg_text : str
+        Text body of the message dialog to be displayed.
+    msg_title : str
+        Title of the message dialog.
+    """
+    msg_box = QMessageBox(
+        QMessageBox.Warning,
+        msg_title,
+        msg_text,
+        buttons=QMessageBox.Ok,
+        parent=None
+    )
+    msg_box.exec_()
+
+
 def my_exception_hook(exctype, value, tback):
     """Exception hook to catch exceptions from PyQt and show the error message
     as a dialog box.
