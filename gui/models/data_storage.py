@@ -55,7 +55,7 @@ class DataStorage(QObject):
                                   'inc_vertices': False},
                           'csv': {'filepath': '',
                                   'convergence_index': '',
-                                  'pair_info': []},
+                                  'pair_info': {}},
                           'sampled': {}
                           }
         # --------------------------- SIGNALS/SLOTS ---------------------------

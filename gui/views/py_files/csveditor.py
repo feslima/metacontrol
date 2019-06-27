@@ -22,6 +22,11 @@ class Ui_Dialog(object):
         self.openCsvFilePushButton.setIcon(icon)
         self.openCsvFilePushButton.setObjectName("openCsvFilePushButton")
         self.gridLayout.addWidget(self.openCsvFilePushButton, 0, 1, 1, 1)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem, 2, 0, 1, 2)
+        self.okPushButton = QtWidgets.QPushButton(Dialog)
+        self.okPushButton.setObjectName("okPushButton")
+        self.gridLayout.addWidget(self.okPushButton, 2, 2, 1, 1)
         self.lineEditCsvFilePath = QtWidgets.QLineEdit(Dialog)
         self.lineEditCsvFilePath.setReadOnly(True)
         self.lineEditCsvFilePath.setObjectName("lineEditCsvFilePath")
@@ -29,17 +34,10 @@ class Ui_Dialog(object):
         self.loadFilePushButton = QtWidgets.QPushButton(Dialog)
         self.loadFilePushButton.setObjectName("loadFilePushButton")
         self.gridLayout.addWidget(self.loadFilePushButton, 0, 2, 1, 1)
-        self.csvTableWidget = QtWidgets.QTableWidget(Dialog)
-        self.csvTableWidget.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
-        self.csvTableWidget.setObjectName("csvTableWidget")
-        self.csvTableWidget.setColumnCount(0)
-        self.csvTableWidget.setRowCount(0)
-        self.gridLayout.addWidget(self.csvTableWidget, 1, 0, 1, 3)
-        self.okPushButton = QtWidgets.QPushButton(Dialog)
-        self.okPushButton.setObjectName("okPushButton")
-        self.gridLayout.addWidget(self.okPushButton, 2, 2, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout.addItem(spacerItem, 2, 0, 1, 2)
+        self.displayTableView = QtWidgets.QTableView(Dialog)
+        self.displayTableView.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
+        self.displayTableView.setObjectName("displayTableView")
+        self.gridLayout.addWidget(self.displayTableView, 1, 0, 1, 3)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -47,7 +45,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.loadFilePushButton.setText(_translate("Dialog", "Load file"))
         self.okPushButton.setText(_translate("Dialog", "OK"))
+        self.loadFilePushButton.setText(_translate("Dialog", "Load file"))
 
 from gui.resources import icons_rc
