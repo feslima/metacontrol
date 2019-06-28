@@ -1,16 +1,160 @@
 import numpy as np
 import pandas as pd
 from py_expression_eval import Parser
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import (Qt, QSize, QAbstractTableModel, QModelIndex,
+                          QAbstractItemModel)
 from PyQt5.QtGui import QBrush
-from PyQt5.QtWidgets import (QApplication, QHeaderView, QTableWidgetItem,
-                             QWidget)
+from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QHeaderView,
+                             QTableView, QTableWidgetItem, QWidget)
 
+from gui.calls.base import DoubleEditorDelegate
+from gui.calls.dialogs.csveditor import CsvEditorDialog
+from gui.calls.dialogs.samplingassistant import SamplingAssistantDialog
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.doetab import Ui_Form
-from gui.calls.base import DoubleEditorDelegate
-from gui.calls.dialogs.samplingassistant import SamplingAssistantDialog
-from gui.calls.dialogs.csveditor import CsvEditorDialog
+
+
+class doeResultsView(QTableView):
+    """TableView subclassing overriding the setModel to properly set the first
+    and second row headers."""
+
+    def setModel(self, model: QAbstractItemModel):
+        super().setModel(model)
+        for row in range(model.rowCount()):
+            for col in range(model.columnCount()):
+                span = model.span(model.index(row, col))
+                if span.height() > 1 or span.width() > 1:
+                    self.setSpan(row, col, span.height(), span.width())
+
+
+class doeResultsModel(QAbstractTableModel):
+    """Model to be used as results display of sampled data"""
+    _HEADER_ROW_OFFSET = 2
+    _INPUT_COL_OFFSET = 2
+
+    def __init__(self, application_data: DataStorage, parent=None):
+        QAbstractTableModel.__init__(self, parent)
+
+        self.app_data = application_data
+        data = pd.DataFrame(self.app_data.doe_sampled_data)
+        self._case_data = data.pop('case')
+        self._stat_data = data.pop('status')
+
+        self._input_alias = [row['Alias']
+                             for row in self.app_data.input_table_data
+                             if row['Type'] == 'Manipulated (MV)']
+        self._candidates_alias = [row['Alias']
+                                  for row in self.app_data.output_table_data
+                                  if row['Type'] == 'Candidate (CV)'] + \
+            [row['Name']
+             for row in self.app_data.expression_table_data
+             if row['Type'] == 'Candidate (CV)']
+        self._const_alias = [row['Name']
+                             for row in self.app_data.expression_table_data
+                             if row['Type'] == "Constraint function"]
+        self._obj_alias = [row['Name']
+                           for row in self.app_data.expression_table_data
+                           if row['Type'] == "Objective function (J)"]
+        self._aux_alias = [row['Alias']
+                           for row in self.app_data.input_table_data +
+                           self.app_data.output_table_data
+                           if row['Type'] == 'Auxiliary']
+
+        # extract the inputs, candidate outputs and expression data
+        self._data = data[self._input_alias + self._candidates_alias +
+                          self._const_alias + self._obj_alias +
+                          self._aux_alias]
+
+    def rowCount(self, parent=None):
+        return self._data.shape[0] + self._HEADER_ROW_OFFSET
+
+    def columnCount(self, parent=None):
+        return self._data.shape[1] + self._INPUT_COL_OFFSET
+
+    def span(self, index: QModelIndex):
+        row = index.row()
+        col = index.column()
+
+        rowoffset = self._HEADER_ROW_OFFSET
+        coloffset = self._INPUT_COL_OFFSET
+
+        if row == 0:
+            if col == 0 or col == 1:
+                # case number and status column
+                return QSize(1, rowoffset)
+            elif col == coloffset:
+                # manipulated
+                return QSize(len(self._input_alias), 1)
+            elif col == coloffset + len(self._input_alias):
+                # outputs candidates
+                return QSize(len(self._candidates_alias), 1)
+            elif col == coloffset + len(self._input_alias) + \
+                    len(self._candidates_alias):
+                    # constraints
+                return QSize(len(self._const_alias), 1)
+            elif col == coloffset + len(self._input_alias) + \
+                    len(self._candidates_alias) + len(self._const_alias):
+                    # objectives
+                return QSize(len(self._obj_alias), 1)
+            elif col == coloffset + len(self._input_alias) + \
+                    len(self._candidates_alias) + len(self._const_alias) + \
+                    len(self._obj_alias):
+                return QSize(len(self._aux_alias), 1)
+            else:
+                return super().span(index)
+        else:
+            return super().span(index)
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        row = index.row()
+        col = index.column()
+
+        df_rows, df_cols = self._data.shape
+        rowoffset = self._HEADER_ROW_OFFSET
+        coloffset = self._INPUT_COL_OFFSET
+
+        if role == Qt.DisplayRole:
+            if rowoffset - 1 < row < df_rows + rowoffset:
+                if coloffset - 1 < col < df_cols + coloffset:
+                    # numeric data display
+                    val = self._data.iloc[row - rowoffset, col - coloffset]
+                    return "{0:.7f}".format(val)
+
+                elif col == 0:
+                    # case number
+                    return str(int(self._case_data[row - rowoffset]))
+
+                elif col == 1:
+                    # status
+                    return str(self._stat_data[row - rowoffset])
+
+            elif row == 0:
+                # first row headers
+                if col == 0:
+                    return "Case Number"
+                elif col == 1:
+                    return "Status"
+                elif col == coloffset:
+                    return "Inputs - Manipulated"
+                elif col == coloffset + len(self._input_alias):
+                    return "Outputs - Candidates"
+                elif col == coloffset + len(self._input_alias) + \
+                        len(self._candidates_alias):
+                    return "Outputs - Constraints"
+                elif col == coloffset + len(self._input_alias) + \
+                        len(self._candidates_alias) + len(self._const_alias):
+                    return "Objective"
+                elif col == coloffset + len(self._input_alias) + \
+                        len(self._candidates_alias) + \
+                        len(self._const_alias) + len(self._obj_alias):
+                    return "Auxiliary data"
+            elif row == 1:
+                # second row headers
+                if coloffset - 1 < col:
+                    return str(self._data.columns[col - coloffset])
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
 
 
 class BoundEditorDelegate(DoubleEditorDelegate):
@@ -47,10 +191,6 @@ class BoundEditorDelegate(DoubleEditorDelegate):
 
 class DoeTab(QWidget):
 
-    # CONSTANTS
-    _INPUT_COL_OFFSET = 2
-    _HEADER_ROW_OFFSET = 2
-
     def __init__(self, application_database: DataStorage, parent_tab=None):
         # ------------------------ Form Initialization ------------------------
         super().__init__()
@@ -63,7 +203,11 @@ class DoeTab(QWidget):
 
         # ----------------------- Widget Initialization -----------------------
         var_table = self.ui.tableWidgetInputVariables
+        self.ui.tableWidgetResultsDoe = doeResultsView(
+            parent=self.ui.groupBox_4)
         results_table = self.ui.tableWidgetResultsDoe
+        results_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.ui.gridLayout_9.addWidget(results_table, 1, 0, 1, 1)
 
         var_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         results_table.horizontalHeader().setSectionResizeMode(
@@ -92,18 +236,10 @@ class DoeTab(QWidget):
         # open the csv editor dialog
         self.ui.csvImportPushButton.clicked.connect(self.open_csveditor)
 
-        # update the results table headers whenever a variable or expression
-        # alias changes
-        self.application_database.input_alias_data_changed.connect(
-            self.update_results_headers_display)
-        self.application_database.output_alias_data_changed.connect(
-            self.update_results_headers_display)
-        self.application_database.expr_data_changed.connect(
-            self.update_results_headers_display)
-
-        # update the results table data whenever the sampled data changes
+        # updates the table data storage
         self.application_database.doe_sampled_data_changed.connect(
-            self.update_results_data_display)
+            self.update_results_model)
+
         # ---------------------------------------------------------------------
 
     def open_sampling_assistant(self):
@@ -156,90 +292,20 @@ class DoeTab(QWidget):
                            'lb': float(table_view.item(row, 1).text()),
                            'ub': float(table_view.item(row, 2).text())})
 
-    def update_results_headers_display(self):
-        """Update the sampled data table headers from application data storage.
-        Model to View.
-        """
-        results_view = self.ui.tableWidgetResultsDoe
+        # FIXME: Not triggering doe_mv_bounds_changed
 
-        # display the headers
-        input_alias = [row['Alias']
-                       for row in self.application_database.input_table_data
-                       if row['Type'] == 'Manipulated (MV)']
-        output_alias = [row['Alias']
-                        for row in self.application_database.output_table_data]
-        expr_alias = [row['Name'] for row in
-                      self.application_database.expression_table_data]
+    def update_results_model(self):
+        # clear the table model
+        results_table = self.ui.tableWidgetResultsDoe
 
-        aliases = input_alias + output_alias + expr_alias
+        if results_table.model() is not None:
+            results_table.model().setParent(None)
+            results_table.model().deleteLater()
 
-        # clear the table
-        results_view.setRowCount(self._HEADER_ROW_OFFSET)
-        results_view.setColumnCount(len(aliases) + self._INPUT_COL_OFFSET)
+        # create the model and set its view
+        model = doeResultsModel(self.application_database)
 
-        # case number header
-        case_num_item = QTableWidgetItem('Case Number')
-        case_num_item.setTextAlignment(Qt.AlignCenter)
-        results_view.setSpan(0, 0, self._HEADER_ROW_OFFSET, 1)
-        results_view.setItem(0, 0, case_num_item)
-
-        # case status header
-        case_status_item = QTableWidgetItem('Status')
-        case_status_item.setTextAlignment(Qt.AlignCenter)
-        results_view.setSpan(0, 1, self._HEADER_ROW_OFFSET, 1)
-        results_view.setItem(0, 1, case_status_item)
-
-        # Inputs section header
-        inputs_item = QTableWidgetItem('Inputs')
-        inputs_item.setTextAlignment(Qt.AlignCenter)
-        results_view.setSpan(0, self._INPUT_COL_OFFSET, 1, len(input_alias))
-        results_view.setItem(0, self._INPUT_COL_OFFSET, inputs_item)
-
-        # Outputs section header
-        outputs_item = QTableWidgetItem('Outputs')
-        outputs_item.setTextAlignment(Qt.AlignCenter)
-        results_view.setSpan(0, self._INPUT_COL_OFFSET +
-                             self._INPUT_COL_OFFSET, 1, len(output_alias +
-                                                            expr_alias))
-        results_view.setItem(0, self._INPUT_COL_OFFSET +
-                             self._INPUT_COL_OFFSET, outputs_item)
-
-        # place the subheaders
-        for col, alias in enumerate(aliases):
-            item = QTableWidgetItem(alias)
-            item.setTextAlignment(Qt.AlignCenter)
-
-            results_view.setItem(1, col + self._INPUT_COL_OFFSET, item)
-
-    def update_results_data_display(self):
-        """Update the sampled data table values from application data storage.
-        Model to View.
-        """
-        results_view = self.ui.tableWidgetResultsDoe
-
-        sampled_data = pd.DataFrame(self.application_database.doe_sampled_data)
-        n_rows, n_cols = sampled_data.shape
-        results_view.setRowCount(self._HEADER_ROW_OFFSET + n_rows)
-
-        headers = [results_view.item(1, col + self._INPUT_COL_OFFSET).text()
-                   for col in
-                   range(len(self.application_database.input_table_data +
-                             self.application_database.output_table_data +
-                             self.application_database.expression_table_data))]
-        for row in range(n_rows):
-            case_num = QTableWidgetItem(str(int(sampled_data['case'][row])))
-            case_num.setTextAlignment(Qt.AlignCenter)
-            results_view.setItem(self._HEADER_ROW_OFFSET + row, 0, case_num)
-
-            case_status = QTableWidgetItem(sampled_data['status'][row])
-            case_status.setTextAlignment(Qt.AlignCenter)
-            results_view.setItem(self._HEADER_ROW_OFFSET + row, 1, case_status)
-
-            for col, alias in enumerate(headers):
-                value = QTableWidgetItem(str(sampled_data[alias][row]))
-                value.setTextAlignment(Qt.AlignCenter)
-                results_view.setItem(self._HEADER_ROW_OFFSET + row,
-                                     self._INPUT_COL_OFFSET + col, value)
+        results_table.setModel(model)
 
 
 if __name__ == "__main__":
@@ -252,7 +318,7 @@ if __name__ == "__main__":
     w = DoeTab(application_database=ds)
     ds.doe_mv_bounds_changed.emit()  # just to update the input table on init
     ds.expr_data_changed.emit()  # just to update the results headers
-    ds.doe_sampled_data_changed.emit()  # just to update results data
+    ds.doe_sampled_data_changed.emit()
     w.show()
 
     sys.excepthook = my_exception_hook
