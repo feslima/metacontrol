@@ -37,6 +37,8 @@ class MainWindow(QMainWindow):
                               parent_tab=self.ui.samplingTab)
         # ------------------------ Actions connections ------------------------
         self.ui.actionOpen.triggered.connect(self.open_file)
+        self.ui.actionSave.triggered.connect(self.save_file)
+        self.ui.actionSave_As.triggered.connect(self.save_file_as)
 
         # --------------------------- Signals/Slots ---------------------------
         # sampling tab enabled
@@ -63,6 +65,37 @@ class MainWindow(QMainWindow):
 
             # update the window title
             self.setWindowTitle("Metacontrol - " + mtc_filename)
+
+    def save_file(self):
+        """Saves the current application configuration as is. If it is a new
+        file prompts the user to select the location and name of the .mtc file.
+        """
+        current_mtc_name = self.windowTitle().split(' - ')[1]
+
+        if pathlib.Path(current_mtc_name).is_file():
+            # file exists, save it
+            self.application_database.save(current_mtc_name)
+        else:
+            # new file, prompt the user
+            self.save_file_as()
+
+    def save_file_as(self):
+        """Prompts the user to select location and name of the .mtc file to
+        save.
+        """
+        dialog_title = "Select the name and where to save the .mtc file"
+        filetype = "Metacontrol files (*.mtc)"
+        homedir = pathlib.Path().home()
+        mtc_filepath, _ = QFileDialog.getSaveFileName(self,
+                                                      dialog_title,
+                                                      str(homedir),
+                                                      filetype)
+        if mtc_filepath != '':
+            # change the window title
+            self.setWindowTitle("Metacontrol - " + mtc_filepath)
+
+            # save the file
+            self.application_database.save(mtc_filepath)
 
     def on_sampling_enabled(self, is_enabled):
         self.ui.tabMainWidget.setTabEnabled(self._DOETAB_IDX, is_enabled)
