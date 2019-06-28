@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QItemDelegate,
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.mainwindow import Ui_MainWindow
 from gui.calls.tabs.loadsimtab import LoadSimTab
+from gui.calls.tabs.doetab import DoeTab
 
 
 class MainWindow(QMainWindow):
@@ -32,12 +33,19 @@ class MainWindow(QMainWindow):
         # ----------------------- Load the tabs widgets -----------------------
         self.tab_loadsim = LoadSimTab(self.application_database,
                                       parent_tab=self.ui.simulationTab)
+        self.tab_doe = DoeTab(self.application_database,
+                              parent_tab=self.ui.samplingTab)
         # ------------------------ Actions connections ------------------------
         self.ui.actionOpen.triggered.connect(self.open_file)
 
         # --------------------------- Signals/Slots ---------------------------
+        # sampling tab enabled
         self.application_database.sampling_enabled.connect(
             self.on_sampling_enabled)
+
+        # metamodel tab enabled
+        self.application_database.metamodel_enabled.connect(
+            self.on_metamodel_enabled)
 
     def open_file(self):
         """Prompts the user to select which .mtc file to open.
@@ -58,6 +66,9 @@ class MainWindow(QMainWindow):
 
     def on_sampling_enabled(self, is_enabled):
         self.ui.tabMainWidget.setTabEnabled(self._DOETAB_IDX, is_enabled)
+
+    def on_metamodel_enabled(self, is_enabled):
+        self.ui.tabMainWidget.setTabEnabled(self._METAMODELTAB_IDX, is_enabled)
 
 
 if __name__ == "__main__":

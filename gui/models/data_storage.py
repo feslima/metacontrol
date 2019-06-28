@@ -2,6 +2,7 @@ import json
 import pathlib
 
 import pandas as pd
+from py_expression_eval import Parser
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from gui.models.math_check import is_expression_valid
@@ -272,7 +273,7 @@ class DataStorage(QObject):
     @doe_sampled_data.setter
     def doe_sampled_data(self, value: dict):
         if isinstance(value, dict):
-            self._doe_data['sampled'] = value
+            self.evaluate_expr_data(value)
             self.doe_sampled_data_changed.emit()
         else:
             raise TypeError("Sampled data must be a dictionary object")
@@ -428,41 +429,37 @@ class DataStorage(QObject):
         else:
             self.metamodel_enabled.emit(False)
 
+    def evaluate_expr_data(self, sampled_data_dict: dict) -> None:
+        """Evaluates the expressions and append values to the current sampled
+        data.
 
-if __name__ == "__main__":
-    ds = DataStorage()
-    ds.simulation_data = {'components': ['PROPANE', 'PROPENE'],
-                          'therm_method': ['PENG-ROB'],
-                          'blocks': ['TOWER'],
-                          'streams': ['B', 'D', 'F'],
-                          'reactions': [''],
-                          'sens_analysis': ['S-1'],
-                          'calculators': ['C-1'],
-                          'optimizations': ['O-1'],
-                          'design_specs': ['']}
-    jsonfilepath = r"C:\Users\Felipe\Desktop\GUI\python\infill.json"
+        Parameters
+        ----------
+        sampled_data_dict: dict
+            Sampled data in dictionary format. (dumped from another Dataframe)
+        """
+        samp_data = pd.DataFrame(sampled_data_dict)
 
-    with open(jsonfilepath, 'r') as jfile:
-        tree = json.load(jfile)
+        # intialize empty dataframe
+        expr_df = pd.DataFrame(columns=[row['Name'] for row in
+                                        self.expression_table_data])
 
-    root_input = tree['input']
-    root_output = tree['output']
+        parser = Parser()
 
-    ds.tree_model_input = root_input
-    ds.tree_model_output = root_output
+        for idx, row in samp_data.iterrows():
+            row_val_dict = row.to_dict()  # convert row series to dict
+            expr_row_values = {}
 
-    #  save test
-    mtc_filepath = r"C:\Users\Felipe\Desktop\GUI\python\infill_mtc.json"
-    ds.save(mtc_filepath)
+            for expr in self.expression_table_data:
+                expr_to_parse = parser.parse(expr['Expr'])
+                var_list = expr_to_parse.variables()
+                expr_row_values[expr['Name']] = expr_to_parse.evaluate(
+                    row_val_dict)
 
-    # load test
-    mtc_filepath_load = r"C:\Users\Felipe\Desktop\GUI\python\infill_mtc_mtc_input.json"
-    ds.input_table_data = [{'Path': r"\Data\Blocks\TOWER\Input\BASIS_RR", 'Alias': 'rr', 'Type': 'Manipulated (MV)'},
-                           {'Path': r"\Data\Blocks\TOWER\Input\D:F", 'Alias': 'df', 'Type': 'Manipulated (MV)'}]
-    ds.save(mtc_filepath_load)
-    ds.input_table_data = []
+            # append values to expr_df
+            expr_df = expr_df.append(expr_row_values, ignore_index=True)
 
-    ds2 = DataStorage()
-    ds2.load(mtc_filepath_load)
+        # merge sampled data and expression data and store them
+        samp_data = samp_data.merge(expr_df, left_index=True, right_index=True)
 
-    print(ds2.input_table_data)
+        self._doe_data['sampled'] = samp_data.to_dict('list')
