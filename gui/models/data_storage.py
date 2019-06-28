@@ -63,7 +63,11 @@ class DataStorage(QObject):
         # whenever expression data changes, perform a simulation setup check
         self.expr_data_changed.connect(self.check_simulation_setup)
 
-        # whenever sampled data changes, perform a DOE setup check
+        # whenever variable, expression or sampled data changes, perform a DOE
+        # setup check
+        self.input_alias_data_changed.connect(self.check_sampling_setup)
+        self.output_alias_data_changed.connect(self.check_sampling_setup)
+        self.output_alias_data_changed.connect(self.check_sampling_setup)
         self.doe_sampled_data_changed.connect(self.check_sampling_setup)
 
     # ------------------------------ PROPERTIES ------------------------------
@@ -415,7 +419,8 @@ class DataStorage(QObject):
                        if row['Type'] == 'Manipulated (MV)']
         output_alias = [row['Alias']
                         for row in self.output_table_data]
-        aliases = input_alias + output_alias
+        expr_alias = [row['Name'] for row in self.expression_table_data]
+        aliases = input_alias + output_alias + expr_alias
 
         # build the DataFrame
         df = pd.DataFrame(self.doe_sampled_data)
@@ -459,7 +464,10 @@ class DataStorage(QObject):
             # append values to expr_df
             expr_df = expr_df.append(expr_row_values, ignore_index=True)
 
-        # merge sampled data and expression data and store them
-        samp_data = samp_data.merge(expr_df, left_index=True, right_index=True)
+        # merge sampled data and expression data and store them, if they don't
+        # already exist
+        if expr_df.columns.difference(samp_data.columns).size != 0:
+            samp_data = samp_data.merge(expr_df, left_index=True,
+                                        right_index=True)
 
         self._doe_data['sampled'] = samp_data.to_dict('list')
