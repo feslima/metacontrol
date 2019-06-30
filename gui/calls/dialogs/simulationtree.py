@@ -1,8 +1,8 @@
-from PyQt5.QtCore import Qt, QEvent
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QBrush
+from PyQt5.QtCore import Qt, QEvent, QAbstractTableModel, QModelIndex, QPersistentModelIndex
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QBrush, QPalette
 from PyQt5.QtWidgets import (QApplication, QDialog, QMessageBox,
-                             QProgressDialog, QPushButton, QTableWidget,
-                             QTableWidgetItem)
+                             QProgressDialog, QPushButton, QTableView,
+                             QTableWidgetItem, QHeaderView)
 
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
@@ -10,6 +10,152 @@ from gui.views.py_files.loadsimulationtree import Ui_Dialog
 from gui.calls.base import AliasEditorDelegate, ComboBoxDelegate, warn_the_user
 
 # TODO: Include units in table display.
+
+
+class variableTableModel(QAbstractTableModel):
+    """Table model used to manipulate input/output definitions of variables
+    chosen through the variable trees.
+
+    Parameters
+    ----------
+    application_data : DataStorage
+        Application data storage object.
+    mode : str {'input', 'output'}
+        Which mode the table should assume for the type of variables.
+        Default is 'input'
+    """
+
+    def __init__(self, application_data: DataStorage, parent: QTableView,
+                 mode: str = 'input'):
+        QAbstractTableModel.__init__(self, parent)
+        self.app_data = application_data
+        if mode == 'input':
+            self.variable_data = self.app_data.input_table_data
+            self.data_changed_signal = self.app_data.input_alias_data_changed
+        elif mode == 'output':
+            self.variable_data = self.app_data.output_table_data
+            self.data_changed_signal = self.app_data.output_alias_data_changed
+        else:
+            raise ValueError("Invalid table mode.")
+
+    def rowCount(self, parent=None):
+        return len(self.variable_data)
+
+    def columnCount(self, parent=None):
+        return 3
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if index.isValid():
+            row = index.row()
+            col = index.column()
+
+            if role == Qt.DisplayRole:
+                if col == 0:
+                    return str(self.variable_data[row]['Path'])
+                elif col == 1:
+                    return str(self.variable_data[row]['Alias'])
+                else:
+                    return str(self.variable_data[row]['Type'])
+
+            if role == Qt.TextAlignmentRole:
+                if col >= 1:
+                    return Qt.AlignCenter
+
+            if role == Qt.BackgroundRole:
+                if col == 1:
+                    # paints red if duplicates are found between input/output
+                    aliases = [row['Alias']
+                               for row in self.app_data.input_table_data +
+                               self.app_data.output_table_data]
+
+                    if aliases.count(self.variable_data[row]['Alias']) > 1:
+                        return QBrush(Qt.red)
+                    else:
+                        return QBrush(self.parent().palette().brush(
+                            QPalette.Base))
+
+                if col == 2:
+                    if self.variable_data[row]['Type'] == 'Choose a type':
+                        return QBrush(Qt.red)
+                    else:
+                        return QBrush(self.parent().palette().brush(
+                            QPalette.Base))
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole:
+            return False
+
+        if index.isValid():
+            row = index.row()
+            col = index.column()
+
+            if col == 0:
+                self.variable_data[row]['Path'] = value
+            elif col == 1:
+                self.variable_data[row]['Alias'] = value
+            elif col == 2:
+                self.variable_data[row]['Type'] = value
+            else:
+                return False
+
+            self.data_changed_signal.emit()
+            self.dataChanged.emit(index.sibling(0, col),
+                                  index.sibling(self.rowCount(), col))
+
+            self.parent().selectionModel().clearSelection()
+            return True
+
+        return False
+
+    def insertRows(self, row: int, count: int = 1,
+                   parent: QModelIndex = QModelIndex()):
+        self.beginInsertRows(parent, row, row + count - 1)
+        # create the empty rows
+        new_rows = [{'Path': '', 'Alias': 'alias_' + str(self.rowCount()),
+                     'Type': 'Choose a type'} for i in range(count)]
+        if row == 0:
+            # prepend rows
+            new_rows.extend(self.variable_data)
+            self.variable_data = new_rows
+        elif row == self.rowCount():
+            # append rows
+            self.variable_data.extend(new_rows)
+        else:
+            self.variable_data = self.variable_data[:row] + new_rows + \
+                self.variable_data[row:]
+
+        self.endInsertRows()
+        return True
+
+    def removeRows(self, row: int, count: int = 1,
+                   parent: QModelIndex = QModelIndex()):
+        self.beginRemoveRows(parent, row, row + count - 1)
+
+        del self.variable_data[row: (row + count)]
+
+        self.endRemoveRows()
+        return True
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                if section == 0:
+                    return "Variable path"
+                elif section == 1:
+                    return "Alias"
+                else:
+                    return "Type"
+
+    def flags(self, index: QModelIndex):
+
+        row = index.row()
+        col = index.column()
+
+        if col == 0:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
 
 class LoadSimulationTreeDialog(QDialog):
@@ -22,8 +168,18 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
 
-        table_input = self.ui.tableWidgetInput
-        table_output = self.ui.tableWidgetOutput
+        table_input = self.ui.tableViewInput
+        table_output = self.ui.tableViewOutput
+
+        self._input_table_model = variableTableModel(self.app_data,
+                                                     mode='input',
+                                                     parent=table_input)
+        self._output_table_model = variableTableModel(self.app_data,
+                                                      mode='output',
+                                                      parent=table_output)
+
+        table_input.setModel(self._input_table_model)
+        table_output.setModel(self._output_table_model)
 
         table_input.setColumnWidth(0, 400)  # first column resize
         table_output.setColumnWidth(0, 400)
@@ -44,9 +200,6 @@ class LoadSimulationTreeDialog(QDialog):
         table_input.setItemDelegateForColumn(2, self._input_combo_delegate)
         table_output.setItemDelegateForColumn(2, self._output_combo_delegate)
 
-        # check the application for variable data
-        self.check_variable_data()
-
         # --------------------------- Signals/Slots ---------------------------
         # opens the simulation connection and load its variable trees
         self.ui.pushButtonLoadTreeFromFile.clicked.connect(self.load_tree)
@@ -58,6 +211,12 @@ class LoadSimulationTreeDialog(QDialog):
         # ok push button pressed
         self.ui.pushButtonOK.clicked.connect(self.ok_button_pressed)
 
+        # forces the table views update from one another.
+        self.app_data.input_alias_data_changed.connect(
+            self.ui.tableViewOutput.viewport().update)
+
+        self.app_data.output_alias_data_changed.connect(
+            self.ui.tableViewInput.viewport().update)
         # ---------------------------------------------------------------------
 
     def create_tree_models(self):
@@ -85,36 +244,6 @@ class LoadSimulationTreeDialog(QDialog):
         if len(self.app_data.tree_model_output) != 0:
             output_tre_dict = self.app_data.tree_model_output
             self.populate_tree(self.ui.treeViewOutput.model(), output_tre_dict)
-
-    def check_variable_data(self):
-        """Checks the application data storage for variable data and sets them
-        in their tables.
-        """
-        # subfunction that iterates the data and sets it the table
-        def set_data_into_table(table_widget: QTableWidget, table_data: list):
-            for row, var in enumerate(table_data):
-                table_widget.insertRow(row)
-
-                item_path = QTableWidgetItem(var['Path'])
-                item_alias = QTableWidgetItem(var['Alias'])
-                item_type = QTableWidgetItem(var['Type'])
-
-                item_path.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                item_alias.setTextAlignment(Qt.AlignCenter)
-                item_type.setTextAlignment(Qt.AlignCenter)
-
-                table_widget.setItem(row, 0, item_path)
-                table_widget.setItem(row, 1, item_alias)
-                table_widget.setItem(row, 2, item_type)
-
-        inp_var_table = self.ui.tableWidgetInput
-        out_var_table = self.ui.tableWidgetOutput
-
-        inp_data = self.app_data.input_table_data
-        out_data = self.app_data.output_table_data
-
-        set_data_into_table(inp_var_table, inp_data)
-        set_data_into_table(out_var_table, out_data)
 
     def load_tree(self):
         """Opens the connection with the simulation engine and loads the
@@ -218,8 +347,9 @@ class LoadSimulationTreeDialog(QDialog):
             else self.ui.treeViewOutput
         tree_model = tree_view.model()
 
-        table_view = self.ui.tableWidgetInput if tree_name == 'treeViewInput' \
-            else self.ui.tableWidgetOutput
+        table_model = self.ui.tableViewInput.model() \
+            if tree_name == 'treeViewInput' \
+            else self.ui.tableViewOutput.model()
 
         # get the model index of the node clicked
         index_selected = tree_view.currentIndex()
@@ -241,8 +371,8 @@ class LoadSimulationTreeDialog(QDialog):
             fullpath = '\\' + '\\'.join(list(reversed(branch_list)))
 
             # verify if full path is already in the table
-            current_paths = [table_view.model().index(row, 0).data()
-                             for row in range(table_view.rowCount())]
+            current_paths = [table_model.index(row, 0).data()
+                             for row in range(table_model.rowCount())]
 
             if fullpath in current_paths:
                 # the variable is already in table, warn the user
@@ -256,59 +386,30 @@ class LoadSimulationTreeDialog(QDialog):
                 msg_box.exec_()
             else:
                 # variable not in table, insert it
-                self.insert_new_single_row(table_view, fullpath)
+                self.insert_new_single_row(table_model, fullpath)
 
-    def insert_new_single_row(self, table_view: QTableWidget, node_str: str):
+    def insert_new_single_row(self, table_model: variableTableModel,
+                              node_str: str):
         """Inserts a single variable row in the table view.
 
         Parameters
         ----------
-        table_view : QTableWidget
-            Which QTableWidget widget to insert the row
+        table_model : variableTableModel
+            Which variableTableModel to insert the row.
         node_str : str
             String containing the full path to the selected node.
         """
         # start by inserting an empty row
-        n_rows_table = table_view.rowCount()
-        table_view.insertRow(n_rows_table)
+        table_model.insertRow(table_model.rowCount())
 
-        default_alias = 'in_alias_' + str(n_rows_table) \
-            if table_view.objectName() == 'tableWidgetInput' \
-            else 'out_alias_' + str(n_rows_table)
-
-        table_item_path = QTableWidgetItem(node_str)
-        table_item_alias = QTableWidgetItem(default_alias)
-        table_item_type = QTableWidgetItem('Choose a type')
-
-        # disable edit of the first column
-        table_item_path.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-
-        # paint the cell backgroud of type column red
-        table_item_type.setData(Qt.BackgroundRole, QBrush(Qt.red))
-
-        # set the alignments of table items
-        table_item_alias.setTextAlignment(Qt.AlignCenter)
-        table_item_type.setTextAlignment(Qt.AlignCenter)
-
-        # place the items
-        table_view.setItem(n_rows_table, 0, table_item_path)
-        table_view.setItem(n_rows_table, 1, table_item_alias)
-        table_view.setItem(n_rows_table, 2, table_item_type)
+        # insert the path value
+        n_rows = table_model.rowCount()
+        table_model.setData(table_model.index(n_rows - 1, 0),
+                            node_str, Qt.EditRole)
 
     def ok_button_pressed(self):
-        # subfunction to read variables in tables into list of dicts
-        def table_into_list(table_view: QTableWidget) -> list:
-            var_list = []
-            model = table_view.model()
-            for row in range(model.rowCount()):
-                var_list.append({'Path': model.data(model.index(row, 0)),
-                                 'Alias': model.data(model.index(row, 1)),
-                                 'Type': model.data(model.index(row, 2))})
-
-            return var_list
-
-        input_var_data = table_into_list(self.ui.tableWidgetInput)
-        output_var_data = table_into_list(self.ui.tableWidgetOutput)
+        input_var_data = self.app_data.input_table_data
+        output_var_data = self.app_data.output_table_data
 
         in_alias_list = [row['Alias'] for row in input_var_data]
         out_alias_list = [row['Alias'] for row in output_var_data]
@@ -352,12 +453,7 @@ class LoadSimulationTreeDialog(QDialog):
 
         if is_in_var_defined and is_out_var_defined and \
                 not is_alias_duplicated:
-            # Everything is properly set, store then in the application and
-            # close the dialog.
-
-            self.app_data.input_table_data = input_var_data
-            self.app_data.output_table_data = output_var_data
-
+            # Everything is properly set, close the dialog.
             self.close()
 
     def keyPressEvent(self, event: QEvent):
@@ -368,14 +464,18 @@ class LoadSimulationTreeDialog(QDialog):
             # if the delete key was pressed
             widget = QApplication.focusObject()  # get widget that has focus
             widget_name = widget.objectName()
-            if widget_name == self.ui.tableWidgetInput.objectName() \
-                    or widget_name == self.ui.tableWidgetOutput.objectName():
+            if widget_name == self.ui.tableViewInput.objectName() \
+                    or widget_name == self.ui.tableViewOutput.objectName():
                 table_sel_model = widget.selectionModel()
-                indexes = table_sel_model.selectedIndexes()
+                indexes = [QPersistentModelIndex(index)
+                           for index in table_sel_model.selectedRows()]
 
                 for index in indexes:
                     # delete selected rows
-                    widget.removeRow(index.row())
+                    widget.model().removeRow(index.row())
+
+                # clear selection
+                widget.selectionModel().clearSelection()
 
     def closeEvent(self, event):
         # clean up of the aspen connection if there is one

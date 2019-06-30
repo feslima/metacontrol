@@ -41,19 +41,11 @@ class AliasEditorDelegate(QItemDelegate):
     max_characters : int (optional)
         Maximum number of characters allowed in the editor.
         Default max of 10 characters.
-    alias_item_model : QAbstractItemModel (optional)
-        If the user wants to compare the current aliases in table against
-        another list of aliases, he just needs to provide a list of strings
-        containing the aliases to be compared besides the ones in parent table.
-
     """
 
-    def __init__(self, max_characters: int = 10,
-                 alias_item_model: QAbstractItemModel = None,
-                 parent=None):
+    def __init__(self, max_characters: int = 10, parent=None):
         QItemDelegate.__init__(self, parent)
         self.max_char = max_characters
-        self.alias_item_model = alias_item_model
 
     def createEditor(self, parent, option, index):
         line_editor = QLineEdit(parent)
@@ -68,19 +60,6 @@ class AliasEditorDelegate(QItemDelegate):
         text = editor.text()
 
         model.setData(index, text, Qt.EditRole)
-
-        # check if the alias is duplicated
-        current_aliases = [model.data(model.index(row, index.column()))
-                           for row in range(model.rowCount())]
-
-        if current_aliases.count(text) > 1:
-            # duplicated alias found, set the background color to red
-            model.setData(index, QBrush(Qt.red), Qt.BackgroundRole)
-        else:
-            # no duplicate found. Ensure the background color to be the same as
-            # the model view behind the item delegate
-            orig_back_color = editor.palette().color(editor.backgroundRole())
-            model.setData(index, QBrush(orig_back_color), Qt.BackgroundRole)
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
@@ -120,10 +99,6 @@ class ComboBoxDelegate(QItemDelegate):
         value = combo_box.itemText(combo_box.currentIndex())
 
         model.setData(index, value, Qt.EditRole)
-
-        # paints the cell background back to original color
-        orig_bck_color = combo_box.palette().color(combo_box.backgroundRole())
-        model.setData(index, QBrush(orig_bck_color), Qt.BackgroundRole)
 
     def updateEditorGeometry(self, editor, option, index):
         # Updates the editor for the item specified by index according to the
