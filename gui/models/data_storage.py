@@ -24,8 +24,7 @@ class DataStorage(QObject):
     # signals to be fired when an attribute changes
     simulation_file_changed = pyqtSignal()
     simulation_info_changed = pyqtSignal()
-    input_alias_data_changed = pyqtSignal()
-    output_alias_data_changed = pyqtSignal()
+    alias_data_changed = pyqtSignal()
     expr_data_changed = pyqtSignal()
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
@@ -63,11 +62,13 @@ class DataStorage(QObject):
         # whenever expression data changes, perform a simulation setup check
         self.expr_data_changed.connect(self.check_simulation_setup)
 
+        # update doe_mv_bounds whenever aliases data changes
+        self.alias_data_changed.connect(self._update_mv_bounds)
+
         # whenever variable, expression or sampled data changes, perform a DOE
         # setup check
-        self.input_alias_data_changed.connect(self.check_sampling_setup)
-        self.output_alias_data_changed.connect(self.check_sampling_setup)
-        self.output_alias_data_changed.connect(self.check_sampling_setup)
+        self.alias_data_changed.connect(self.check_sampling_setup)
+        self.expr_data_changed.connect(self.check_sampling_setup)
         self.doe_sampled_data_changed.connect(self.check_sampling_setup)
 
     # ------------------------------ PROPERTIES ------------------------------
@@ -161,40 +162,7 @@ class DataStorage(QObject):
     def input_table_data(self, value: list):
         if isinstance(value, list):
             self._input_table_data = value
-
-            # NOTE: this update is to ensure that the doe MV's are in
-            # conformity with alias inputs that are MV's.
-            mv_input_list = [row['Alias']
-                             for row in value if
-                             row['Type'] == 'Manipulated (MV)']
-            mv_doe_list = [entry['name']
-                           for entry in self._doe_data['mv_bounds']]
-
-            # TODO: Implement list comparison in doe_mv_data setter from
-            # https://stackoverflow.com/a/9845430. Check if the current is
-            # different from the one to be inserted to emit the mv bound
-            # changed signal.
-
-            # delete items from doe list that are not present in input list
-            # (this is for sanitation purposes)
-            doe_to_remove = [
-                doe for doe in mv_doe_list if doe not in mv_input_list]
-            for k in doe_to_remove:
-                [self._doe_data['mv_bounds'].pop(idx) for idx, entry in
-                 enumerate(self._doe_data['mv_bounds']) if
-                 entry['name'] == k]
-
-            # add items from input list that are not present in doe
-            doe_to_insert = [
-                inp for inp in mv_input_list if inp not in mv_doe_list]
-            for k in doe_to_insert:
-                self._doe_data['mv_bounds'].append(
-                    {'name': k, 'lb': 0.0, 'ub': 1.0})
-            self.input_alias_data_changed.emit()
-
-            if len(doe_to_remove) != 0 or len(doe_to_insert) != 0:
-                # if there were changes in doe_data mvs, notify other objects
-                self.doe_mv_bounds_changed.emit()
+            self.alias_data_changed.emit()
         else:
             raise TypeError("Input table data must be a list.")
 
@@ -208,7 +176,7 @@ class DataStorage(QObject):
     def output_table_data(self, value: list):
         if isinstance(value, list):
             self._output_table_data = value
-            self.output_alias_data_changed.emit()
+            self.alias_data_changed.emit()
         else:
             raise TypeError("Output table data must be a list.")
 
@@ -304,6 +272,25 @@ class DataStorage(QObject):
         else:
             raise KeyError("All the following keys must be specified: " +
                            str(key_list))
+
+    def _update_mv_bounds(self) -> None:
+        # list of aliases that are MV
+        mv_aliases = [row['Alias'] for row in self._input_table_data +
+                      self._output_table_data
+                      if row['Type'] == 'Manipulated (MV)']
+
+        # delete the variables that aren't in the mv list
+        new_bnds = [row for idx, row in enumerate(self._doe_data['mv_bounds'])
+                    if row['name'] in mv_aliases]
+
+        mv_bnd_list = [row['name'] for row in new_bnds]
+
+        # insert new values
+        [new_bnds.append({'name': alias, 'lb': 0.0, 'ub': 1.0}) for alias
+         in mv_aliases if alias not in mv_bnd_list]
+
+        # store values
+        self.doe_mv_bounds = new_bnds
 
     # ---------------------------- PUBLIC METHODS ----------------------------
     def save(self, output_path: str) -> None:
@@ -444,11 +431,13 @@ class DataStorage(QObject):
             Sampled data in dictionary format. (dumped from another Dataframe)
         """
         samp_data = pd.DataFrame(sampled_data_dict)
+        df_headers = ['case', 'status'] + [row['Alias']
+                                           for row in self.input_table_data +
+                                           self.output_table_data]
         if not samp_data.empty:
-            samp_data = samp_data[['case', 'status'] +
-                                  [row['Alias']
-                                   for row in self.input_table_data +
-                                   self.output_table_data]]
+            samp_data = samp_data[df_headers]
+        else:
+            samp_data = pd.DataFrame(columns=df_headers)
 
         # intialize empty dataframe
         expr_df = pd.DataFrame(columns=[row['Name'] for row in

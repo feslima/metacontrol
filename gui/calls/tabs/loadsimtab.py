@@ -104,7 +104,12 @@ class ExpressionTableModel(QAbstractTableModel):
     def __init__(self, application_data: DataStorage, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
+        self.load_data()
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
         self.expr_data = self.app_data.expression_table_data
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
         return len(self.expr_data)
@@ -131,6 +136,8 @@ class ExpressionTableModel(QAbstractTableModel):
                 self.expr_data[row:]
 
         self.endInsertRows()
+        self.app_data.expression_table_data = self.expr_data
+        self.app_data.expr_data_changed.emit()
         return True
 
     def removeRows(self, row: int, count: int = 1,
@@ -140,6 +147,8 @@ class ExpressionTableModel(QAbstractTableModel):
         del self.expr_data[row: (row + count)]
 
         self.endRemoveRows()
+        self.app_data.expression_table_data = expr_data
+        self.app_data.expr_data_changed.emit()
         return True
 
     def headerData(self, section: int, orientation: Qt.Orientation,
@@ -286,9 +295,14 @@ class SelectedAliasesTableModel(QAbstractTableModel):
     def __init__(self, application_data: DataStorage, parent=None):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
+        self.headers = ['Selected alias', 'Type']
+        self.load_data()
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
         self.alias_data = self.app_data.input_table_data + \
             self.app_data.output_table_data
-        self.headers = ['Selected alias', 'Type']
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
         return len(self.alias_data)
@@ -347,7 +361,7 @@ class SimulationInfoTableModel(QAbstractTableModel):
     def __init__(self, application_data: DataStorage, parent=None):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
-        self.sim_info = self.app_data.simulation_data
+        self.load_data()
         self.headers = ['Property', 'Quantity']
         self.key_map = [(0, 'components', "Components"),
                         (1, 'therm_method', "Thermodynamic model"),
@@ -358,6 +372,11 @@ class SimulationInfoTableModel(QAbstractTableModel):
                         (6, 'calculators', "Calculators"),
                         (7, 'optimizations', "Optimizations"),
                         (8, 'design_specs', "Design Specifications")]
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+        self.sim_info = self.app_data.simulation_data
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
         return len(self.sim_info)
@@ -414,7 +433,7 @@ class SimulationDataTableModel(QAbstractTableModel):
     def __init__(self, application_data: DataStorage, parent=None):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
-        self.sim_info = self.app_data.simulation_data
+        self.load_data()
         self.headers = [('components', "Components"),
                         ('blocks', "Blocks"),
                         ('streams', "Streams"),
@@ -423,6 +442,11 @@ class SimulationDataTableModel(QAbstractTableModel):
                         ('calculators', "Calculators"),
                         ('optimizations', "Optimizations"),
                         ('design_specs', "Design Specifications")]
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+        self.sim_info = self.app_data.simulation_data
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
         # FIXME: change rowCount to 0 when empty storage. Now it displays 1 row
@@ -555,6 +579,20 @@ class LoadSimTab(QWidget):
         self._expr_delete_delegate.buttonClicked.connect(
             self.delete_expression_row)
 
+        # update models when underlying data changes
+        self.application_database.alias_data_changed.connect(
+            alias_model.load_data)
+        self.application_database.alias_data_changed.connect(
+            expr_model.load_data)
+
+        self.application_database.simulation_info_changed.connect(
+            sim_data_model.load_data)
+        self.application_database.simulation_info_changed.connect(
+            sim_info_model.load_data)
+
+        self.application_database.expr_data_changed.connect(
+            expr_model.load_data)
+
     # -------------------------------------------------------------------------
     def insert_new_expression(self):
         """Inserts a new default row into the expression table and updates the
@@ -594,6 +632,7 @@ class LoadSimTab(QWidget):
         """
         dialog = LoadSimulationTreeDialog(self.application_database)
         dialog.exec_()
+        self.application_database.alias_data_changed.emit()
 
     def update_simfilepath_display(self):
         """Grabs the simulation file path from app_storage and displays it on

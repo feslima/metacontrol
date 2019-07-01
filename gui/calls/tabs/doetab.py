@@ -41,8 +41,6 @@ class DoeResultsModel(QAbstractTableModel):
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
         data = pd.DataFrame(self.app_data.doe_sampled_data)
-        self._case_data = data.pop('case')
-        self._stat_data = data.pop('status')
 
         self._input_alias = [row['Alias']
                              for row in self.app_data.input_table_data
@@ -64,10 +62,15 @@ class DoeResultsModel(QAbstractTableModel):
                            self.app_data.output_table_data
                            if row['Type'] == 'Auxiliary']
 
+        header_list = self._input_alias + self._candidates_alias + \
+            self._const_alias + self._obj_alias + self._aux_alias
+
         # extract the inputs, candidate outputs and expression data
-        self._data = data[self._input_alias + self._candidates_alias +
-                          self._const_alias + self._obj_alias +
-                          self._aux_alias]
+        if not data.empty:
+            self._case_data = data.pop('case')
+            self._stat_data = data.pop('status')
+
+        self._data = data[header_list]
 
         self.layoutChanged.emit()
 
@@ -178,8 +181,13 @@ class InputVariablesTableModel(QAbstractTableModel):
     def __init__(self, application_data: DataStorage, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
-        self.mv_bounds = self.app_data.doe_mv_bounds
+        self.load_data()
         self.headers = ["Manipulated variable", "Lower bound", "Upper bound"]
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+        self.mv_bounds = self.app_data.doe_mv_bounds
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
         return len(self.mv_bounds)
@@ -322,9 +330,10 @@ class DoeTab(QWidget):
         # open the csv editor dialog
         self.ui.csvImportPushButton.clicked.connect(self.open_csveditor)
 
+        self.application_database.doe_mv_bounds_changed.connect(
+            var_model.load_data)
         self.application_database.doe_sampled_data_changed.connect(
-            results_model.load_data
-        )
+            results_model.load_data)
 
         # ---------------------------------------------------------------------
 

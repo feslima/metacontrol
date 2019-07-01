@@ -12,7 +12,7 @@ from gui.calls.base import AliasEditorDelegate, ComboBoxDelegate, warn_the_user
 # TODO: Include units in table display.
 
 
-class variableTableModel(QAbstractTableModel):
+class VariableTableModel(QAbstractTableModel):
     """Table model used to manipulate input/output definitions of variables
     chosen through the variable trees.
 
@@ -29,14 +29,20 @@ class variableTableModel(QAbstractTableModel):
                  mode: str = 'input'):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
+        self.mode = mode
+        self.load_data()
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+        mode = self.mode
         if mode == 'input':
             self.variable_data = self.app_data.input_table_data
-            self.data_changed_signal = self.app_data.input_alias_data_changed
         elif mode == 'output':
             self.variable_data = self.app_data.output_table_data
-            self.data_changed_signal = self.app_data.output_alias_data_changed
         else:
             raise ValueError("Invalid table mode.")
+
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
         return len(self.variable_data)
@@ -45,67 +51,78 @@ class variableTableModel(QAbstractTableModel):
         return 3
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
-        if index.isValid():
-            row = index.row()
-            col = index.column()
+        if not index.isValid():
+            return None
 
-            if role == Qt.DisplayRole:
-                if col == 0:
-                    return str(self.variable_data[row]['Path'])
-                elif col == 1:
-                    return str(self.variable_data[row]['Alias'])
+        row = index.row()
+        col = index.column()
+
+        var_data = self.variable_data[row]
+
+        if role == Qt.DisplayRole:
+            if col == 0:
+                return str(var_data['Path'])
+            elif col == 1:
+                return str(var_data['Alias'])
+            elif col == 2:
+                return str(var_data['Type'])
+            else:
+                return None
+
+        elif role == Qt.TextAlignmentRole:
+            if col >= 1:
+                return Qt.AlignCenter
+            else:
+                return None
+
+        elif role == Qt.BackgroundRole:
+            if col == 1:
+                # paints red if duplicates are found between input/output
+                aliases = [row['Alias']
+                           for row in self.app_data.input_table_data +
+                           self.app_data.output_table_data]
+
+                if aliases.count(self.variable_data[row]['Alias']) > 1:
+                    return QBrush(Qt.red)
                 else:
-                    return str(self.variable_data[row]['Type'])
+                    return QBrush(self.parent().palette().brush(
+                        QPalette.Base))
 
-            if role == Qt.TextAlignmentRole:
-                if col >= 1:
-                    return Qt.AlignCenter
+            elif col == 2:
+                if self.variable_data[row]['Type'] == 'Choose a type':
+                    return QBrush(Qt.red)
+                else:
+                    return QBrush(self.parent().palette().brush(
+                        QPalette.Base))
 
-            if role == Qt.BackgroundRole:
-                if col == 1:
-                    # paints red if duplicates are found between input/output
-                    aliases = [row['Alias']
-                               for row in self.app_data.input_table_data +
-                               self.app_data.output_table_data]
+            else:
+                return None
 
-                    if aliases.count(self.variable_data[row]['Alias']) > 1:
-                        return QBrush(Qt.red)
-                    else:
-                        return QBrush(self.parent().palette().brush(
-                            QPalette.Base))
-
-                if col == 2:
-                    if self.variable_data[row]['Type'] == 'Choose a type':
-                        return QBrush(Qt.red)
-                    else:
-                        return QBrush(self.parent().palette().brush(
-                            QPalette.Base))
+        else:
+            return None
 
     def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
-        if role != Qt.EditRole:
+        if role != Qt.EditRole or not index.isValid():
             return False
 
-        if index.isValid():
-            row = index.row()
-            col = index.column()
+        row = index.row()
+        col = index.column()
 
-            if col == 0:
-                self.variable_data[row]['Path'] = value
-            elif col == 1:
-                self.variable_data[row]['Alias'] = value
-            elif col == 2:
-                self.variable_data[row]['Type'] = value
-            else:
-                return False
+        if col == 0:
+            self.variable_data[row]['Path'] = value
+        elif col == 1:
+            self.variable_data[row]['Alias'] = value
+        elif col == 2:
+            self.variable_data[row]['Type'] = value
+        else:
+            return False
 
-            self.data_changed_signal.emit()
-            self.dataChanged.emit(index.sibling(0, col),
-                                  index.sibling(self.rowCount(), col))
+        self.app_data.alias_data_changed.emit()
+        self.dataChanged.emit(index.sibling(0, col),
+                              index.sibling(self.rowCount(), col))
 
-            self.parent().selectionModel().clearSelection()
-            return True
-
-        return False
+        self.parent().selectionModel().clearSelection()
+        return True
 
     def insertRows(self, row: int, count: int = 1,
                    parent: QModelIndex = QModelIndex()):
@@ -123,8 +140,12 @@ class variableTableModel(QAbstractTableModel):
         else:
             self.variable_data = self.variable_data[:row] + new_rows + \
                 self.variable_data[row:]
-
         self.endInsertRows()
+
+        if self.mode == 'input':
+            self.app_data.input_table_data = self.variable_data
+        else:
+            self.app_data.output_table_data = self.variable_data
         return True
 
     def removeRows(self, row: int, count: int = 1,
@@ -132,8 +153,12 @@ class variableTableModel(QAbstractTableModel):
         self.beginRemoveRows(parent, row, row + count - 1)
 
         del self.variable_data[row: (row + count)]
-
         self.endRemoveRows()
+
+        if self.mode == 'input':
+            self.app_data.input_table_data = self.variable_data
+        else:
+            self.app_data.output_table_data = self.variable_data
         return True
 
     def headerData(self, section: int, orientation: Qt.Orientation,
@@ -171,10 +196,10 @@ class LoadSimulationTreeDialog(QDialog):
         table_input = self.ui.tableViewInput
         table_output = self.ui.tableViewOutput
 
-        self._input_table_model = variableTableModel(self.app_data,
+        self._input_table_model = VariableTableModel(self.app_data,
                                                      mode='input',
                                                      parent=table_input)
-        self._output_table_model = variableTableModel(self.app_data,
+        self._output_table_model = VariableTableModel(self.app_data,
                                                       mode='output',
                                                       parent=table_output)
 
@@ -212,11 +237,10 @@ class LoadSimulationTreeDialog(QDialog):
         self.ui.pushButtonOK.clicked.connect(self.ok_button_pressed)
 
         # forces the table views update from one another.
-        self.app_data.input_alias_data_changed.connect(
-            self.ui.tableViewOutput.viewport().update)
-
-        self.app_data.output_alias_data_changed.connect(
-            self.ui.tableViewInput.viewport().update)
+        self.app_data.alias_data_changed.connect(
+            self._input_table_model.load_data)
+        self.app_data.alias_data_changed.connect(
+            self._output_table_model.load_data)
         # ---------------------------------------------------------------------
 
     def create_tree_models(self):
@@ -371,8 +395,9 @@ class LoadSimulationTreeDialog(QDialog):
             fullpath = '\\' + '\\'.join(list(reversed(branch_list)))
 
             # verify if full path is already in the table
-            current_paths = [table_model.index(row, 0).data()
-                             for row in range(table_model.rowCount())]
+            current_paths = [row['Path']
+                             for row in self.app_data.input_table_data +
+                             self.app_data.output_table_data]
 
             if fullpath in current_paths:
                 # the variable is already in table, warn the user
@@ -388,14 +413,14 @@ class LoadSimulationTreeDialog(QDialog):
                 # variable not in table, insert it
                 self.insert_new_single_row(table_model, fullpath)
 
-    def insert_new_single_row(self, table_model: variableTableModel,
+    def insert_new_single_row(self, table_model: VariableTableModel,
                               node_str: str):
         """Inserts a single variable row in the table view.
 
         Parameters
         ----------
-        table_model : variableTableModel
-            Which variableTableModel to insert the row.
+        table_model : VariableTableModel
+            Which VariableTableModel to insert the row.
         node_str : str
             String containing the full path to the selected node.
         """
