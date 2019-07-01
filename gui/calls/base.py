@@ -7,9 +7,6 @@ from PyQt5.QtWidgets import (QComboBox, QItemDelegate, QLineEdit, QMessageBox,
                              QSizePolicy, QSpacerItem, QStyleOptionViewItem,
                              QWidget, QTextEdit)
 
-# TODO: Check entire alias column for duplicates and implement behavior for the
-# entire column instead of only the current cell.
-
 
 class DoubleEditorDelegate(QItemDelegate):
     """Base item delegate for inserting double values throughout application.

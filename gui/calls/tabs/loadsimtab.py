@@ -425,6 +425,7 @@ class SimulationDataTableModel(QAbstractTableModel):
                         ('design_specs', "Design Specifications")]
 
     def rowCount(self, parent=None):
+        # FIXME: change rowCount to 0 when empty storage. Now it displays 1 row
         sim_data = self.sim_info
         return len(sim_data[max(sim_data, key=lambda x: len(sim_data[x]))])
 
@@ -628,7 +629,7 @@ if __name__ == "__main__":
     from tests_.mock_data import LOADSIM_SAMPLING_MOCK_DS
 
     app = QApplication(sys.argv)
-    ds = LOADSIM_SAMPLING_MOCK_DS
+    ds = DataStorage()
     w = LoadSimTab(application_database=ds)
     ds.simulation_file_changed.emit()
     w.show()

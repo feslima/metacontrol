@@ -339,7 +339,6 @@ class CsvEditorDialog(QDialog):
                 warn_the_user(msg_txt, msg_title)
             else:
                 # everything is ok, store the data and close the dialog
-                # TODO: Extract only columns that are checked, then you apply
                 # the renaming from comboboxes
                 raw_df = self.ui.displayTableView.model()._data
 
