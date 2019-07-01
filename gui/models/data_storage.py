@@ -444,6 +444,11 @@ class DataStorage(QObject):
             Sampled data in dictionary format. (dumped from another Dataframe)
         """
         samp_data = pd.DataFrame(sampled_data_dict)
+        if not samp_data.empty:
+            samp_data = samp_data[['case', 'status'] +
+                                  [row['Alias']
+                                   for row in self.input_table_data +
+                                   self.output_table_data]]
 
         # intialize empty dataframe
         expr_df = pd.DataFrame(columns=[row['Name'] for row in

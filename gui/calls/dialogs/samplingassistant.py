@@ -12,6 +12,8 @@ from gui.models.data_storage import DataStorage
 from gui.models.sampling import SamplerThread, lhs
 from gui.views.py_files.samplingassistant import Ui_Dialog
 
+# FIXME: Implement MVC pattern
+
 
 class SamplingAssistantDialog(QDialog):
     input_design_changed = pyqtSignal()

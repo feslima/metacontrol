@@ -3,7 +3,7 @@ import pandas as pd
 from py_expression_eval import Parser
 from PyQt5.QtCore import (Qt, QSize, QAbstractTableModel, QModelIndex,
                           QAbstractItemModel)
-from PyQt5.QtGui import QBrush
+from PyQt5.QtGui import QBrush, QPalette, QFont
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QHeaderView,
                              QTableView, QTableWidgetItem, QWidget)
 
@@ -14,7 +14,7 @@ from gui.models.data_storage import DataStorage
 from gui.views.py_files.doetab import Ui_Form
 
 
-class doeResultsView(QTableView):
+class DoeResultsView(QTableView):
     """TableView subclassing overriding the setModel to properly set the first
     and second row headers."""
 
@@ -27,7 +27,7 @@ class doeResultsView(QTableView):
                     self.setSpan(row, col, span.height(), span.width())
 
 
-class doeResultsModel(QAbstractTableModel):
+class DoeResultsModel(QAbstractTableModel):
     """Model to be used as results display of sampled data"""
     _HEADER_ROW_OFFSET = 2
     _INPUT_COL_OFFSET = 2
@@ -36,6 +36,10 @@ class doeResultsModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
 
         self.app_data = application_data
+        self.load_data()
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
         data = pd.DataFrame(self.app_data.doe_sampled_data)
         self._case_data = data.pop('case')
         self._stat_data = data.pop('status')
@@ -64,6 +68,8 @@ class doeResultsModel(QAbstractTableModel):
         self._data = data[self._input_alias + self._candidates_alias +
                           self._const_alias + self._obj_alias +
                           self._aux_alias]
+
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
         return self._data.shape[0] + self._HEADER_ROW_OFFSET
@@ -106,6 +112,9 @@ class doeResultsModel(QAbstractTableModel):
             return super().span(index)
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
         row = index.row()
         col = index.column()
 
@@ -153,40 +162,118 @@ class doeResultsModel(QAbstractTableModel):
                 if coloffset - 1 < col:
                     return str(self._data.columns[col - coloffset])
 
+        elif role == Qt.FontRole:
+            if row == 0 or row == 1:
+                df_font = QFont()
+                df_font.setBold(True)
+                return df_font
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
-
-class BoundEditorDelegate(DoubleEditorDelegate):
-
-    def setModelData(self, editor, model, index):
-        text = editor.text()
-
-        model.setData(index, text, Qt.EditRole)
-
-        item_row = index.row()
-        item_col = index.column()
-
-        if item_col == 1:
-            # lower bound
-            sib_index = index.sibling(item_row, item_col + 1)
-            lb_value = float(text)
-            ub_value = float(model.data(sib_index, Qt.DisplayRole))
         else:
-            # upper bound
-            sib_index = index.sibling(item_row, item_col - 1)
-            lb_value = float(model.data(sib_index, Qt.DisplayRole))
-            ub_value = float(text)
+            return None
 
-        if lb_value >= ub_value:
-            # lb >= ub, paint row red
-            model.setData(index, QBrush(Qt.red), Qt.BackgroundRole)
-            model.setData(sib_index, QBrush(Qt.red), Qt.BackgroundRole)
+
+class InputVariablesTableModel(QAbstractTableModel):
+    def __init__(self, application_data: DataStorage, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+        self.app_data = application_data
+        self.mv_bounds = self.app_data.doe_mv_bounds
+        self.headers = ["Manipulated variable", "Lower bound", "Upper bound"]
+
+    def rowCount(self, parent=None):
+        return len(self.mv_bounds)
+
+    def columnCount(self, parent=None):
+        return len(self.headers)
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.headers[section]
+
+            else:
+                return None
+
+        elif role == Qt.FontRole:
+            if orientation == Qt.Horizontal:
+                df_font = QFont()
+                df_font.setBold(True)
+                return df_font
+            else:
+                return None
         else:
-            # lb < ub, paint original color
-            org_bck_clr = editor.palette().color(editor.backgroundRole())
-            model.setData(index, QBrush(org_bck_clr), Qt.BackgroundRole)
-            model.setData(sib_index, QBrush(org_bck_clr), Qt.BackgroundRole)
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        mv_data = self.mv_bounds[row]
+
+        if role == Qt.DisplayRole:
+            if col == 0:
+                return str(mv_data['name'])
+            elif col == 1:
+                return str(mv_data['lb'])
+            elif col == 2:
+                return str(mv_data['ub'])
+            else:
+                return None
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        elif role == Qt.BackgroundRole:
+            if col == 1 or col == 2:
+                if mv_data['lb'] >= mv_data['ub']:
+                    return QBrush(Qt.red)
+                else:
+                    return QBrush(self.parent().palette().brush(QPalette.Base))
+            else:
+                return None
+
+        elif role == Qt.ToolTipRole:
+            if col == 1 or col == 2:
+                if mv_data['lb'] >= mv_data['ub']:
+                    return "Lower bound can't be greater than upper bound!"
+                else:
+                    return ""
+            else:
+                return None
+
+        else:
+            return None
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole or not index.isValid():
+            return False
+
+        row = index.row()
+        col = index.column()
+
+        var_data = self.mv_bounds[row]
+
+        if col == 1:
+            var_data['lb'] = float(value)
+        elif col == 2:
+            var_data['ub'] = float(value)
+        else:
+            return False
+
+        self.app_data.doe_mv_bounds_changed.emit()
+        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
+        return True
+
+    def flags(self, index: QModelIndex):
+        if index.column() != 0:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
 
 
 class DoeTab(QWidget):
@@ -202,33 +289,32 @@ class DoeTab(QWidget):
         self.application_database = application_database
 
         # ----------------------- Widget Initialization -----------------------
-        var_table = self.ui.tableWidgetInputVariables
-        self.ui.tableWidgetResultsDoe = doeResultsView(
-            parent=self.ui.groupBox_4)
-        results_table = self.ui.tableWidgetResultsDoe
+        results_table = DoeResultsView(parent=self.ui.groupBox_4)
+        results_model = DoeResultsModel(self.application_database,
+                                        parent=results_table)
+        results_table.setModel(results_model)
+
+        self.ui.tableViewResultsDoe = results_table
         results_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.ui.gridLayout_9.addWidget(results_table, 1, 0, 1, 1)
-
-        var_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         results_table.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
         results_table.verticalHeader().hide()
 
+        var_table = self.ui.tableViewInputVariables
+        var_model = InputVariablesTableModel(self.application_database,
+                                             parent=var_table)
+        var_table.setModel(var_model)
+
+        var_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
         # set bound values delegates
-        self._lb_delegate = BoundEditorDelegate()
-        self._ub_delegate = BoundEditorDelegate()
+        self._lb_delegate = DoubleEditorDelegate()
+        self._ub_delegate = DoubleEditorDelegate()
         var_table.setItemDelegateForColumn(1, self._lb_delegate)
         var_table.setItemDelegateForColumn(2, self._ub_delegate)
 
         # --------------------------- Signals/Slots ---------------------------
-        # update the input variable display info
-        self.application_database.doe_mv_bounds_changed.connect(
-            self.update_input_variables_display)
-
-        # update the input variable storage
-        self._lb_delegate.closeEditor.connect(self.update_input_variables_data)
-        self._ub_delegate.closeEditor.connect(self.update_input_variables_data)
-
         # open the sampling assistant dialog
         self.ui.openSamplerPushButton.clicked.connect(
             self.open_sampling_assistant)
@@ -236,9 +322,9 @@ class DoeTab(QWidget):
         # open the csv editor dialog
         self.ui.csvImportPushButton.clicked.connect(self.open_csveditor)
 
-        # updates the table data storage
         self.application_database.doe_sampled_data_changed.connect(
-            self.update_results_model)
+            results_model.load_data
+        )
 
         # ---------------------------------------------------------------------
 
@@ -250,63 +336,6 @@ class DoeTab(QWidget):
         dialog = CsvEditorDialog(self.application_database)
         dialog.exec_()
 
-    def update_input_variables_display(self):
-        """Updates the input variables table display. Model to View.
-        """
-        mv_bnd_data = self.application_database.doe_mv_bounds
-
-        aliases, lb_bnds, ub_bnds = zip(*[row.values() for row in mv_bnd_data])
-
-        table_view = self.ui.tableWidgetInputVariables
-
-        # clear the table
-        table_view.setRowCount(0)
-
-        # insert the variables
-        for row, alias in enumerate(aliases):
-            table_view.insertRow(row)
-
-            alias_item = QTableWidgetItem(alias)
-            lb_item = QTableWidgetItem(str(lb_bnds[row]))
-            ub_item = QTableWidgetItem(str(ub_bnds[row]))
-
-            alias_item.setTextAlignment(Qt.AlignCenter)
-            lb_item.setTextAlignment(Qt.AlignCenter)
-            ub_item.setTextAlignment(Qt.AlignCenter)
-
-            alias_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-
-            table_view.setItem(row, 0, alias_item)
-            table_view.setItem(row, 1, lb_item)
-            table_view.setItem(row, 2, ub_item)
-
-    def update_input_variables_data(self):
-        """Updates the input variables (MVs) data in the application storage.
-        View to Model.
-        """
-        table_view = self.ui.tableWidgetInputVariables
-
-        mv_bnd = []
-        for row in range(table_view.rowCount()):
-            mv_bnd.append({'name': table_view.item(row, 0).text(),
-                           'lb': float(table_view.item(row, 1).text()),
-                           'ub': float(table_view.item(row, 2).text())})
-
-        # FIXME: Not triggering doe_mv_bounds_changed
-
-    def update_results_model(self):
-        # clear the table model
-        results_table = self.ui.tableWidgetResultsDoe
-
-        if results_table.model() is not None:
-            results_table.model().setParent(None)
-            results_table.model().deleteLater()
-
-        # create the model and set its view
-        model = doeResultsModel(self.application_database)
-
-        results_table.setModel(model)
-
 
 if __name__ == "__main__":
     import sys
@@ -316,9 +345,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     ds = DOE_TAB_MOCK_DS
     w = DoeTab(application_database=ds)
-    ds.doe_mv_bounds_changed.emit()  # just to update the input table on init
-    ds.expr_data_changed.emit()  # just to update the results headers
-    ds.doe_sampled_data_changed.emit()
     w.show()
 
     sys.excepthook = my_exception_hook
