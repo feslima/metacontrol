@@ -177,113 +177,6 @@ class DoeResultsModel(QAbstractTableModel):
             return None
 
 
-class InputVariablesTableModel(QAbstractTableModel):
-    def __init__(self, application_data: DataStorage, parent: QTableView):
-        QAbstractTableModel.__init__(self, parent)
-        self.app_data = application_data
-        self.load_data()
-        self.headers = ["Manipulated variable", "Lower bound", "Upper bound"]
-
-    def load_data(self):
-        self.layoutAboutToBeChanged.emit()
-        self.mv_bounds = self.app_data.doe_mv_bounds
-        self.layoutChanged.emit()
-
-    def rowCount(self, parent=None):
-        return len(self.mv_bounds)
-
-    def columnCount(self, parent=None):
-        return len(self.headers)
-
-    def headerData(self, section: int, orientation: Qt.Orientation,
-                   role: int = Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
-                return self.headers[section]
-
-            else:
-                return None
-
-        elif role == Qt.FontRole:
-            if orientation == Qt.Horizontal:
-                df_font = QFont()
-                df_font.setBold(True)
-                return df_font
-            else:
-                return None
-        else:
-            return None
-
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
-        if not index.isValid():
-            return None
-
-        row = index.row()
-        col = index.column()
-
-        mv_data = self.mv_bounds[row]
-
-        if role == Qt.DisplayRole:
-            if col == 0:
-                return str(mv_data['name'])
-            elif col == 1:
-                return str(mv_data['lb'])
-            elif col == 2:
-                return str(mv_data['ub'])
-            else:
-                return None
-
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignCenter
-
-        elif role == Qt.BackgroundRole:
-            if col == 1 or col == 2:
-                if mv_data['lb'] >= mv_data['ub']:
-                    return QBrush(Qt.red)
-                else:
-                    return QBrush(self.parent().palette().brush(QPalette.Base))
-            else:
-                return None
-
-        elif role == Qt.ToolTipRole:
-            if col == 1 or col == 2:
-                if mv_data['lb'] >= mv_data['ub']:
-                    return "Lower bound can't be greater than upper bound!"
-                else:
-                    return ""
-            else:
-                return None
-
-        else:
-            return None
-
-    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
-        if role != Qt.EditRole or not index.isValid():
-            return False
-
-        row = index.row()
-        col = index.column()
-
-        var_data = self.mv_bounds[row]
-
-        if col == 1:
-            var_data['lb'] = float(value)
-        elif col == 2:
-            var_data['ub'] = float(value)
-        else:
-            return False
-
-        self.app_data.doe_mv_bounds_changed.emit()
-        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
-        return True
-
-    def flags(self, index: QModelIndex):
-        if index.column() != 0:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
-        else:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
-
-
 class DoeTab(QWidget):
 
     def __init__(self, application_database: DataStorage, parent_tab=None):
@@ -309,19 +202,6 @@ class DoeTab(QWidget):
             QHeaderView.Stretch)
         results_table.verticalHeader().hide()
 
-        var_table = self.ui.tableViewInputVariables
-        var_model = InputVariablesTableModel(self.application_database,
-                                             parent=var_table)
-        var_table.setModel(var_model)
-
-        var_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-        # set bound values delegates
-        self._lb_delegate = DoubleEditorDelegate()
-        self._ub_delegate = DoubleEditorDelegate()
-        var_table.setItemDelegateForColumn(1, self._lb_delegate)
-        var_table.setItemDelegateForColumn(2, self._ub_delegate)
-
         # --------------------------- Signals/Slots ---------------------------
         # open the sampling assistant dialog
         self.ui.openSamplerPushButton.clicked.connect(
@@ -330,8 +210,6 @@ class DoeTab(QWidget):
         # open the csv editor dialog
         self.ui.csvImportPushButton.clicked.connect(self.open_csveditor)
 
-        self.application_database.doe_mv_bounds_changed.connect(
-            var_model.load_data)
         self.application_database.doe_sampled_data_changed.connect(
             results_model.load_data)
 
