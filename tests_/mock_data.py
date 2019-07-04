@@ -15,7 +15,7 @@ MTC_FOLDER_PATH = TESTS_FOLDER_PATH.joinpath('save_open')
 # --------------------------- DATASTORE FOR MOCKING ---------------------------
 # loasim and sampling(doe) tabs
 LOADSIM_SAMPLING_MOCK_DS = DataStorage()
-LOADSIM_SAMPLING_MOCK_DS.load(MTC_FOLDER_PATH / 'loadsim_sampling_test.mtc')
+LOADSIM_SAMPLING_MOCK_DS.load(MTC_FOLDER_PATH / 'loadsimtab.mtc')
 LOADSIM_SAMPLING_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)
 
 # lhs settings dialog
@@ -25,7 +25,7 @@ LHSSETTINGS_MOCK_DS.doe_lhs_settings = _mtc_lhs_settings
 
 # doetab and sampling assistant
 DOE_TAB_MOCK_DS = DataStorage()
-DOE_TAB_MOCK_DS.load(MTC_FOLDER_PATH / 'sampling_assistant.mtc')
+DOE_TAB_MOCK_DS.load(MTC_FOLDER_PATH / 'doetab_sampling_assistant.mtc')
 DOE_TAB_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)
 
 # csveditor dialog

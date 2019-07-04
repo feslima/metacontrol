@@ -274,6 +274,8 @@ class DataStorage(QObject):
                            str(key_list))
 
     def _update_mv_bounds(self) -> None:
+        """Updates the MV bounds data whenever alias data is changed. (SLOT)
+        """
         # list of aliases that are MV
         mv_aliases = [row['Alias'] for row in self._input_table_data +
                       self._output_table_data

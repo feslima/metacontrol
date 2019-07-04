@@ -1,40 +1,407 @@
+import pathlib
+
 import numpy as np
 import pandas as pd
-import pathlib
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QResizeEvent
-from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QMessageBox,
-                             QStatusBar, QTableWidgetItem, QFileDialog)
+from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt,
+                          pyqtSignal)
+from PyQt5.QtGui import QBrush, QFont, QPalette, QResizeEvent
+from PyQt5.QtWidgets import (
+    QAbstractItemView, QApplication, QDialog, QFileDialog, QHeaderView,
+    QMessageBox, QStatusBar, QTableView)
 
-from gui.calls.base import my_exception_hook
+from gui.calls.base import DoubleEditorDelegate, my_exception_hook
 from gui.calls.dialogs.lhssettings import LhsSettingDialog
 from gui.models.data_storage import DataStorage
 from gui.models.sampling import SamplerThread, lhs
 from gui.views.py_files.samplingassistant import Ui_Dialog
 
-# FIXME: Implement MVC pattern
+
+class SampledDataView(QTableView):
+    def setModel(self, model: QAbstractTableModel):
+        super().setModel(model)
+        for row in range(model.rowCount()):
+            for col in range(model.columnCount()):
+                span = model.span(model.index(row, col))
+                if span.height() > 1 or span.width() > 1:
+                    self.setSpan(row, col, span.height(), span.width())
 
 
-class SamplingAssistantDialog(QDialog):
-    input_design_changed = pyqtSignal()
+class SampledDataTableModel(QAbstractTableModel):
+
+    input_design_changed = pyqtSignal(bool)
 
     # CONSTANTS
     _INPUT_COL_OFFSET = 2
     _HEADER_ROW_OFFSET = 2
 
+    def __init__(self, application_data: DataStorage(), parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+        self.app_data = application_data
+        self.headers_row1 = ['Case Number', 'Status', 'Inputs', 'Outputs']
+        self.load_data()
+
+    @property
+    def input_design(self):
+        """The input_design property."""
+        return self._input_design
+
+    @input_design.setter
+    def input_design(self, value: pd.DataFrame):
+        if not value.equals(self._input_design):
+            # if dataframe is diferent from the current one in display, warn
+            # the about layout changes, and reset case number and status cols
+            self.layoutAboutToBeChanged.emit()
+
+            self._input_design = value
+            self.dataChanged.emit(self.index(0, 0),
+                                  self.index(self.rowCount(),
+                                             self.columnCount()))
+            self.is_input_design_generated = False \
+                if value.isnull().all(axis=None) else True
+            self.input_design_changed.emit(self.is_input_design_generated)
+
+            self.layoutChanged.emit()
+
+            # number of experiments
+            n_samp = self.app_data.doe_lhs_settings['n_samples']
+            if self.app_data.doe_lhs_settings['inc_vertices']:
+                n_samp += 2 ** len(self._input_alias)  # include vertices
+
+            # create empty dataframes with NaN values
+            self._case_num = pd.DataFrame({'case': np.arange(1, n_samp + 1)})
+            self._status_sim = pd.DataFrame({'status': [''] * n_samp},
+                                            dtype=object)
+
+            # reset sampled data as well
+            self.samp_data = pd.DataFrame(np.nan, index=range(n_samp),
+                                          columns=self._output_alias,
+                                          dtype=float)
+
+    @property
+    def samp_data(self):
+        """The samp_data property."""
+        return self._samp_data
+
+    @samp_data.setter
+    def samp_data(self, value: pd.DataFrame):
+        if not value.equals(self._samp_data):
+            self._samp_data = value
+            self.dataChanged.emit(self.index(0, 0),
+                                  self.index(self.rowCount(),
+                                             self.columnCount()))
+
+    def load_data(self):
+        if not hasattr(self, '_input_design'):
+            # create empty input design and sample data dataframe on init
+            self._input_design = pd.DataFrame({})
+            self._samp_data = pd.DataFrame({})
+
+        self.is_input_design_generated = False
+
+        # load internal headers names
+        self._input_alias = [row['Alias']
+                             for row in self.app_data.input_table_data
+                             if row['Type'] == 'Manipulated (MV)']
+
+        self._output_alias = [row['Alias']
+                              for row in self.app_data.output_table_data]
+
+        # number of experiments
+        n_samp = self.app_data.doe_lhs_settings['n_samples']
+        self.input_design = pd.DataFrame(np.nan, index=range(n_samp),
+                                         columns=self._input_alias,
+                                         dtype=float)
+
+    def get_doe_data(self) -> pd.DataFrame:
+        """Returns the sampled DOE data as a pandas DataFrame
+        """
+        if self.samp_data.isnull().all(axis=None):
+            # if no sampling is done, return empty dataframe
+            return pd.DataFrame({})
+        else:
+            df = self._case_num.merge(self._status_sim, left_index=True,
+                                      right_index=True)
+            df = df.merge(self.input_design, left_index=True, right_index=True)
+            df = df.merge(self.samp_data, left_index=True, right_index=True)
+
+            return df
+
+    def generate_lhs(self):
+        """Generate LHS matrix and make it available to the GUI.
+        """
+        reply = QMessageBox.No
+        if self.is_input_design_generated:
+            # there is data already in display in the table, warn the user
+            msg_str = ("By clicking yes ALL data, including input and "
+                       "output already sampled will be deleted! Proceed at "
+                       "your own risk.")
+            reply = QMessageBox().question(self.parent(),
+                                           "Renew input design?",
+                                           msg_str, QMessageBox.Yes,
+                                           QMessageBox.No)
+
+        if reply == QMessageBox.Yes or not self.is_input_design_generated:
+            mv_bnds = self.app_data.doe_mv_bounds
+            lhs_settings = self.app_data.doe_lhs_settings
+
+            names_list, lb_list, ub_list = map(
+                list, zip(*[(row['name'], row['lb'], row['ub'])
+                            for row in mv_bnds]))
+
+            lhs_table = lhs(lhs_settings['n_samples'], lb_list, ub_list,
+                            lhs_settings['n_iter'],
+                            lhs_settings['inc_vertices'])
+
+            self.input_design = pd.DataFrame(lhs_table, columns=names_list)
+
+    def on_case_sampled(self, case_num: int, sampled_values: dict):
+        """Slot that performs the simulation and displays data in the table.
+
+        Parameters
+        ----------
+        case_num : int
+            Case number.
+        sampled_values : dict
+            Dictionary containing the sampled data
+        """
+        # place the convergence flag and case number
+        self._status_sim.iat[case_num - 1, 0] = sampled_values['success']
+        self._case_num.iat[case_num - 1, 0] = case_num
+
+        # delete the success key
+        del sampled_values['success']
+
+        # set output values
+        self.samp_data.iloc[case_num - 1] = sampled_values
+
+        # emit data changed signal
+        self.dataChanged.emit(
+            self.index(case_num - 1 + self._HEADER_ROW_OFFSET, 0),
+            self.index(case_num - 1 + self._HEADER_ROW_OFFSET,
+                       self.columnCount()))
+
+    def on_sampling_done(self):
+        """Stores the sampled data in the application storage.
+        """
+        self.app_data.doe_sampled_data = self.get_doe_data().to_dict('list')
+
+    def rowCount(self, parent=None):
+        return self._HEADER_ROW_OFFSET + self.input_design.shape[0]
+
+    def columnCount(self, parent=None):
+        return self._INPUT_COL_OFFSET + self.input_design.shape[1] + \
+            self.samp_data.shape[1]
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        df_rows, inp_cols = self.input_design.shape
+        _, samp_cols = self.samp_data.shape
+        rowoffset = self._HEADER_ROW_OFFSET
+        coloffset = self._INPUT_COL_OFFSET
+
+        if role == Qt.DisplayRole:
+            if rowoffset - 1 < row < df_rows + rowoffset:
+                if coloffset - 1 < col < inp_cols + coloffset:
+                    # numeric data display of input design
+                    val = self.input_design.iat[row - rowoffset,
+                                                col - coloffset]
+                    return "{0:.7f}".format(val) if not np.isnan(val) else None
+
+                elif inp_cols + coloffset - 1 < col < inp_cols + samp_cols + \
+                        coloffset:
+                    # numeric data display of sampled data
+                    val = self.samp_data.iat[row - rowoffset,
+                                             col - (inp_cols + coloffset)]
+                    return "{0:.7f}".format(val) if not np.isnan(val) else None
+
+                elif col == 0:
+                    # case number
+                    return str(int(self._case_num.iat[row - rowoffset, 0]))
+
+                elif col == 1:
+                    # status
+                    status = self._status_sim.iat[row - rowoffset, 0]
+                    return str(status)
+
+                else:
+                    return None
+
+            elif row == 0:
+                # first row headers
+                if col == 0:
+                    return "Case Number"
+                elif col == 1:
+                    return "Status"
+                elif col == coloffset:
+                    return "Inputs"
+                elif col == coloffset + len(self._input_alias):
+                    return "Outputs"
+                else:
+                    return None
+
+            elif row == 1:
+                # second row headers
+                if coloffset - 1 < col < inp_cols + coloffset:
+                    return str(self.input_design.columns[col - coloffset])
+                elif inp_cols + coloffset - 1 < col < inp_cols + samp_cols + \
+                        coloffset:
+                    return str(self.samp_data.columns[col -
+                                                      inp_cols - coloffset])
+                else:
+                    return None
+
+        elif role == Qt.FontRole:
+            if row == 0 or row == 1:
+                df_font = QFont()
+                df_font.setBold(True)
+                return df_font
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        else:
+            return None
+
+    def span(self, index: QModelIndex):
+        row = index.row()
+        col = index.column()
+
+        rowoffset = self._HEADER_ROW_OFFSET
+        coloffset = self._INPUT_COL_OFFSET
+
+        if row == 0:
+            if col == 0 or col == 1:
+                # case number and status column
+                return QSize(1, rowoffset)
+            elif col == coloffset:
+                # inputs
+                return QSize(len(self._input_alias), 1)
+            elif col == coloffset + len(self._input_alias):
+                # outputs
+                return QSize(len(self._output_alias), 1)
+
+            else:
+                return super().span(index)
+        else:
+            return super().span(index)
+
+
+class InputVariablesTableModel(QAbstractTableModel):
+    def __init__(self, application_data: DataStorage, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+        self.app_data = application_data
+        self.load_data()
+        self.headers = ["Manipulated variable", "Lower bound", "Upper bound"]
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+        self.mv_bounds = self.app_data.doe_mv_bounds
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return len(self.mv_bounds)
+
+    def columnCount(self, parent=None):
+        return len(self.headers)
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.headers[section]
+
+            else:
+                return None
+
+        elif role == Qt.FontRole:
+            if orientation == Qt.Horizontal:
+                df_font = QFont()
+                df_font.setBold(True)
+                return df_font
+            else:
+                return None
+        else:
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        mv_data = self.mv_bounds[row]
+
+        if role == Qt.DisplayRole:
+            if col == 0:
+                return str(mv_data['name'])
+            elif col == 1:
+                return str(mv_data['lb'])
+            elif col == 2:
+                return str(mv_data['ub'])
+            else:
+                return None
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        elif role == Qt.BackgroundRole:
+            if col == 1 or col == 2:
+                if mv_data['lb'] >= mv_data['ub']:
+                    return QBrush(Qt.red)
+                else:
+                    return QBrush(self.parent().palette().brush(QPalette.Base))
+            else:
+                return None
+
+        elif role == Qt.ToolTipRole:
+            if col == 1 or col == 2:
+                if mv_data['lb'] >= mv_data['ub']:
+                    return "Lower bound can't be greater than upper bound!"
+                else:
+                    return ""
+            else:
+                return None
+
+        else:
+            return None
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole or not index.isValid():
+            return False
+
+        row = index.row()
+        col = index.column()
+
+        var_data = self.mv_bounds[row]
+
+        if col == 1:
+            var_data['lb'] = float(value)
+        elif col == 2:
+            var_data['ub'] = float(value)
+        else:
+            return False
+
+        self.app_data.doe_mv_bounds_changed.emit()
+        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
+        return True
+
+    def flags(self, index: QModelIndex):
+        if index.column() != 0:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
+
+
+class SamplingAssistantDialog(QDialog):
+
     def __init__(self, application_database: DataStorage):
         # ------------------------ Internal Variables -------------------------
         self.app_data = application_database
-        self._input_design = None
-
-        # load internal headers names
-        input_alias = [row['Alias'] for row in self.app_data.input_table_data
-                       if row['Type'] == 'Manipulated (MV)']
-        output_alias = [row['Alias']
-                        for row in self.app_data.output_table_data]
-        aliases = input_alias + output_alias
-
-        self._sampled_data = pd.DataFrame(columns=aliases)
 
         # ------------------------ Form Initialization ------------------------
         super().__init__()
@@ -43,62 +410,47 @@ class SamplingAssistantDialog(QDialog):
 
         self.setWindowFlags(Qt.Window)
         # ----------------------- Widget Initialization -----------------------
+        var_table = self.ui.tableViewInputVariables
+        var_model = InputVariablesTableModel(self.app_data, parent=var_table)
+        var_table.setModel(var_model)
+
+        var_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        # bounds double value delegate
+        self._lb_delegate = DoubleEditorDelegate()
+        self._ub_delegate = DoubleEditorDelegate()
+
+        var_table.setItemDelegateForColumn(1, self._lb_delegate)
+        var_table.setItemDelegateForColumn(2, self._ub_delegate)
+
+        results_table = SampledDataView(parent=self.ui.groupBox_3)
+        results_model = SampledDataTableModel(self.app_data,
+                                              parent=results_table)
+        results_table.setModel(results_model)
+
+        results_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.ui.gridLayout_4.removeWidget(self.ui.displayProgressBar)
+        self.ui.gridLayout_4.addWidget(results_table, 1, 0, 1, 1)
+        self.ui.gridLayout_4.addWidget(self.ui.displayProgressBar, 2, 0, 1, 1)
+        results_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
+        results_table.verticalHeader().hide()
+
+        self.results_table = results_table
+
         # status bar
         self.statBar = QStatusBar(self)
         self.ui.horizontalLayout.addWidget(self.statBar)
 
-        results_view = self.ui.samplerDisplayTableWidget
-
-        # set the results table headerview to stretch
-        results_view.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
-        results_view.horizontalHeader().setMinimumSectionSize(50)
-
-        # place the headers
-        results_view.setRowCount(self._HEADER_ROW_OFFSET)
-        results_view.setColumnCount(self._INPUT_COL_OFFSET + len(aliases))
-
-        # case number header
-        case_num_item = QTableWidgetItem('Case Number')
-        case_num_item.setTextAlignment(Qt.AlignCenter)
-        results_view.setSpan(0, 0, self._HEADER_ROW_OFFSET, 1)
-        results_view.setItem(0, 0, case_num_item)
-
-        # case status header
-        case_status_item = QTableWidgetItem('Status')
-        case_status_item.setTextAlignment(Qt.AlignCenter)
-        results_view.setSpan(0, 1, self._HEADER_ROW_OFFSET, 1)
-        results_view.setItem(0, 1, case_status_item)
-
-        # Inputs section header
-        inputs_item = QTableWidgetItem('Inputs')
-        inputs_item.setTextAlignment(Qt.AlignCenter)
-        results_view.setSpan(0, self._INPUT_COL_OFFSET, 1, len(input_alias))
-        results_view.setItem(0, self._INPUT_COL_OFFSET, inputs_item)
-
-        # Outputs section header
-        outputs_item = QTableWidgetItem('Outputs')
-        outputs_item.setTextAlignment(Qt.AlignCenter)
-        results_view.setSpan(0, self._INPUT_COL_OFFSET +
-                             self._INPUT_COL_OFFSET, 1, len(output_alias))
-        results_view.setItem(0, self._INPUT_COL_OFFSET +
-                             self._INPUT_COL_OFFSET, outputs_item)
-
-        # place the subheaders
-        for col, alias in enumerate(aliases):
-            item = QTableWidgetItem(alias)
-            item.setTextAlignment(Qt.AlignCenter)
-
-            results_view.setItem(1, col + self._INPUT_COL_OFFSET, item)
-
         # --------------------------- Signals/Slots ---------------------------
         # generate lhs and lhs settings
-        self.ui.genLhsPushButton.clicked.connect(self.generate_lhs)
+        self.ui.genLhsPushButton.clicked.connect(results_model.generate_lhs)
         self.ui.lhsSettingsPushButton.clicked.connect(self.open_lhs_settings)
 
-        # update the input design display and enables/disable sampling button
-        self.input_design_changed.connect(self.update_input_design_display)
-        self.input_design_changed.connect(self.enable_sampling_button)
+        # enables/disable sampling button and updates progress bar
+        results_model.input_design_changed.connect(self.enable_sampling_button)
+        results_model.input_design_changed.connect(
+            self.on_input_design_changed)
 
         # starts sampling when pressing sample data button
         self.ui.sampDataPushButton.clicked.connect(self.sample_data)
@@ -110,32 +462,20 @@ class SamplingAssistantDialog(QDialog):
         # closes the dialog when cancel buttons is pressed
         self.ui.cancelPushButton.clicked.connect(self.close)
 
-        # stores sampled data and closes dialog when user is done sampling
+        # closes dialog when user is done sampling
         self.ui.donePushButton.clicked.connect(self.on_sampling_done)
 
         # exports data in display to csv when pressing button
         self.ui.exportCsvPushButton.clicked.connect(self.export_csv)
         # ---------------------------------------------------------------------
 
-    @property
-    def input_design(self):
-        """The design of experiments matrix (input design)."""
-        return self._input_design
-
-    @input_design.setter
-    def input_design(self, value: np.ndarray):
-        self._input_design = value
-        self.input_design_changed.emit()
-        self.ui.displayProgressBar.setMaximum(value.shape[0])
-
     # -------------------------------------------------------------------------
-    def on_sampling_done(self):
-        """When the user is done sampling and presses the done button, store
-        the sampled data if it exists and closes the dialog.
-        """
-        if not self._sampled_data.empty:
-            self.app_data.doe_sampled_data = self._sampled_data.to_dict('list')
 
+    def on_sampling_done(self):
+        """Stores the sampling in the application storage and closes the dialog
+        """
+        model = self.results_table.model()
+        model.on_sampling_done()
         self.close()
 
     def open_lhs_settings(self):
@@ -144,75 +484,24 @@ class SamplingAssistantDialog(QDialog):
         dialog = LhsSettingDialog(self.app_data)
         dialog.exec_()
 
-    def generate_lhs(self):
-        """Generate LHS matrix and make it available to the GUI.
-        """
-        reply = QMessageBox.No
-        if self.input_design is not None:
-            # there is data already in display in the table, warn the user
-            msg_str = ("By clicking yes ALL data, including input and "
-                       "output already sampled will be deleted! Proceed at "
-                       "your own risk.")
-            reply = QMessageBox().question(self, "Renew input design?",
-                                           msg_str, QMessageBox.Yes,
-                                           QMessageBox.No)
-
-        if reply == QMessageBox.Yes or self.input_design is None:
-            mv_bnds = self.app_data.doe_mv_bounds
-            lhs_settings = self.app_data.doe_lhs_settings
-
-            lb_list, ub_list = map(
-                list, zip(*[(row['lb'], row['ub']) for row in mv_bnds]))
-
-            lhs_table = lhs(lhs_settings['n_samples'], lb_list, ub_list,
-                            lhs_settings['n_iter'],
-                            lhs_settings['inc_vertices'])
-
-            self.input_design = lhs_table
-
-    def update_input_design_display(self):
-        """Updates the input design display in the GUI.
-        """
-        sampler_view = self.ui.samplerDisplayTableWidget
-        lhs_table = self.input_design
-
-        if lhs_table is not None:
-            n_samples = lhs_table.shape[0]
-
-            # clear the table values and initialize rows
-            sampler_view.setRowCount(self._HEADER_ROW_OFFSET)
-            sampler_view.setRowCount(n_samples + self._HEADER_ROW_OFFSET)
-
-            # clear the progress bar
-            self.ui.displayProgressBar.setValue(0)
-
-            # set values
-            for row in range(n_samples):
-                case_num_item = QTableWidgetItem(str(row + 1))
-                case_num_item.setTextAlignment(Qt.AlignCenter)
-
-                sampler_view.setItem(self._HEADER_ROW_OFFSET + row,
-                                     0,
-                                     case_num_item)
-
-                for col in range(lhs_table.shape[1]):
-                    item = QTableWidgetItem(str(lhs_table[row, col]))
-                    item.setTextAlignment(Qt.AlignCenter)
-
-                    sampler_view.setItem(self._HEADER_ROW_OFFSET + row,
-                                         self._INPUT_COL_OFFSET + col,
-                                         item)
-
-    def enable_sampling_button(self):
+    def enable_sampling_button(self, is_enabled: bool):
         """Enables or disable sampling button based on input_design values.
         """
-        if self.input_design is not None:
+        if is_enabled:
             self.ui.sampDataPushButton.setEnabled(True)
         else:
             self.ui.sampDataPushButton.setEnabled(False)
 
+    def on_input_design_changed(self, is_enabled: bool):
+        """Update the progress bar maximum value.
+        """
+        model = self.results_table.model()
+        inp_design = model.input_design
+        self.ui.displayProgressBar.setValue(0)
+        self.ui.displayProgressBar.setMaximum(inp_design.shape[0])
+
     def sample_data(self):
-        """Starts the sampling of the DOE in display.
+        """View changes when the users starts the sampling.
         """
         # disable the generate lhs, sample and export buttons
         self.ui.genLhsPushButton.setEnabled(False)
@@ -230,15 +519,18 @@ class SamplingAssistantDialog(QDialog):
         # reset progress bar value
         self.ui.displayProgressBar.setValue(0)
 
-        # create thread
-        self.sampler = SamplerThread(self.input_design, self.app_data)
+        # start sampling
+        model = self.results_table.model()
+        inp_design = model.input_design
+
+        self.sampler = SamplerThread(inp_design, self.app_data)
         self.sampler.case_sampled.connect(self.on_case_sampled)
         self.sampler.started.connect(self.statBar.clearMessage)
         self.sampler.finished.connect(self.on_sampling_finished)
         self.sampler.start()
 
     def on_case_sampled(self, row: int, sampled_values: dict):
-        """Slot that performs the simulation and displays data in the table.
+        """Slot that updates the progress bar values.
 
         Parameters
         ----------
@@ -247,26 +539,12 @@ class SamplingAssistantDialog(QDialog):
         sampled_values : dict
             Dictionary containing the sampled data
         """
-        sampler_view = self.ui.samplerDisplayTableWidget
-        output_offset = self.input_design.shape[1] + self._INPUT_COL_OFFSET
-
-        # place the convergence flag
-        flag_item = QTableWidgetItem(sampled_values['success'])
-        flag_item.setTextAlignment(Qt.AlignCenter)
-        sampler_view.setItem(1 + row, 1, flag_item)
-
-        # delete the success key
-        del sampled_values['success']
-
-        for col, value in enumerate(sampled_values.values()):
-            value_item = QTableWidgetItem(str(value))
-            value_item.setTextAlignment(Qt.AlignCenter)
-            sampler_view.setItem(1 + row, output_offset + col, value_item)
-
+        model = self.results_table.model()
+        model.on_case_sampled(row, sampled_values)
         self.ui.displayProgressBar.setValue(row)
 
     def on_sampling_finished(self):
-        """Clean up routine executed when the sampling is finished.
+        """View changes when the sampling is finished.
         """
         # enable gen lhs, sample and export buttons
         self.ui.genLhsPushButton.setEnabled(True)
@@ -277,9 +555,6 @@ class SamplingAssistantDialog(QDialog):
 
         # disable the abort button and sample data
         self.ui.abortSamplingPushButton.setEnabled(False)
-
-        # update the internal dataframe variable
-        self._sampled_data = self.get_current_data_in_display()
 
     def abort_sampling_thread(self):
         """Aborts the sampling procedure.
@@ -299,53 +574,10 @@ class SamplingAssistantDialog(QDialog):
                                                       filetype)
 
         if csv_filepath != '':
-            df = self.get_current_data_in_display()
+            model = self.results_table.model()
+            df = model.get_doe_data()
 
             df.to_csv(path_or_buf=csv_filepath, sep=',', index=False)
-
-    def get_current_data_in_display(self) -> pd.DataFrame:
-        """Returns the sampled data in display as a pandas DataFrame
-        """
-        sampler_view = self.ui.samplerDisplayTableWidget
-
-        headers = ['case', 'status'] + \
-            [sampler_view.item(1, col).text()
-             for col in range(self._INPUT_COL_OFFSET,
-                              sampler_view.columnCount())]
-
-        n_rows = sampler_view.rowCount() - self._HEADER_ROW_OFFSET
-        n_cols = sampler_view.columnCount()
-
-        data = np.zeros((n_rows, n_cols), dtype=object)
-        for row in range(n_rows):
-            for col in range(n_cols):
-                data_txt = sampler_view.item(
-                    self._HEADER_ROW_OFFSET + row, col).text()
-
-                data[row, col] = float(data_txt) if col != 1 else data_txt
-
-        return pd.DataFrame(data=data, columns=headers)
-
-    def resizeEvent(self, e: QResizeEvent):
-        """Override to automatically resize column widths.
-        """
-        results_view = self.ui.samplerDisplayTableWidget
-        results_horz_headers = results_view.horizontalHeader()
-
-        # set header view to strecth
-        results_horz_headers.setSectionResizeMode(QHeaderView.Stretch)
-
-        # store the columns width values
-        col_widths = [results_horz_headers.sectionSize(col)
-                      for col in range(results_view.columnCount())]
-
-        if results_view.rowCount() > self._HEADER_ROW_OFFSET:
-            # if the table is not empty, resize the columns
-            results_horz_headers.setSectionResizeMode(QHeaderView.Interactive)
-
-            # resize the columns to the width stored
-            [results_horz_headers.resizeSection(col, value)
-             for col, value in enumerate(col_widths)]
 
 
 if __name__ == "__main__":
