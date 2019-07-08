@@ -58,12 +58,24 @@ class DataStorage(QObject):
                                   'pair_info': {}},
                           'sampled': {}
                           }
+        self._metamodel_data = {
+            'theta': [],
+            'selected': [],
+        }
         # --------------------------- SIGNALS/SLOTS ---------------------------
         # whenever expression data changes, perform a simulation setup check
         self.expr_data_changed.connect(self.check_simulation_setup)
 
         # update doe_mv_bounds whenever aliases data changes
         self.alias_data_changed.connect(self._update_mv_bounds)
+
+        # update theta data whenever aliases data changes
+        self.alias_data_changed.connect(self._update_theta_data)
+
+        # update selected variables data for construction whenever alias or
+        # expression data changes
+        self.alias_data_changed.connect(self._update_selected_data)
+        self.expr_data_changed.connect(self._update_selected_data)
 
         # whenever variable, expression or sampled data changes, perform a DOE
         # setup check
@@ -250,6 +262,32 @@ class DataStorage(QObject):
         else:
             raise TypeError("Sampled data must be a dictionary object")
 
+    @property
+    def metamodel_theta_data(self):
+        """List of dicts containing lower and upper bounds, and estimates of
+        theta values."""
+        return self._metamodel_data['theta']
+
+    @metamodel_theta_data.setter
+    def metamodel_theta_data(self, value: list):
+        if isinstance(value, list):
+            self._metamodel_data['theta'] = value
+        else:
+            raise TypeError("Theta data must be a list of dictionaries.")
+
+    @property
+    def metamodel_selected_data(self):
+        """List of dicts containing info which variables are checked for model
+        construction. Keys are 'Alias', 'Type' and 'Checked'."""
+        return self._metamodel_data['selected']
+
+    @metamodel_selected_data.setter
+    def metamodel_selected_data(self, value: list):
+        if isinstance(value, list):
+            self._metamodel_data['selected'] = value
+        else:
+            raise TypeError("Selected data must be a list of dictionaries.")
+
     # ---------------------------- PRIVATE METHODS ---------------------------
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
             -> None:
@@ -294,6 +332,56 @@ class DataStorage(QObject):
         # store values
         self.doe_mv_bounds = new_bnds
 
+    def _update_theta_data(self) -> None:
+        """Updates the theta list whenever alias data is changed. (SLOT)
+        """
+        # list of aliases that are MV
+        input_aliases = [row['Alias'] for row in self._input_table_data
+                         if row['Type'] == 'Manipulated (MV)']
+
+        # delete the variables that aren't in the mv list
+        new_thetas = [row for row in self._metamodel_data['theta']
+                      if row['Alias'] in input_aliases]
+
+        theta_bnd_list = [row['Alias'] for row in new_thetas]
+
+        # insert new values
+        [new_thetas.append({'Alias': alias, 'lb': 1e-5,
+                            'ub': 1.0e5, 'theta0': 1.0})
+         for alias in input_aliases if alias not in theta_bnd_list]
+
+        # store values
+        self.metamodel_theta_data = new_thetas
+
+    def _update_selected_data(self) -> None:
+        """Updates the list of selected variables for model construction 
+        whenever alias or expression data is changed (SLOT).
+        """
+        # list of variables
+        vars = [{'Alias': row['Alias'], 'Type': row['Type']}
+                for row in self._output_table_data +
+                self._expression_table_data
+                if row['Type'] == 'Candidate (CV)' or
+                row['Type'] == 'Constraint function' or
+                row['Type'] == 'Objective function (J)']
+
+        # list of aliases
+        aliases = [row['Alias'] for row in vars]
+
+        # delete variables that aren't in the list
+        new_vars = [row for row in self._metamodel_data['selected']
+                    if row['Alias'] in aliases]
+
+        vars_list = [row['Alias'] for row in new_vars]
+
+        # insert new variables
+        [new_vars.append({'Alias': var['Alias'], 'Type': var['Type'],
+                          'Checked': False})
+         for var in vars if var['Alias'] not in vars_list]
+
+        # store values
+        self.metamodel_selected_data = new_vars
+
     # ---------------------------- PUBLIC METHODS ----------------------------
     def save(self, output_path: str) -> None:
         """Saves the current data storage in a .mtc file.
@@ -310,8 +398,8 @@ class DataStorage(QObject):
 
         # primary key list:
         #   - 'simulation_info': loadsimtab (implemented)
-        #   - 'doe_info': doetab (partially implemented)
-        #   - 'metacontrol_info' : metacontroltab (NOT implemented)
+        #   - 'doe_info': doetab (implemented)
+        #   - 'metacontrol_info' : metacontroltab (partially implemented)
         app_data = {
             'simulation_info': {
                 'sim_filename': self.simulation_file,
@@ -374,7 +462,7 @@ class DataStorage(QObject):
                    self.output_table_data]
 
         # get expression names
-        expr_names = [row['Name'] for row in self.expression_table_data]
+        expr_names = [row['Alias'] for row in self.expression_table_data]
 
         # get expressions validity
         expr_valid_check = [is_expression_valid(row['Expr'], aliases)
@@ -408,7 +496,7 @@ class DataStorage(QObject):
                        if row['Type'] == 'Manipulated (MV)']
         output_alias = [row['Alias']
                         for row in self.output_table_data]
-        expr_alias = [row['Name'] for row in self.expression_table_data]
+        expr_alias = [row['Alias'] for row in self.expression_table_data]
         aliases = input_alias + output_alias + expr_alias
 
         # build the DataFrame
@@ -442,7 +530,7 @@ class DataStorage(QObject):
             samp_data = pd.DataFrame(columns=df_headers)
 
         # intialize empty dataframe
-        expr_df = pd.DataFrame(columns=[row['Name'] for row in
+        expr_df = pd.DataFrame(columns=[row['Alias'] for row in
                                         self.expression_table_data])
 
         parser = Parser()
@@ -454,7 +542,7 @@ class DataStorage(QObject):
             for expr in self.expression_table_data:
                 expr_to_parse = parser.parse(expr['Expr'])
                 var_list = expr_to_parse.variables()
-                expr_row_values[expr['Name']] = expr_to_parse.evaluate(
+                expr_row_values[expr['Alias']] = expr_to_parse.evaluate(
                     row_val_dict)
 
             # append values to expr_df

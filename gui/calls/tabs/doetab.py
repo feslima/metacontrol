@@ -1,13 +1,11 @@
 import numpy as np
 import pandas as pd
-from py_expression_eval import Parser
-from PyQt5.QtCore import (Qt, QSize, QAbstractTableModel, QModelIndex,
-                          QAbstractItemModel)
-from PyQt5.QtGui import QBrush, QPalette, QFont
+from PyQt5.QtCore import (QAbstractItemModel, QAbstractTableModel, QModelIndex,
+                          QSize, Qt)
+from PyQt5.QtGui import QBrush, QFont, QPalette
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QHeaderView,
                              QTableView, QTableWidgetItem, QWidget)
 
-from gui.calls.base import DoubleEditorDelegate
 from gui.calls.dialogs.csveditor import CsvEditorDialog
 from gui.calls.dialogs.samplingassistant import SamplingAssistantDialog
 from gui.models.data_storage import DataStorage
