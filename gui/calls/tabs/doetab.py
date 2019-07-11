@@ -46,13 +46,13 @@ class DoeResultsModel(QAbstractTableModel):
         self._candidates_alias = [row['Alias']
                                   for row in self.app_data.output_table_data
                                   if row['Type'] == 'Candidate (CV)'] + \
-            [row['Name']
+            [row['Alias']
              for row in self.app_data.expression_table_data
              if row['Type'] == 'Candidate (CV)']
-        self._const_alias = [row['Name']
+        self._const_alias = [row['Alias']
                              for row in self.app_data.expression_table_data
                              if row['Type'] == "Constraint function"]
-        self._obj_alias = [row['Name']
+        self._obj_alias = [row['Alias']
                            for row in self.app_data.expression_table_data
                            if row['Type'] == "Objective function (J)"]
         self._aux_alias = [row['Alias']

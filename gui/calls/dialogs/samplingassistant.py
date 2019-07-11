@@ -34,7 +34,7 @@ class SampledDataTableModel(QAbstractTableModel):
     _INPUT_COL_OFFSET = 2
     _HEADER_ROW_OFFSET = 2
 
-    def __init__(self, application_data: DataStorage(), parent: QTableView):
+    def __init__(self, application_data: DataStorage, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
         self.headers_row1 = ['Case Number', 'Status', 'Inputs', 'Outputs']

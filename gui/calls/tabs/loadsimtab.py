@@ -122,7 +122,7 @@ class ExpressionTableModel(QAbstractTableModel):
         self.beginInsertRows(parent, row, row + count - 1)
 
         # create empty rows
-        new_rows = [{'Name': 'expr_' + str(self.rowCount()),
+        new_rows = [{'Alias': 'expr_' + str(self.rowCount()),
                      'Expr': 'Type a expression',
                      'Type': 'Choose a type'}]
 
@@ -194,11 +194,11 @@ class ExpressionTableModel(QAbstractTableModel):
             aliases = [row['Alias']
                        for row in self.app_data.input_table_data +
                        self.app_data.output_table_data] + \
-                [row['Name'] for row in self.expr_data]
+                [row['Alias'] for row in self.expr_data]
 
         if role == Qt.DisplayRole:
             if col == self._EXPR_NAME_COL:
-                return str(expr_data['Name'])
+                return str(expr_data['Alias'])
             elif col == self._EXPR_EXPR_COL:
                 return str(expr_data['Expr'])
             elif col == self._EXPR_TYPE_COL:
@@ -217,7 +217,7 @@ class ExpressionTableModel(QAbstractTableModel):
             if col == self._EXPR_NAME_COL:
                 # paints red if the current expression name is already an
                 # variable alias
-                if aliases.count(expr_data['Name']) > 1:
+                if aliases.count(expr_data['Alias']) > 1:
                     return QBrush(Qt.red)
                 else:
                     return QBrush(self.parent().palette().brush(QPalette.Base))
@@ -241,7 +241,7 @@ class ExpressionTableModel(QAbstractTableModel):
         elif role == Qt.ToolTipRole:
             # tooltip strings to display
             if col == self._EXPR_NAME_COL:
-                if aliases.count(expr_data['Name']) > 1:
+                if aliases.count(expr_data['Alias']) > 1:
                     return "Name already in use!"
                 else:
                     return ""
@@ -270,7 +270,7 @@ class ExpressionTableModel(QAbstractTableModel):
         expr_data = self.expr_data[row]
 
         if col == self._EXPR_NAME_COL:
-            expr_data['Name'] = value
+            expr_data['Alias'] = value
         elif col == self._EXPR_EXPR_COL:
             expr_data['Expr'] = value
         elif col == self._EXPR_TYPE_COL:
