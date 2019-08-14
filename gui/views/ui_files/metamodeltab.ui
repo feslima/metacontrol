@@ -100,14 +100,14 @@ QGroupBox::title {
           </spacer>
          </item>
          <item row="3" column="0">
-          <widget class="QRadioButton" name="radioButton_2">
+          <widget class="QRadioButton" name="holdOutRadioButton">
            <property name="text">
             <string>Hold out</string>
            </property>
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QRadioButton" name="kFoldRadioButton">
            <property name="text">
             <string>K-Folds</string>
            </property>
@@ -568,7 +568,7 @@ QGroupBox::title {
    </hints>
   </connection>
   <connection>
-   <sender>radioButton</sender>
+   <sender>kFoldRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>kfoldsHorizontalSlider</receiver>
    <slot>setEnabled(bool)</slot>
@@ -584,7 +584,7 @@ QGroupBox::title {
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_2</sender>
+   <sender>holdOutRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>holdoutHorizontalSlider</receiver>
    <slot>setEnabled(bool)</slot>
@@ -600,7 +600,7 @@ QGroupBox::title {
    </hints>
   </connection>
   <connection>
-   <sender>radioButton</sender>
+   <sender>kFoldRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>kfoldsLabel</receiver>
    <slot>setEnabled(bool)</slot>
@@ -616,7 +616,7 @@ QGroupBox::title {
    </hints>
   </connection>
   <connection>
-   <sender>radioButton</sender>
+   <sender>kFoldRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>label_9</receiver>
    <slot>setEnabled(bool)</slot>
@@ -632,7 +632,7 @@ QGroupBox::title {
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_2</sender>
+   <sender>holdOutRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>validationPointsLabel</receiver>
    <slot>setEnabled(bool)</slot>
@@ -648,7 +648,7 @@ QGroupBox::title {
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_2</sender>
+   <sender>holdOutRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>label_8</receiver>
    <slot>setEnabled(bool)</slot>
@@ -664,7 +664,7 @@ QGroupBox::title {
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_2</sender>
+   <sender>holdOutRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>viewPlotPushButton</receiver>
    <slot>setEnabled(bool)</slot>

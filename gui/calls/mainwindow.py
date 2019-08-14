@@ -8,6 +8,7 @@ from gui.models.data_storage import DataStorage
 from gui.views.py_files.mainwindow import Ui_MainWindow
 from gui.calls.tabs.loadsimtab import LoadSimTab
 from gui.calls.tabs.doetab import DoeTab
+from gui.calls.tabs.metamodeltab import MetamodelTab
 
 
 class MainWindow(QMainWindow):
@@ -35,6 +36,9 @@ class MainWindow(QMainWindow):
                                       parent_tab=self.ui.simulationTab)
         self.tab_doe = DoeTab(self.application_database,
                               parent_tab=self.ui.samplingTab)
+        self.tab_metamodel = MetamodelTab(self.application_database,
+                                          parent_tab=self.ui.metamodelTab)
+
         # ------------------------ Actions connections ------------------------
         self.ui.actionOpen.triggered.connect(self.open_file)
         self.ui.actionSave.triggered.connect(self.save_file)
