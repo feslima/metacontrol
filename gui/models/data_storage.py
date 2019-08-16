@@ -62,6 +62,8 @@ class DataStorage(QObject):
             'theta': [],
             'selected': [],
         }
+        self._activity_data = {'activity_info': {}}
+
         # --------------------------- SIGNALS/SLOTS ---------------------------
         # whenever expression data changes, perform a simulation setup check
         self.expr_data_changed.connect(self.check_simulation_setup)
@@ -76,6 +78,10 @@ class DataStorage(QObject):
         # expression data changes
         self.alias_data_changed.connect(self._update_selected_data)
         self.expr_data_changed.connect(self._update_selected_data)
+
+        # update constraint activity data whenever expression datas changes
+        self.alias_data_changed.connect(self._update_constraint_activity)
+        self.expr_data_changed.connect(self._update_constraint_activity)
 
         # whenever variable, expression or sampled data changes, perform a DOE
         # setup check
@@ -288,6 +294,19 @@ class DataStorage(QObject):
         else:
             raise TypeError("Selected data must be a list of dictionaries.")
 
+    @property
+    def active_constraint_info(self):
+        """List containing which variables from the optimization are active or 
+        not."""
+        return self._activity_data['activity_info']
+
+    @active_constraint_info.setter
+    def active_constraint_info(self, value: dict):
+        if isinstance(value, dict):
+            self._activity_data['activity_info'] = value
+        else:
+            raise TypeError("Activity constraint info must be a dictionary.")
+
     # ---------------------------- PRIVATE METHODS ---------------------------
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
             -> None:
@@ -381,6 +400,33 @@ class DataStorage(QObject):
 
         # store values
         self.metamodel_selected_data = new_vars
+
+    def _update_constraint_activity(self) -> None:
+        """Updates the constraint activity info to be displayed whenever 
+        alias data changes (SLOT). Managed to be used by a pandas DataFrame.
+        """
+        # list of variables
+        vars = [{'Alias': row['Alias'], 'Type': row['Type']}
+                for row in self.input_table_data + self._expression_table_data
+                if row['Type'] == 'Manipulated (MV)' or
+                row['Type'] == 'Constraint function']
+
+        # list of aliases
+        aliases = [row['Alias'] for row in vars]
+
+        # delete variables that aren't in the list
+        new_vars = {row: {'Type': self.active_constraint_info[row]['Type'],
+                          'Active': self.active_constraint_info[row]['Active']}
+                    for row in self.active_constraint_info
+                    if row in aliases}
+
+        # insert new variables
+        [new_vars.update({var['Alias']: {'Type': var['Type'],
+                                         'Active': False}})
+         for var in vars if var['Alias'] not in new_vars]
+
+        # store values
+        self.active_constraint_info = new_vars
 
     # ---------------------------- PUBLIC METHODS ----------------------------
     def save(self, output_path: str) -> None:
