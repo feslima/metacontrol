@@ -28,6 +28,7 @@ class DataStorage(QObject):
     expr_data_changed = pyqtSignal()
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
+    reduced_doe_sampled_data_changed = pyqtSignal()
 
     sampling_enabled = pyqtSignal(bool)
     metamodel_enabled = pyqtSignal(bool)
@@ -62,7 +63,13 @@ class DataStorage(QObject):
             'theta': [],
             'selected': [],
         }
+        # TODO: Move activity data into reduced data dictionary
         self._activity_data = {'activity_info': {}}
+        self._reduced_data = {'csv': {'filepath': '',
+                                      'convergence_index': '',
+                                      'pair_info': {}},
+                              'sampled': {}
+                              }
 
         # --------------------------- SIGNALS/SLOTS ---------------------------
         # whenever expression data changes, perform a simulation setup check
@@ -263,7 +270,7 @@ class DataStorage(QObject):
     @doe_sampled_data.setter
     def doe_sampled_data(self, value: dict):
         if isinstance(value, dict):
-            self.evaluate_expr_data(value)
+            self._doe_data['sampled'] = self.evaluate_expr_data(value)
             self.doe_sampled_data_changed.emit()
         else:
             raise TypeError("Sampled data must be a dictionary object")
@@ -306,6 +313,37 @@ class DataStorage(QObject):
             self._activity_data['activity_info'] = value
         else:
             raise TypeError("Activity constraint info must be a dictionary.")
+
+    @property
+    def reduced_doe_csv_settings(self):
+        """Reduced space CSV info (dict) to read/write into csveditor dialog.
+        Keys are: 'filepath', convergence_index, pair_info"""
+        return self._reduced_data['csv']
+
+    @reduced_doe_csv_settings.setter
+    def reduced_doe_csv_settings(self, value):
+        if isinstance(value, dict):
+            key_list = ['filepath', 'convergence_index', 'pair_info']
+            self._check_keys(key_list, value, self._reduced_data['csv'])
+        else:
+            raise TypeError("Reduced space CSV editor settings must be a "
+                            "dictionary object.")
+
+    @property
+    def reduced_doe_sampled_data(self):
+        """Reduced model sampled data dictionary. This dictionary is JSON compatible
+        (dumped from pandas.DataFrame.to_dict('list'))."""
+        return self._reduced_data['sampled']
+
+    @reduced_doe_sampled_data.setter
+    def reduced_doe_sampled_data(self, value):
+        self._reduced_doe_sampled_data = value
+        if isinstance(value, dict):
+            self._reduced_data['sampled'] = self.evaluate_expr_data(value)
+            self.reduced_doe_sampled_data_changed.emit()
+        else:
+            raise TypeError("Reduced model sampled data must be a dictionary "
+                            "object")
 
     # ---------------------------- PRIVATE METHODS ---------------------------
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
@@ -459,12 +497,15 @@ class DataStorage(QObject):
             'doe_info': {
                 'mtc_mv_bounds': self.doe_mv_bounds,
                 'mtc_sampled_data': self.doe_sampled_data
+            },
+            'reduced_space_info': {
+                'mtc_constraint_activity': self.active_constraint_info
             }
         }
 
         # perfom the JSON dump
         with open(output_path, 'w') as mtc_file:
-            json.dump(app_data, mtc_file)
+            json.dump(app_data, mtc_file, indent=4)
 
     def load(self, mtc_filepath: str) -> None:
         """Reads .mtc file data and updates the object attributes.
@@ -493,6 +534,8 @@ class DataStorage(QObject):
         # doetab
         self.doe_mv_bounds = doe_info['mtc_mv_bounds']
         self.doe_sampled_data = doe_info['mtc_sampled_data']
+
+        # reducedpsacetab
 
     def check_simulation_setup(self):
         """Checks if there are aliases and expressions are mathematically
@@ -557,7 +600,7 @@ class DataStorage(QObject):
         else:
             self.metamodel_enabled.emit(False)
 
-    def evaluate_expr_data(self, sampled_data_dict: dict) -> None:
+    def evaluate_expr_data(self, sampled_data_dict: dict) -> dict:
         """Evaluates the expressions and append values to the current sampled
         data.
 
@@ -565,6 +608,11 @@ class DataStorage(QObject):
         ----------
         sampled_data_dict: dict
             Sampled data in dictionary format. (dumped from another Dataframe)
+
+        Returns
+        -------
+        out : dict
+            The complete dataframe with expressions evaluated as a dict
         """
         samp_data = pd.DataFrame(sampled_data_dict)
         df_headers = ['case', 'status'] + [row['Alias']
@@ -600,4 +648,4 @@ class DataStorage(QObject):
             samp_data = samp_data.merge(expr_df, left_index=True,
                                         right_index=True)
 
-        self._doe_data['sampled'] = samp_data.to_dict('list')
+        return samp_data.to_dict(orient='list')
