@@ -1,10 +1,10 @@
 from PyQt5.QtCore import QAbstractTableModel, QObject, Qt, QModelIndex
 from PyQt5.QtWidgets import QApplication, QTableView, QWidget, QHeaderView
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QBrush
 
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.activeconstrainttab import Ui_Form
-from gui.calls.base import CheckBoxDelegate
+from gui.calls.base import CheckBoxDelegate, DoubleEditorDelegate
 
 import pandas as pd
 
@@ -36,11 +36,30 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
+        value = self.con_info.iloc[row, col]
+
         if role == Qt.DisplayRole:
             if self.con_info.index[row] == 'Type':
-                return str(self.con_info.iloc[row, col])
+                return str(value)
+            elif self.con_info.index[row] == 'Value':
+                # display fields only for MV types
+                var_name = self.con_info.columns[col]
+                if self.con_info[var_name]['Type'] == 'Manipulated (MV)':
+                    if value is None:
+                        return 'Type a value'
+                    else:
+                        return str(value)
+                else:
+                    return None
+
             else:
                 return None
+
+        elif role == Qt.BackgroundRole:
+            var_name = self.con_info.columns[col]
+            if value is None and \
+                    self.con_info[var_name]['Type'] == 'Manipulated (MV)':
+                return QBrush(Qt.red)
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
@@ -73,6 +92,18 @@ class ActiveConstraintTableModel(QAbstractTableModel):
             self.app_data.active_constraint_info[alias]['Active'] = set_value
 
             # update the entire row
+            self.dataChanged.emit(index.sibling(row, 0),
+                                  index.sibling(row, self.columnCount()))
+
+            return True
+
+        elif self.con_info.index[row] == 'Value':
+            value = None if value == '' else float(value)
+            self.con_info.iat[row, col] = value
+
+            alias = self.con_info.columns[col]
+            self.app_data.active_constraint_info[alias]['Value'] = value
+
             self.dataChanged.emit(index.sibling(row, 0),
                                   index.sibling(row, self.columnCount()))
 
@@ -114,9 +145,16 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        if self.con_info.index[row] == 'Active':
+        row_type = self.con_info.index[row]
+        var_name = self.con_info.columns[col]
+
+        if row_type == 'Active':
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | \
                 Qt.ItemIsUserCheckable
+        elif row_type == 'Value' and \
+                self.con_info[var_name]['Type'] == 'Manipulated (MV)':
+            # enable editing only for MV values
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled
         else:
             return ~Qt.ItemIsEditable | Qt.ItemIsSelectable
 
@@ -141,7 +179,9 @@ class ActiveConstraintTab(QWidget):
             QHeaderView.Stretch)
 
         self._check_delegate = CheckBoxDelegate()
+        self._value_delegate = DoubleEditorDelegate()
         active_table.setItemDelegateForRow(0, self._check_delegate)
+        active_table.setItemDelegateForRow(2, self._value_delegate)
         # --------------------------- Signals/Slots ---------------------------
         # ---------------------------------------------------------------------
 

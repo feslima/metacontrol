@@ -65,7 +65,8 @@ class DataStorage(QObject):
         }
         # TODO: Move activity data into reduced data dictionary
         self._activity_data = {'activity_info': {}}
-        self._reduced_data = {'csv': {'filepath': '',
+        self._reduced_data = {'d_bounds': [],
+                              'csv': {'filepath': '',
                                       'convergence_index': '',
                                       'pair_info': {}},
                               'sampled': {}
@@ -454,13 +455,15 @@ class DataStorage(QObject):
 
         # delete variables that aren't in the list
         new_vars = {row: {'Type': self.active_constraint_info[row]['Type'],
-                          'Active': self.active_constraint_info[row]['Active']}
+                          'Active': self.active_constraint_info[row]['Active'],
+                          'Value': self.active_constraint_info[row]['Value']}
                     for row in self.active_constraint_info
                     if row in aliases}
 
         # insert new variables
         [new_vars.update({var['Alias']: {'Type': var['Type'],
-                                         'Active': False}})
+                                         'Active': False,
+                                         'Value': None}})
          for var in vars if var['Alias'] not in new_vars]
 
         # store values
