@@ -238,7 +238,8 @@ class CsvEditorDialog(QDialog):
             headers = list(df.columns)
 
             # ask the user which header is the convergence flag
-            conv_dialog = ConvergenceSelectorDialog(headers, self.app_data)
+            conv_dialog = ConvergenceSelectorDialog(headers, self.app_data,
+                                                    mode='original')
 
             if conv_dialog.exec_():
                 # clear the table model

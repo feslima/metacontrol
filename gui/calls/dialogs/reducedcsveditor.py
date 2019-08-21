@@ -59,7 +59,8 @@ class reducedCsvEditorDialog(CsvEditorDialog):
             headers = list(df.columns)
 
             # ask the user which header is the convergence flag
-            conv_dialog = ConvergenceSelectorDialog(headers, self.app_data)
+            conv_dialog = ConvergenceSelectorDialog(headers, self.app_data,
+                                                    mode='reduced')
 
             if conv_dialog.exec_():
                 # clear the table model
@@ -70,7 +71,7 @@ class reducedCsvEditorDialog(CsvEditorDialog):
 
                 # Update the keys in the pair info storage: delete the keys
                 # that aren't in the headers list, and add the elements from
-                #  headers list with default aliases
+                # headers list with default aliases
                 pair_info = self.app_data.reduced_doe_csv_settings['pair_info']
 
                 for key in list(pair_info):
@@ -100,9 +101,13 @@ class reducedCsvEditorDialog(CsvEditorDialog):
                 # grab defined aliases
                 input_alias = [row['Alias'] for row in
                                self.app_data.input_table_data
-                               if row['Type'] == 'Manipulated (MV)']
+                               if row['Type'] == 'Manipulated (MV)' or
+                               row['Type'] == 'Disturbance (d)']
                 output_alias = [row['Alias']
-                                for row in self.app_data.output_table_data]
+                                for row in (self.app_data.output_table_data +
+                                            self.app_data.expression_table_data)
+                                if row['Type'] == 'Candidate (CV)' or
+                                row['Type'] == 'Objective function (J)']
                 aliases = input_alias + output_alias
 
                 # create delegates with reference anchoring
@@ -186,9 +191,10 @@ class reducedCsvEditorDialog(CsvEditorDialog):
 if __name__ == "__main__":
     import sys
     from gui.calls.base import my_exception_hook
+    from tests_.mock_data import DOE_TAB_MOCK_DS
 
     app = QApplication(sys.argv)
-    ds = DataStorage()
+    ds = DOE_TAB_MOCK_DS
     w = reducedCsvEditorDialog(ds)
     w.show()
 

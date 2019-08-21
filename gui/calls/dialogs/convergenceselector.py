@@ -6,7 +6,10 @@ from gui.models.data_storage import DataStorage
 
 
 class ConvergenceSelectorDialog(QDialog):
-    def __init__(self, headers_list: list, application_data: DataStorage):
+    def __init__(self, headers_list: list, application_data: DataStorage,
+                 mode: str = 'original'):
+        """`mode` may assume two values: 'original' (default) or 'reduced'.
+        """
         # ------------------------ Form Initialization ------------------------
         super().__init__()
         self.ui = Ui_Dialog()
@@ -14,6 +17,7 @@ class ConvergenceSelectorDialog(QDialog):
 
         # ------------------------ Internal Variables -------------------------
         self.app_data = application_data
+        self.mode = mode
         # ----------------------- Widget Initialization -----------------------
         combo_box = self.ui.convergenceComboBox
         combo_box.addItems(['Select header'] + headers_list)
@@ -31,7 +35,13 @@ class ConvergenceSelectorDialog(QDialog):
         """
         current_txt = self.ui.convergenceComboBox.currentText()
         if current_txt != 'Select header':
-            self.app_data.doe_csv_settings['convergence_index'] = current_txt
+            if self.mode == 'original':
+                self.app_data.doe_csv_settings['convergence_index'] = \
+                    current_txt
+            else:
+                self.app_data.reduced_doe_csv_settings['convergence_index'] = \
+                    current_txt
+
             self.ui.buttonBox.setEnabled(True)
         else:
             self.ui.buttonBox.setEnabled(False)
