@@ -5184,6 +5184,21 @@
                 "Path": "\\Data\\Blocks\\TOWER\\Input\\D:F",
                 "Alias": "df",
                 "Type": "Manipulated (MV)"
+            },
+            {
+                "Path": "\\Data\\Streams\\FEED\\Input\\VFRAC\\MIXED",
+                "Alias": "phif",
+                "Type": "Disturbance (d)"
+            },
+            {
+                "Path": "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\PROPENE",
+                "Alias": "flow1",
+                "Type": "Disturbance (d)"
+            },
+            {
+                "Path": "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\PROPANE",
+                "Alias": "flow2",
+                "Type": "Disturbance (d)"
             }
         ],
         "mtc_output_table": [
@@ -5269,6 +5284,48 @@
                 "ub": 1.0
             }
         ],
-        "mtc_sampled_data": {}
+        "mtc_sampled_data": {
+            "case": [],
+            "status": [],
+            "rr": [],
+            "df": [],
+            "d": [],
+            "xb": [],
+            "b": [],
+            "qr": [],
+            "l": [],
+            "v": [],
+            "f": [],
+            "xd": [],
+            "lf": [],
+            "vf": [],
+            "c1": [],
+            "c2": [],
+            "j": []
+        }
+    },
+    "reduced_space_info": {
+        "mtc_constraint_activity": {
+            "rr": {
+                "Type": "Manipulated (MV)",
+                "Active": false,
+                "Value": null
+            },
+            "df": {
+                "Type": "Manipulated (MV)",
+                "Active": false,
+                "Value": null
+            },
+            "c1": {
+                "Type": "Constraint function",
+                "Active": false,
+                "Value": null
+            },
+            "c2": {
+                "Type": "Constraint function",
+                "Active": false,
+                "Value": null
+            }
+        }
     }
 }

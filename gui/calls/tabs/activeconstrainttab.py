@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QAbstractTableModel, QObject, Qt, QModelIndex
 from PyQt5.QtWidgets import QApplication, QTableView, QWidget, QHeaderView
-from PyQt5.QtGui import QFont, QBrush
+from PyQt5.QtGui import QFont, QBrush, QPalette
 
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.activeconstrainttab import Ui_Form
@@ -46,7 +46,7 @@ class ActiveConstraintTableModel(QAbstractTableModel):
                 var_name = self.con_info.columns[col]
                 if self.con_info[var_name]['Type'] == 'Manipulated (MV)':
                     if value is None:
-                        return 'Type a value'
+                        return 'Type an optimal value'
                     else:
                         return str(value)
                 else:
@@ -159,6 +159,114 @@ class ActiveConstraintTableModel(QAbstractTableModel):
             return ~Qt.ItemIsEditable | Qt.ItemIsSelectable
 
 
+class RangeOfDisturbanceTableModel(QAbstractTableModel):
+    def __init__(self, app_data: DataStorage, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+        self.app_data = app_data
+        self.load_data()
+        self.headers = ["Disturbance variable", "Lower bound", "Upper bound"]
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+
+        self.d_bounds = self.app_data.reduced_doe_d_bounds
+
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return len(self.d_bounds)
+
+    def columnCount(self, parent=None):
+        return len(self.headers)
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.headers[section]
+
+            else:
+                return None
+
+        elif role == Qt.FontRole:
+            if orientation == Qt.Horizontal or orientation == Qt.Vertical:
+                df_font = QFont()
+                df_font.setBold(True)
+                return df_font
+            else:
+                return None
+        else:
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        d_data = self.d_bounds[row]
+
+        if role == Qt.DisplayRole:
+            if col == 0:
+                return str(d_data['name'])
+            elif col == 1:
+                return str(d_data['lb'])
+            elif col == 2:
+                return str(d_data['ub'])
+            else:
+                return None
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        elif role == Qt.BackgroundRole:
+            if col == 1 or col == 2:
+                if d_data['lb'] >= d_data['ub']:
+                    return QBrush(Qt.red)
+                else:
+                    return QBrush(self.parent().palette().brush(QPalette.Base))
+            else:
+                return None
+
+        elif role == Qt.ToolTipRole:
+            if col == 1 or col == 2:
+                if d_data['lb'] >= d_data['ub']:
+                    return "Lower bound can't be greater than upper bound!"
+                else:
+                    return ""
+            else:
+                return None
+
+        else:
+            return None
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole or not index.isValid():
+            return False
+
+        row = index.row()
+        col = index.column()
+
+        var_data = self.d_bounds[row]
+
+        if col == 1:
+            var_data['lb'] = float(value)
+        elif col == 2:
+            var_data['ub'] = float(value)
+        else:
+            return False
+
+        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
+        return True
+
+    def flags(self, index: QModelIndex):
+        if index.column() != 0:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
+
+
 class ActiveConstraintTab(QWidget):
     def __init__(self, application_database: DataStorage, parent_tab=None):
         # ------------------------ Form Initialization ------------------------
@@ -182,6 +290,13 @@ class ActiveConstraintTab(QWidget):
         self._value_delegate = DoubleEditorDelegate()
         active_table.setItemDelegateForRow(0, self._check_delegate)
         active_table.setItemDelegateForRow(2, self._value_delegate)
+
+        dist_table = self.ui.disturbanceRangeTableView
+        dist_model = RangeOfDisturbanceTableModel(self.application_database,
+                                                  parent=dist_table)
+        dist_table.setModel(dist_model)
+        dist_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
         # --------------------------- Signals/Slots ---------------------------
         # ---------------------------------------------------------------------
 

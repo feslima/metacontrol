@@ -97,6 +97,9 @@ class DataStorage(QObject):
         self.expr_data_changed.connect(self.check_sampling_setup)
         self.doe_sampled_data_changed.connect(self.check_sampling_setup)
 
+        # update reduced_doe_d_bounds whenever aliases data changes
+        self.alias_data_changed.connect(self._update_d_bounds)
+
     # ------------------------------ PROPERTIES ------------------------------
     @property
     def simulation_file(self):
@@ -331,6 +334,19 @@ class DataStorage(QObject):
                             "dictionary object.")
 
     @property
+    def reduced_doe_d_bounds(self):
+        """List of dicts containing the D's and its bounds to be displayed
+        or modified in doetab. Keys are: 'name', 'lb', 'ub'."""
+        return self._reduced_data['d_bounds']
+
+    @reduced_doe_d_bounds.setter
+    def reduced_doe_d_bounds(self, value: list):
+        if isinstance(value, list):
+            self._reduced_data['d_bounds'] = value
+        else:
+            raise TypeError("Disturbance bounds table data must be a list.")
+
+    @property
     def reduced_doe_sampled_data(self):
         """Reduced model sampled data dictionary. This dictionary is JSON compatible
         (dumped from pandas.DataFrame.to_dict('list'))."""
@@ -373,8 +389,7 @@ class DataStorage(QObject):
         """Updates the MV bounds data whenever alias data is changed. (SLOT)
         """
         # list of aliases that are MV
-        mv_aliases = [row['Alias'] for row in self._input_table_data +
-                      self._output_table_data
+        mv_aliases = [row['Alias'] for row in self._input_table_data
                       if row['Type'] == 'Manipulated (MV)']
 
         # delete the variables that aren't in the mv list
@@ -468,6 +483,26 @@ class DataStorage(QObject):
 
         # store values
         self.active_constraint_info = new_vars
+
+    def _update_d_bounds(self) -> None:
+        """Updates the D bounds data whenever alias data is changed. (SLOT)
+        """
+        # list of aliases that are D
+        d_aliases = [row['Alias'] for row in self._input_table_data
+                     if row['Type'] == 'Disturbance (d)']
+
+        # delete the variables that aren't in the mv list
+        new_bnds = [row for _, row in enumerate(self._reduced_data['d_bounds'])
+                    if row['name'] in d_aliases]
+
+        d_bnd_list = [row['name'] for row in new_bnds]
+
+        # insert new values
+        [new_bnds.append({'name': alias, 'lb': 0.0, 'ub': 1.0}) for alias
+         in d_aliases if alias not in d_bnd_list]
+
+        # store values
+        self.reduced_doe_d_bounds = new_bnds
 
     # ---------------------------- PUBLIC METHODS ----------------------------
     def save(self, output_path: str) -> None:
@@ -620,7 +655,8 @@ class DataStorage(QObject):
         samp_data = pd.DataFrame(sampled_data_dict)
         df_headers = ['case', 'status'] + [row['Alias']
                                            for row in self.input_table_data +
-                                           self.output_table_data]
+                                           self.output_table_data
+                                           if row['Type'] != "Disturbance (d)"]
         if not samp_data.empty:
             samp_data = samp_data[df_headers]
         else:
