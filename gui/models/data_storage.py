@@ -28,10 +28,12 @@ class DataStorage(QObject):
     expr_data_changed = pyqtSignal()
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
+    reduced_doe_constraint_activity_changed = pyqtSignal()
     reduced_doe_sampled_data_changed = pyqtSignal()
 
     sampling_enabled = pyqtSignal(bool)
     metamodel_enabled = pyqtSignal(bool)
+    hessian_enabled = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -96,6 +98,10 @@ class DataStorage(QObject):
         self.alias_data_changed.connect(self.check_sampling_setup)
         self.expr_data_changed.connect(self.check_sampling_setup)
         self.doe_sampled_data_changed.connect(self.check_sampling_setup)
+
+        # whenever constraint activity info changes, perform a setup check
+        self.reduced_doe_constraint_activity_changed.connect(
+            self.check_reduced_space_setup)
 
         # update reduced_doe_d_bounds whenever aliases data changes
         self.alias_data_changed.connect(self._update_d_bounds)
@@ -315,6 +321,7 @@ class DataStorage(QObject):
     def active_constraint_info(self, value: dict):
         if isinstance(value, dict):
             self._activity_data['activity_info'] = value
+            self.reduced_doe_constraint_activity_changed.emit()
         else:
             raise TypeError("Activity constraint info must be a dictionary.")
 
@@ -471,14 +478,16 @@ class DataStorage(QObject):
         # delete variables that aren't in the list
         new_vars = {row: {'Type': self.active_constraint_info[row]['Type'],
                           'Active': self.active_constraint_info[row]['Active'],
-                          'Value': self.active_constraint_info[row]['Value']}
+                          'Value': self.active_constraint_info[row]['Value'],
+                          'Pairing': self.active_constraint_info[row]['Pairing']}
                     for row in self.active_constraint_info
                     if row in aliases}
 
         # insert new variables
         [new_vars.update({var['Alias']: {'Type': var['Type'],
                                          'Active': False,
-                                         'Value': None}})
+                                         'Value': None,
+                                         'Pairing': None}})
          for var in vars if var['Alias'] not in new_vars]
 
         # store values
@@ -637,6 +646,42 @@ class DataStorage(QObject):
             self.metamodel_enabled.emit(True)
         else:
             self.metamodel_enabled.emit(False)
+
+    def check_reduced_space_setup(self):
+        """Check if the reduced space setup is properly set.
+
+        If everything is ok, emits a signal with a boolean value where True
+        means that the hessian extraction phase is good to go, otherwise
+        the value is False.
+        """
+        # FIXME: Case where there is not active constraint selected is not
+        # treated. What to do? Proceed or not?
+        cact_df = pd.DataFrame(self.active_constraint_info)
+
+        # check if the optimum mv values are set
+        mv_var_idx = cact_df.loc['Type', :] == 'Manipulated (MV)'
+        mv_values = cact_df.loc['Value', mv_var_idx]
+        is_mv_set = mv_values.notna().all()
+
+        # check if the pairing MVs aren't repeated
+        active_con_funs = cact_df.loc['Active', :].astype(bool)
+        not_mvs_active = cact_df.columns[~mv_var_idx & active_con_funs]
+        pairings = cact_df.loc['Pairing', not_mvs_active]
+        is_pairing_repeated = pairings.duplicated().sum() > 0
+
+        # check if the pairings are defined
+        is_pairing_defined = not pairings.isna().any()
+
+        # check if reduced space doe is sampled
+        red_df = pd.DataFrame(self.reduced_doe_sampled_data)
+
+        is_sampling_empty = red_df.empty
+
+        if is_mv_set and not is_pairing_repeated and is_pairing_defined and \
+                not is_sampling_empty:
+            self.hessian_enabled.emit(True)
+        else:
+            self.hessian_enabled.emit(False)
 
     def evaluate_expr_data(self, sampled_data_dict: dict) -> dict:
         """Evaluates the expressions and append values to the current sampled

@@ -12,7 +12,7 @@ from gui.views.py_files.csveditor import Ui_Dialog
 from gui.calls.base import ComboBoxDelegate, CheckBoxDelegate, warn_the_user
 
 
-class reducedPandasModel(pandasModel):
+class ReducedPandasModel(pandasModel):
     def __init__(self, dataframe: pd.DataFrame, parent: QObject,
                  app_data: DataStorage):
         QAbstractTableModel.__init__(self, parent)
@@ -32,7 +32,7 @@ class reducedPandasModel(pandasModel):
             self._pair_info = pair_info
 
 
-class reducedCsvEditorDialog(CsvEditorDialog):
+class ReducedCsvEditorDialog(CsvEditorDialog):
     def open_csv_file(self):
         homedir = str(pathlib.Path().home())
         dialog_title = "Select .csv containing the DOE data."
@@ -93,7 +93,7 @@ class reducedCsvEditorDialog(CsvEditorDialog):
                 df = df.reindex(columns=headers)
 
                 # create and set models and set row delegates
-                table_model = reducedPandasModel(dataframe=df,
+                table_model = ReducedPandasModel(dataframe=df,
                                                  app_data=self.app_data,
                                                  parent=display_view)
                 display_view.setModel(table_model)
@@ -104,10 +104,7 @@ class reducedCsvEditorDialog(CsvEditorDialog):
                                if row['Type'] == 'Manipulated (MV)' or
                                row['Type'] == 'Disturbance (d)']
                 output_alias = [row['Alias']
-                                for row in (self.app_data.output_table_data +
-                                            self.app_data.expression_table_data)
-                                if row['Type'] == 'Candidate (CV)' or
-                                row['Type'] == 'Objective function (J)']
+                                for row in self.app_data.output_table_data]
                 aliases = input_alias + output_alias
 
                 # create delegates with reference anchoring
@@ -182,7 +179,7 @@ class reducedCsvEditorDialog(CsvEditorDialog):
                           value=range(1, df.shape[0] + 1))
 
                 # convert to dict and store in application data
-                self.app_data.doe_sampled_data = df.to_dict('list')
+                self.app_data.reduced_doe_sampled_data = df.to_dict('list')
 
                 # close the dialog
                 self.close()
@@ -195,7 +192,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     ds = DOE_TAB_MOCK_DS
-    w = reducedCsvEditorDialog(ds)
+    w = ReducedCsvEditorDialog(ds)
     w.show()
 
     sys.excepthook = my_exception_hook

@@ -1,12 +1,13 @@
-from PyQt5.QtCore import QAbstractTableModel, QObject, Qt, QModelIndex
-from PyQt5.QtWidgets import QApplication, QTableView, QWidget, QHeaderView
-from PyQt5.QtGui import QFont, QBrush, QPalette
+import pandas as pd
+from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QObject,
+                          QStringListModel, Qt)
+from PyQt5.QtGui import QBrush, QFont, QPalette
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTableView, QWidget
 
+from gui.calls.base import (CheckBoxDelegate, ComboBoxDelegate,
+                            DoubleEditorDelegate)
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.activeconstrainttab import Ui_Form
-from gui.calls.base import CheckBoxDelegate, DoubleEditorDelegate
-
-import pandas as pd
 
 
 class ActiveConstraintTableModel(QAbstractTableModel):
@@ -52,6 +53,16 @@ class ActiveConstraintTableModel(QAbstractTableModel):
                 else:
                     return None
 
+            elif self.con_info.index[row] == 'Pairing':
+                var_name = self.con_info.columns[col]
+                if self.con_info[var_name]['Type'] != 'Manipulated (MV)':
+                    if value is None:
+                        return "Select a MV"
+                    else:
+                        return str(value)
+                else:
+                    return None
+
             else:
                 return None
 
@@ -59,7 +70,19 @@ class ActiveConstraintTableModel(QAbstractTableModel):
             var_name = self.con_info.columns[col]
             if value is None and \
                     self.con_info[var_name]['Type'] == 'Manipulated (MV)':
-                return QBrush(Qt.red)
+                if self.con_info.index[row] == 'Value':
+                    # paint cell red if no value is defined for the MVs
+                    return QBrush(Qt.red)
+
+            if self.con_info.index[row] == 'Pairing' and \
+                    self.con_info[var_name]['Type'] != 'Manipulated (MV)' and \
+                    self.con_info.loc['Active', var_name] == True:
+                # paint cell red if no pairing is selected and the active
+                # variable is a constraint (do not paint cells corresponding to
+                # MV's)
+                if self.con_info[var_name]['Pairing'] is None or \
+                        (self.con_info.loc['Pairing', :] == self.con_info[var_name]['Pairing']).sum() > 1:
+                    return QBrush(Qt.red)
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
@@ -83,17 +106,20 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
+        alias = self.con_info.columns[col]
+
         if self.con_info.index[row] == 'Active':
             set_value = True if value == 1 else False
             self.con_info.iat[row, col] = set_value
 
             # change corresponding data in app storage
-            alias = self.con_info.columns[col]
             self.app_data.active_constraint_info[alias]['Active'] = set_value
 
             # update the entire row
             self.dataChanged.emit(index.sibling(row, 0),
                                   index.sibling(row, self.columnCount()))
+
+            self.app_data.reduced_doe_constraint_activity_changed.emit()
 
             return True
 
@@ -101,11 +127,25 @@ class ActiveConstraintTableModel(QAbstractTableModel):
             value = None if value == '' else float(value)
             self.con_info.iat[row, col] = value
 
-            alias = self.con_info.columns[col]
             self.app_data.active_constraint_info[alias]['Value'] = value
 
             self.dataChanged.emit(index.sibling(row, 0),
                                   index.sibling(row, self.columnCount()))
+
+            self.app_data.reduced_doe_constraint_activity_changed.emit()
+
+            return True
+
+        elif self.con_info.index[row] == 'Pairing':
+            value == None if value == 'Select a MV' else value
+            self.con_info.iat[row, col] = value
+
+            self.app_data.active_constraint_info[alias]['Pairing'] = value
+
+            self.dataChanged.emit(index.sibling(row, 0),
+                                  index.sibling(row, self.columnCount()))
+
+            self.app_data.reduced_doe_constraint_activity_changed.emit()
 
             return True
 
@@ -151,10 +191,22 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         if row_type == 'Active':
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | \
                 Qt.ItemIsUserCheckable
+
         elif row_type == 'Value' and \
                 self.con_info[var_name]['Type'] == 'Manipulated (MV)':
             # enable editing only for MV values
             return Qt.ItemIsEditable | Qt.ItemIsEnabled
+
+        elif row_type == 'Pairing' and \
+                self.con_info[var_name]['Type'] != 'Manipulated (MV)':
+            # enable pairing dropdown if the constraints marked as active are
+            # not MV's
+            if self.con_info.loc['Active', var_name] == True:
+                return Qt.ItemIsEditable | Qt.ItemIsEnabled
+            else:
+                return ~Qt.ItemIsEditable & ~Qt.ItemIsEnabled | \
+                    Qt.ItemIsSelectable
+
         else:
             return ~Qt.ItemIsEditable | Qt.ItemIsSelectable
 
@@ -288,7 +340,14 @@ class ActiveConstraintTab(QWidget):
 
         self._check_delegate = CheckBoxDelegate()
         self._value_delegate = DoubleEditorDelegate()
+
+        mv_list = [row['Alias']
+                   for row in self.application_database.input_table_data
+                   if row['Type'] == 'Manipulated (MV)']
+        self._pairing_delegate = ComboBoxDelegate(item_list=mv_list)
+
         active_table.setItemDelegateForRow(0, self._check_delegate)
+        active_table.setItemDelegateForRow(1, self._pairing_delegate)
         active_table.setItemDelegateForRow(2, self._value_delegate)
 
         dist_table = self.ui.disturbanceRangeTableView
