@@ -147,7 +147,7 @@ class ExpressionTableModel(QAbstractTableModel):
         del self.expr_data[row: (row + count)]
 
         self.endRemoveRows()
-        self.app_data.expression_table_data = expr_data
+        self.app_data.expression_table_data = self.expr_data
         self.app_data.expr_data_changed.emit()
         return True
 
