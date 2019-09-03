@@ -7,7 +7,9 @@ from PyQt5.QtWidgets import QApplication, QHeaderView, QTableView, QWidget
 from gui.calls.base import (CheckBoxDelegate, ComboBoxDelegate,
                             DoubleEditorDelegate)
 from gui.models.data_storage import DataStorage
-from gui.views.py_files.activeconstrainttab import Ui_Form
+from gui.views.py_files.reducedspacetab import Ui_Form
+from gui.calls.tabs.doetab import DoeResultsModel, DoeResultsView
+from gui.calls.dialogs.reducedcsveditor import ReducedCsvEditorDialog
 
 
 class ActiveConstraintTableModel(QAbstractTableModel):
@@ -211,6 +213,45 @@ class ActiveConstraintTableModel(QAbstractTableModel):
             return ~Qt.ItemIsEditable | Qt.ItemIsSelectable
 
 
+class ReducedDoeResultsModel(DoeResultsModel):
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+        data = pd.DataFrame(self.app_data.reduced_doe_sampled_data)
+
+        self._input_alias = [row['Alias']
+                             for row in self.app_data.input_table_data
+                             if row['Type'] == 'Manipulated (MV)']
+        self._candidates_alias = [row['Alias']
+                                  for row in self.app_data.output_table_data
+                                  if row['Type'] == 'Candidate (CV)'] + \
+            [row['Alias']
+             for row in self.app_data.expression_table_data
+             if row['Type'] == 'Candidate (CV)']
+        self._const_alias = [row['Alias']
+                             for row in self.app_data.expression_table_data
+                             if row['Type'] == "Constraint function"]
+        self._obj_alias = [row['Alias']
+                           for row in self.app_data.expression_table_data
+                           if row['Type'] == "Objective function (J)"]
+        self._aux_alias = [row['Alias']
+                           for row in self.app_data.input_table_data +
+                           self.app_data.output_table_data
+                           if row['Type'] == 'Auxiliary']
+
+        header_list = self._input_alias + self._candidates_alias + \
+            self._const_alias + self._obj_alias + self._aux_alias
+
+        # extract the inputs, candidate outputs and expression data
+        if not data.empty:
+            self._case_data = data.pop('case')
+            self._stat_data = data.pop('status')
+
+        self._data = data[header_list]
+
+        self.layoutChanged.emit()
+
+
 class RangeOfDisturbanceTableModel(QAbstractTableModel):
     def __init__(self, app_data: DataStorage, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
@@ -356,8 +397,28 @@ class ActiveConstraintTab(QWidget):
         dist_table.setModel(dist_model)
         dist_table.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
+
+        results_table = self.ui.reducedDataResultTableView
+        results_model = ReducedDoeResultsModel(self.application_database,
+                                               parent=results_table)
+        results_table.setModel(results_model)
+        results_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
         # --------------------------- Signals/Slots ---------------------------
+        # open the reduced space csv editor dialog
+        self.ui.openCsvEditorPushButton.clicked.connect(
+            self.open_reduced_csv_editor)
+
+        # whenever reduced doe sampled data changes, update the table
+        self.application_database.reduced_doe_sampled_data_changed.connect(
+            results_model.load_data
+        )
         # ---------------------------------------------------------------------
+
+    def open_reduced_csv_editor(self):
+        dialog = ReducedCsvEditorDialog(self.application_database)
+        dialog.exec_()
 
 
 if __name__ == "__main__":

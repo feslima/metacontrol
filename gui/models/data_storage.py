@@ -313,8 +313,8 @@ class DataStorage(QObject):
 
     @property
     def active_constraint_info(self):
-        """List containing which variables from the optimization are active or 
-        not."""
+        """Dictionary containing which variables from the optimization are
+        active or not."""
         return self._activity_data['activity_info']
 
     @active_constraint_info.setter
@@ -546,7 +546,9 @@ class DataStorage(QObject):
                 'mtc_sampled_data': self.doe_sampled_data
             },
             'reduced_space_info': {
-                'mtc_constraint_activity': self.active_constraint_info
+                'mtc_constraint_activity': self.active_constraint_info,
+                'mtc_reduced_d_bounds': self.reduced_doe_d_bounds,
+                'mtc_reduced_sampled_data': self.reduced_doe_sampled_data
             }
         }
 
@@ -568,6 +570,7 @@ class DataStorage(QObject):
 
         sim_info = app_data['simulation_info']
         doe_info = app_data['doe_info']
+        redspace_info = app_data['reduced_space_info']
 
         # loadsimtab
         self.simulation_file = sim_info['sim_filename']
@@ -583,6 +586,9 @@ class DataStorage(QObject):
         self.doe_sampled_data = doe_info['mtc_sampled_data']
 
         # reducedpsacetab
+        self.active_constraint_info = redspace_info['mtc_constraint_activity']
+        self.reduced_doe_d_bounds = redspace_info['mtc_reduced_d_bounds']
+        self.reduced_doe_sampled_data = redspace_info['mtc_reduced_sampled_data']
 
     def check_simulation_setup(self):
         """Checks if there are aliases and expressions are mathematically
@@ -658,24 +664,31 @@ class DataStorage(QObject):
         # treated. What to do? Proceed or not?
         cact_df = pd.DataFrame(self.active_constraint_info)
 
-        # check if the optimum mv values are set
-        mv_var_idx = cact_df.loc['Type', :] == 'Manipulated (MV)'
-        mv_values = cact_df.loc['Value', mv_var_idx]
-        is_mv_set = mv_values.notna().all()
+        if not cact_df.empty:
+            # check if the optimum mv values are set
+            mv_var_idx = cact_df.loc['Type', :] == 'Manipulated (MV)'
+            mv_values = cact_df.loc['Value', mv_var_idx]
+            is_mv_set = mv_values.notna().all()
 
-        # check if the pairing MVs aren't repeated
-        active_con_funs = cact_df.loc['Active', :].astype(bool)
-        not_mvs_active = cact_df.columns[~mv_var_idx & active_con_funs]
-        pairings = cact_df.loc['Pairing', not_mvs_active]
-        is_pairing_repeated = pairings.duplicated().sum() > 0
+            # check if the pairing MVs aren't repeated
+            active_con_funs = cact_df.loc['Active', :].astype(bool)
+            not_mvs_active = cact_df.columns[~mv_var_idx & active_con_funs]
+            pairings = cact_df.loc['Pairing', not_mvs_active]
+            is_pairing_repeated = pairings.duplicated().sum() > 0
 
-        # check if the pairings are defined
-        is_pairing_defined = not pairings.isna().any()
+            # check if the pairings are defined
+            is_pairing_defined = not pairings.isna().any()
 
-        # check if reduced space doe is sampled
-        red_df = pd.DataFrame(self.reduced_doe_sampled_data)
+            # check if reduced space doe is sampled
+            red_df = pd.DataFrame(self.reduced_doe_sampled_data)
 
-        is_sampling_empty = red_df.empty
+            is_sampling_empty = red_df.empty
+        else:
+            # empty active contraint info object
+            is_mv_set = False
+            is_pairing_repeated = True
+            is_pairing_defined = False
+            is_sampling_empty = True
 
         if is_mv_set and not is_pairing_repeated and is_pairing_defined and \
                 not is_sampling_empty:

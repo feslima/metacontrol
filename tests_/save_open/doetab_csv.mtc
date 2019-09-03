@@ -5887,23 +5887,58 @@
             "rr": {
                 "Type": "Manipulated (MV)",
                 "Active": false,
-                "Value": null
+                "Value": null,
+                "Pairing": null
             },
             "df": {
                 "Type": "Manipulated (MV)",
                 "Active": false,
-                "Value": null
+                "Value": null,
+                "Pairing": null
             },
             "c1": {
                 "Type": "Constraint function",
                 "Active": false,
-                "Value": null
+                "Value": null,
+                "Pairing": null
             },
             "c2": {
                 "Type": "Constraint function",
                 "Active": false,
-                "Value": null
+                "Value": null,
+                "Pairing": null
             }
+        },
+        "mtc_reduced_d_bounds": [
+            {
+                "name": "phif",
+                "lb": 0.0,
+                "ub": 1.0
+            },
+            {
+                "name": "flow1",
+                "lb": 0.0,
+                "ub": 1.0
+            },
+            {
+                "name": "flow2",
+                "lb": 0.0,
+                "ub": 1.0
+            }
+        ],
+        "mtc_reduced_sampled_data": {
+            "case": [],
+            "status": [],
+            "rr": [],
+            "df": [],
+            "d": [],
+            "xb": [],
+            "b": [],
+            "qr": [],
+            "l": [],
+            "v": [],
+            "f": [],
+            "xd": []
         }
     }
 }
