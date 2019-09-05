@@ -41,3 +41,8 @@ CSVEDIT_PAIRINFO_MOCK = {'B': {'alias': 'b', 'status': True},
                          'V': {'alias': 'v', 'status': True},
                          'XB': {'alias': 'xb', 'status': True},
                          'XD': {'alias': 'xd', 'status': True}}
+
+# reduced space tab
+REDSPACE_TAB_MOCK_DS = DataStorage()
+REDSPACE_TAB_MOCK_DS.load(MTC_FOLDER_PATH / "reducedspacetab.mtc")
+REDSPACE_TAB_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)

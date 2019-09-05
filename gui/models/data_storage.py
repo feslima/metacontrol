@@ -73,6 +73,10 @@ class DataStorage(QObject):
                                       'pair_info': {}},
                               'sampled': {}
                               }
+        self._hessian_data = {'metamodel_data': {'theta': [],
+                                                 'selected': []
+                                                 }
+                              }
 
         # --------------------------- SIGNALS/SLOTS ---------------------------
         # whenever expression data changes, perform a simulation setup check
@@ -105,6 +109,18 @@ class DataStorage(QObject):
 
         # update reduced_doe_d_bounds whenever aliases data changes
         self.alias_data_changed.connect(self._update_d_bounds)
+
+        # update reduced theta data whenever aliases or constraint activity
+        # changes
+        self.alias_data_changed.connect(self._update_reduced_theta_data)
+        self.reduced_doe_constraint_activity_changed.connect(
+            self._update_reduced_theta_data)
+
+        # update selected variables data for construction whenever constraint
+        # activity data changes
+        self.reduced_doe_constraint_activity_changed.connect(
+            self._update_reduced_selected_data
+        )
 
     # ------------------------------ PROPERTIES ------------------------------
     @property
@@ -280,7 +296,8 @@ class DataStorage(QObject):
     @doe_sampled_data.setter
     def doe_sampled_data(self, value: dict):
         if isinstance(value, dict):
-            self._doe_data['sampled'] = self.evaluate_expr_data(value)
+            self._doe_data['sampled'] = self.evaluate_expr_data(
+                value, 'original')
             self.doe_sampled_data_changed.emit()
         else:
             raise TypeError("Sampled data must be a dictionary object")
@@ -363,11 +380,39 @@ class DataStorage(QObject):
     def reduced_doe_sampled_data(self, value):
         self._reduced_doe_sampled_data = value
         if isinstance(value, dict):
-            self._reduced_data['sampled'] = self.evaluate_expr_data(value)
+            self._reduced_data['sampled'] = self.evaluate_expr_data(
+                value, 'reduced')
             self.reduced_doe_sampled_data_changed.emit()
         else:
             raise TypeError("Reduced model sampled data must be a dictionary "
                             "object")
+
+    @property
+    def reduced_metamodel_theta_data(self):
+        """List of dicts containing lower and upper bounds, and estimates of
+        reduced space variables theta values."""
+        return self._hessian_data['metamodel_data']['theta']
+
+    @reduced_metamodel_theta_data.setter
+    def reduced_metamodel_theta_data(self, value):
+        if isinstance(value, list):
+            self._hessian_data['metamodel_data']['theta'] = value
+        else:
+            raise TypeError(
+                "Reduced theta data must be a list of dictionaries.")
+
+    @property
+    def reduced_metamodel_selected_data(self):
+        """Updates the list of selected variables for reduced model
+        construction whenever alias or expression data is changed (SLOT)."""
+        return self._hessian_data['metamodel_data']['selected']
+
+    @reduced_metamodel_selected_data.setter
+    def reduced_metamodel_selected_data(self, value):
+        if isinstance(value, list):
+            self._hessian_data['metamodel_data']['selected'] = value
+        else:
+            raise TypeError("Selected data must be a list of dictionaries.")
 
     # ---------------------------- PRIVATE METHODS ---------------------------
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
@@ -434,7 +479,7 @@ class DataStorage(QObject):
         self.metamodel_theta_data = new_thetas
 
     def _update_selected_data(self) -> None:
-        """Updates the list of selected variables for model construction 
+        """Updates the list of selected variables for model construction
         whenever alias or expression data is changed (SLOT).
         """
         # list of variables
@@ -463,14 +508,15 @@ class DataStorage(QObject):
         self.metamodel_selected_data = new_vars
 
     def _update_constraint_activity(self) -> None:
-        """Updates the constraint activity info to be displayed whenever 
+        """Updates the constraint activity info to be displayed whenever
         alias data changes (SLOT). Managed to be used by a pandas DataFrame.
         """
         # list of variables
         vars = [{'Alias': row['Alias'], 'Type': row['Type']}
-                for row in self.input_table_data + self._expression_table_data
+                for row in self.input_table_data + self.output_table_data +
+                self._expression_table_data
                 if row['Type'] == 'Manipulated (MV)' or
-                row['Type'] == 'Constraint function']
+                row['Type'] == 'Candidate (CV)']
 
         # list of aliases
         aliases = [row['Alias'] for row in vars]
@@ -513,7 +559,89 @@ class DataStorage(QObject):
         # store values
         self.reduced_doe_d_bounds = new_bnds
 
+    def _update_reduced_theta_data(self) -> None:
+        """Updates the reduced model theta list whenever alias data is changed.
+        (SLOT) - associated with alias and constraint activity change.
+        """
+
+        # list of aliases that are disturbances and not paired (consumed) MVs.
+        dist_aliases = [row['Alias'] for row in self.input_table_data
+                        if row['Type'] == 'Disturbance (d)']
+
+        # get the consumed aliases from constraint activity info where the
+        # type of paired alias is active and not manipulated.
+        con_act = self.active_constraint_info
+        consumed_aliases = [con_act[con]['Pairing']
+                            for con in con_act
+                            if con_act[con]['Type'] != 'Manipulated (MV)' and
+                            con_act[con]['Active']]
+
+        non_consumed_aliases = [row['Alias'] for row in self.input_table_data
+                                if row['Type'] == 'Manipulated (MV)' and
+                                row['Alias'] not in consumed_aliases]
+
+        # aliases to be displayed in the theta table
+        input_aliases = dist_aliases + non_consumed_aliases
+
+        # delete the variables that aren't in the input list
+        new_thetas = [row for row in self.reduced_metamodel_theta_data
+                      if row['Alias'] in input_aliases]
+
+        theta_bnd_list = [row['Alias'] for row in new_thetas]
+
+        # insert new values
+        [new_thetas.append({'Alias': alias, 'lb': 1e-12,
+                            'ub': 1.e-3, 'theta0': 1e-6})
+         for alias in input_aliases if alias not in theta_bnd_list]
+
+        # store values
+        self.reduced_metamodel_theta_data = new_thetas
+
+    def _update_reduced_selected_data(self) -> None:
+        """Updates the list of selected variables for model construction
+        whenever alias or expression data is changed (SLOT) - associated with
+        alias and constraint activity change."""
+        # list of non active constraints
+
+        con_act = self.active_constraint_info
+        non_act_aliases = [{'Alias': con, 'Type': con_act[con]['Type']}
+                           for con in con_act
+                           if not con_act[con]['Active'] and
+                           con_act[con]['Type'] != "Manipulated (MV)"]
+
+        # assuming that a pairing is always a MV
+        pairings = [{'Alias': con_act[con]['Pairing'],
+                     'Type': 'Manipulated (MV)'}
+                    for con in con_act
+                    if con_act[con]['Type'] != 'Manipulated (MV)' and
+                    con_act[con]['Active']]
+
+        obj_fun = [{'Alias': row['Alias'], 'Type': row['Type']}
+                   for row in self.output_table_data +
+                   self.expression_table_data
+                   if row['Type'] == 'Objective function (J)']
+
+        vars = non_act_aliases + pairings + obj_fun
+
+        # list of aliases
+        aliases = [row['Alias'] for row in vars]
+
+        # delete variables that aren't in the list
+        new_vars = [row for row in self.reduced_metamodel_selected_data
+                    if row['Alias'] in aliases]
+
+        vars_list = [row['Alias'] for row in new_vars]
+
+        # insert new vairables
+        [new_vars.append({'Alias': var['Alias'], 'Type': var['Type'],
+                          'Checked': False})
+         for var in vars if var['Alias'] not in vars_list]
+
+        # store values
+        self.reduced_metamodel_selected_data = new_vars
+
     # ---------------------------- PUBLIC METHODS ----------------------------
+
     def save(self, output_path: str) -> None:
         """Saves the current data storage in a .mtc file.
 
@@ -530,7 +658,8 @@ class DataStorage(QObject):
         # primary key list:
         #   - 'simulation_info': loadsimtab (implemented)
         #   - 'doe_info': doetab (implemented)
-        #   - 'metacontrol_info' : metacontroltab (partially implemented)
+        #   - 'metacontrol_info' : metacontroltab (implemented)
+        #   - 'reduced_space_info' : reducedspacetab (partially implemented)
         app_data = {
             'simulation_info': {
                 'sim_filename': self.simulation_file,
@@ -696,7 +825,8 @@ class DataStorage(QObject):
         else:
             self.hessian_enabled.emit(False)
 
-    def evaluate_expr_data(self, sampled_data_dict: dict) -> dict:
+    def evaluate_expr_data(self, sampled_data_dict: dict, space_type: str) -> \
+            dict:
         """Evaluates the expressions and append values to the current sampled
         data.
 
@@ -704,17 +834,30 @@ class DataStorage(QObject):
         ----------
         sampled_data_dict: dict
             Sampled data in dictionary format. (dumped from another Dataframe)
+        space_type : str
+            Which space the data represents: 'original' or 'reduced'
 
         Returns
         -------
         out : dict
             The complete dataframe with expressions evaluated as a dict
         """
+        if space_type not in ['original', 'reduced']:
+            raise ValueError("The space type must be 'original' or 'reduced'.")
+
         samp_data = pd.DataFrame(sampled_data_dict)
-        df_headers = ['case', 'status'] + [row['Alias']
-                                           for row in self.input_table_data +
-                                           self.output_table_data
-                                           if row['Type'] != "Disturbance (d)"]
+
+        if space_type == 'original':
+            hdr = [row['Alias']
+                   for row in self.input_table_data +
+                   self.output_table_data
+                   if row['Type'] != "Disturbance (d)"]
+        else:
+            hdr = [row['Alias']
+                   for row in self.input_table_data +
+                   self.output_table_data]
+
+        df_headers = ['case', 'status'] + hdr
         if not samp_data.empty:
             samp_data = samp_data[df_headers]
         else:

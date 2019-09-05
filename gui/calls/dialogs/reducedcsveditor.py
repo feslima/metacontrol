@@ -141,8 +141,7 @@ class ReducedCsvEditorDialog(CsvEditorDialog):
             # no duplicates or undefined found. Check if all the aliases from
             # app storage are defined
             input_alias = [row['Alias'] for row in
-                           self.app_data.input_table_data
-                           if row['Type'] == 'Manipulated (MV)']
+                           self.app_data.input_table_data]
             output_alias = [row['Alias']
                             for row in self.app_data.output_table_data]
             aliases = input_alias + output_alias

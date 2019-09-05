@@ -7,83 +7,21 @@
     <x>0</x>
     <y>0</y>
     <width>982</width>
-    <height>485</height>
+    <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string/>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0">
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Open training dialog</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Reduced space metamodel training</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="2">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="1" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="radioButton_2">
-        <property name="text">
-         <string>Aproximate analytical (Kriging predictions equations)</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0">
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="numericDiffRadioButton">
         <property name="text">
          <string>Numeric (numdifftools)</string>
         </property>
@@ -102,8 +40,18 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="krigingHessRadioButton">
+        <property name="text">
+         <string>Aproximate analytical (Kriging predictions equations)</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="0">
-       <widget class="QRadioButton" name="radioButton_3">
+       <widget class="QRadioButton" name="autoDiffRadioButton">
         <property name="text">
          <string>Automatic (autograd)</string>
         </property>
@@ -126,7 +74,7 @@
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QTableView" name="tableView"/>
+       <widget class="QTableView" name="gyTableView"/>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
@@ -142,7 +90,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QTableView" name="tableView_3"/>
+       <widget class="QTableView" name="gydtableView"/>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_5">
@@ -179,6 +127,38 @@
      </layout>
     </widget>
    </item>
+   <item row="5" column="1">
+    <widget class="QGroupBox" name="groupBox_5">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Hessian matrix positive-definite correction</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="pushButton_">
+        <property name="text">
+         <string>Cholesky Modification</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="4" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
@@ -193,10 +173,10 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QTableView" name="tableView_4"/>
+       <widget class="QTableView" name="judTableView"/>
       </item>
       <item row="4" column="0">
-       <widget class="QTableView" name="tableView_2"/>
+       <widget class="QTableView" name="juuTableView"/>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_4">
@@ -246,38 +226,6 @@
      </layout>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QGroupBox" name="groupBox_5">
-     <property name="title">
-      <string/>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_6">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Hessian matrix positive-definite correction</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="text">
-         <string>Cholesky Modification</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="5" column="0">
     <spacer name="horizontalSpacer_3">
      <property name="orientation">
@@ -293,6 +241,61 @@
    </item>
    <item row="5" column="2">
     <spacer name="horizontalSpacer_4">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <widget class="QPushButton" name="trainMetamodelPushButton">
+        <property name="text">
+         <string>Open training dialog</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Reduced space metamodel training</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="1">
+    <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

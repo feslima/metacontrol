@@ -5896,14 +5896,26 @@
                 "Value": null,
                 "Pairing": null
             },
-            "c1": {
-                "Type": "Constraint function",
+            "xb": {
+                "Type": "Candidate (CV)",
                 "Active": false,
                 "Value": null,
                 "Pairing": null
             },
-            "c2": {
-                "Type": "Constraint function",
+            "xd": {
+                "Type": "Candidate (CV)",
+                "Active": false,
+                "Value": null,
+                "Pairing": null
+            },
+            "lf": {
+                "Type": "Candidate (CV)",
+                "Active": false,
+                "Value": null,
+                "Pairing": null
+            },
+            "vf": {
+                "Type": "Candidate (CV)",
                 "Active": false,
                 "Value": null,
                 "Pairing": null
@@ -5926,19 +5938,6 @@
                 "ub": 1.0
             }
         ],
-        "mtc_reduced_sampled_data": {
-            "case": [],
-            "status": [],
-            "rr": [],
-            "df": [],
-            "d": [],
-            "xb": [],
-            "b": [],
-            "qr": [],
-            "l": [],
-            "v": [],
-            "f": [],
-            "xd": []
-        }
+        "mtc_reduced_sampled_data": {}
     }
 }
