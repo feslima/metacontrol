@@ -119,7 +119,7 @@ class ReducedSpaceMetamodelDialog(QDialog):
         X = sampled_data.loc[:, X_labels].to_numpy()
         Y = sampled_data.loc[:, Y_labels].to_numpy()
 
-        Y_dim = Y.shape[1] if Y.ndim > 1 else 2
+        Y_dim = Y.shape[1] if Y.ndim > 1 else 1
         if len(Y_labels) == 1:
             # single variable, convert to column vector
             Y = Y.reshape(-1, 1)
