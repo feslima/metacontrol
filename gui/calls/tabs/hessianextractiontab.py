@@ -7,36 +7,37 @@ from PyQt5.QtGui import QFont
 
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.hessianextractiontab import Ui_Form
+from gui.models.hessian_eval import hesscorrgauss
 
 
-class GTableModel(QAbstractTableModel):
+class DiffTableModel(QAbstractTableModel):
     def __init__(self, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
 
-        self.G = pd.DataFrame()
+        self.diff = pd.DataFrame()
 
-    def update_g(self, G: pd.DataFrame):
+    def update_diff(self, diff: pd.DataFrame):
         self.layoutAboutToBeChanged.emit()
-        self.G = G
+        self.diff = diff
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return self.G.shape[0] if not self.G.empty else 0
+        return self.diff.shape[0] if not self.diff.empty else 0
 
     def columnCount(self, parent=None):
-        return self.G.shape[1] if not self.G.empty else 0
+        return self.diff.shape[1] if not self.diff.empty else 0
 
     def headerData(self, section: int, orientation: Qt.Orientation,
                    role: int = Qt.DisplayRole):
 
-        if self.G.empty:
+        if self.diff.empty:
             return None
 
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return self.G.columns[section]
+                return self.diff.columns[section]
             else:
-                return self.G.index[section]
+                return self.diff.index[section]
 
         elif role == Qt.FontRole:
             df_font = QFont()
@@ -50,13 +51,13 @@ class GTableModel(QAbstractTableModel):
             return None
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
-        if not index.isValid() or self.G.empty:
+        if not index.isValid() or self.diff.empty:
             return None
 
         row = index.row()
         col = index.column()
 
-        value = self.G.iat[row, col]
+        value = self.diff.iat[row, col]
 
         if role == Qt.DisplayRole:
             return str(value)
@@ -79,16 +80,28 @@ class HessianExtractionTab(QWidget):
 
         # ----------------------- Widget Initialization -----------------------
         gy_table = self.ui.gyTableView
-        gy_model = GTableModel(gy_table)
+        gy_model = DiffTableModel(gy_table)
         gy_table.setModel(gy_model)
 
         gy_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         gyd_table = self.ui.gydTableView
-        gyd_model = GTableModel(gyd_table)
+        gyd_model = DiffTableModel(gyd_table)
         gyd_table.setModel(gyd_model)
 
         gyd_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        juu_table = self.ui.juuTableView
+        juu_model = DiffTableModel(juu_table)
+        juu_table.setModel(juu_model)
+
+        juu_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        jud_table = self.ui.judTableView
+        jud_model = DiffTableModel(jud_table)
+        jud_table.setModel(jud_model)
+
+        jud_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # --------------------------- Signals/Slots ---------------------------
         self.ui.genGradHessPushButton.clicked.connect(
@@ -106,24 +119,49 @@ class HessianExtractionTab(QWidget):
         sampled_data = pd.DataFrame(
             self.application_database.reduced_doe_sampled_data)
 
-        G = self.get_gradients(X_labels, sampled_data)
+        G = self.get_differentials(X_labels, sampled_data, difftype='gradient')
 
         # split G in Gy and Gyd
-        gyd_labels = [var['Alias'] for var in
-                      self.application_database.input_table_data
-                      if var['Type'] == 'Disturbance (d)']
+        d_labels = [var['Alias'] for var in
+                    self.application_database.input_table_data
+                    if var['Type'] == 'Disturbance (d)']
 
-        Gyd = G[gyd_labels]
-        Gy = G[[label for label in X_labels if label not in gyd_labels]]
+        u_labels = [label for label in X_labels if label not in d_labels]
 
-        self.ui.gyTableView.model().update_g(Gy)
-        self.ui.gydTableView.model().update_g(Gyd)
+        # TODO: Store gradients in data storage
+        Gyd = G[d_labels]
+        Gy = G[u_labels]
 
-    def get_gradients(self, X_labels: list, sampled_data: pd.DataFrame):
+        # update the tables models
+        self.ui.gyTableView.model().update_diff(Gy)
+        self.ui.gydTableView.model().update_diff(Gyd)
+
+        # hessian
+        J = self.get_differentials(X_labels, sampled_data, difftype='hessian')
+
+        # split between juu and jud
+        # TODO: store hessian in data storage
+        Jud = J.loc[u_labels, d_labels]
+        Juu = J.loc[u_labels, u_labels]
+
+        # update table models
+        self.ui.judTableView.model().update_diff(Jud)
+        self.ui.juuTableView.model().update_diff(Juu)
+
+    def get_differentials(self, X_labels: list, sampled_data: pd.DataFrame,
+                          difftype: str):
+
+        app_data = self.application_database
+
         # get output data labels
-        Y_labels = [var['Alias'] for var in
-                    self.application_database.reduced_metamodel_selected_data
-                    if var['Type'] != 'Objective function (J)']
+        if difftype == 'gradient':
+            Y_labels = [var['Alias'] for var in
+                        app_data.reduced_metamodel_selected_data
+                        if var['Type'] != 'Objective function (J)']
+        else:
+            Y_labels = [var['Alias'] for var in
+                        app_data.reduced_metamodel_selected_data
+                        if var['Type'] == 'Objective function (J)']
 
         # extract data
         X = sampled_data.loc[:, X_labels].to_numpy()
@@ -135,15 +173,17 @@ class HessianExtractionTab(QWidget):
             Y = Y.reshape(-1, 1)
 
         # regression model
+        # TODO: comes from data storage / training dialog
         regr = 'poly0'
 
         # correlation model
+        # TODO: comes from data storage / training dialog
         corr = 'corrgauss'
 
         # theta and bounds values
         theta_data = []
 
-        for row in self.application_database.reduced_metamodel_theta_data:
+        for row in app_data.reduced_metamodel_theta_data:
             for label in X_labels:
                 if row['Alias'] == label:
                     # reorder theta values in X label order
@@ -158,24 +198,38 @@ class HessianExtractionTab(QWidget):
         upb = np.asarray(upb)
 
         # get nominal values
+        # TODO: comes from reducedspacetab
         x_nom = np.array([[0., 273., 147., 13.5632]])
 
-        # G dataFrame (Transposed because skogestad nomeclature)
-        G = pd.DataFrame(columns=X_labels, index=Y_labels)
+        if difftype == 'gradient':
+            # G dataFrame (Transposed because skogestad nomeclature)
+            G = pd.DataFrame(columns=X_labels, index=Y_labels)
 
-        # train the models
-        for j in range(Y_dim):
-            ph, _ = dacefit(S=X, Y=Y[:, j], regr=regr, corr=corr,
-                            theta0=theta0, lob=lob, upb=upb)
+            # train the models
+            for j in range(Y_dim):
+                ph, _ = dacefit(S=X, Y=Y[:, j], regr=regr, corr=corr,
+                                theta0=theta0, lob=lob, upb=upb)
 
-            _, gy_ph, *_ = predictor(x=x_nom, dmodel=ph,
-                                     compute_jacobian=True)
+                _, gy_ph, *_ = predictor(x=x_nom, dmodel=ph,
+                                         compute_jacobian=True)
 
-            for i in range(x_nom.size):
-                # store G values in the dataframe
-                G.at[Y_labels[j], X_labels[i]] = gy_ph[i, 0]
+                for i in range(x_nom.size):
+                    # store G values in the dataframe
+                    G.at[Y_labels[j], X_labels[i]] = gy_ph[i, 0]
 
-        return G
+            return G
+        else:
+            # J dataFrame
+            J = pd.DataFrame(columns=X_labels, index=X_labels)
+            dmodel = dacefit(S=X, Y=Y, regr=regr, corr=corr,
+                             theta0=theta0, lob=lob, upb=upb)[0]
+
+            j_np = hesscorrgauss(x_nom, dmodel)
+            for i in range(len(X_labels)):
+                for j in range(len(X_labels)):
+                    J.at[X_labels[i], X_labels[j]] = j_np[i, j]
+
+            return J
 
 
 if __name__ == "__main__":
