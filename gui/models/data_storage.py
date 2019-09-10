@@ -30,6 +30,7 @@ class DataStorage(QObject):
     doe_sampled_data_changed = pyqtSignal()
     reduced_doe_constraint_activity_changed = pyqtSignal()
     reduced_doe_sampled_data_changed = pyqtSignal()
+    differential_data_changed = pyqtSignal()
 
     sampling_enabled = pyqtSignal(bool)
     metamodel_enabled = pyqtSignal(bool)
@@ -75,7 +76,13 @@ class DataStorage(QObject):
                               }
         self._hessian_data = {'metamodel_data': {'theta': [],
                                                  'selected': []
-                                                 }
+                                                 },
+                              'regression': 'poly0',
+                              'correlation': 'corrgauss',
+                              'gy': {},
+                              'gyd': {},
+                              'juu': {},
+                              'jud': {}
                               }
 
         # --------------------------- SIGNALS/SLOTS ---------------------------
@@ -413,6 +420,82 @@ class DataStorage(QObject):
             self._hessian_data['metamodel_data']['selected'] = value
         else:
             raise TypeError("Selected data must be a list of dictionaries.")
+
+    @property
+    def differential_regression_model(self):
+        """The Kriging regression model to be used in reduced space model."""
+        return self._hessian_data['regression']
+
+    @differential_regression_model.setter
+    def differential_regression_model(self, value: str):
+        if value != 'poly0' or value != 'poly1' or value != 'poly2':
+            raise ValueError("Invalid regression model.")
+        else:
+            self._hessian_data['regression'] = value
+
+    @property
+    def differential_correlation_model(self):
+        """The Kriging correlation model to be used in reduced space model."""
+        return self._hessian_data['correlation']
+
+    @differential_correlation_model.setter
+    def differential_correlation_model(self, value: str):
+        if value != 'corrgauss':
+            raise ValueError("Invalid correlation model.")
+        else:
+            self._hessian_data['correlation'] = value
+
+    @property
+    def differential_gy(self):
+        """Gradient of reduced space (Gy)."""
+        return self._hessian_data['gy']
+
+    @differential_gy.setter
+    def differential_gy(self, value: dict):
+        if isinstance(value, dict):
+            self._hessian_data['gy'] = value
+            self.differential_data_changed.emit()
+        else:
+            raise ValueError("Gy must be a dictionary.")
+
+    @property
+    def differential_gyd(self):
+        """Gradient of reduced space (Gyd)."""
+        return self._hessian_data['gyd']
+
+    @differential_gyd.setter
+    def differential_gyd(self, value: dict):
+        if isinstance(value, dict):
+            self._hessian_data['gyd'] = value
+            self.differential_data_changed.emit()
+        else:
+            raise ValueError("Gyd must be a dictionary.")
+
+    @property
+    def differential_juu(self):
+        """Hessian of reduced space (Juu)."""
+        return self._hessian_data['juu']
+
+    @differential_juu.setter
+    def differential_juu(self, value: dict):
+        if isinstance(value, dict):
+            self._hessian_data['juu'] = value
+            self.differential_data_changed.emit()
+        else:
+            raise ValueError("Juu must be a dictionary.")
+
+    @property
+    def differential_jud(self):
+        """Hessian of reduced space (Jud)."""
+        return self._hessian_data['jud']
+
+    @differential_jud.setter
+    def differential_jud(self, value: dict):
+        if isinstance(value, dict):
+            self._hessian_data['jud'] = value
+            self.differential_data_changed.emit()
+        else:
+            raise ValueError("Jud must be a dictionary.")
 
     # ---------------------------- PRIVATE METHODS ---------------------------
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \

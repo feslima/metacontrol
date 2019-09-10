@@ -128,9 +128,11 @@ class HessianExtractionTab(QWidget):
 
         u_labels = [label for label in X_labels if label not in d_labels]
 
-        # TODO: Store gradients in data storage
         Gyd = G[d_labels]
         Gy = G[u_labels]
+
+        self.application_database.differential_gy = Gy.to_dict(orient='list')
+        self.application_database.differential_gyd = Gyd.to_dict(orient='list')
 
         # update the tables models
         self.ui.gyTableView.model().update_diff(Gy)
@@ -140,9 +142,11 @@ class HessianExtractionTab(QWidget):
         J = self.get_differentials(X_labels, sampled_data, difftype='hessian')
 
         # split between juu and jud
-        # TODO: store hessian in data storage
         Jud = J.loc[u_labels, d_labels]
         Juu = J.loc[u_labels, u_labels]
+
+        self.application_database.differential_juu = Juu.to_dict(orient='list')
+        self.application_database.differential_jud = Jud.to_dict(orient='list')
 
         # update table models
         self.ui.judTableView.model().update_diff(Jud)
@@ -173,12 +177,10 @@ class HessianExtractionTab(QWidget):
             Y = Y.reshape(-1, 1)
 
         # regression model
-        # TODO: comes from data storage / training dialog
-        regr = 'poly0'
+        regr = self.application_database.differential_regression_model
 
         # correlation model
-        # TODO: comes from data storage / training dialog
-        corr = 'corrgauss'
+        corr = self.application_database.differential_correlation_model
 
         # theta and bounds values
         theta_data = []
@@ -198,8 +200,14 @@ class HessianExtractionTab(QWidget):
         upb = np.asarray(upb)
 
         # get nominal values
-        # TODO: comes from reducedspacetab
-        x_nom = np.array([[0., 273., 147., 13.5632]])
+        act_info = app_data.active_constraint_info
+        values = [var['nom']
+                  for var in app_data.reduced_doe_d_bounds
+                  if var['name'] in X_labels] + \
+            [act_info[var]['Value']
+             for var in act_info
+             if var in X_labels]
+        x_nom = np.array([values])
 
         if difftype == 'gradient':
             # G dataFrame (Transposed because skogestad nomeclature)
