@@ -6074,7 +6074,7 @@
             "rr": {
                 "Type": "Manipulated (MV)",
                 "Active": false,
-                "Value": 13.5889,
+                "Value": 13.5632,
                 "Pairing": null
             },
             "df": {
@@ -6112,17 +6112,20 @@
             {
                 "name": "phif",
                 "lb": 0.0,
-                "ub": 0.5
+                "ub": 0.5,
+                "nom": 0.0
             },
             {
                 "name": "flow1",
                 "lb": 218.4,
-                "ub": 327.6
+                "ub": 327.6,
+                "nom": 273.0
             },
             {
                 "name": "flow2",
                 "lb": 117.6,
-                "ub": 176.4
+                "ub": 176.4,
+                "nom": 147.0
             }
         ],
         "mtc_reduced_sampled_data": {

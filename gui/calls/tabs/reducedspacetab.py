@@ -78,12 +78,13 @@ class ActiveConstraintTableModel(QAbstractTableModel):
 
             if self.con_info.index[row] == 'Pairing' and \
                     self.con_info[var_name]['Type'] != 'Manipulated (MV)' and \
-                    self.con_info.loc['Active', var_name] == True:
+                    self.con_info.loc['Active', var_name] is True:
                 # paint cell red if no pairing is selected and the active
                 # variable is a constraint (do not paint cells corresponding to
                 # MV's)
                 if self.con_info[var_name]['Pairing'] is None or \
-                        (self.con_info.loc['Pairing', :] == self.con_info[var_name]['Pairing']).sum() > 1:
+                        (self.con_info.loc['Pairing', :] ==
+                         self.con_info[var_name]['Pairing']).sum() > 1:
                     return QBrush(Qt.red)
 
         elif role == Qt.TextAlignmentRole:
@@ -139,7 +140,7 @@ class ActiveConstraintTableModel(QAbstractTableModel):
             return True
 
         elif self.con_info.index[row] == 'Pairing':
-            value == None if value == 'Select a MV' else value
+            value = None if value == 'Select a MV' else value
             self.con_info.iat[row, col] = value
 
             self.app_data.active_constraint_info[alias]['Pairing'] = value
@@ -203,7 +204,7 @@ class ActiveConstraintTableModel(QAbstractTableModel):
                 self.con_info[var_name]['Type'] != 'Manipulated (MV)':
             # enable pairing dropdown if the constraints marked as active are
             # not MV's
-            if self.con_info.loc['Active', var_name] == True:
+            if self.con_info.loc['Active', var_name] is True:
                 return Qt.ItemIsEditable | Qt.ItemIsEnabled
             else:
                 return ~Qt.ItemIsEditable & ~Qt.ItemIsEnabled | \
@@ -257,7 +258,8 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = app_data
         self.load_data()
-        self.headers = ["Disturbance variable", "Lower bound", "Upper bound"]
+        self.headers = ["Disturbance variable", "Lower bound", "Upper bound",
+                        "Nominal Value"]
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
@@ -307,27 +309,35 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
                 return str(d_data['lb'])
             elif col == 2:
                 return str(d_data['ub'])
+            elif col == 3:
+                return str(d_data['nom'])
             else:
                 return None
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
-        elif role == Qt.BackgroundRole:
+        elif role == Qt.BackgroundRole or role == Qt.ToolTipRole:
             if col == 1 or col == 2:
                 if d_data['lb'] >= d_data['ub']:
-                    return QBrush(Qt.red)
+                    return QBrush(Qt.red) if role == Qt.BackgroundRole \
+                        else "Lower bound can't be greater than upper bound!"
                 else:
-                    return QBrush(self.parent().palette().brush(QPalette.Base))
-            else:
-                return None
+                    par = self.parent()
+                    return QBrush(par.palette().brush(QPalette.Base)) \
+                        if role == Qt.BackgroundRole else ""
 
-        elif role == Qt.ToolTipRole:
-            if col == 1 or col == 2:
-                if d_data['lb'] >= d_data['ub']:
-                    return "Lower bound can't be greater than upper bound!"
+            elif col == 3:
+                if d_data['nom'] > d_data['ub'] or \
+                        d_data['nom'] < d_data['lb']:
+                    return QBrush(Qt.red) if role == Qt.BackgroundRole \
+                        else "Nominal value must be between lower and upper " \
+                        "bound!"
                 else:
-                    return ""
+                    par = self.parent()
+                    return QBrush(par.palette().brush(QPalette.Base)) \
+                        if role == Qt.BackgroundRole else ""
+
             else:
                 return None
 
@@ -347,6 +357,8 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
             var_data['lb'] = float(value)
         elif col == 2:
             var_data['ub'] = float(value)
+        elif col == 3:
+            var_data['nom'] = float(value)
         else:
             return False
 
@@ -397,6 +409,14 @@ class ActiveConstraintTab(QWidget):
         dist_table.setModel(dist_model)
         dist_table.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
+
+        self._dlb_delegate = DoubleEditorDelegate()
+        self._dub_delegate = DoubleEditorDelegate()
+        self._dnom_delegate = DoubleEditorDelegate()
+
+        dist_table.setItemDelegateForColumn(1, self._dlb_delegate)
+        dist_table.setItemDelegateForColumn(2, self._dub_delegate)
+        dist_table.setItemDelegateForColumn(3, self._dnom_delegate)
 
         results_table = self.ui.reducedDataResultTableView
         results_model = ReducedDoeResultsModel(self.application_database,

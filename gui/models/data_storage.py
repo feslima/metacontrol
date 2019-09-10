@@ -553,7 +553,10 @@ class DataStorage(QObject):
         d_bnd_list = [row['name'] for row in new_bnds]
 
         # insert new values
-        [new_bnds.append({'name': alias, 'lb': 0.0, 'ub': 1.0}) for alias
+        [new_bnds.append({'name': alias,
+                          'lb': 0.0,
+                          'ub': 1.0,
+                          'nom': 0.5}) for alias
          in d_aliases if alias not in d_bnd_list]
 
         # store values
@@ -792,6 +795,9 @@ class DataStorage(QObject):
         # FIXME: Case where there is not active constraint selected is not
         # treated. What to do? Proceed or not?
         cact_df = pd.DataFrame(self.active_constraint_info)
+
+        # TODO: check if disturbance bounds and nominal values are set
+        # correctly
 
         if not cact_df.empty:
             # check if the optimum mv values are set

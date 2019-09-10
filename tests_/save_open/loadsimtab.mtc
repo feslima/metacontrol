@@ -5329,17 +5329,20 @@
             {
                 "name": "phif",
                 "lb": 0.0,
-                "ub": 1.0
+                "ub": 1.0,
+                "nom": 0.5
             },
             {
                 "name": "flow1",
                 "lb": 0.0,
-                "ub": 1.0
+                "ub": 1.0,
+                "nom": 0.5
             },
             {
                 "name": "flow2",
                 "lb": 0.0,
-                "ub": 1.0
+                "ub": 1.0,
+                "nom": 0.5
             }
         ],
         "mtc_reduced_sampled_data": {}
