@@ -29,6 +29,7 @@ class DataStorage(QObject):
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
     reduced_doe_constraint_activity_changed = pyqtSignal()
+    reduced_d_bounds_changed = pyqtSignal()
     reduced_doe_sampled_data_changed = pyqtSignal()
     differential_data_changed = pyqtSignal()
 
@@ -128,6 +129,11 @@ class DataStorage(QObject):
         self.reduced_doe_constraint_activity_changed.connect(
             self._update_reduced_selected_data
         )
+
+        # whenever reduced space sampled data changes, perform a checkup in
+        # reduced space data
+        self.reduced_doe_sampled_data_changed.connect(
+            self.check_reduced_space_setup)
 
     # ------------------------------ PROPERTIES ------------------------------
     @property
@@ -374,6 +380,7 @@ class DataStorage(QObject):
     def reduced_doe_d_bounds(self, value: list):
         if isinstance(value, list):
             self._reduced_data['d_bounds'] = value
+            self.reduced_d_bounds_changed.emit()
         else:
             raise TypeError("Disturbance bounds table data must be a list.")
 

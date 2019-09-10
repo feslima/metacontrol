@@ -9,11 +9,16 @@ from gui.views.py_files.mainwindow import Ui_MainWindow
 from gui.calls.tabs.loadsimtab import LoadSimTab
 from gui.calls.tabs.doetab import DoeTab
 from gui.calls.tabs.metamodeltab import MetamodelTab
+from gui.calls.tabs.reducedspacetab import ReducedSpaceTab
 
 
 class MainWindow(QMainWindow):
     _DOETAB_IDX = 1
     _METAMODELTAB_IDX = 2
+    _OPTTAB_IDX = 3
+    _REDSPACETAB_IDX = 4
+    _HESSIANTAB_IDX = 5
+    _SOCTAB_IDX = 6
 
     def __init__(self):
         # ------------------------- UI Initialization -------------------------
@@ -28,6 +33,9 @@ class MainWindow(QMainWindow):
         # disable the tabs
         maintab.setTabEnabled(self._DOETAB_IDX, False)
         maintab.setTabEnabled(self._METAMODELTAB_IDX, False)
+        maintab.setTabEnabled(self._OPTTAB_IDX, False)
+        maintab.setTabEnabled(self._HESSIANTAB_IDX, False)
+        maintab.setTabEnabled(self._SOCTAB_IDX, False)
 
         # ------------------------ Internal variables -------------------------
         self.application_database = DataStorage()
@@ -38,6 +46,8 @@ class MainWindow(QMainWindow):
                               parent_tab=self.ui.samplingTab)
         self.tab_metamodel = MetamodelTab(self.application_database,
                                           parent_tab=self.ui.metamodelTab)
+        self.tab_reducedspace = ReducedSpaceTab(self.application_database,
+                                                parent_tab=self.ui.reducedspaceTab)
 
         # ------------------------ Actions connections ------------------------
         self.ui.actionOpen.triggered.connect(self.open_file)
@@ -52,6 +62,10 @@ class MainWindow(QMainWindow):
         # metamodel tab enabled
         self.application_database.metamodel_enabled.connect(
             self.on_metamodel_enabled)
+
+        # hessian tab enabled
+        self.application_database.hessian_enabled.connect(
+            self.on_hessianextraction_enabled)
 
     def open_file(self):
         """Prompts the user to select which .mtc file to open.
@@ -106,6 +120,13 @@ class MainWindow(QMainWindow):
 
     def on_metamodel_enabled(self, is_enabled):
         self.ui.tabMainWidget.setTabEnabled(self._METAMODELTAB_IDX, is_enabled)
+
+    def on_optimization_enabled(self, is_enabled):
+        self.ui.tabMainWidget.setTabEnabled(self._OPTTAB_IDX, is_enabled)
+        raise NotImplementedError("Optimization tab not implemented!")
+
+    def on_hessianextraction_enabled(self, is_enabled):
+        self.ui.tabMainWidget.setTabEnabled(self._HESSIANTAB_IDX, is_enabled)
 
 
 if __name__ == "__main__":

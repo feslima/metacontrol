@@ -200,6 +200,7 @@ class HessianExtractionTab(QWidget):
         upb = np.asarray(upb)
 
         # get nominal values
+        # FIXME: implement better way to ensure order of MV's are correct
         act_info = app_data.active_constraint_info
         values = [var['nom']
                   for var in app_data.reduced_doe_d_bounds

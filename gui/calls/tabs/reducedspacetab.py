@@ -6,10 +6,10 @@ from PyQt5.QtWidgets import QApplication, QHeaderView, QTableView, QWidget
 
 from gui.calls.base import (CheckBoxDelegate, ComboBoxDelegate,
                             DoubleEditorDelegate)
+from gui.calls.dialogs.reducedcsveditor import ReducedCsvEditorDialog
+from gui.calls.tabs.doetab import DoeResultsModel, DoeResultsView
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.reducedspacetab import Ui_Form
-from gui.calls.tabs.doetab import DoeResultsModel, DoeResultsView
-from gui.calls.dialogs.reducedcsveditor import ReducedCsvEditorDialog
 
 
 class ActiveConstraintTableModel(QAbstractTableModel):
@@ -18,6 +18,9 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = app_data
         self.load_data()
+
+        self.app_data.reduced_doe_constraint_activity_changed.connect(
+            self.load_data)
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
@@ -260,6 +263,7 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
         self.load_data()
         self.headers = ["Disturbance variable", "Lower bound", "Upper bound",
                         "Nominal Value"]
+        self.app_data.reduced_d_bounds_changed.connect(self.load_data)
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
@@ -372,7 +376,7 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
 
 
-class ActiveConstraintTab(QWidget):
+class ReducedSpaceTab(QWidget):
     def __init__(self, application_database: DataStorage, parent_tab=None):
         # ------------------------ Form Initialization ------------------------
         super().__init__()
@@ -449,7 +453,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     # ds = DataStorage()
     ds = DOE_TAB_MOCK_DS
-    w = ActiveConstraintTab(application_database=ds)
+    w = ReducedSpaceTab(application_database=ds)
     w.show()
 
     sys.excepthook = my_exception_hook

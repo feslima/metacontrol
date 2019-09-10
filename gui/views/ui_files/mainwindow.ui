@@ -98,20 +98,30 @@
         <string>Metamodel</string>
        </attribute>
       </widget>
-      <widget class="QWidget" name="tab_4">
+      <widget class="QWidget" name="optimizationTab">
        <property name="enabled">
         <bool>true</bool>
        </property>
        <attribute name="title">
-        <string>Page</string>
+        <string>Optimization</string>
        </attribute>
       </widget>
-      <widget class="QWidget" name="tab_5">
+      <widget class="QWidget" name="reducedspaceTab">
        <property name="enabled">
         <bool>true</bool>
        </property>
        <attribute name="title">
-        <string>Page</string>
+        <string>Reduced Space</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="hessianextractionTab">
+       <attribute name="title">
+        <string>Hessian Extraction</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="socTab">
+       <attribute name="title">
+        <string>Self-Optimizing Control</string>
        </attribute>
       </widget>
      </widget>
