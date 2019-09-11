@@ -31,7 +31,10 @@ class DataStorage(QObject):
     reduced_doe_constraint_activity_changed = pyqtSignal()
     reduced_d_bounds_changed = pyqtSignal()
     reduced_doe_sampled_data_changed = pyqtSignal()
-    differential_data_changed = pyqtSignal()
+    differential_gy_data_changed = pyqtSignal(str)
+    differential_gyd_data_changed = pyqtSignal(str)
+    differential_juu_data_changed = pyqtSignal(str)
+    differential_jud_data_changed = pyqtSignal(str)
 
     sampling_enabled = pyqtSignal(bool)
     metamodel_enabled = pyqtSignal(bool)
@@ -461,7 +464,7 @@ class DataStorage(QObject):
     def differential_gy(self, value: dict):
         if isinstance(value, dict):
             self._hessian_data['gy'] = value
-            self.differential_data_changed.emit()
+            self.differential_gy_data_changed.emit('gy')
         else:
             raise ValueError("Gy must be a dictionary.")
 
@@ -474,7 +477,7 @@ class DataStorage(QObject):
     def differential_gyd(self, value: dict):
         if isinstance(value, dict):
             self._hessian_data['gyd'] = value
-            self.differential_data_changed.emit()
+            self.differential_gyd_data_changed.emit('gyd')
         else:
             raise ValueError("Gyd must be a dictionary.")
 
@@ -487,7 +490,7 @@ class DataStorage(QObject):
     def differential_juu(self, value: dict):
         if isinstance(value, dict):
             self._hessian_data['juu'] = value
-            self.differential_data_changed.emit()
+            self.differential_juu_data_changed.emit('juu')
         else:
             raise ValueError("Juu must be a dictionary.")
 
@@ -500,7 +503,7 @@ class DataStorage(QObject):
     def differential_jud(self, value: dict):
         if isinstance(value, dict):
             self._hessian_data['jud'] = value
-            self.differential_data_changed.emit()
+            self.differential_jud_data_changed.emit('jud')
         else:
             raise ValueError("Jud must be a dictionary.")
 
@@ -771,6 +774,12 @@ class DataStorage(QObject):
                 'mtc_constraint_activity': self.active_constraint_info,
                 'mtc_reduced_d_bounds': self.reduced_doe_d_bounds,
                 'mtc_reduced_sampled_data': self.reduced_doe_sampled_data
+            },
+            'differential_info': {
+                'mtc_gy': self.differential_gy,
+                'mtc_gyd': self.differential_gyd,
+                'mtc_juu': self.differential_juu,
+                'mtc_jud': self.differential_jud
             }
         }
 
@@ -786,6 +795,7 @@ class DataStorage(QObject):
         mtc_filepath : str
             Filepath to the .mtc file to be read.
         """
+        # FIXME: block signals when assigning variableas and fire specific ones
         # load the JSON file
         with open(mtc_filepath, 'r') as mtc_file:
             app_data = json.load(mtc_file)
@@ -793,6 +803,7 @@ class DataStorage(QObject):
         sim_info = app_data['simulation_info']
         doe_info = app_data['doe_info']
         redspace_info = app_data['reduced_space_info']
+        diff_info = app_data['differential_info']
 
         # loadsimtab
         self.simulation_file = sim_info['sim_filename']
@@ -811,6 +822,12 @@ class DataStorage(QObject):
         self.active_constraint_info = redspace_info['mtc_constraint_activity']
         self.reduced_doe_d_bounds = redspace_info['mtc_reduced_d_bounds']
         self.reduced_doe_sampled_data = redspace_info['mtc_reduced_sampled_data']
+
+        # hessianextraction tab
+        self.differential_gy = diff_info['mtc_gy']
+        self.differential_gyd = diff_info['mtc_gyd']
+        self.differential_juu = diff_info['mtc_juu']
+        self.differential_jud = diff_info['mtc_jud']
 
     def check_simulation_setup(self):
         """Checks if there are aliases and expressions are mathematically

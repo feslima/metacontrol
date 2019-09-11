@@ -10,6 +10,7 @@ from gui.calls.tabs.loadsimtab import LoadSimTab
 from gui.calls.tabs.doetab import DoeTab
 from gui.calls.tabs.metamodeltab import MetamodelTab
 from gui.calls.tabs.reducedspacetab import ReducedSpaceTab
+from gui.calls.tabs.hessianextractiontab import HessianExtractionTab
 
 
 class MainWindow(QMainWindow):
@@ -39,6 +40,7 @@ class MainWindow(QMainWindow):
 
         # ------------------------ Internal variables -------------------------
         self.application_database = DataStorage()
+
         # ----------------------- Load the tabs widgets -----------------------
         self.tab_loadsim = LoadSimTab(self.application_database,
                                       parent_tab=self.ui.simulationTab)
@@ -48,6 +50,8 @@ class MainWindow(QMainWindow):
                                           parent_tab=self.ui.metamodelTab)
         self.tab_reducedspace = ReducedSpaceTab(self.application_database,
                                                 parent_tab=self.ui.reducedspaceTab)
+        self.tab_hessianext = HessianExtractionTab(self.application_database,
+                                                   parent_tab=self.ui.hessianextractionTab)
 
         # ------------------------ Actions connections ------------------------
         self.ui.actionOpen.triggered.connect(self.open_file)

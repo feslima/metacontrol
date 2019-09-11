@@ -11,14 +11,26 @@ from gui.models.hessian_eval import hesscorrgauss
 
 
 class DiffTableModel(QAbstractTableModel):
-    def __init__(self, parent: QTableView):
+    def __init__(self, app_data: DataStorage, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
 
         self.diff = pd.DataFrame()
+        self.app_data = app_data
 
-    def update_diff(self, diff: pd.DataFrame):
+    def update_diff(self, diff: str):
         self.layoutAboutToBeChanged.emit()
-        self.diff = diff
+
+        if diff == 'gy':
+            self.diff = pd.DataFrame.from_dict(self.app_data.differential_gy)
+        elif diff == 'gyd':
+            self.diff = pd.DataFrame.from_dict(self.app_data.differential_gyd)
+        elif diff == 'juu':
+            self.diff = pd.DataFrame.from_dict(self.app_data.differential_juu)
+        elif diff == 'jud':
+            self.diff = pd.DataFrame.from_dict(self.app_data.differential_jud)
+        else:
+            raise ValueError('Invalid differential option.')
+
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
@@ -80,30 +92,49 @@ class HessianExtractionTab(QWidget):
 
         # ----------------------- Widget Initialization -----------------------
         gy_table = self.ui.gyTableView
-        gy_model = DiffTableModel(gy_table)
+        gy_model = DiffTableModel(self.application_database, parent=gy_table)
         gy_table.setModel(gy_model)
 
         gy_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         gyd_table = self.ui.gydTableView
-        gyd_model = DiffTableModel(gyd_table)
+        gyd_model = DiffTableModel(self.application_database, parent=gyd_table)
         gyd_table.setModel(gyd_model)
 
         gyd_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         juu_table = self.ui.juuTableView
-        juu_model = DiffTableModel(juu_table)
+        juu_model = DiffTableModel(self.application_database, parent=juu_table)
         juu_table.setModel(juu_model)
 
         juu_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         jud_table = self.ui.judTableView
-        jud_model = DiffTableModel(jud_table)
+        jud_model = DiffTableModel(self.application_database, parent=jud_table)
         jud_table.setModel(jud_model)
 
         jud_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # --------------------------- Signals/Slots ---------------------------
+        # differential data tables update
+        # FIXME: this an ugly hack. Probably using a Signal Mapper is the right
+        # way
+        self.application_database.differential_gy_data_changed.connect(
+            gy_model.update_diff
+        )
+
+        self.application_database.differential_gyd_data_changed.connect(
+            gyd_model.update_diff
+        )
+
+        self.application_database.differential_juu_data_changed.connect(
+            juu_model.update_diff
+        )
+
+        self.application_database.differential_jud_data_changed.connect(
+            jud_model.update_diff
+        )
+
         self.ui.genGradHessPushButton.clicked.connect(
             self.on_generate_grad_hess_pressed
         )
@@ -131,12 +162,8 @@ class HessianExtractionTab(QWidget):
         Gyd = G[d_labels]
         Gy = G[u_labels]
 
-        self.application_database.differential_gy = Gy.to_dict(orient='list')
-        self.application_database.differential_gyd = Gyd.to_dict(orient='list')
-
-        # update the tables models
-        self.ui.gyTableView.model().update_diff(Gy)
-        self.ui.gydTableView.model().update_diff(Gyd)
+        self.application_database.differential_gy = Gy.to_dict(orient='dict')
+        self.application_database.differential_gyd = Gyd.to_dict(orient='dict')
 
         # hessian
         J = self.get_differentials(X_labels, sampled_data, difftype='hessian')
@@ -145,12 +172,8 @@ class HessianExtractionTab(QWidget):
         Jud = J.loc[u_labels, d_labels]
         Juu = J.loc[u_labels, u_labels]
 
-        self.application_database.differential_juu = Juu.to_dict(orient='list')
-        self.application_database.differential_jud = Jud.to_dict(orient='list')
-
-        # update table models
-        self.ui.judTableView.model().update_diff(Jud)
-        self.ui.juuTableView.model().update_diff(Juu)
+        self.application_database.differential_juu = Juu.to_dict(orient='dict')
+        self.application_database.differential_jud = Jud.to_dict(orient='dict')
 
     def get_differentials(self, X_labels: list, sampled_data: pd.DataFrame,
                           difftype: str):
