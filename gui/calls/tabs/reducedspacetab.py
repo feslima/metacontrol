@@ -438,11 +438,22 @@ class ReducedSpaceTab(QWidget):
         self.application_database.reduced_doe_sampled_data_changed.connect(
             results_model.load_data
         )
+
+        # whenever alias data changes, update combobox delegate item list
+        self.application_database.alias_data_changed.connect(
+            self.update_combobox_items
+        )
         # ---------------------------------------------------------------------
 
     def open_reduced_csv_editor(self):
         dialog = ReducedCsvEditorDialog(self.application_database)
         dialog.exec_()
+
+    def update_combobox_items(self):
+        mv_list = [row['Alias']
+                   for row in self.application_database.input_table_data
+                   if row['Type'] == 'Manipulated (MV)']
+        self._pairing_delegate.item_list = mv_list
 
 
 if __name__ == "__main__":

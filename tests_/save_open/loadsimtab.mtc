@@ -5186,11 +5186,6 @@
                 "Type": "Manipulated (MV)"
             },
             {
-                "Path": "\\Data\\Streams\\FEED\\Input\\VFRAC\\MIXED",
-                "Alias": "phif",
-                "Type": "Disturbance (d)"
-            },
-            {
                 "Path": "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\PROPENE",
                 "Alias": "flow1",
                 "Type": "Disturbance (d)"
@@ -5199,18 +5194,43 @@
                 "Path": "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\PROPANE",
                 "Alias": "flow2",
                 "Type": "Disturbance (d)"
+            },
+            {
+                "Path": "\\Data\\Streams\\FEED\\Input\\VFRAC\\MIXED",
+                "Alias": "phif",
+                "Type": "Disturbance (d)"
             }
         ],
         "mtc_output_table": [
             {
-                "Path": "\\Data\\Streams\\D\\Output\\MOLEFLMX\\MIXED",
-                "Alias": "d",
-                "Type": "Auxiliary"
+                "Path": "\\Data\\Streams\\D\\Output\\MOLEFRAC\\MIXED\\PROPENE",
+                "Alias": "xd",
+                "Type": "Candidate (CV)"
             },
             {
                 "Path": "\\Data\\Streams\\B\\Output\\MOLEFRAC\\MIXED\\PROPENE",
                 "Alias": "xb",
                 "Type": "Candidate (CV)"
+            },
+            {
+                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_VN",
+                "Alias": "v",
+                "Type": "Auxiliary"
+            },
+            {
+                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_L1",
+                "Alias": "l",
+                "Type": "Auxiliary"
+            },
+            {
+                "Path": "\\Data\\Streams\\FEED\\Output\\MOLEFLMX\\MIXED",
+                "Alias": "f",
+                "Type": "Auxiliary"
+            },
+            {
+                "Path": "\\Data\\Streams\\D\\Output\\MOLEFLMX\\MIXED",
+                "Alias": "d",
+                "Type": "Auxiliary"
             },
             {
                 "Path": "\\Data\\Streams\\B\\Output\\MOLEFLMX\\MIXED",
@@ -5221,26 +5241,6 @@
                 "Path": "\\Data\\Blocks\\TOWER\\Output\\REB_DUTY",
                 "Alias": "qr",
                 "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_L1",
-                "Alias": "l",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_VN",
-                "Alias": "v",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Streams\\FEED\\Output\\MOLEFLMX\\MIXED",
-                "Alias": "f",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Streams\\D\\Output\\MOLEFRAC\\MIXED\\PROPENE",
-                "Alias": "xd",
-                "Type": "Candidate (CV)"
             }
         ],
         "mtc_expr_table": [
@@ -5300,13 +5300,13 @@
                 "Value": null,
                 "Pairing": null
             },
-            "xb": {
+            "xd": {
                 "Type": "Candidate (CV)",
                 "Active": false,
                 "Value": null,
                 "Pairing": null
             },
-            "xd": {
+            "xb": {
                 "Type": "Candidate (CV)",
                 "Active": false,
                 "Value": null,
@@ -5327,12 +5327,6 @@
         },
         "mtc_reduced_d_bounds": [
             {
-                "name": "phif",
-                "lb": 0.0,
-                "ub": 1.0,
-                "nom": 0.5
-            },
-            {
                 "name": "flow1",
                 "lb": 0.0,
                 "ub": 1.0,
@@ -5343,8 +5337,20 @@
                 "lb": 0.0,
                 "ub": 1.0,
                 "nom": 0.5
+            },
+            {
+                "name": "phif",
+                "lb": 0.0,
+                "ub": 1.0,
+                "nom": 0.5
             }
         ],
         "mtc_reduced_sampled_data": {}
+    },
+    "differential_info": {
+        "mtc_gy": {},
+        "mtc_gyd": {},
+        "mtc_juu": {},
+        "mtc_jud": {}
     }
 }

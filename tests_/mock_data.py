@@ -46,3 +46,8 @@ CSVEDIT_PAIRINFO_MOCK = {'B': {'alias': 'b', 'status': True},
 REDSPACE_TAB_MOCK_DS = DataStorage()
 REDSPACE_TAB_MOCK_DS.load(MTC_FOLDER_PATH / "reducedspacetab.mtc")
 REDSPACE_TAB_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)
+
+# hessian extraction tab
+HESSIAN_TAB_MOCK_DS = DataStorage()
+HESSIAN_TAB_MOCK_DS.load(MTC_FOLDER_PATH / "hessianextractiontab.mtc")
+HESSIAN_TAB_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)
