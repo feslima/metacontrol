@@ -1,3 +1,4 @@
+import copy
 import json
 import pathlib
 
@@ -35,10 +36,14 @@ class DataStorage(QObject):
     differential_gyd_data_changed = pyqtSignal(str)
     differential_juu_data_changed = pyqtSignal(str)
     differential_jud_data_changed = pyqtSignal(str)
+    soc_dist_mag_data_changed = pyqtSignal(str)
+    soc_meas_mag_data_changed = pyqtSignal(str)
+    soc_subset_data_changed = pyqtSignal()
 
     sampling_enabled = pyqtSignal(bool)
     metamodel_enabled = pyqtSignal(bool)
     hessian_enabled = pyqtSignal(bool)
+    soc_enabled = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -88,6 +93,10 @@ class DataStorage(QObject):
                               'juu': {},
                               'jud': {}
                               }
+        self._soc_data = {'md': {},
+                          'me': {},
+                          'ss_list': {}
+                          }
 
         # --------------------------- SIGNALS/SLOTS ---------------------------
         # whenever expression data changes, perform a simulation setup check
@@ -137,6 +146,19 @@ class DataStorage(QObject):
         # reduced space data
         self.reduced_doe_sampled_data_changed.connect(
             self.check_reduced_space_setup)
+
+        # whenever constraint activity/ expr data changes, update disturbance
+        # and measurement error magnitudes data
+        self.alias_data_changed.connect(self._update_magnitude_data)
+        self.reduced_doe_constraint_activity_changed.connect(
+            self._update_magnitude_data
+        )
+
+        # whenever constraint activity data changes, update subset sizing list
+        # data
+        self.reduced_doe_constraint_activity_changed.connect(
+            self._update_subset_data
+        )
 
     # ------------------------------ PROPERTIES ------------------------------
     @property
@@ -507,6 +529,45 @@ class DataStorage(QObject):
         else:
             raise ValueError("Jud must be a dictionary.")
 
+    @property
+    def soc_disturbance_magnitude(self):
+        """Disturbances magnitude values."""
+        return self._soc_data['md']
+
+    @soc_disturbance_magnitude.setter
+    def soc_disturbance_magnitude(self, value: dict):
+        if isinstance(value, dict):
+            self._soc_data['md'] = value
+            self.soc_dist_mag_data_changed.emit('disturbance')
+        else:
+            raise ValueError("md must be a dictionary.")
+
+    @property
+    def soc_measure_error_magnitude(self):
+        """Measurement error magnitude values."""
+        return self._soc_data['me']
+
+    @soc_measure_error_magnitude.setter
+    def soc_measure_error_magnitude(self, value: dict):
+        if isinstance(value, dict):
+            self._soc_data['me'] = value
+            self.soc_meas_mag_data_changed.emit('error')
+        else:
+            raise ValueError("me must be a dictionary.")
+
+    @property
+    def soc_subset_size_list(self):
+        """The soc_subset_size_list property."""
+        return self._soc_data['ss_list']
+
+    @soc_subset_size_list.setter
+    def soc_subset_size_list(self, value: dict):
+        if isinstance(value, dict):
+            self._soc_data['ss_list'] = value
+            self.soc_subset_data_changed.emit()
+        else:
+            raise ValueError("Subset sizes must be a dictionary.")
+
     # ---------------------------- PRIVATE METHODS ---------------------------
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
             -> None:
@@ -736,6 +797,59 @@ class DataStorage(QObject):
         # store values
         self.reduced_metamodel_selected_data = new_vars
 
+    def _update_magnitude_data(self) -> None:
+        """Updates the distubance and measurement error magnitudes whenever
+        alias data changes. (SLOT)"""
+        # disturbances
+        d_aliases = [row['Alias'] for row in self.input_table_data
+                     if row['Type'] == 'Disturbance (d)']
+
+        # delete vars
+        soc_d = copy.deepcopy(self.soc_disturbance_magnitude)
+        for dist in self.soc_disturbance_magnitude:
+            if dist not in d_aliases:
+                del soc_d[dist]
+
+        # insert new keys
+        [soc_d.update({d: None}) for d in d_aliases if d not in soc_d]
+
+        self.soc_disturbance_magnitude = {'Value': soc_d}
+
+        # measurement errors
+        con_act = self.active_constraint_info
+        y_aliases = [con
+                     for con in con_act
+                     if not con_act[con]['Active'] and
+                     con_act[con]['Type'] != "Manipulated (MV)"]
+
+        # delete vars
+        soc_me = copy.deepcopy(self.soc_measure_error_magnitude)
+        for me in self.soc_measure_error_magnitude:
+            if me not in y_aliases:
+                del soc_me[me]
+
+        # insert new keys
+        [soc_me.update({y: None}) for y in y_aliases if y not in soc_me]
+
+        self.soc_measure_error_magnitude = {'Value': soc_me}
+
+    def _update_subset_data(self) -> None:
+        """Updates the subset size list whenever alias or expression data
+        changes. (SLOT)"""
+        # list of aliases that are reduced space CV's
+        con_act = self.active_constraint_info
+        y_aliases = [con
+                     for con in con_act
+                     if not con_act[con]['Active'] and
+                     con_act[con]['Type'] != "Manipulated (MV)"]
+
+        # possible number of subset
+        n_y_list = len(y_aliases)
+
+        # starting from subsets of size 2 to n_y_list
+        self.soc_subset_size_list = {y: {'Subset number': 0}
+                                     for y in range(2, n_y_list + 1)}
+
     # ---------------------------- PUBLIC METHODS ----------------------------
 
     def save(self, output_path: str) -> None:
@@ -780,6 +894,11 @@ class DataStorage(QObject):
                 'mtc_gyd': self.differential_gyd,
                 'mtc_juu': self.differential_juu,
                 'mtc_jud': self.differential_jud
+            },
+            'soc_info': {
+                'mtc_disturbance_magnitude': self.soc_disturbance_magnitude,
+                'mtc_measurement_magnitude': self.soc_measure_error_magnitude,
+                'mtc_subset_sizing_data': self.soc_subset_size_list
             }
         }
 
