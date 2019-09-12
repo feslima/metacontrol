@@ -11,6 +11,7 @@ from gui.calls.tabs.doetab import DoeTab
 from gui.calls.tabs.metamodeltab import MetamodelTab
 from gui.calls.tabs.reducedspacetab import ReducedSpaceTab
 from gui.calls.tabs.hessianextractiontab import HessianExtractionTab
+from gui.calls.tabs.soctab import SocTab
 
 
 class MainWindow(QMainWindow):
@@ -52,6 +53,8 @@ class MainWindow(QMainWindow):
                                                 parent_tab=self.ui.reducedspaceTab)
         self.tab_hessianext = HessianExtractionTab(self.application_database,
                                                    parent_tab=self.ui.hessianextractionTab)
+        self.tab_soc = SocTab(self.application_database,
+                              parent_tab=self.ui.socTab)
 
         # ------------------------ Actions connections ------------------------
         self.ui.actionOpen.triggered.connect(self.open_file)
@@ -70,6 +73,11 @@ class MainWindow(QMainWindow):
         # hessian tab enabled
         self.application_database.hessian_enabled.connect(
             self.on_hessianextraction_enabled)
+
+        # soc tab enabled
+        self.application_database.soc_enabled.connect(
+            self.on_soc_enabled
+        )
 
     def open_file(self):
         """Prompts the user to select which .mtc file to open.
@@ -131,6 +139,9 @@ class MainWindow(QMainWindow):
 
     def on_hessianextraction_enabled(self, is_enabled):
         self.ui.tabMainWidget.setTabEnabled(self._HESSIANTAB_IDX, is_enabled)
+
+    def on_soc_enabled(self, is_enabled):
+        self.ui.tabMainWidget.setTabEnabled(self._SOCTAB_IDX, is_enabled)
 
 
 if __name__ == "__main__":

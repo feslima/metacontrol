@@ -7066,6 +7066,9 @@
             }
         },
         "mtc_subset_sizing_data": {
+            "1": {
+                "Subset number": 0
+            },
             "2": {
                 "Subset number": 0
             },

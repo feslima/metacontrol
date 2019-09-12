@@ -6128,12 +6128,64 @@
                 "nom": 0.5
             }
         ],
-        "mtc_reduced_sampled_data": {}
+        "mtc_reduced_sampled_data": {
+            "case": [],
+            "status": [],
+            "rr": [],
+            "df": [],
+            "flow1": [],
+            "flow2": [],
+            "phif": [],
+            "xd": [],
+            "xb": [],
+            "v": [],
+            "l": [],
+            "f": [],
+            "d": [],
+            "b": [],
+            "qr": [],
+            "lf": [],
+            "vf": [],
+            "c1": [],
+            "c2": [],
+            "j": []
+        }
     },
     "differential_info": {
         "mtc_gy": {},
         "mtc_gyd": {},
         "mtc_juu": {},
         "mtc_jud": {}
+    },
+    "soc_info": {
+        "mtc_disturbance_magnitude": {
+            "Value": {
+                "flow1": null,
+                "flow2": null,
+                "phif": null
+            }
+        },
+        "mtc_measurement_magnitude": {
+            "Value": {
+                "xd": null,
+                "xb": null,
+                "lf": null,
+                "vf": null
+            }
+        },
+        "mtc_subset_sizing_data": {
+            "1": {
+                "Subset number": 0
+            },
+            "2": {
+                "Subset number": 0
+            },
+            "3": {
+                "Subset number": 0
+            },
+            "4": {
+                "Subset number": 0
+            }
+        }
     }
 }

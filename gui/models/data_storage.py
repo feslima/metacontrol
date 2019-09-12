@@ -160,6 +160,13 @@ class DataStorage(QObject):
             self._update_subset_data
         )
 
+        # perform a hessian setup check whenever gradient or hessian data
+        # changes
+        self.differential_gy_data_changed.connect(self.check_hessian_setup)
+        self.differential_gyd_data_changed.connect(self.check_hessian_setup)
+        self.differential_juu_data_changed.connect(self.check_hessian_setup)
+        self.differential_jud_data_changed.connect(self.check_hessian_setup)
+
     # ------------------------------ PROPERTIES ------------------------------
     @property
     def simulation_file(self):
@@ -846,9 +853,9 @@ class DataStorage(QObject):
         # possible number of subset
         n_y_list = len(y_aliases)
 
-        # starting from subsets of size 2 to n_y_list
+        # starting from subsets of size 1 to n_y_list
         self.soc_subset_size_list = {y: {'Subset number': 0}
-                                     for y in range(2, n_y_list + 1)}
+                                     for y in range(1, n_y_list + 1)}
 
     # ---------------------------- PUBLIC METHODS ----------------------------
 
@@ -923,6 +930,7 @@ class DataStorage(QObject):
         doe_info = app_data['doe_info']
         redspace_info = app_data['reduced_space_info']
         diff_info = app_data['differential_info']
+        soc_info = app_data['soc_info']
 
         # loadsimtab
         self.simulation_file = sim_info['sim_filename']
@@ -947,6 +955,11 @@ class DataStorage(QObject):
         self.differential_gyd = diff_info['mtc_gyd']
         self.differential_juu = diff_info['mtc_juu']
         self.differential_jud = diff_info['mtc_jud']
+
+        # soc tab
+        self.soc_disturbance_magnitude = soc_info['mtc_disturbance_magnitude']
+        self.soc_measure_error_magnitude = soc_info['mtc_measurement_magnitude']
+        self.soc_subset_size_list = soc_info['mtc_subset_sizing_data']
 
     def check_simulation_setup(self):
         """Checks if there are aliases and expressions are mathematically
@@ -1056,6 +1069,23 @@ class DataStorage(QObject):
             self.hessian_enabled.emit(True)
         else:
             self.hessian_enabled.emit(False)
+
+    def check_hessian_setup(self):
+        """Checks if the gradients and hessian are set.
+
+        If everything is ok, emits a signal with a boolean value where True
+        means that the SOC phase is good to go, otherwise the value is False.
+        """
+        is_gy_empty = pd.DataFrame(self.differential_gy).empty
+        is_gyd_empty = pd.DataFrame(self.differential_gyd).empty
+        is_juu_empty = pd.DataFrame(self.differential_juu).empty
+        is_jud_empty = pd.DataFrame(self.differential_jud).empty
+
+        if not is_gy_empty and not is_gyd_empty and not is_juu_empty and \
+                not is_jud_empty:
+            self.soc_enabled.emit(True)
+        else:
+            self.soc_enabled.emit(False)
 
     def evaluate_expr_data(self, sampled_data_dict: dict, space_type: str) -> \
             dict:

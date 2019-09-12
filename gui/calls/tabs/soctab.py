@@ -129,7 +129,7 @@ class MeasErrMagTableModel(MagnitudeTableModel):
 
         soc_me = self.app_data.soc_measure_error_magnitude
         soc_me['Value'][self.mag.index[row]] = float(value)
-        self.app_data.soc_dist_mag_data_changed.emit('error')
+        self.app_data.soc_meas_mag_data_changed.emit('error')
 
         self.dataChanged.emit(index, index)
         return True
@@ -194,18 +194,37 @@ class SubsetSizeTableModel(QAbstractTableModel):
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
-        elif role == Qt.BackgroundRole:
+        elif role == Qt.BackgroundRole or role == Qt.ToolTipRole:
             # maximum number of combinations allowed
             max_comb = comb(N=self.ss_list.columns[-1],
                             k=self.ss_list.columns[col], exact=True)
             if ss_data > max_comb:
-                return QBrush(Qt.red)
+                return QBrush(Qt.red) if role == Qt.BackgroundRole \
+                    else "For this subset size, only a maximum of " + \
+                    str(max_comb) + " best subsets is allowed!"
             else:
                 par = self.parent()
                 return QBrush(par.palette().brush(QPalette.Base))
 
         else:
             return None
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole or not index.isValid():
+            return False
+
+        row = index.row()
+        col = index.column()
+
+        ss_list = self.app_data.soc_subset_size_list
+        ss_list[col + 1]['Subset number'] = int(value)
+        self.app_data.soc_subset_data_changed.emit()
+
+        self.dataChanged.emit(index, index)
+        return True
+
+    def flags(self, index: QModelIndex):
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
 
 class SocTab(QWidget):

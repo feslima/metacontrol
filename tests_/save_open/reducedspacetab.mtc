@@ -7009,5 +7009,32 @@
         "mtc_gyd": {},
         "mtc_juu": {},
         "mtc_jud": {}
+    },
+    "soc_info": {
+        "mtc_disturbance_magnitude": {
+            "Value": {
+                "flow1": null,
+                "flow2": null,
+                "phif": null
+            }
+        },
+        "mtc_measurement_magnitude": {
+            "Value": {
+                "xb": null,
+                "lf": null,
+                "vf": null
+            }
+        },
+        "mtc_subset_sizing_data": {
+            "1": {
+                "Subset number": 0
+            },
+            "2": {
+                "Subset number": 0
+            },
+            "3": {
+                "Subset number": 0
+            }
+        }
     }
 }
