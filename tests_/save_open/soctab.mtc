@@ -7062,18 +7062,19 @@
             "Value": {
                 "xb": 0.0086427,
                 "lf": 0.009358,
-                "vf": 4.402e-05
+                "vf": 4.402e-05,
+                "df": 6.372e-5
             }
         },
         "mtc_subset_sizing_data": {
             "1": {
-                "Subset number": 0
+                "Subset number": 3
             },
             "2": {
-                "Subset number": 0
+                "Subset number": 3
             },
             "3": {
-                "Subset number": 0
+                "Subset number": 1
             }
         }
     }

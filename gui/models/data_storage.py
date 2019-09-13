@@ -824,10 +824,14 @@ class DataStorage(QObject):
 
         # measurement errors
         con_act = self.active_constraint_info
-        y_aliases = [con
-                     for con in con_act
-                     if not con_act[con]['Active'] and
-                     con_act[con]['Type'] != "Manipulated (MV)"]
+        # y_aliases = [con
+        #              for con in con_act
+        #              if not con_act[con]['Active'] and
+        #              con_act[con]['Type'] != "Manipulated (MV)"]
+
+        y_aliases = [row['Alias']
+                     for row in self.reduced_metamodel_selected_data
+                     if row['Type'] != 'Objective function (J)']
 
         # delete vars
         soc_me = copy.deepcopy(self.soc_measure_error_magnitude)
@@ -854,7 +858,7 @@ class DataStorage(QObject):
         n_y_list = len(y_aliases)
 
         # starting from subsets of size 1 to n_y_list
-        self.soc_subset_size_list = {y: {'Subset number': 0}
+        self.soc_subset_size_list = {str(y): {'Subset number': 0}
                                      for y in range(1, n_y_list + 1)}
 
     # ---------------------------- PUBLIC METHODS ----------------------------

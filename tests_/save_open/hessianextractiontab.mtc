@@ -7062,7 +7062,8 @@
             "Value": {
                 "xb": null,
                 "lf": null,
-                "vf": null
+                "vf": null,
+                "df": null
             }
         },
         "mtc_subset_sizing_data": {

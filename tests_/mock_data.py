@@ -51,3 +51,8 @@ REDSPACE_TAB_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)
 HESSIAN_TAB_MOCK_DS = DataStorage()
 HESSIAN_TAB_MOCK_DS.load(MTC_FOLDER_PATH / "hessianextractiontab.mtc")
 HESSIAN_TAB_MOCK_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)
+
+# soc tab
+SOC_TAB_MOC_DS = DataStorage()
+SOC_TAB_MOC_DS.load(MTC_FOLDER_PATH / "soctab.mtc")
+SOC_TAB_MOC_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)

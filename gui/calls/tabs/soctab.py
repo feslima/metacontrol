@@ -217,7 +217,7 @@ class SubsetSizeTableModel(QAbstractTableModel):
         col = index.column()
 
         ss_list = self.app_data.soc_subset_size_list
-        ss_list[col + 1]['Subset number'] = int(value)
+        ss_list[str(col + 1)]['Subset number'] = int(value)
         self.app_data.soc_subset_data_changed.emit()
 
         self.dataChanged.emit(index, index)
