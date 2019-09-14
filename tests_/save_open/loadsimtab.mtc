@@ -5241,6 +5241,16 @@
                 "Path": "\\Data\\Blocks\\TOWER\\Output\\REB_DUTY",
                 "Alias": "qr",
                 "Type": "Auxiliary"
+            },
+            {
+                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_DFR",
+                "Alias": "df_out",
+                "Type": "Candidate (CV)"
+            },
+            {
+                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_RR",
+                "Alias": "rr_out",
+                "Type": "Candidate (CV)"
             }
         ],
         "mtc_expr_table": [
@@ -5341,6 +5351,18 @@
                 "Active": false,
                 "Value": null,
                 "Pairing": null
+            },
+            "df_out": {
+                "Type": "Candidate (CV)",
+                "Active": false,
+                "Value": null,
+                "Pairing": null
+            },
+            "rr_out": {
+                "Type": "Candidate (CV)",
+                "Active": false,
+                "Value": null,
+                "Pairing": null
             }
         },
         "mtc_reduced_d_bounds": [
@@ -5405,7 +5427,9 @@
                 "xd": null,
                 "xb": null,
                 "lf": null,
-                "vf": null
+                "vf": null,
+                "df_out": null,
+                "rr_out": null
             }
         },
         "mtc_subset_sizing_data": {
@@ -5419,6 +5443,12 @@
                 "Subset number": 0
             },
             "4": {
+                "Subset number": 0
+            },
+            "5": {
+                "Subset number": 0
+            },
+            "6": {
                 "Subset number": 0
             }
         }

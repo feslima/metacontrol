@@ -952,7 +952,11 @@ class DataStorage(QObject):
         # reducedpsacetab
         self.active_constraint_info = redspace_info['mtc_constraint_activity']
         self.reduced_doe_d_bounds = redspace_info['mtc_reduced_d_bounds']
-        self.reduced_doe_sampled_data = redspace_info['mtc_reduced_sampled_data']
+        
+        # when loading sampled data, do not call expr_eval by setting the
+        # property directly. Just bypass it and emit the signal. 
+        self._reduced_data['sampled'] = redspace_info['mtc_reduced_sampled_data']
+        self.reduced_doe_sampled_data_changed.emit()
 
         # hessianextraction tab
         self.differential_gy = diff_info['mtc_gy']
