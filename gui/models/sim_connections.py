@@ -50,10 +50,10 @@ class AspenConnection:
         if self._aspen is None:
             self.open_connection()
 
-        # FIXME: move UOSSTAT2_node.Value to try block, to avoid bugs
+        UOSSTAT2_node = self._aspen.Tree.FindNode(
+            r"\Data\Results Summary\Run-Status\Output\UOSSTAT2")
         try:
-            UOSSTAT2_node = self._aspen.Tree.FindNode(
-                r"\Data\Results Summary\Run-Status\Output\UOSSTAT2")
+            d_val = UOSSTAT2_node.Value
         except pywintypes.com_error:
             # UOSSTAT2 node not built, that means the simulation has
             # no results.
