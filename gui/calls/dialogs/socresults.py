@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QApplication, QDialog
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QDialog, QHeaderView, QTableView
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
+from PyQt5.QtGui import QFont
 
 from gui.views.py_files.socresults import Ui_Dialog
 from gui.models.data_storage import DataStorage
@@ -8,6 +9,134 @@ from pysoc.soc import helm
 from pysoc.bnb import pb3wc
 import pandas as pd
 import numpy as np
+
+
+class LossTableModel(QAbstractTableModel):
+    def __init__(self, dataframe: pd.DataFrame, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+
+        self.df = dataframe.copy()
+
+    def set_dataframe(self, dataframe: pd.DataFrame):
+        self.layoutAboutToBeChanged.emit()
+        self.df = dataframe.copy()
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return self.df.shape[0] if not self.df.empty else 0
+
+    def columnCount(self, parent=None):
+        return self.df.shape[1] if not self.df.empty else 0
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if self.df.empty:
+            return None
+
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.df.columns[section]
+            else:
+                return None
+
+        elif role == Qt.FontRole:
+            df_font = QFont()
+            df_font.setBold(True)
+            return df_font
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        else:
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid() or self.df.empty:
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        value = self.df.iat[row, col]
+
+        if role == Qt.DisplayRole:
+            return str(value)
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+        else:
+            return None
+
+    def sort(self, column: int, order=Qt.AscendingOrder):
+        col_name = self.df.columns[column]
+
+        self.layoutAboutToBeChanged.emit()
+        self.df.sort_values(by=col_name, ascending=order == Qt.AscendingOrder,
+                            inplace=True)
+        self.df.reset_index(inplace=True, drop=True)
+        self.layoutChanged.emit()
+
+
+class HTableModel(QAbstractTableModel):
+    def __init__(self, dataframe: pd.DataFrame, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+
+        self.df = dataframe.copy()
+
+    def set_dataframe(self, dataframe: pd.DataFrame):
+        self.layoutAboutToBeChanged.emit()
+        self.df = dataframe.copy()
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return self.df.shape[0] if not self.df.empty else 0
+
+    def columnCount(self, parent=None):
+        return self.df.shape[1] if not self.df.empty else 0
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if self.df.empty:
+            return None
+
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.df.columns[section]
+            else:
+                return self.df.index[section]
+
+        elif role == Qt.FontRole:
+            df_font = QFont()
+            df_font.setBold(True)
+            return df_font
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        else:
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid() or self.df.empty:
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        value = self.df.iat[row, col]
+
+        if role == Qt.DisplayRole:
+            # NaN cells show as empty
+            return str(value) if not np.isnan(value) else "∅"
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+        elif role == Qt.FontRole:
+            df_font = QFont()
+            if np.isnan(value):
+                df_font.setPointSize(16)
+
+            return df_font
+        else:
+            return None
 
 
 class SocResultsDialog(QDialog):
@@ -80,19 +209,67 @@ class SocResultsDialog(QDialog):
                 # sensitivity matrices
                 F = pd.DataFrame(F_list[i], index=Gy.index[ss_row - 1],
                                  columns=Gyd.columns)
-                soc_results[ss]['f']["set_" + str(i)] = F
+                soc_results[ss]['f']["Set " + str(i + 1)] = F
                 # populate H matrix
                 for col, j in enumerate(ss_row):
                     h_df.at[loss_df.at[i, 'Structure'],
                             Gy.index[j - 1]] = H_list[i][0, col]
 
-            s = 1
-
-        raise NotImplementedError("NOT FINISHED!")
+        self.soc_results = soc_results
 
         # ----------------------- Widget Initialization -----------------------
+        ss_combo = self.ui.subsetSizeComboBox
+        ss_combo.addItems(['Select size'] + list(soc_results.keys()))
+
+        setnum_combo = self.ui.setNumberComboBox
+
+        loss_table = self.ui.lossesTableView
+        loss_model = LossTableModel(pd.DataFrame({}), parent=loss_table)
+        loss_table.setModel(loss_model)
+
+        loss_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        h_table = self.ui.hMatrixTableView
+        h_model = HTableModel(pd.DataFrame({}), parent=h_table)
+        h_table.setModel(h_model)
+
+        h_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        h_table.resizeRowsToContents()
         # --------------------------- Signals/Slots ---------------------------
+        ss_combo.currentTextChanged[str].connect(self.on_subset_size_changed)
+
+        setnum_combo.currentTextChanged[str].connect()
         # ---------------------------------------------------------------------
+
+    def on_subset_size_changed(self, ss_size: str):
+        # loads the loss and h table models based on subset size selected in
+        # combobox
+
+        if ss_size != 'Select size':
+            loss_values = self.soc_results[ss_size]['loss']
+            h_values = self.soc_results[ss_size]['h']
+            f_items = ['Select size'] + \
+                list(self.soc_results[ss_size]['f'].keys())
+        else:
+            loss_values = pd.DataFrame({})
+            h_values = pd.DataFrame({})
+            f_items = []
+
+        loss_model = self.ui.lossesTableView.model()
+        loss_model.set_dataframe(loss_values)
+
+        h_model = self.ui.hMatrixTableView.model()
+        h_model.set_dataframe(h_values)
+
+        # sensitivity matrices
+        setnum_combo = self.ui.setNumberComboBox
+        setnum_combo.clear()  # remove all items
+        setnum_combo.addItems(f_items)
+        setnum_combo.setCurrentIndex(0)
+
+    def on_set_number_changed(self, set_number: str):
+        ss_size = self.ui.subsetSizeComboBox.currentText()
+        raise NotImplementedError("NOT FINISHED!")
 
 
 if __name__ == "__main__":
