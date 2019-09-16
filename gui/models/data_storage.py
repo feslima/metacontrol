@@ -823,15 +823,9 @@ class DataStorage(QObject):
         self.soc_disturbance_magnitude = {'Value': soc_d}
 
         # measurement errors
-        con_act = self.active_constraint_info
-        # y_aliases = [con
-        #              for con in con_act
-        #              if not con_act[con]['Active'] and
-        #              con_act[con]['Type'] != "Manipulated (MV)"]
-
         y_aliases = [row['Alias']
                      for row in self.reduced_metamodel_selected_data
-                     if row['Type'] != 'Objective function (J)']
+                     if row['Type'] == 'Candidate (CV)']
 
         # delete vars
         soc_me = copy.deepcopy(self.soc_measure_error_magnitude)

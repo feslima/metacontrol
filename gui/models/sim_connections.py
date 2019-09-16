@@ -50,6 +50,7 @@ class AspenConnection:
         if self._aspen is None:
             self.open_connection()
 
+        # FIXME: move UOSSTAT2_node.Value to try block, to avoid bugs
         try:
             UOSSTAT2_node = self._aspen.Tree.FindNode(
                 r"\Data\Results Summary\Run-Status\Output\UOSSTAT2")
