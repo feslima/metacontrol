@@ -7,6 +7,11 @@ BLOCKS_INPUT_CATALOGUE = {
             {'Name': 'PRATIO', 'Description': 'Pressure Ratio (outlet pressure/inlet pressure)'},
             {'Name': 'POWER', 'Description': 'Brake Horsepower Input'}
         ],
+    'MCompr':
+        [
+            {'Name': 'PRES', 'Description': 'Outlet pressure of compressor.'},
+            {'Name': 'CL_TEMP', 'Description': 'Outlet temperature of the cooler.'}
+        ],
     'FSplit':
         [
             {'Name': 'FRAC', 'Description': 'Fraction of inlet stream going to this outlet stream'},
@@ -48,6 +53,10 @@ BLOCKS_INPUT_CATALOGUE = {
             {'Name': 'DEGSUP', 'Description': 'Degrees of Superheating'},
             {'Name': 'DEGSUB', 'Description': 'Degrees of Subcooling'}
         ],
+    'MHeatX':
+        [
+            {'Name': 'VALUE', 'Description': 'Desired value fot the specification'}
+        ],
     'Mixer':
         [
             {'Name': 'PRES', 'Description': 'Pressure'},
@@ -74,6 +83,11 @@ BLOCKS_INPUT_CATALOGUE = {
             {'Name': "B:F", 'Description': 'Ratio of Bottoms to Feed Flow Rate'},
             {'Name': "Q1", 'Description': 'Condenser Duty'},
             {'Name': "QN", 'Description': 'Reboiler Duty'}
+        ],
+    'RPlug':
+        [
+            {'Name': 'CTEMP', 'Description': 'Constant thermal fluid temperature'},
+            {'Name': 'PRES', 'Description': 'Absolute units: Process stream pressure at reactor inlet if value > 0; Pressure drop at inlet if value <= 0. Gauge units: Pressure at inlet for all values.'}
         ],
     'Valve':
         [
@@ -123,6 +137,14 @@ BLOCKS_OUTPUT_CATALOGUE = {
             {'Name': 'B_VFRAC', 'Description': 'Vapor fraction'},
             {'Name': 'DIS', 'Description': 'Displacement'},
             {'Name': 'EV', 'Description': 'Volumetric efficiency'}
+        ],
+    'MCompr':
+        [
+            {'Name': 'B_PRES2', 'Description': 'Outlet pressure (last stage)'},
+            {'Name': 'QCALC2', 'Description': 'Total Work'},
+            {'Name': 'DUTY_OUT', 'Description': 'Total Cooling Duty'},
+            {'Name': 'WNET', 'Description': 'Net work required'},
+            {'Name': 'QNET', 'Description': 'Net cooling duty'}
         ],
     'FSplit':
         [
@@ -180,6 +202,17 @@ BLOCKS_OUTPUT_CATALOGUE = {
             {'Name': 'LIQ_RATIO', 'Description': '1st liquid/total liquid'},
             {'Name': 'PDROP', 'Description': 'Pressure drop'}
         ],
+    'MHeatX':
+        [
+            {'Name': 'IN_TEMP', 'Description': 'Inlet temperatures'},
+            {'Name': 'IN_PRES', 'Description': 'Inlet pressure'},
+            {'Name': 'IN_VF', 'Description': 'Inlet vapour fraction'},
+            {'Name': 'B_TEMP', 'Description': 'Outlet temperature'},
+            {'Name': 'B_PRES', 'Description': 'Outlet pressure'},
+            {'Name': 'B_VFRAC', 'Description': 'Outlet vapour fraction'},
+            {'Name': 'QCALC', 'Description': 'Duty'},
+            {'Name': 'QCALC2', 'Description': 'Overall duty'}
+        ],
     'Mixer':
         [
             {'Name': 'B_TEMP', 'Description': 'Outlet temperature'},
@@ -224,6 +257,13 @@ BLOCKS_OUTPUT_CATALOGUE = {
             {'Name': 'B_TEMP', 'Description': 'Temperature profile'},
 			{'Name': 'X', 'Description': 'Liquid phase molar composition profile'},
 			{'Name': 'Y', 'Description': 'Vapour phase molar composition profile'}
+        ],
+    'RPlug':
+        [
+            {'Name': 'QCALC', 'Description': 'Heat duty'},
+            {'Name': 'TMIN', 'Description': 'Minimum temperature'},
+            {'Name': 'TMAX', 'Description': 'Maximum temperature'},
+            {'Name': 'RES_TIME', 'Description': 'Residence time'}
         ],
     'Valve':
         [
