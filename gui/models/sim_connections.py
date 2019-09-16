@@ -54,7 +54,7 @@ class AspenConnection:
             r"\Data\Results Summary\Run-Status\Output\UOSSTAT2")
         try:
             d_val = UOSSTAT2_node.Value
-        except pywintypes.com_error:
+        except (pywintypes.com_error, AttributeError):
             # UOSSTAT2 node not built, that means the simulation has
             # no results.
             self._aspen.Engine.Run2()
