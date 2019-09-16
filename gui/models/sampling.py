@@ -117,6 +117,6 @@ def run_case(mv_values: list, output_data: list, aspen_obj):
     else:
         res_dict['success'] = 'error'
         for out_var in output_data:
-            res_dict[out_var['var']] = 0.0
+            res_dict[out_var['var']] = np.spacing(1)
 
     return res_dict
