@@ -130,10 +130,33 @@
       <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="2" column="0">
+      <item row="1" column="1">
+       <widget class="QComboBox" name="setNumberComboBox"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Set number:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="0" colspan="3">
        <widget class="QTableView" name="sensitivityTableView"/>
       </item>
-      <item row="0" column="0">
+      <item row="0" column="0" colspan="3">
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
@@ -142,12 +165,9 @@
          </font>
         </property>
         <property name="text">
-         <string>Sensitivity matrices</string>
+         <string>Sensitivity matrices (F)</string>
         </property>
        </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QComboBox" name="setNumberComboBox"/>
       </item>
      </layout>
     </widget>

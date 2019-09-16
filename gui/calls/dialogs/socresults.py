@@ -139,6 +139,69 @@ class HTableModel(QAbstractTableModel):
             return None
 
 
+class SensitivityTableModel(QAbstractTableModel):
+    def __init__(self, dataframe: pd.DataFrame, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+
+        self.df = dataframe.copy()
+
+    def set_dataframe(self, dataframe: pd.DataFrame):
+        self.layoutAboutToBeChanged.emit()
+        self.df = dataframe.copy()
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return self.df.shape[0] if not self.df.empty else 0
+
+    def columnCount(self, parent=None):
+        return self.df.shape[1] if not self.df.empty else 0
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if self.df.empty:
+            return None
+
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.df.columns[section]
+            else:
+                return self.df.index[section]
+
+        elif role == Qt.FontRole:
+            df_font = QFont()
+            df_font.setBold(True)
+            return df_font
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        else:
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid() or self.df.empty:
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        value = self.df.iat[row, col]
+
+        if role == Qt.DisplayRole:
+            # NaN cells show as empty
+            return str(value) if not np.isnan(value) else "∅"
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+        elif role == Qt.FontRole:
+            df_font = QFont()
+            if np.isnan(value):
+                df_font.setPointSize(16)
+
+            return df_font
+        else:
+            return None
+
+
 class SocResultsDialog(QDialog):
     def __init__(self, application_data: DataStorage):
         # ------------------------ Form Initialization ------------------------
@@ -222,6 +285,7 @@ class SocResultsDialog(QDialog):
         ss_combo.addItems(['Select size'] + list(soc_results.keys()))
 
         setnum_combo = self.ui.setNumberComboBox
+        setnum_combo.addItem('Select number')
 
         loss_table = self.ui.lossesTableView
         loss_model = LossTableModel(pd.DataFrame({}), parent=loss_table)
@@ -235,10 +299,17 @@ class SocResultsDialog(QDialog):
 
         h_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         h_table.resizeRowsToContents()
+
+        f_table = self.ui.sensitivityTableView
+        f_model = SensitivityTableModel(pd.DataFrame({}), parent=f_table)
+        f_table.setModel(f_model)
+
+        f_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # --------------------------- Signals/Slots ---------------------------
         ss_combo.currentTextChanged[str].connect(self.on_subset_size_changed)
 
-        setnum_combo.currentTextChanged[str].connect()
+        setnum_combo.currentTextChanged[str].connect(
+            self.on_set_number_changed)
         # ---------------------------------------------------------------------
 
     def on_subset_size_changed(self, ss_size: str):
@@ -248,7 +319,7 @@ class SocResultsDialog(QDialog):
         if ss_size != 'Select size':
             loss_values = self.soc_results[ss_size]['loss']
             h_values = self.soc_results[ss_size]['h']
-            f_items = ['Select size'] + \
+            f_items = ['Select number'] + \
                 list(self.soc_results[ss_size]['f'].keys())
         else:
             loss_values = pd.DataFrame({})
@@ -269,7 +340,14 @@ class SocResultsDialog(QDialog):
 
     def on_set_number_changed(self, set_number: str):
         ss_size = self.ui.subsetSizeComboBox.currentText()
-        raise NotImplementedError("NOT FINISHED!")
+
+        if set_number == "Select number" or set_number == "":
+            f_values = pd.DataFrame({})
+        else:
+            f_values = self.soc_results[ss_size]['f'][set_number]
+
+        f_model = self.ui.sensitivityTableView.model()
+        f_model.set_dataframe(f_values)
 
 
 if __name__ == "__main__":
