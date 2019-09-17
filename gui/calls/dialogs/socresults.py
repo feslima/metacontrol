@@ -102,7 +102,7 @@ class HTableModel(QAbstractTableModel):
             if orientation == Qt.Horizontal:
                 return self.df.columns[section]
             else:
-                return self.df.index[section]
+                return None
 
         elif role == Qt.FontRole:
             df_font = QFont()

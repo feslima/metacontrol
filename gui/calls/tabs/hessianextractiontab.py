@@ -184,7 +184,7 @@ class HessianExtractionTab(QWidget):
         if difftype == 'gradient':
             Y_labels = [var['Alias'] for var in
                         app_data.reduced_metamodel_selected_data
-                        if var['Type'] != 'Objective function (J)']
+                        if var['Type'] == 'Candidate (CV)']
         else:
             Y_labels = [var['Alias'] for var in
                         app_data.reduced_metamodel_selected_data
