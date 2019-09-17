@@ -467,7 +467,7 @@ class DataStorage(QObject):
 
     @differential_regression_model.setter
     def differential_regression_model(self, value: str):
-        if value != 'poly0' or value != 'poly1' or value != 'poly2':
+        if value not in ['poly0', 'poly1', 'poly2']:
             raise ValueError("Invalid regression model.")
         else:
             self._hessian_data['regression'] = value

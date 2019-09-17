@@ -88,6 +88,10 @@ class ReducedSpaceMetamodelDialog(QDialog):
         self.ui.viewPlotPushButton.clicked.connect(
             self.on_view_plots_pressed
         )
+
+        self.ui.confirmPushButton.clicked.connect(
+            self.on_confirm_pressed
+        )
         # ---------------------------------------------------------------------
 
     def on_train_reduced_metamodel_pressed(self):
@@ -272,6 +276,23 @@ class ReducedSpaceMetamodelDialog(QDialog):
         if hasattr(self, 'metamodel_data'):
             dialog = PlotWindow(self.metamodel_data)
             dialog.exec_()
+
+    def on_confirm_pressed(self):
+        if self.ui.regrComboBox.currentText() == "Constant (0th order)":
+            self.application_database.differential_regression_model = 'poly0'
+        elif self.ui.regrComboBox.currentText() == "Linear (1st order)":
+            self.application_database.differential_regression_model = 'poly1'
+        else:
+            raise NotImplementedError("Invalid regression option!")
+
+        if self.ui.corrComboBox.currentText() == \
+                "Exponential Gaussian (Kriging)":
+            self.application_database.differential_correlation_model = \
+                'corrgauss'
+        else:
+            raise NotImplementedError("Invalid correlation option!")
+
+        self.close()
 
 
 if __name__ == "__main__":

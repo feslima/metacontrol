@@ -8,6 +8,7 @@ from PyQt5.QtGui import QFont
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.hessianextractiontab import Ui_Form
 from gui.models.hessian_eval import hesscorrgauss
+from gui.calls.dialogs.redspacemetamodel import ReducedSpaceMetamodelDialog
 
 
 class DiffTableModel(QAbstractTableModel):
@@ -138,7 +139,15 @@ class HessianExtractionTab(QWidget):
         self.ui.genGradHessPushButton.clicked.connect(
             self.on_generate_grad_hess_pressed
         )
+
+        self.ui.trainMetamodelPushButton.clicked.connect(
+            self.on_reduced_space_metamodel_pressed
+        )
         # ---------------------------------------------------------------------
+
+    def on_reduced_space_metamodel_pressed(self):
+        dialog = ReducedSpaceMetamodelDialog(self.application_database)
+        dialog.exec_()
 
     def on_generate_grad_hess_pressed(self):
         # get reduced space inputs from reduced theta data
