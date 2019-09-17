@@ -384,9 +384,7 @@ if __name__ == "__main__":
     from tests_.mock_data import SOC_TAB_MOC_DS
 
     app = QApplication(sys.argv)
-    # ds = SOC_TAB_MOC_DS
-    ds = DataStorage()
-    ds.load(r"C:\Users\Felipe\Downloads\metacontrol_1st_bug.mtc")
+    ds = SOC_TAB_MOC_DS
     w = SocResultsDialog(application_data=ds)
     w.show()
 
