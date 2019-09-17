@@ -1,14 +1,14 @@
-from PyQt5.QtWidgets import QApplication, QDialog, QHeaderView, QTableView
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
-from PyQt5.QtGui import QFont
-
-from gui.views.py_files.socresults import Ui_Dialog
-from gui.models.data_storage import DataStorage
-
-from pysoc.soc import helm
-from pysoc.bnb import pb3wc
-import pandas as pd
 import numpy as np
+import pandas as pd
+from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog, QHeaderView,
+                             QTableView)
+from pysoc.bnb import pb3wc
+from pysoc.soc import helm
+
+from gui.models.data_storage import DataStorage
+from gui.views.py_files.socresults import Ui_Dialog
 
 
 class LossTableModel(QAbstractTableModel):
@@ -102,7 +102,7 @@ class HTableModel(QAbstractTableModel):
             if orientation == Qt.Horizontal:
                 return self.df.columns[section]
             else:
-                return None
+                return self.df.index[section]
 
         elif role == Qt.FontRole:
             df_font = QFont()
@@ -241,7 +241,9 @@ class SocResultsDialog(QDialog):
             # losses dataframe
             loss_df = pd.DataFrame(np.nan, index=range(nc),
                                    columns=['Structure', 'Worst-case loss',
-                                            'Average loss'], dtype=object)
+                                            'Average loss',
+                                            'Gy conditional number'],
+                                   dtype=object)
 
             soc_results[ss] = {'loss': loss_df}
 
@@ -260,14 +262,16 @@ class SocResultsDialog(QDialog):
 
                 loss_df.at[i, 'Worst-case loss'] = worst_loss_list[i]
                 loss_df.at[i, 'Average loss'] = average_loss_list[i]
+                loss_df.at[i, 'Gy conditional number'] = cond_list[i]
 
-            # H dataframe
-            h_df = pd.DataFrame(None, index=loss_df.loc[:, 'Structure'].values,
-                                columns=Gy.index)
-            soc_results[ss]['h'] = h_df
+            soc_results[ss]['h'] = {}
             soc_results[ss]['f'] = {}
             for i in range(nc):
                 ss_row = sset_bnb[i, :]
+
+                # H dataframe
+                h_df = pd.DataFrame(None, index=Juu.index,
+                                    columns=Gy.index)
 
                 # sensitivity matrices
                 F = pd.DataFrame(F_list[i], index=Gy.index[ss_row - 1],
@@ -275,14 +279,18 @@ class SocResultsDialog(QDialog):
                 soc_results[ss]['f']["Set " + str(i + 1)] = F
                 # populate H matrix
                 for col, j in enumerate(ss_row):
-                    h_df.at[loss_df.at[i, 'Structure'],
-                            Gy.index[j - 1]] = H_list[i][0, col]
+                    h_df.loc[:, Gy.index[j - 1]] = H_list[i][0, col]
+                soc_results[ss]['h'][loss_df.at[i, 'Structure']] = h_df
 
         self.soc_results = soc_results
 
         # ----------------------- Widget Initialization -----------------------
         ss_combo = self.ui.subsetSizeComboBox
         ss_combo.addItems(['Select size'] + list(soc_results.keys()))
+
+        setstruct_combo = self.ui.selectHComboBox
+        setstruct_combo.addItem('Select structure')
+        setstruct_combo.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         setnum_combo = self.ui.setNumberComboBox
         setnum_combo.addItem('Select number')
@@ -308,8 +316,11 @@ class SocResultsDialog(QDialog):
         # --------------------------- Signals/Slots ---------------------------
         ss_combo.currentTextChanged[str].connect(self.on_subset_size_changed)
 
+        setstruct_combo.currentTextChanged[str].connect(
+            self.on_combo_set_structure_changed)
+
         setnum_combo.currentTextChanged[str].connect(
-            self.on_set_number_changed)
+            self.on_combo_set_number_changed)
         # ---------------------------------------------------------------------
 
     def on_subset_size_changed(self, ss_size: str):
@@ -318,19 +329,25 @@ class SocResultsDialog(QDialog):
 
         if ss_size != 'Select size':
             loss_values = self.soc_results[ss_size]['loss']
-            h_values = self.soc_results[ss_size]['h']
+            # h_values = self.soc_results[ss_size]['h']
+            h_items = ['Select structure'] + \
+                list(self.soc_results[ss_size]['h'].keys())
             f_items = ['Select number'] + \
                 list(self.soc_results[ss_size]['f'].keys())
         else:
             loss_values = pd.DataFrame({})
-            h_values = pd.DataFrame({})
+            # h_values = pd.DataFrame({})
+            h_items = []
             f_items = []
 
         loss_model = self.ui.lossesTableView.model()
         loss_model.set_dataframe(loss_values)
 
-        h_model = self.ui.hMatrixTableView.model()
-        h_model.set_dataframe(h_values)
+        # h matrices
+        setstruct_combo = self.ui.selectHComboBox
+        setstruct_combo.clear()
+        setstruct_combo.addItems(h_items)
+        setstruct_combo.setCurrentIndex(0)
 
         # sensitivity matrices
         setnum_combo = self.ui.setNumberComboBox
@@ -338,7 +355,18 @@ class SocResultsDialog(QDialog):
         setnum_combo.addItems(f_items)
         setnum_combo.setCurrentIndex(0)
 
-    def on_set_number_changed(self, set_number: str):
+    def on_combo_set_structure_changed(self, set_structure: str):
+        ss_size = self.ui.subsetSizeComboBox.currentText()
+
+        if set_structure == "Select structure" or set_structure == "":
+            h_values = pd.DataFrame({})
+        else:
+            h_values = self.soc_results[ss_size]['h'][set_structure]
+
+        h_model = self.ui.hMatrixTableView.model()
+        h_model.set_dataframe(h_values)
+
+    def on_combo_set_number_changed(self, set_number: str):
         ss_size = self.ui.subsetSizeComboBox.currentText()
 
         if set_number == "Select number" or set_number == "":
@@ -356,7 +384,9 @@ if __name__ == "__main__":
     from tests_.mock_data import SOC_TAB_MOC_DS
 
     app = QApplication(sys.argv)
-    ds = SOC_TAB_MOC_DS
+    # ds = SOC_TAB_MOC_DS
+    ds = DataStorage()
+    ds.load(r"C:\Users\Felipe\Downloads\metacontrol_1st_bug.mtc")
     w = SocResultsDialog(application_data=ds)
     w.show()
 
