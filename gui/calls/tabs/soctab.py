@@ -8,6 +8,7 @@ from scipy.special import comb
 from gui.calls.base import DoubleEditorDelegate, IntegerEditorDelegate
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.soctab import Ui_Form
+from gui.calls.dialogs.socresults import SocResultsDialog
 
 
 class MagnitudeTableModel(QAbstractTableModel):
@@ -268,7 +269,13 @@ class SocTab(QWidget):
         ss_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # --------------------------- Signals/Slots ---------------------------
+        self.ui.generateResultsPushButton.clicked.connect(
+            self.on_generate_results_pressed)
         # ---------------------------------------------------------------------
+
+    def on_generate_results_pressed(self):
+        dialog = SocResultsDialog(self.application_database)
+        dialog.exec_()
 
 
 if __name__ == "__main__":
