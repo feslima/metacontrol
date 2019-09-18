@@ -9,6 +9,7 @@ from gui.views.py_files.mainwindow import Ui_MainWindow
 from gui.calls.tabs.loadsimtab import LoadSimTab
 from gui.calls.tabs.doetab import DoeTab
 from gui.calls.tabs.metamodeltab import MetamodelTab
+from gui.calls.tabs.optimizationtab import OptimizationTab
 from gui.calls.tabs.reducedspacetab import ReducedSpaceTab
 from gui.calls.tabs.hessianextractiontab import HessianExtractionTab
 from gui.calls.tabs.soctab import SocTab
@@ -49,6 +50,8 @@ class MainWindow(QMainWindow):
                               parent_tab=self.ui.samplingTab)
         self.tab_metamodel = MetamodelTab(self.application_database,
                                           parent_tab=self.ui.metamodelTab)
+        self.tab_optimization = OptimizationTab(self.application_database,
+                                                parent_tab=self.ui.optimizationTab)
         self.tab_reducedspace = ReducedSpaceTab(self.application_database,
                                                 parent_tab=self.ui.reducedspaceTab)
         self.tab_hessianext = HessianExtractionTab(self.application_database,
@@ -69,6 +72,10 @@ class MainWindow(QMainWindow):
         # metamodel tab enabled
         self.application_database.metamodel_enabled.connect(
             self.on_metamodel_enabled)
+
+        # optimization tab enabled
+        self.application_database.metamodel_enabled.connect(
+            self.on_optimization_enabled)
 
         # hessian tab enabled
         self.application_database.hessian_enabled.connect(
@@ -135,7 +142,6 @@ class MainWindow(QMainWindow):
 
     def on_optimization_enabled(self, is_enabled):
         self.ui.tabMainWidget.setTabEnabled(self._OPTTAB_IDX, is_enabled)
-        raise NotImplementedError("Optimization tab not implemented!")
 
     def on_hessianextraction_enabled(self, is_enabled):
         self.ui.tabMainWidget.setTabEnabled(self._HESSIANTAB_IDX, is_enabled)
