@@ -116,7 +116,7 @@
       </widget>
       <widget class="QWidget" name="hessianextractionTab">
        <attribute name="title">
-        <string>Hessian Extraction</string>
+        <string>Differential Data</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="socTab">

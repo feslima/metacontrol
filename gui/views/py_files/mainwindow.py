@@ -114,7 +114,7 @@ class Ui_MainWindow(object):
         self.tabMainWidget.setTabText(self.tabMainWidget.indexOf(self.metamodelTab), _translate("MainWindow", "Metamodel"))
         self.tabMainWidget.setTabText(self.tabMainWidget.indexOf(self.optimizationTab), _translate("MainWindow", "Optimization"))
         self.tabMainWidget.setTabText(self.tabMainWidget.indexOf(self.reducedspaceTab), _translate("MainWindow", "Reduced Space"))
-        self.tabMainWidget.setTabText(self.tabMainWidget.indexOf(self.hessianextractionTab), _translate("MainWindow", "Hessian Extraction"))
+        self.tabMainWidget.setTabText(self.tabMainWidget.indexOf(self.hessianextractionTab), _translate("MainWindow", "Differential Data"))
         self.tabMainWidget.setTabText(self.tabMainWidget.indexOf(self.socTab), _translate("MainWindow", "Self-Optimizing Control"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
