@@ -732,18 +732,18 @@ class DataStorage(QObject):
         dist_aliases = [row['Alias'] for row in self.input_table_data
                         if row['Type'] == 'Disturbance (d)']
 
-        # get the consumed aliases from constraint activity info where the
-        # type of paired alias is active and not manipulated.
+        # get the non consumed aliases from constraint activity info where the
+        # type of alias is not active and manipulated.
         con_act = self.active_constraint_info
         consumed_aliases = [con_act[con]['Pairing']
                             for con in con_act
-                            if con_act[con]['Type'] != 'Manipulated (MV)' and
+                            if con_act[con]['Type'] == 'Candidate (CV)' and
                             con_act[con]['Active']]
 
-        non_consumed_aliases = [row['Alias'] for row in self.input_table_data
-                                if row['Type'] == 'Manipulated (MV)' and
-                                row['Alias'] not in consumed_aliases]
-
+        non_consumed_aliases = [con for con in con_act
+                                if con_act[con]['Type'] == 'Manipulated (MV)'
+                                and not con_act[con]['Active']
+                                and con not in consumed_aliases]
         # aliases to be displayed in the theta table
         input_aliases = dist_aliases + non_consumed_aliases
 
@@ -773,19 +773,12 @@ class DataStorage(QObject):
                            if not con_act[con]['Active'] and
                            con_act[con]['Type'] != "Manipulated (MV)"]
 
-        # assuming that a pairing is always a MV
-        pairings = [{'Alias': con_act[con]['Pairing'],
-                     'Type': 'Manipulated (MV)'}
-                    for con in con_act
-                    if con_act[con]['Type'] != 'Manipulated (MV)' and
-                    con_act[con]['Active']]
-
         obj_fun = [{'Alias': row['Alias'], 'Type': row['Type']}
                    for row in self.output_table_data +
                    self.expression_table_data
                    if row['Type'] == 'Objective function (J)']
 
-        vars = non_act_aliases + pairings + obj_fun
+        vars = non_act_aliases + obj_fun
 
         # list of aliases
         aliases = [row['Alias'] for row in vars]
@@ -798,7 +791,7 @@ class DataStorage(QObject):
 
         # insert new vairables
         [new_vars.append({'Alias': var['Alias'], 'Type': var['Type'],
-                          'Checked': False})
+                          'Checked': True})
          for var in vars if var['Alias'] not in vars_list]
 
         # store values
@@ -946,9 +939,9 @@ class DataStorage(QObject):
         # reducedpsacetab
         self.active_constraint_info = redspace_info['mtc_constraint_activity']
         self.reduced_doe_d_bounds = redspace_info['mtc_reduced_d_bounds']
-        
+
         # when loading sampled data, do not call expr_eval by setting the
-        # property directly. Just bypass it and emit the signal. 
+        # property directly. Just bypass it and emit the signal.
         self._reduced_data['sampled'] = redspace_info['mtc_reduced_sampled_data']
         self.reduced_doe_sampled_data_changed.emit()
 
