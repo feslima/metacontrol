@@ -241,7 +241,24 @@ class LoadSimulationTreeDialog(QDialog):
             self._input_table_model.load_data)
         self.app_data.alias_data_changed.connect(
             self._output_table_model.load_data)
+
+        # opens simulation GUI when checkbox is toggled
+        self.ui.openSimGUICheckBox.stateChanged.connect(self.open_simulator_gui)
         # ---------------------------------------------------------------------
+
+    def open_simulator_gui(self, checkstate: Qt.CheckState):
+        # check if there is a connection object and open if not
+        if hasattr(self, 'aspen_com'):
+            con_obj = self.aspen_com.get_connection_object()
+
+        else:
+            self.load_tree()
+            con_obj = self.aspen_com.get_connection_object()
+
+        if checkstate == Qt.Checked:
+            con_obj.Visible = 1
+        else:
+            con_obj.Visible = 0
 
     def create_tree_models(self):
         input_tree_dict_model = QStandardItemModel()
