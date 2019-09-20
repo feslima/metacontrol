@@ -219,6 +219,7 @@ class SocResultsDialog(QDialog):
         Jud = pd.DataFrame(self.app_data.differential_jud)
         md = pd.DataFrame(self.app_data.soc_disturbance_magnitude)
         me = pd.DataFrame(self.app_data.soc_measure_error_magnitude)
+#FIXME: BUG IN GENERATING MATRICES IN CORRECT ORDER. (GYD), POSSIBLE FIX: USING PANDAS
         ss_list = self.app_data.soc_subset_size_list
 
         # keys are the subset sizes
