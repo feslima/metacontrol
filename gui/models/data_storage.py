@@ -160,6 +160,9 @@ class DataStorage(QObject):
         self.reduced_selected_data_changed.connect(
             self._update_subset_data
         )
+        self.reduced_selected_data_changed.connect(
+            self._update_magnitude_data
+        )
 
         # perform a hessian setup check whenever gradient or hessian data
         # changes
