@@ -32,6 +32,7 @@ class DataStorage(QObject):
     reduced_doe_constraint_activity_changed = pyqtSignal()
     reduced_d_bounds_changed = pyqtSignal()
     reduced_doe_sampled_data_changed = pyqtSignal()
+    reduced_selected_data_changed = pyqtSignal()
     differential_gy_data_changed = pyqtSignal(str)
     differential_gyd_data_changed = pyqtSignal(str)
     differential_juu_data_changed = pyqtSignal(str)
@@ -154,9 +155,9 @@ class DataStorage(QObject):
             self._update_magnitude_data
         )
 
-        # whenever constraint activity data changes, update subset sizing list
+        # whenever reduced select data changes, update subset sizing list
         # data
-        self.reduced_doe_constraint_activity_changed.connect(
+        self.reduced_selected_data_changed.connect(
             self._update_subset_data
         )
 
@@ -457,6 +458,7 @@ class DataStorage(QObject):
     def reduced_metamodel_selected_data(self, value):
         if isinstance(value, list):
             self._hessian_data['metamodel_data']['selected'] = value
+            self.reduced_selected_data_changed.emit()
         else:
             raise TypeError("Selected data must be a list of dictionaries.")
 
