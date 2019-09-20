@@ -219,8 +219,20 @@ class SocResultsDialog(QDialog):
         Jud = pd.DataFrame(self.app_data.differential_jud)
         md = pd.DataFrame(self.app_data.soc_disturbance_magnitude)
         me = pd.DataFrame(self.app_data.soc_measure_error_magnitude)
-#FIXME: BUG IN GENERATING MATRICES IN CORRECT ORDER. (GYD), POSSIBLE FIX: USING PANDAS
         ss_list = self.app_data.soc_subset_size_list
+
+        # ensure correct indexation
+        # index of Gyd has to be the same order as index of Gy
+        Gyd = Gyd.reindex(index=Gy.index)
+        # index of md has to be the same order as columns of Gyd
+        md = md.reindex(index=Gyd.columns)
+        # index of me has to be the same order as index of Gy
+        me = me.reindex(index=Gy.index)
+        # index/columns of Juu has to be the same order as columns of Gy
+        Juu = Juu.reindex(index=Gy.columns, columns=Gy.columns)
+        # index of Jud has to be the same order as columns of Gy and
+        # columns of Jud has to be the same order as columns of Gyd
+        Jud = Jud.reindex(index=Gy.columns, columns=Gyd.columns)
 
         # keys are the subset sizes
         soc_results = {}
@@ -322,6 +334,8 @@ class SocResultsDialog(QDialog):
 
         setnum_combo.currentTextChanged[str].connect(
             self.on_combo_set_number_changed)
+
+        self.ui.closeDialogPushButton.clicked.connect(self.close)
         # ---------------------------------------------------------------------
 
     def on_subset_size_changed(self, ss_size: str):

@@ -821,7 +821,6 @@ class DataStorage(QObject):
                      if row['Type'] == 'Candidate (CV)'
                      and row['Checked']]
 
-
         # delete vars
         soc_me = copy.deepcopy(self.soc_measure_error_magnitude)
         for me in self.soc_measure_error_magnitude:
@@ -842,10 +841,6 @@ class DataStorage(QObject):
                      for row in self.reduced_metamodel_selected_data
                      if row['Type'] == 'Candidate (CV)'
                      and row['Checked']]
-        #y_aliases = [con
-        #             for con in con_act
-        #             if not con_act[con]['Active'] and
-        #             con_act[con]['Type'] != "Manipulated (MV)"]
 
         # possible number of subset
         n_y_list = len(y_aliases)
