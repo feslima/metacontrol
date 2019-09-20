@@ -8,7 +8,7 @@ from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg,
 from matplotlib.figure import Figure
 from pydace import dacefit, predictor
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
-from PyQt5.QtGui import QBrush, QFont, QPalette
+from PyQt5.QtGui import QBrush, QFont, QPalette, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QTableView,
                              QVBoxLayout, QWidget)
 from sklearn.metrics import (explained_variance_score, mean_absolute_error,
@@ -338,6 +338,7 @@ class PlotWindow(QDialog):
     def __init__(self, metamodel_data: dict, parent=None):
         super(PlotWindow, self).__init__(parent)
         self.setWindowFlags(Qt.Window)
+        self.setWindowTitle("Validation results")
 
         self.figure = Figure()
 
@@ -383,6 +384,12 @@ class PlotWindow(QDialog):
 
             # refresh canvas
             self.canvas.draw()
+
+        self.figure.tight_layout()
+
+    def resizeEvent(self, e: QResizeEvent):
+        super().resizeEvent(e)
+        self.figure.tight_layout()
 
 
 class MetamodelTab(QWidget):
