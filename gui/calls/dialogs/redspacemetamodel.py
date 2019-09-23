@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pydace import dacefit, predictor
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QApplication, QDialog, QHeaderView
 from sklearn.metrics import (explained_variance_score, mean_absolute_error,
                              mean_squared_error, r2_score)
@@ -29,6 +29,27 @@ class RedVarSelectionTableModel(VariableSelectionTableModel):
         self.layoutAboutToBeChanged.emit()
         self.variables = self.app_data.reduced_metamodel_selected_data
         self.layoutChanged.emit()
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole or not index.isValid():
+            return False
+
+        row = index.row()
+        col = index.column()
+
+        var_data = self.variables[row]
+
+        if col == 0:
+            var_data['Checked'] = True if value == 1 else False
+
+            self.dataChanged.emit(index.sibling(row, col + 1),
+                                  index.sibling(row, self.columnCount()))
+
+            self.app_data.reduced_selected_data_changed.emit()
+
+            return True
+
+        return False
 
 
 class ReducedSpaceMetamodelDialog(QDialog):

@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         """Saves the current application configuration as is. If it is a new
         file prompts the user to select the location and name of the .mtc file.
         """
-        current_mtc_name = self.windowTitle().split(' - ')[1]
+        current_mtc_name = self.windowTitle().split('Metacontrol - ')[1]
 
         if pathlib.Path(current_mtc_name).is_file():
             # file exists, save it
