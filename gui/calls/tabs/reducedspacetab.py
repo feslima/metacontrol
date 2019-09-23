@@ -405,7 +405,7 @@ class ReducedSpaceTab(QWidget):
 
         active_table.setItemDelegateForRow(0, self._check_delegate)
         active_table.setItemDelegateForRow(1, self._pairing_delegate)
-        active_table.setItemDelegateForRow(2, self._value_delegate)
+        active_table.setItemDelegateForRow(3, self._value_delegate)
 
         dist_table = self.ui.disturbanceRangeTableView
         dist_model = RangeOfDisturbanceTableModel(self.application_database,
