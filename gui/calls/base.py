@@ -74,6 +74,14 @@ class AliasEditorDelegate(QItemDelegate):
 
         return line_editor
 
+    def setEditorData(self, editor, index):
+        row = index.row()
+        col = index.column()
+        current_text = index.data(role=Qt.DisplayRole)
+
+        if isinstance(editor, QLineEdit):
+            editor.setText(current_text)
+
     def setModelData(self, editor, model, index):
         text = editor.text()
 
