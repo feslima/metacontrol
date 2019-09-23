@@ -16,10 +16,19 @@ class DoubleEditorDelegate(QItemDelegate):
 
     def createEditor(self, parent, option, index):
         line_editor = QLineEdit(parent)
+        line_editor.setAlignment(Qt.AlignCenter)
         double_validator = QDoubleValidator(parent=line_editor)
         line_editor.setValidator(double_validator)
 
         return line_editor
+
+    def setEditorData(self, editor, index):
+        row = index.row()
+        col = index.column()
+        current_text = index.data(role=Qt.DisplayRole)
+
+        if isinstance(editor, QLineEdit):
+            editor.setText(current_text)
 
     def setModelData(self, editor, model, index):
         text = editor.text()
@@ -36,10 +45,19 @@ class IntegerEditorDelegate(QItemDelegate):
 
     def createEditor(self, parent, option, index):
         line_editor = QLineEdit(parent)
+        line_editor.setAlignment(Qt.AlignCenter)
         int_validator = QIntValidator(parent=line_editor)
         line_editor.setValidator(int_validator)
 
         return line_editor
+
+    def setEditorData(self, editor, index):
+        row = index.row()
+        col = index.column()
+        current_text = index.data(role=Qt.DisplayRole)
+
+        if isinstance(editor, QLineEdit):
+            editor.setText(current_text)
 
     def setModelData(self, editor, model, index):
         text = editor.text()
