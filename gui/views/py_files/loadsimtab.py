@@ -182,7 +182,7 @@ class Ui_Form(object):
         self.label_12.setObjectName("label_12")
         self.gridLayout_7.addWidget(self.label_12, 0, 0, 1, 1)
         self.tableViewExpressions = QtWidgets.QTableView(self.groupBox_6)
-        self.tableViewExpressions.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked|QtWidgets.QAbstractItemView.EditKeyPressed)
+        self.tableViewExpressions.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
         self.tableViewExpressions.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.tableViewExpressions.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableViewExpressions.setObjectName("tableViewExpressions")

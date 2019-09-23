@@ -46,6 +46,7 @@ class Ui_Form(object):
         self.activeConstraintTableView.setSizePolicy(sizePolicy)
         self.activeConstraintTableView.setMinimumSize(QtCore.QSize(0, 0))
         self.activeConstraintTableView.setMaximumSize(QtCore.QSize(16777215, 150))
+        self.activeConstraintTableView.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
         self.activeConstraintTableView.setObjectName("activeConstraintTableView")
         self.gridLayout_2.addWidget(self.activeConstraintTableView, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.groupBox, 0, 1, 1, 1)
