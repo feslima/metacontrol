@@ -132,10 +132,15 @@ class ComboBoxDelegate(QItemDelegate):
         combo_box.addItems(self.item_list)
         return combo_box
 
-    def setEditorData(self, combo_box, index):
+    def setEditorData(self, editor, index):
         # Sets the data to be displayed and edited by the editor from the data
         # model item specified by the model index.
-        # combo_box.showPopup()
+        current_text = index.data(role=Qt.DisplayRole)
+
+        if isinstance(editor, QComboBox):
+            combo_index = editor.findData(current_text, role=Qt.DisplayRole)
+
+            editor.setCurrentIndex(combo_index)
         pass
 
     def setModelData(self, combo_box, model, index):
