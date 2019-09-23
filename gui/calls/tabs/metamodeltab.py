@@ -470,8 +470,12 @@ class MetamodelTab(QWidget):
 
         # sampled data
         sampled_data = pd.DataFrame(self.application_database.doe_sampled_data)
-        X = sampled_data.loc[:, X_labels].to_numpy()
-        Y = sampled_data.loc[:, Y_labels].to_numpy()
+        # get converged cases index
+        valid_idx = np.logical_or(sampled_data['status'] == True,
+                                  sampled_data['status'] == 'ok')
+
+        X = sampled_data.loc[valid_idx, X_labels].to_numpy()
+        Y = sampled_data.loc[valid_idx, Y_labels].to_numpy()
 
         Y_dim = Y.shape[1] if Y.ndim > 1 else 2
         if len(Y_labels) == 1:
