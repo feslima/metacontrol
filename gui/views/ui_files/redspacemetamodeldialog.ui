@@ -563,8 +563,8 @@ QGroupBox::title {
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>558</x>
-     <y>220</y>
+     <x>588</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>606</x>
@@ -583,8 +583,8 @@ QGroupBox::title {
      <y>213</y>
     </hint>
     <hint type="destinationlabel">
-     <x>916</x>
-     <y>219</y>
+     <x>919</x>
+     <y>217</y>
     </hint>
    </hints>
   </connection>
@@ -611,12 +611,12 @@ QGroupBox::title {
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>558</x>
-     <y>243</y>
+     <x>588</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
-     <x>619</x>
-     <y>246</y>
+     <x>895</x>
+     <y>245</y>
     </hint>
    </hints>
   </connection>
@@ -627,12 +627,12 @@ QGroupBox::title {
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>575</x>
-     <y>243</y>
+     <x>588</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
-     <x>916</x>
-     <y>247</y>
+     <x>919</x>
+     <y>245</y>
     </hint>
    </hints>
   </connection>
@@ -663,8 +663,40 @@ QGroupBox::title {
      <y>242</y>
     </hint>
     <hint type="destinationlabel">
-     <x>817</x>
-     <y>344</y>
+     <x>995</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>holdoutHorizontalSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>validationPointsLabel</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>738</x>
+     <y>231</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>917</x>
+     <y>232</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>kfoldsHorizontalSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>kfoldsLabel</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>796</x>
+     <y>203</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>910</x>
+     <y>203</y>
     </hint>
    </hints>
   </connection>

@@ -249,6 +249,8 @@ class Ui_Dialog(object):
         self.holdOutRadioButton.toggled['bool'].connect(self.validationPointsLabel.setEnabled)
         self.holdOutRadioButton.toggled['bool'].connect(self.label_8.setEnabled)
         self.holdOutRadioButton.toggled['bool'].connect(self.viewPlotPushButton.setEnabled)
+        self.holdoutHorizontalSlider.valueChanged['int'].connect(self.validationPointsLabel.setNum)
+        self.kfoldsHorizontalSlider.valueChanged['int'].connect(self.kfoldsLabel.setNum)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
