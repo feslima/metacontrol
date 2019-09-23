@@ -135,7 +135,8 @@ class ComboBoxDelegate(QItemDelegate):
     def setEditorData(self, combo_box, index):
         # Sets the data to be displayed and edited by the editor from the data
         # model item specified by the model index.
-        combo_box.showPopup()
+        # combo_box.showPopup()
+        pass
 
     def setModelData(self, combo_box, model, index):
         # Gets data from the editor widget and stores it in the specified model
