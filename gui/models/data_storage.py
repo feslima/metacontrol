@@ -5,6 +5,7 @@ import pathlib
 import pandas as pd
 from py_expression_eval import Parser
 from PyQt5.QtCore import QObject, pyqtSignal
+from scipy.special import comb
 
 from gui.models.math_check import is_expression_valid
 
@@ -851,7 +852,9 @@ class DataStorage(QObject):
         n_y_list = len(y_aliases)
 
         # starting from subsets of size 1 to n_y_list
-        self.soc_subset_size_list = {str(y): {'Subset number': 0}
+        self.soc_subset_size_list = {str(y):
+                                     {'Subset number': comb(N=n_y_list,
+                                                            k=y, exact=True)}
                                      for y in range(1, n_y_list + 1)}
 
     # ---------------------------- PUBLIC METHODS ----------------------------
