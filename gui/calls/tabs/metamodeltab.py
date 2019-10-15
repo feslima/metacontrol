@@ -6,7 +6,8 @@ import pandas as pd
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg,
                                                 NavigationToolbar2QT)
 from matplotlib.figure import Figure
-from pydace import dacefit, predictor
+from pydace import Dace
+# from pydace import dacefit, predictor
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PyQt5.QtGui import QBrush, QFont, QPalette, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QTableView,
@@ -545,11 +546,11 @@ class MetamodelTab(QWidget):
 
                 for j in range(Y_dim):
                     # build the univariate models
-                    krmodel, _ = dacefit(X_train, Y_train[:, j], regr, corr,
-                                         theta0, lob=lob, upb=upb)
-
+                    krmodel = Dace(regression=regr, correlation=corr)
+                    krmodel.fit(S=X_train, Y=Y_train[:, j], theta0=theta0,
+                                lob=lob, upb=upb)
                     # test the model
-                    Y_pred[:, [j]], *_ = predictor(X_test, krmodel)
+                    Y_pred[:, [j]], *_ = krmodel.predict(X_test)
 
                 # evaluate error metrics
                 mse[k, :] = mean_squared_error(
@@ -593,11 +594,11 @@ class MetamodelTab(QWidget):
 
             for j in range(Y_dim):
                 # build the univariate models
-                krmodel, _ = dacefit(X_train, Y_train[:, j], regr, corr,
-                                     theta0, lob=lob, upb=upb)
-
+                krmodel = Dace(regression=regr, correlation=corr)
+                krmodel.fit(S=X_train, Y=Y_train[:, j], theta0=theta0,
+                            lob=lob, upb=upb)
                 # test the model
-                Y_pred[:, [j]], *_ = predictor(X_test, krmodel)
+                Y_pred[:, [j]], *_ = krmodel.predict(X_test)
 
             # store metamodel data for plotting
             self.metamodel_data = {'Y_test': Y_test,

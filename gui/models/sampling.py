@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pythoncom
 import win32com.client
-from pydace.aux_functions import lhsdesign
+from pydace.utils import lhsdesign
 from PyQt5.QtCore import QThread, pyqtSignal
 
 from gui.models.data_storage import DataStorage

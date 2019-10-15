@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from pydace import dacefit, predictor
+from pydace import Dace
 from PyQt5.QtWidgets import QApplication, QWidget, QTableView, QHeaderView
 from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 from PyQt5.QtGui import QFont
@@ -249,11 +249,10 @@ class HessianExtractionTab(QWidget):
 
             # train the models
             for j in range(Y_dim):
-                ph, _ = dacefit(S=X, Y=Y[:, j], regr=regr, corr=corr,
-                                theta0=theta0, lob=lob, upb=upb)
+                ph = Dace(regression=regr, correlation=corr)
+                ph.fit(S=X, Y=Y[:, j], theta0=theta0, lob=lob, upb=upb)
 
-                _, gy_ph, *_ = predictor(x=x_nom, dmodel=ph,
-                                         compute_jacobian=True)
+                _, gy_ph, *_ = ph.predict(x=x_nom, compute_jacobian=True)
 
                 for i in range(x_nom.size):
                     # store G values in the dataframe
@@ -263,8 +262,8 @@ class HessianExtractionTab(QWidget):
         else:
             # J dataFrame
             J = pd.DataFrame(columns=X_labels, index=X_labels)
-            dmodel = dacefit(S=X, Y=Y, regr=regr, corr=corr,
-                             theta0=theta0, lob=lob, upb=upb)[0]
+            dmodel = Dace(regression=regr, correlation=corr)
+            dmodel.fit(S=X, Y=Y, theta0=theta0, lob=lob, upb=upb)[0]
 
             j_np = hesscorrgauss(x_nom, dmodel)
             for i in range(len(X_labels)):

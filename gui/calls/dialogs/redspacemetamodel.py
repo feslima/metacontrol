@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from pydace import dacefit, predictor
+from pydace import Dace
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QApplication, QDialog, QHeaderView
 from sklearn.metrics import (explained_variance_score, mean_absolute_error,
@@ -212,11 +212,12 @@ class ReducedSpaceMetamodelDialog(QDialog):
 
                 for j in range(Y_dim):
                     # build the univariate models
-                    krmodel, _ = dacefit(X_train, Y_train[:, j], regr, corr,
-                                         theta0, lob=lob, upb=upb)
+                    krmodel = Dace(regression=regr, correlation=corr)
+                    krmodel.fit(S=X_train, Y=Y_train[:, j], theta0=theta0,
+                                lob=lob, upb=upb)
 
                     # test the model
-                    Y_pred[:, [j]], *_ = predictor(X_test, krmodel)
+                    Y_pred[:, [j]], *_ = krmodel.predict(X_test)
 
                 # evaluate error metrics
                 mse[k, :] = mean_squared_error(
@@ -260,11 +261,12 @@ class ReducedSpaceMetamodelDialog(QDialog):
 
             for j in range(Y_dim):
                 # build the univariate models
-                krmodel, _ = dacefit(X_train, Y_train[:, j], regr, corr,
-                                     theta0, lob=lob, upb=upb)
+                krmodel = Dace(regression=regr, correlation=corr)
+                krmodel.fit(S=X_train, Y=Y_train[:, j], theta0=theta0,
+                            lob=lob, upb=upb)
 
                 # test the model
-                Y_pred[:, [j]], *_ = predictor(X_test, krmodel)
+                Y_pred[:, [j]], *_ = krmodel.predict(X_test)
 
             # store metamodel data for plotting
             self.metamodel_data = {'Y_test': Y_test,

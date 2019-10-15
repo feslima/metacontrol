@@ -243,7 +243,8 @@ class LoadSimulationTreeDialog(QDialog):
             self._output_table_model.load_data)
 
         # opens simulation GUI when checkbox is toggled
-        self.ui.openSimGUICheckBox.stateChanged.connect(self.open_simulator_gui)
+        self.ui.openSimGUICheckBox.stateChanged.connect(
+            self.open_simulator_gui)
         # ---------------------------------------------------------------------
 
     def open_simulator_gui(self, checkstate: Qt.CheckState):
@@ -510,7 +511,7 @@ class LoadSimulationTreeDialog(QDialog):
                     or widget_name == self.ui.tableViewOutput.objectName():
                 table_sel_model = widget.selectionModel()
                 indexes = [QPersistentModelIndex(index)
-                           for index in table_sel_model.selectedRows()]
+                           for index in table_sel_model.selectedIndexes()]
 
                 for index in indexes:
                     # delete selected rows
