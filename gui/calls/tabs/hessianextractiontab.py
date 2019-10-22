@@ -263,7 +263,7 @@ class HessianExtractionTab(QWidget):
             # J dataFrame
             J = pd.DataFrame(columns=X_labels, index=X_labels)
             dmodel = Dace(regression=regr, correlation=corr)
-            dmodel.fit(S=X, Y=Y, theta0=theta0, lob=lob, upb=upb)[0]
+            dmodel.fit(S=X, Y=Y, theta0=theta0, lob=lob, upb=upb)
 
             j_np = hesscorrgauss(x_nom, dmodel)
             for i in range(len(X_labels)):
