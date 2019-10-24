@@ -252,7 +252,7 @@ class HessianExtractionTab(QWidget):
                 ph = Dace(regression=regr, correlation=corr)
                 ph.fit(S=X, Y=Y[:, j], theta0=theta0, lob=lob, upb=upb)
 
-                _, gy_ph, *_ = ph.predict(x=x_nom, compute_jacobian=True)
+                _, gy_ph, *_ = ph.predict(X=x_nom, compute_jacobian=True)
 
                 for i in range(x_nom.size):
                     # store G values in the dataframe
