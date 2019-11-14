@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QWidget
 
 from gui.models.data_storage import DataStorage
-from gui.views.py_files.caballerotab_cpu import Ui_Form
+from gui.views.py_files.caballerotab import Ui_Form
 
 
 class OptimizationTab(QWidget):
