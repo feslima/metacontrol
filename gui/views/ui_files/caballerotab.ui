@@ -20,8 +20,74 @@
       <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="4" column="0">
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>350</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Perform optimization</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="startOptPushButton">
+           <property name="text">
+            <string>Start</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="abortOptPushButton">
+           <property name="text">
+            <string>Abort</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
       <item row="3" column="0">
        <widget class="QGroupBox" name="groupBox_5">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>350</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="title">
          <string/>
         </property>
@@ -49,7 +115,7 @@
              <item row="0" column="1">
               <widget class="QLineEdit" name="ipoptAddressLineEdit">
                <property name="text">
-                <string>https://localhost:5000</string>
+                <string>http://localhost:5000</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -153,6 +219,18 @@
       </item>
       <item row="1" column="0">
        <widget class="QGroupBox" name="groupBox_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>350</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="title">
          <string/>
         </property>
@@ -181,13 +259,6 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Maximum contraction tolerance:</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="secondFactorLineEdit">
            <property name="text">
@@ -195,6 +266,13 @@
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Maximum contraction tolerance:</string>
            </property>
           </widget>
          </item>
@@ -293,29 +371,30 @@
            </property>
           </widget>
          </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="1" column="1" rowspan="3">
-       <widget class="QGroupBox" name="groupBox_4">
-        <property name="title">
-         <string/>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="1" column="0">
-          <widget class="QTextBrowser" name="controlPanelTextBrowser"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_18">
            <property name="text">
-            <string>Control panel</string>
+            <string>Regression model:</string>
            </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QComboBox" name="regrpolyComboBox">
+           <item>
+            <property name="text">
+             <string>poly0</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>poly1</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>poly2</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
@@ -345,6 +424,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>350</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <weight>75</weight>
@@ -356,20 +441,30 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QGroupBox" name="groupBox_3">
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1" rowspan="3" colspan="2">
+       <widget class="QGroupBox" name="groupBox_4">
         <property name="title">
          <string/>
         </property>
-        <layout class="QGridLayout" name="gridLayout_3">
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="1" column="0">
+          <widget class="QTextBrowser" name="controlPanelTextBrowser"/>
+         </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QLabel" name="label_10">
            <property name="font">
             <font>
              <weight>75</weight>
@@ -377,28 +472,27 @@
             </font>
            </property>
            <property name="text">
-            <string>Perform optimization</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="startOptPushButton">
-           <property name="text">
-            <string>Start</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="abortOptPushButton">
-           <property name="text">
-            <string>Abort</string>
+            <string>Control panel</string>
            </property>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
-      <item row="4" column="1" rowspan="2">
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="4" column="1" rowspan="2" colspan="2">
        <widget class="QGroupBox" name="groupBox_6">
         <property name="title">
          <string/>
