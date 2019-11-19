@@ -1,12 +1,11 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QApplication, QMessageBox, QWidget
+from surropt.core.options.nlp import DockerNLPOptions
+from win32com.client import Dispatch
 
 from gui.models.data_storage import DataStorage
-from gui.views.py_files.caballerotab import Ui_Form
-
 from gui.models.sampling import CaballeroWorker, ReportObject
-from surropt.core.options.nlp import DockerNLPOptions
-
-from win32com.client import Dispatch
+from gui.views.py_files.caballerotab import Ui_Form
 
 
 class OptimizationTab(QWidget):
@@ -21,6 +20,9 @@ class OptimizationTab(QWidget):
         self.application_database = application_database
 
         # ----------------------- Widget Initialization -----------------------
+        # disable abort button (for now, while surropt api does not implement)
+        self.ui.abortOptPushButton.setEnabled(False)
+
         # --------------------------- Signals/Slots ---------------------------
         self.ui.startOptPushButton.clicked.connect(self.on_start_pressed)
         self.ui.ipoptTestConnectionPushButton.clicked.connect(
@@ -52,18 +54,42 @@ class OptimizationTab(QWidget):
             'server_url': self.ui.ipoptAddressLineEdit.text()
         }
 
-        # TODO: move worker to thread
-        # REMINDER: install ptvsd via pip to debug threads
-        # https://github.com/microsoft/ptvsd/issues/1189#issuecomment-468406399
+        # disable ui elements
+        self.ui.startOptPushButton.setEnabled(False)
+        self.ui.regrpolyComboBox.setEnabled(False)
+        self.ui.ipoptTestConnectionPushButton.setEnabled(False)
+
+        # instantiate the report object (communication with UI)
         ro = ReportObject(terminal=False)
         ro.iteration_printed.connect(self.on_iteration_printed)
 
-        cw = CaballeroWorker(app_data=self.application_database, params=params,
-                             report=ro)
+        # instantiate the optimization thread and worker
+        self.opt_thread = QThread()
+        self.opt_worker = CaballeroWorker(app_data=self.application_database,
+                                          params=params, report=ro)
 
-        cw.start_optimization()
+        # worker signals connection
+        self.opt_worker.opening_connection.connect(
+            self.on_opening_sim_connection)
+        self.opt_worker.connection_opened.connect(
+            self.on_sim_connection_opened)
 
-        a = 1
+        # move the worker to another thread
+        self.opt_worker.moveToThread(self.opt_thread)
+
+        self.opt_worker.optimization_finished.connect(self.opt_thread.quit)
+        self.opt_worker.optimization_finished.connect(
+            self.on_optimization_finished)
+        self.opt_thread.started.connect(self.opt_worker.start_optimization)
+
+        # start the thread
+        self.opt_thread.start()
+
+    def on_optimization_finished(self):
+        # enable ui elements
+        self.ui.startOptPushButton.setEnabled(True)
+        self.ui.regrpolyComboBox.setEnabled(True)
+        self.ui.ipoptTestConnectionPushButton.setEnabled(True)
 
     def on_ipopt_test_connection_pressed(self):
         # tests the connection with the server specified in the UI
@@ -85,6 +111,12 @@ class OptimizationTab(QWidget):
 
     def on_iteration_printed(self, iter_msg: str):
         self.ui.controlPanelTextBrowser.append(iter_msg)
+
+    def on_opening_sim_connection(self):
+        self.on_iteration_printed("Connecting to the simulation engine...\n")
+
+    def on_sim_connection_opened(self):
+        self.on_iteration_printed("Simulation engine connection successful!\n")
 
 
 if __name__ == "__main__":

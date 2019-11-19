@@ -5,6 +5,7 @@ import win32com.client
 from py_expression_eval import Parser
 from pydace.utils import lhsdesign
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
+import ptvsd
 
 from surropt.caballero import Caballero, CaballeroOptions
 from surropt.core.options.nlp import DockerNLPOptions
@@ -201,6 +202,9 @@ class ReportObject(Report, QObject):
 
 
 class CaballeroWorker(QObject):
+    opening_connection = pyqtSignal()
+    connection_opened = pyqtSignal()
+    optimization_finished = pyqtSignal()
 
     def __init__(self, app_data: DataStorage, params: dict,
                  report: ReportObject, parent=None):
@@ -211,7 +215,12 @@ class CaballeroWorker(QObject):
         self.parser = Parser()
         self.report = report
 
+    def __del__(self):
+        if hasattr(self, 'asp_obj'):
+            self.asp_obj.close_connection()
+
     def start_optimization(self):
+        ptvsd.debug_this_thread()
         params = self.params
 
         # unzip parameter data
@@ -245,7 +254,7 @@ class CaballeroWorker(QObject):
         self.open_connection()
 
         # define model function
-        def model_fun(x): return self.model_function(x)
+        def model_fun(pt): return self.model_function(pt)
 
         # nlp bounds
         lb_list, ub_list = map(
@@ -275,11 +284,19 @@ class CaballeroWorker(QObject):
 
         self.asp_obj.close_connection()
 
+        self.optimization_finished.emit()
+
     def open_connection(self):
+        # warn others that a simulation engine connection is about to be opened
+        self.opening_connection.emit()
+
         pythoncom.CoInitialize()
         asp_obj = AspenConnection(self.app_data.simulation_file)
         self.asp_obj = asp_obj
         self._aspen_connection = asp_obj.get_connection_object()
+
+        # emit the signal to warn others that the connection is done
+        self.connection_opened.emit()
 
     def model_function(self, x):
         input_vars = [{'var': row['Alias'], 'Path': row['Path']}

@@ -5276,7 +5276,7 @@
             },
             {
                 "Alias": "j",
-                "Expr": "-(20*d + (10 - 20*xb)*b - 70*qr)",
+                "Expr": "-(20*d + (10 - 20*xb)*b - 70*4.1868*qr)",
                 "Type": "Objective function (J)"
             }
         ]
@@ -5285,13 +5285,13 @@
         "mtc_mv_bounds": [
             {
                 "name": "rr",
-                "lb": 0.0,
-                "ub": 1.0
+                "lb": 7.0,
+                "ub": 25.0
             },
             {
                 "name": "df",
-                "lb": 0.0,
-                "ub": 1.0
+                "lb": 0.1,
+                "ub": 0.9
             }
         ],
         "mtc_sampled_data": {

@@ -5276,7 +5276,7 @@
             },
             {
                 "Alias": "j",
-                "Expr": "-(20*d + (10 - 20*xb)*b - 70*qr)",
+                "Expr": "-(20*d + (10 - 20*xb)*b - 70*4.1868*qr)",
                 "Type": "Objective function (J)"
             }
         ]
