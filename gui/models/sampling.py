@@ -5,7 +5,7 @@ import win32com.client
 from py_expression_eval import Parser
 from pydace.utils import lhsdesign
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
-import ptvsd
+# import ptvsd
 
 from surropt.caballero import Caballero, CaballeroOptions
 from surropt.core.options.nlp import DockerNLPOptions
@@ -220,7 +220,7 @@ class CaballeroWorker(QObject):
             self.asp_obj.close_connection()
 
     def start_optimization(self):
-        ptvsd.debug_this_thread()
+        # ptvsd.debug_this_thread()
         params = self.params
 
         # unzip parameter data
