@@ -8,8 +8,8 @@ from PyQt5.QtCore import QObject, QThread, pyqtSignal
 # import ptvsd
 
 from surropt.caballero import Caballero, CaballeroOptions
+from surropt.caballero.problem import CaballeroReport
 from surropt.core.options.nlp import DockerNLPOptions
-from surropt.core.procedures.output import Report
 
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
@@ -180,17 +180,17 @@ class SamplerWorker(QObject):
         return res_dict
 
 
-class ReportObject(Report, QObject):
+class ReportObject(CaballeroReport, QObject):
     iteration_printed = pyqtSignal(str)
 
     def __init__(self, terminal=False, plot=False):
         super().__init__(terminal=terminal, plot=plot)
 
-    def print_iteration(self, iter_count, x, f_pred, f_actual, g_actual,
-                        header=False, color_font=None):
+    def print_iteration(self, movement, iter_count, x, f_pred, f_actual,
+                        g_actual, header=False, color_font=None):
         # capture message from Report class and send it to the gui
-        str_msg = super().print_iteration(iter_count, x, f_pred, f_actual,
-                                          g_actual, header=header,
+        str_msg = super().print_iteration(movement, iter_count, x, f_pred,
+                                          f_actual, g_actual, header=header,
                                           color_font=color_font)
         self.iteration_printed.emit(str_msg)
         return str_msg
@@ -234,6 +234,9 @@ class CaballeroWorker(QObject):
         maxfunevals = params['maxfunevals']
         regrpoly = params['regrpoly']
         server_url = params['server_url']
+        ipopt_tol = params['ipopt_tol']
+        ipopt_max_iter = params['ipopt_max_iter']
+        ipopt_con_tol = params['ipopt_con_tol']
 
         # setup the problem data
         inp_aliases = [var['Alias'] for var in self.app_data.input_table_data
