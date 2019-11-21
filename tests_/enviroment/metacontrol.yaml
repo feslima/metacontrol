@@ -76,5 +76,3 @@ dependencies:
   - wincertstore=0.2=py36h7fe50ca_0
   - wrapt=1.11.2=py36he774522_0
   - zlib=1.2.11=vc14h1cdd9ab_1
-prefix: C:\Users\Felipe\Anaconda3\envs\metacontrol
-
