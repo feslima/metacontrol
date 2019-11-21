@@ -180,18 +180,24 @@ class SamplerWorker(QObject):
         return res_dict
 
 
-class ReportObject(CaballeroReport, QObject):
+class ReportMetaClass(type(QObject), type(CaballeroReport)):
+    # metaclass to resolve conflict of multiple inheritance
+    pass
+
+
+class ReportObject(QObject, CaballeroReport, metaclass=ReportMetaClass):
     iteration_printed = pyqtSignal(str)
 
     def __init__(self, terminal=False, plot=False):
-        super().__init__(terminal=terminal, plot=plot)
+        CaballeroReport.__init__(self, terminal=terminal, plot=plot)
+        QObject.__init__(self)
 
-    def print_iteration(self, movement, iter_count, x, f_pred, f_actual,
-                        g_actual, header=False, color_font=None):
+    def build_iter_report(self, movement, iter_count, x, f_pred, f_actual,
+                          g_actual, header=False, field_size=12):
         # capture message from Report class and send it to the gui
-        str_msg = super().print_iteration(movement, iter_count, x, f_pred,
-                                          f_actual, g_actual, header=header,
-                                          color_font=color_font)
+        str_msg = super().build_iter_report(movement, iter_count, x, f_pred,
+                                            f_actual, g_actual, header=header,
+                                            field_size=field_size)
         self.iteration_printed.emit(str_msg)
         return str_msg
 
