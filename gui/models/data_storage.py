@@ -13,6 +13,13 @@ from gui.models.math_check import is_expression_valid
 # application
 
 
+class PandasEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, pd.DataFrame):
+            return o.to_dict()
+        return json.JSONEncoder.default(self, o)
+
+
 class DataStorage(QObject):
     """Application data storage. This is for reuse of application data such as
     tree models, simulation data, aliases,
@@ -47,20 +54,18 @@ class DataStorage(QObject):
     hessian_enabled = pyqtSignal(bool)
     soc_enabled = pyqtSignal(bool)
 
+    # ------------------------------ CONSTANTS --------------------------------
+    # simulation data columns
+    _SIM_DATA_COLS = ['components', 'therm_method', 'blocks', 'streams',
+                      'reactions', 'sens_analysis', 'calculators',
+                      'optimizations', 'design_specs']
+
     def __init__(self):
         super().__init__()
         self._simulation_file = ''
         self._tree_model_input = {}
         self._tree_model_output = {}
-        self._simulation_data = {'components': [''],
-                                 'therm_method': [''],
-                                 'blocks': [''],
-                                 'streams': [''],
-                                 'reactions': [''],
-                                 'sens_analysis': [''],
-                                 'calculators': [''],
-                                 'optimizations': [''],
-                                 'design_specs': ['']}
+        self.simulation_data = pd.DataFrame(columns=self._SIM_DATA_COLS)
         self._input_table_data = []
         self._output_table_data = []
         self._expression_table_data = []
@@ -221,37 +226,24 @@ class DataStorage(QObject):
 
     @property
     def simulation_data(self):
-        """Dictionary containing the following keys -- values pairs:
-            'components'    --  Components in simulation (list);
-            'therm_method'  --  Thermodynamic model set in simulation (list);
-            'blocks'        --  Blocks in simulation (list);
-            'streams'       --  Streams in simulation (list);
-            'reactions'     --  Reactions in simulation (list);
-            'sens_analysis' --  Sensitivity analysis in simulation (list);
-            'calculators'   --  Calculators in simulation (list);
-            'optimizations' --  Optimizations in simulation (list);
-            'design_specs'  --  Design Specifications in simulation (list);
+        """DataFrame containing the information about the simulation;
         """
         return self._simulation_data
 
     @simulation_data.setter
-    def simulation_data(self, dictionary: dict):
-        if isinstance(dictionary, dict):
-            # check if the keys are properly set.
-            key_list = ['components', 'therm_method', 'blocks', 'streams',
-                        'reactions', 'sens_analysis', 'calculators',
-                        'optimizations', 'design_specs']
-
-            try:
-                self._check_keys(key_list, dictionary, self._simulation_data)
-            except KeyError as ke:
-                # re-raise the KeyError exception
-                raise ke
-            else:
-                # if the values are properly set, emit the signal
+    def simulation_data(self, frame: pd.DataFrame):
+        if isinstance(frame, pd.DataFrame):
+            # check if the columns are properly set.
+            if frame.columns.isin(self._SIM_DATA_COLS).all():
+                # all columns present, reorganize columns and emit signal
+                self._simulation_data = frame[self._SIM_DATA_COLS]
                 self.simulation_info_changed.emit()
+            else:
+                raise KeyError("All columns of 'simulation data' must be "
+                               "defined")
+
         else:
-            raise KeyError("Simulation data must be a dictionary object.")
+            raise KeyError("Simulation data must be a DataFrame.")
 
     @property
     def input_table_data(self):
@@ -582,6 +574,11 @@ class DataStorage(QObject):
             raise ValueError("Subset sizes must be a dictionary.")
 
     # ---------------------------- PRIVATE METHODS ---------------------------
+    def _uneven_array_to_frame(self, arr: dict):
+        if isinstance(arr, dict):
+            dict_conversion = dict([(k, pd.Series(v)) for k, v in arr.items()])
+            return pd.DataFrame(dict_conversion)
+
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
             -> None:
         """Check if all the keys in `key_list` are present in `value_dict`. If
@@ -911,7 +908,7 @@ class DataStorage(QObject):
 
         # perfom the JSON dump
         with open(output_path, 'w') as mtc_file:
-            json.dump(app_data, mtc_file, indent=4)
+            json.dump(app_data, mtc_file, indent=4, cls=PandasEncoder)
 
     def load(self, mtc_filepath: str) -> None:
         """Reads .mtc file data and updates the object attributes.
@@ -934,7 +931,7 @@ class DataStorage(QObject):
 
         # loadsimtab
         self.simulation_file = sim_info['sim_filename']
-        self.simulation_data = sim_info['sim_info']
+        self.simulation_data = self._uneven_array_to_frame(sim_info['sim_info'])
         self.tree_model_input = sim_info['sim_tree_input']
         self.tree_model_output = sim_info['sim_tree_output']
         self.input_table_data = sim_info['mtc_input_table']

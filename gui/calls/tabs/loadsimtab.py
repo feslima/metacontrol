@@ -1,5 +1,6 @@
 import pathlib
 
+import numpy as np
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex,
                           QPersistentModelIndex, QStringListModel, Qt,
                           pyqtSignal)
@@ -370,16 +371,16 @@ class SimulationInfoTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
         self.load_data()
-        self.headers = ['Property', 'Quantity']
-        self.key_map = [(0, 'components', "Components"),
-                        (1, 'therm_method', "Thermodynamic model"),
-                        (2, 'blocks', "Blocks"),
-                        (3, 'streams', "Streams"),
-                        (4, 'reactions', "Reactions"),
-                        (5, 'sens_analysis', "Sensitivity Analysis"),
-                        (6, 'calculators', "Calculators"),
-                        (7, 'optimizations', "Optimizations"),
-                        (8, 'design_specs', "Design Specifications")]
+        self.info_headers = ['Property', 'Quantity']
+        self.headers_map = {'components': "Components",
+                            'therm_method': "Thermodynamic model",
+                            'blocks': "Blocks",
+                            'streams': "Streams",
+                            'reactions': "Reactions",
+                            'sens_analysis': "Sensitivity Analysis",
+                            'calculators': "Calculators",
+                            'optimizations': "Optimizations",
+                            'design_specs': "Design Specifications"}
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
@@ -387,16 +388,17 @@ class SimulationInfoTableModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return len(self.sim_info)
+        # number of rows to present is the number of frame columns
+        return self.sim_info.shape[1]
 
     def columnCount(self, parent=None):
-        return len(self.headers)
+        return len(self.info_headers)
 
     def headerData(self, section: int, orientation: Qt.Orientation,
                    role: int = Qt.DisplayRole):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return self.headers[section]
+                return self.info_headers[section]
 
             else:
                 return None
@@ -419,12 +421,24 @@ class SimulationInfoTableModel(QAbstractTableModel):
         col = index.column()
 
         if role == Qt.DisplayRole:
-            if self.key_map[row][1] == 'therm_method':
-                return "Thermodynamic model" if col == 0 \
-                    else str(self.sim_info['therm_method'][0])
+            df_col = self.sim_info.columns[row]
+            if col == 0:
+                # first column, return df header name
+                return self.headers_map[self.sim_info.columns[row]]
             else:
-                return self.key_map[row][2] if col == 0 \
-                    else self.siminfo_num_ele(self.key_map[row][1])
+                # quantity column
+                if df_col == 'therm_method':
+                    # return thermodynamic method name
+                    therm_method = self.sim_info[df_col].dropna()
+                    return None if therm_method.empty else therm_method[0]
+                else:
+                    # return number of elements
+                    if self.sim_info[df_col].isna().all():
+                        # all elements are NaN
+                        return "0"
+                    else:
+                        # return count of non nan elements
+                        return str(self.sim_info[df_col].notna().sum())
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
@@ -432,42 +446,22 @@ class SimulationInfoTableModel(QAbstractTableModel):
         else:
             return None
 
-    def siminfo_num_ele(self, x):
-        sim_data = self.sim_info
-        return "0" if set(sim_data[x]) == set([""]) else str(len(sim_data[x]))
 
-
-class SimulationDataTableModel(QAbstractTableModel):
+class SimulationDescriptionTableModel(SimulationInfoTableModel):
     def __init__(self, application_data: DataStorage, parent=None):
-        QAbstractTableModel.__init__(self, parent)
-        self.app_data = application_data
-        self.load_data()
-        self.headers = [('components', "Components"),
-                        ('blocks', "Blocks"),
-                        ('streams', "Streams"),
-                        ('reactions', "Reactions"),
-                        ('sens_analysis', "Sensitivity Analysis"),
-                        ('calculators', "Calculators"),
-                        ('optimizations', "Optimizations"),
-                        ('design_specs', "Design Specifications")]
-
-    def load_data(self):
-        self.layoutAboutToBeChanged.emit()
-        self.sim_info = self.app_data.simulation_data
-        self.layoutChanged.emit()
+        super().__init__(application_data, parent=parent)
 
     def rowCount(self, parent=None):
-        # FIXME: change rowCount to 0 when empty storage. Now it displays 1 row
-        sim_data = self.sim_info
-        return len(sim_data[max(sim_data, key=lambda x: len(sim_data[x]))])
+        return self.sim_info.shape[0]
 
     def columnCount(self, parent=None):
-        return len(self.headers)
+        return self.sim_info.shape[1]
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return self.headers[section][1]
+                df_col = self.sim_info.columns[section]
+                return self.headers_map[df_col]
 
             else:
                 return None
@@ -489,13 +483,13 @@ class SimulationDataTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        prop = self.sim_info[self.headers[col][0]]
+        value = self.sim_info.iat[row, col]
 
         if role == Qt.DisplayRole:
-            if row < len(prop):
-                return str(prop[row])
+            if isinstance(value, str):
+                return value
             else:
-                return None
+                return None if np.isnan(value) else str(value)
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
@@ -534,9 +528,9 @@ class LoadSimTab(QWidget):
                                                   parent=sim_info_table)
         sim_info_table.setModel(sim_info_model)
 
-        sim_data_table = self.ui.tableViewSimulationData
-        sim_data_model = SimulationDataTableModel(self.application_database,
-                                                  parent=sim_data_table)
+        sim_data_table = self.ui.tableViewSimulationDescription
+        sim_data_model = SimulationDescriptionTableModel(self.application_database,
+                                                         parent=sim_data_table)
         sim_data_table.setModel(sim_data_model)
 
         alias_table.horizontalHeader().setSectionResizeMode(
@@ -673,10 +667,13 @@ class LoadSimTab(QWidget):
 if __name__ == "__main__":
     import sys
     from gui.calls.base import my_exception_hook
-    from tests_.mock_data import LOADSIM_SAMPLING_MOCK_DS
+    from tests_.mock_data import loadsim_mock
+
+    LOADSIM_SAMPLING_MOCK_DS = loadsim_mock()
 
     app = QApplication(sys.argv)
-    ds = DataStorage()
+    # ds = DataStorage()
+    ds = LOADSIM_SAMPLING_MOCK_DS
     w = LoadSimTab(application_database=ds)
     ds.simulation_file_changed.emit()
     w.show()
