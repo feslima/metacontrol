@@ -1,6 +1,7 @@
 import pathlib
 
 import numpy as np
+import pandas as pd
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex,
                           QPersistentModelIndex, QStringListModel, Qt,
                           pyqtSignal)
@@ -43,9 +44,9 @@ class DeleteButtonDelegate(QItemDelegate):
 
 
 class ExpressionEditorDelegate(QItemDelegate):
-    def __init__(self, gui_data: DataStorage, parent=None):
+    def __init__(self, app_data: DataStorage, parent=None):
         QItemDelegate.__init__(self, parent)
-        self.gui_data = gui_data
+        self.app_data = app_data
 
     def createEditor(self, parent, option, index):
         line_editor = QLineEdit(parent)
@@ -60,11 +61,11 @@ class ExpressionEditorDelegate(QItemDelegate):
         completer.setFilterMode(Qt.MatchContains)
 
         # get aliases in display and set them to the completer
-        aliases_in_display = [row['Alias'] for row in
-                              self.gui_data.input_table_data +
-                              self.gui_data.output_table_data]
+        aliases_in_display = pd.concat([self.app_data.input_table_data,
+                                        self.app_data.output_table_data],
+                                       axis='index', ignore_index=True)
 
-        model.setStringList(aliases_in_display)
+        model.setStringList(aliases_in_display['Alias'].tolist())
 
         # insert the math validator
         exp_validator = ValidMathStr(line_editor)
@@ -88,13 +89,6 @@ class ExpressionEditorDelegate(QItemDelegate):
         editor.setGeometry(option.rect)
 
 
-class ExpressionTypeDelegate(ComboBoxDelegate):
-    def __init__(self, item_list=None, parent=None):
-        type_list = ["Objective function (J)", "Constraint function",
-                     "Candidate (CV)"]
-        super().__init__(type_list, parent=parent)
-
-
 class ExpressionTableModel(QAbstractTableModel):
     """Table model used to handle expression data display/editing.
 
@@ -114,6 +108,7 @@ class ExpressionTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
         self.load_data()
+        self.app_data.expr_data_changed.connect(self.load_data)
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
@@ -121,43 +116,54 @@ class ExpressionTableModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return len(self.expr_data)
+        return self.expr_data.shape[0]
 
     def columnCount(self, parent=None):
-        return 4
+        # +1 col for delete button widget
+        return self.expr_data.shape[1] + 1
 
     def insertRows(self, row: int, count: int = 1,
                    parent: QModelIndex = QModelIndex()):
         self.beginInsertRows(parent, row, row + count - 1)
 
         # create empty rows
-        new_rows = [{'Alias': 'expr_' + str(self.rowCount()),
-                     'Expr': 'Type a expression',
-                     'Type': 'Choose a type'}]
+        new_rows = pd.DataFrame.from_records(
+            [{'Alias': 'expr_' + str(self.rowCount()),
+              'Expression': 'Type a expression',
+              'Type': 'Choose a type'}]
+        )
 
         if row == 0:
-            new_rows.extend(self.expr_data)
-            self.expr_data = new_rows
+            self.expr_data = pd.concat([new_rows, self.expr_data],
+                                       axis='index', ignore_index=True)
         elif row == self.rowCount():
-            self.expr_data.extend(new_rows)
+            self.expr_data = pd.concat([self.expr_data, new_rows],
+                                       axis='index', ignore_index=True)
         else:
-            self.expr_data = self.expr_data[:row] + new_rows + \
-                self.expr_data[row:]
+            self.expr_data = pd.concat(
+                [self.expr_data.iloc[:row], new_rows,
+                 self.expr_data.iloc[row:]],
+                ignore_index=True
+            ).reset_index(drop=True)
 
         self.endInsertRows()
+
         self.app_data.expression_table_data = self.expr_data
-        self.app_data.expr_data_changed.emit()
+
         return True
 
     def removeRows(self, row: int, count: int = 1,
                    parent: QModelIndex = QModelIndex()):
         self.beginRemoveRows(parent, row, row + count - 1)
 
-        del self.expr_data[row: (row + count)]
+        df = self.expr_data
+        df.drop(labels=df.index[row: (row + count)], axis='index',
+                inplace=True)
 
         self.endRemoveRows()
-        self.app_data.expression_table_data = self.expr_data
-        self.app_data.expr_data_changed.emit()
+
+        self.app_data.expression_table_data = df
+
         return True
 
     def headerData(self, section: int, orientation: Qt.Orientation,
@@ -165,14 +171,10 @@ class ExpressionTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                if section == self._EXPR_DELETE_COL:
+                if section == 0:
                     return "Delete"
-                elif section == self._EXPR_NAME_COL:
-                    return "Alias"
-                elif section == self._EXPR_EXPR_COL:
-                    return "Expression"
                 else:
-                    return "Type"
+                    return str(self.expr_data.columns[section - 1])
 
             elif orientation == Qt.Vertical:
                 return str(section + 1)
@@ -197,74 +199,82 @@ class ExpressionTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        expr_data = self.expr_data[row]
+        if col != 0:
+            value = str(self.expr_data.iat[row, col - 1])
+        else:
+            value = None
 
         if role == Qt.BackgroundRole or role == Qt.ToolTipRole:
-            aliases = [row['Alias']
-                       for row in self.app_data.input_table_data +
-                       self.app_data.output_table_data] + \
-                [row['Alias'] for row in self.expr_data]
+            aliases = pd.concat([self.app_data.input_table_data,
+                                 self.app_data.output_table_data,
+                                 self.app_data.expression_table_data],
+                                axis='index', join='inner', ignore_index=True)
 
         if role == Qt.DisplayRole:
-            if col == self._EXPR_NAME_COL:
-                return str(expr_data['Alias'])
-            elif col == self._EXPR_EXPR_COL:
-                return str(expr_data['Expr'])
-            elif col == self._EXPR_TYPE_COL:
-                return str(expr_data['Type'])
-            elif col == self._EXPR_DELETE_COL:
+            if col == 0:
                 # to always display the delete button
                 self.parent().openPersistentEditor(self.index(row, 0))
-                return None
+                return value
             else:
-                return None
+                return value
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
         elif role == Qt.BackgroundRole:
-            if col == self._EXPR_NAME_COL:
-                # paints red if the current expression name is already an
-                # variable alias
-                if aliases.count(expr_data['Alias']) > 1:
-                    return QBrush(Qt.red)
-                else:
-                    return QBrush(self.parent().palette().brush(QPalette.Base))
+            if col != 0:
+                if self.expr_data.columns[col - 1] == 'Alias':
+                    # paints red if the current expression name is already an
+                    # variable alias
+                    if aliases['Alias'].value_counts()[value] > 1:
+                        return QBrush(Qt.red)
+                    else:
+                        return QBrush(
+                            self.parent().palette().brush(QPalette.Base)
+                        )
 
-            elif col == self._EXPR_EXPR_COL:
-                # paints red if the expression is invalid
-                if is_expression_valid(expr_data['Expr'], aliases):
-                    return QBrush(self.parent().palette().brush(QPalette.Base))
-                else:
-                    return QBrush(QColor("#f6989d"))
+                elif self.expr_data.columns[col - 1] == 'Expression':
+                    # paints red if the expression is invalid
+                    if is_expression_valid(value, aliases['Alias'].tolist()):
+                        return QBrush(
+                            self.parent().palette().brush(QPalette.Base)
+                        )
+                    else:
+                        return QBrush(QColor("#f6989d"))
 
-            elif col == self._EXPR_TYPE_COL:
-                if expr_data['Type'] == 'Choose a type':
-                    return QBrush(Qt.red)
-                else:
-                    return QBrush(self.parent().palette().brush(QPalette.Base))
+                elif self.expr_data.columns[col - 1] == 'Type':
+                    if value == 'Choose a type':
+                        return QBrush(Qt.red)
+                    else:
+                        return QBrush(
+                            self.parent().palette().brush(QPalette.Base)
+                        )
 
             else:
                 return None
 
         elif role == Qt.ToolTipRole:
             # tooltip strings to display
-            if col == self._EXPR_NAME_COL:
-                if aliases.count(expr_data['Alias']) > 1:
-                    return "Name already in use!"
-                else:
-                    return ""
+            if col != 0:
+                if self.expr_data.columns[col - 1] == 'Alias':
+                    if aliases['Alias'].value_counts()[value] > 1:
+                        return "Name already in use!"
+                    else:
+                        return ""
 
-            elif col == self._EXPR_EXPR_COL:
-                if is_expression_valid(expr_data['Expr'], aliases):
-                    return ""
+                elif self.expr_data.columns[col - 1] == 'Expression':
+                    if is_expression_valid(value, aliases['Alias'].tolist()):
+                        return ""
+                    else:
+                        return ("Invalid mathematical expression! "
+                                "Either using a nonexistent variable or "
+                                "invalid math operation.")
+
                 else:
-                    return ("Invalid mathematical expression! "
-                            "Either using a nonexistent variable or "
-                            "invalid math operation.")
+                    return ""
 
             else:
-                return ""
+                return None
 
         else:
             return None
@@ -276,21 +286,16 @@ class ExpressionTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        expr_data = self.expr_data[row]
-
-        if col == self._EXPR_NAME_COL:
-            expr_data['Alias'] = value
-        elif col == self._EXPR_EXPR_COL:
-            expr_data['Expr'] = value
-        elif col == self._EXPR_TYPE_COL:
-            expr_data['Type'] = value
-        else:
+        if col == 0:
             return False
+        else:
+            self.expr_data.iat[row, col - 1] = value
+            self.app_data.expression_table_data = self.expr_data
 
-        self.app_data.expr_data_changed.emit()
         self.dataChanged.emit(index.sibling(0, 0),
                               index.sibling(self.rowCount(),
                                             self.columnCount()))
+        self.parent().selectionModel().clearSelection()
         return True
 
     def flags(self, index: QModelIndex):
@@ -306,15 +311,18 @@ class SelectedAliasesTableModel(QAbstractTableModel):
         self.app_data = application_data
         self.headers = ['Selected alias', 'Type']
         self.load_data()
+        self.app_data.input_alias_data_changed.connect(self.load_data)
+        self.app_data.output_alias_data_changed.connect(self.load_data)
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
-        self.alias_data = self.app_data.input_table_data + \
-            self.app_data.output_table_data
+        self.alias_data = pd.concat([self.app_data.input_table_data,
+                                     self.app_data.output_table_data],
+                                    axis='index', ignore_index=True)
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return len(self.alias_data)
+        return self.alias_data.shape[0]
 
     def columnCount(self, parent=None):
         return len(self.headers)
@@ -349,13 +357,11 @@ class SelectedAliasesTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        alias_data = self.alias_data[row]
-
         if role == Qt.DisplayRole:
             if col == 0:
-                return str(alias_data['Alias'])
+                return str(self.alias_data.at[row, 'Alias'])
             elif col == 1:
-                return str(alias_data['Type'])
+                return str(self.alias_data.at[row, 'Type'])
             else:
                 return None
 
@@ -371,6 +377,7 @@ class SimulationInfoTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
         self.load_data()
+        self.app_data.simulation_info_changed.connect(self.load_data)
         self.info_headers = ['Property', 'Quantity']
         self.headers_map = {'components': "Components",
                             'therm_method': "Thermodynamic model",
@@ -550,7 +557,8 @@ class LoadSimTab(QWidget):
         self._expr_math_delegate = ExpressionEditorDelegate(
             self.application_database)
 
-        self._expr_type_delegate = ExpressionTypeDelegate()
+        self._expr_type_delegate = ComboBoxDelegate(
+            item_list=self.application_database._EXPR_ALIAS_TYPES.values())
 
         expr_table.setItemDelegateForColumn(expr_model._EXPR_DELETE_COL,
                                             self._expr_delete_delegate)
@@ -581,21 +589,8 @@ class LoadSimTab(QWidget):
         self._expr_delete_delegate.buttonClicked.connect(
             self.delete_expression_row)
 
-        # update models when underlying data changes
-        self.application_database.alias_data_changed.connect(
-            alias_model.load_data)
-        self.application_database.alias_data_changed.connect(
-            expr_model.load_data)
-
-        self.application_database.simulation_info_changed.connect(
-            sim_data_model.load_data)
-        self.application_database.simulation_info_changed.connect(
-            sim_info_model.load_data)
-
-        self.application_database.expr_data_changed.connect(
-            expr_model.load_data)
-
     # -------------------------------------------------------------------------
+
     def insert_new_expression(self):
         """Inserts a new default row into the expression table and updates the
         expression data storage.
@@ -634,7 +629,6 @@ class LoadSimTab(QWidget):
         """
         dialog = LoadSimulationTreeDialog(self.application_database)
         dialog.exec_()
-        self.application_database.alias_data_changed.emit()
 
     def update_simfilepath_display(self):
         """Grabs the simulation file path from app_storage and displays it on
@@ -669,11 +663,11 @@ if __name__ == "__main__":
     from gui.calls.base import my_exception_hook
     from tests_.mock_data import loadsim_mock
 
-    # LOADSIM_SAMPLING_MOCK_DS = loadsim_mock()
+    LOADSIM_SAMPLING_MOCK_DS = loadsim_mock()
 
     app = QApplication(sys.argv)
-    ds = DataStorage()
-    # ds = LOADSIM_SAMPLING_MOCK_DS
+    # ds = DataStorage()
+    ds = LOADSIM_SAMPLING_MOCK_DS
     w = LoadSimTab(application_database=ds)
     ds.simulation_file_changed.emit()
     w.show()
