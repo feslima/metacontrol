@@ -142,8 +142,8 @@ class DataStorage(QObject):
         self.input_alias_data_changed.connect(self._update_theta_data)
         # - active_constraint_info
         self.input_alias_data_changed.connect(self._update_constraint_activity)
-        # # - check_simulation_setup
-        # self.input_alias_data_changed.connect(self.check_simulation_setup)
+        # - check_simulation_setup
+        self.input_alias_data_changed.connect(self.check_simulation_setup)
         # # - check_sampling_setup
         # self.input_alias_data_changed.connect(self.check_sampling_setup)
 
@@ -153,8 +153,8 @@ class DataStorage(QObject):
         # - active_constraint_info
         self.output_alias_data_changed.connect(
             self._update_constraint_activity)
-        # # - check_simulation_setup
-        # self.output_alias_data_changed.connect(self.check_simulation_setup)
+        # - check_simulation_setup
+        self.output_alias_data_changed.connect(self.check_simulation_setup)
         # # - check_sampling_setup
         # self.output_alias_data_changed.connect(self.check_sampling_setup)
 
@@ -163,8 +163,8 @@ class DataStorage(QObject):
         self.expr_data_changed.connect(self._update_selected_data)
         # - active_constraint_info
         self.expr_data_changed.connect(self._update_constraint_activity)
-        # # - check_simulation_setup
-        # self.expr_data_changed.connect(self.check_simulation_setup)
+        # - check_simulation_setup
+        self.expr_data_changed.connect(self.check_simulation_setup)
         # # - check_sampling_setup
         # self.expr_data_changed.connect(self.check_sampling_setup)
 
@@ -799,7 +799,9 @@ class DataStorage(QObject):
         # list of variables
         conc_tab = pd.concat([self.output_table_data,
                               self.expression_table_data],
-                             axis='index', join='inner', ignore_index=True)
+                             axis='index', join='inner',
+                             ignore_index=True
+                             ).drop_duplicates().reset_index(drop=True)
         var_list = conc_tab.loc[
             (conc_tab['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
             (conc_tab['Type'].isin(self._EXPR_ALIAS_TYPES.values()))
@@ -1146,26 +1148,27 @@ class DataStorage(QObject):
         False.
         """
         # get aliases
-        aliases = [row['Alias'] for row in self.input_table_data +
-                   self.output_table_data]
-
-        # get expression names
-        expr_names = [row['Alias'] for row in self.expression_table_data]
+        aliases = pd.concat([self.input_table_data, self.output_table_data],
+                            axis='index', ignore_index=True, sort=False)
 
         # get expressions validity
-        expr_valid_check = [is_expression_valid(row['Expr'], aliases)
-                            for row in self.expression_table_data]
+        expr_df = self.expression_table_data
+        expr_valid_check = expr_df['Expression'].apply(
+            lambda x: is_expression_valid(x, aliases['Alias'].tolist())
+        )
 
-        is_name_duplicated = True if len(expr_names + aliases) != \
-            len(set(expr_names + aliases)) else False
+        is_name_not_duplicated = pd.concat(
+            [aliases['Alias'], expr_df['Alias']],
+            axis='index', ignore_index=True
+        ).is_unique and not aliases.empty and not expr_df.empty
 
-        is_exprs_valid = True if len(expr_valid_check) != 0 \
-            and all(expr_valid_check) else False
+        # expressions check is True if all expressions are valid and not empty
+        is_exprs_valid = not expr_df.empty and expr_valid_check.all()
 
-        is_expr_defined = True if all(row['Type'] != 'Choose a type' for row
-                                      in self.expression_table_data) else False
+        is_expr_defined = expr_df['Type'].ne('Choose a type').any() and \
+            not expr_df.empty
 
-        if is_exprs_valid and not is_name_duplicated and is_expr_defined:
+        if is_exprs_valid and is_name_not_duplicated and is_expr_defined:
             # everything is ok, proceed to sampling
             self.sampling_enabled.emit(True)
         else:
