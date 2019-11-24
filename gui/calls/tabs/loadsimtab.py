@@ -669,11 +669,11 @@ if __name__ == "__main__":
     from gui.calls.base import my_exception_hook
     from tests_.mock_data import loadsim_mock
 
-    LOADSIM_SAMPLING_MOCK_DS = loadsim_mock()
+    # LOADSIM_SAMPLING_MOCK_DS = loadsim_mock()
 
     app = QApplication(sys.argv)
-    # ds = DataStorage()
-    ds = LOADSIM_SAMPLING_MOCK_DS
+    ds = DataStorage()
+    # ds = LOADSIM_SAMPLING_MOCK_DS
     w = LoadSimTab(application_database=ds)
     ds.simulation_file_changed.emit()
     w.show()

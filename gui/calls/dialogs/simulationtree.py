@@ -1,15 +1,75 @@
-from PyQt5.QtCore import Qt, QEvent, QAbstractTableModel, QModelIndex, QPersistentModelIndex
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QBrush, QPalette
-from PyQt5.QtWidgets import (QApplication, QDialog, QMessageBox,
+import pythoncom
+from PyQt5.QtCore import (QAbstractTableModel, QEvent, QModelIndex, QObject,
+                          QPersistentModelIndex, Qt, QThread, pyqtSignal,
+                          pyqtSlot)
+from PyQt5.QtGui import QBrush, QPalette, QStandardItem, QStandardItemModel
+from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QMessageBox,
                              QProgressDialog, QPushButton, QTableView,
-                             QTableWidgetItem, QHeaderView)
+                             QTableWidgetItem)
+from win32com.client import Dispatch
 
+from gui.calls.base import AliasEditorDelegate, ComboBoxDelegate, warn_the_user
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
 from gui.views.py_files.loadsimulationtree import Ui_Dialog
-from gui.calls.base import AliasEditorDelegate, ComboBoxDelegate, warn_the_user
-
+import pandas as pd
 # TODO: Include units in table display.
+import ptvsd
+
+
+class ConnectionWorker(QObject):
+    # signals
+    connection_open = pyqtSignal()
+    input_tree_loaded = pyqtSignal()
+    output_tree_loaded = pyqtSignal()
+    connection_id_created = pyqtSignal(object)  # emits the server ID
+
+    def __init__(self, app_data: DataStorage, mode: str = 'tree', parent=None):
+        super().__init__(parent)
+        self.app_data = app_data
+        if mode in ['tree', 'open']:
+            self.mode = mode
+        else:
+            raise ValueError("Invalid mode!")
+
+    @pyqtSlot()
+    def open_connection(self):
+        ptvsd.debug_this_thread()
+
+        # open the connection
+        pythoncom.CoInitialize()
+        self.connection = AspenConnection(self.app_data.simulation_file)
+        self.connection_open.emit()
+
+        if self.mode == 'open':
+            self.create_connection_id()
+
+    @pyqtSlot()
+    def load_tree(self):
+        self.open_connection()
+
+        # load and store simulation data dictionary
+        self.app_data.simulation_data = self.app_data._uneven_array_to_frame(
+            self.connection.get_simulation_data())
+
+        # load the trees
+        input_tree = self.connection.get_simulation_partial_io_tree('input')
+        self.app_data.tree_model_input = input_tree
+        self.input_tree_loaded.emit()
+
+        output_tree = self.connection.get_simulation_partial_io_tree('output')
+        self.app_data.tree_model_output = output_tree
+        self.output_tree_loaded.emit()
+
+        self.create_connection_id()
+
+    @pyqtSlot()
+    def create_connection_id(self):
+        # create the COM server ID (this enables connection from form thread)
+        self.connection_id = pythoncom.CoMarshalInterThreadInterfaceInStream(
+            pythoncom.IID_IDispatch,
+            self.connection.get_connection_object())
+        self.connection_id_created.emit(self.connection_id)
 
 
 class VariableTableModel(QAbstractTableModel):
@@ -20,16 +80,28 @@ class VariableTableModel(QAbstractTableModel):
     ----------
     application_data : DataStorage
         Application data storage object.
-    mode : str {'input', 'output'}
+    parent : QTableView
+        Parent table to be associated.
+    mode : str, optional ('input', 'output')
         Which mode the table should assume for the type of variables.
-        Default is 'input'
+        Default is 'input'.
     """
 
     def __init__(self, application_data: DataStorage, parent: QTableView,
                  mode: str = 'input'):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
+        self.column_headers = self.app_data._ALIAS_COLS
         self.mode = mode
+
+        # forces the table views update from one another.
+        if self.mode == 'input':
+            self.app_data.input_alias_data_changed.connect(self.load_data)
+        elif mode == 'output':
+            self.app_data.output_alias_data_changed.connect(self.load_data)
+        else:
+            raise ValueError("Invalid table mode.")
+
         self.load_data()
 
     def load_data(self):
@@ -37,18 +109,16 @@ class VariableTableModel(QAbstractTableModel):
         mode = self.mode
         if mode == 'input':
             self.variable_data = self.app_data.input_table_data
-        elif mode == 'output':
-            self.variable_data = self.app_data.output_table_data
         else:
-            raise ValueError("Invalid table mode.")
+            self.variable_data = self.app_data.output_table_data
 
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return len(self.variable_data)
+        return self.variable_data.shape[0]
 
     def columnCount(self, parent=None):
-        return 3
+        return self.variable_data.shape[1]
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
         if not index.isValid():
@@ -57,39 +127,32 @@ class VariableTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        var_data = self.variable_data[row]
+        value = self.variable_data.iat[row, col]
 
         if role == Qt.DisplayRole:
-            if col == 0:
-                return str(var_data['Path'])
-            elif col == 1:
-                return str(var_data['Alias'])
-            elif col == 2:
-                return str(var_data['Type'])
-            else:
-                return None
+            return str(value)
 
         elif role == Qt.TextAlignmentRole:
-            if col >= 1:
+            if self.variable_data.columns[col] != 'Path':
                 return Qt.AlignCenter
             else:
                 return None
 
         elif role == Qt.BackgroundRole:
-            if col == 1:
+            if self.variable_data.columns[col] == 'Alias':
                 # paints red if duplicates are found between input/output
-                aliases = [row['Alias']
-                           for row in self.app_data.input_table_data +
-                           self.app_data.output_table_data]
+                aliases = pd.concat([self.app_data.input_table_data,
+                                     self.app_data.output_table_data],
+                                    axis='index', ignore_index=True)
 
-                if aliases.count(self.variable_data[row]['Alias']) > 1:
+                if aliases['Alias'].value_counts()[value] > 1:
                     return QBrush(Qt.red)
                 else:
                     return QBrush(self.parent().palette().brush(
                         QPalette.Base))
 
-            elif col == 2:
-                if self.variable_data[row]['Type'] == 'Choose a type':
+            elif self.variable_data.columns[col] == 'Type':
+                if value == 'Choose a type':
                     return QBrush(Qt.red)
                 else:
                     return QBrush(self.parent().palette().brush(
@@ -108,16 +171,16 @@ class VariableTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        if col == 0:
-            self.variable_data[row]['Path'] = value
-        elif col == 1:
-            self.variable_data[row]['Alias'] = value
-        elif col == 2:
-            self.variable_data[row]['Type'] = value
+        if self.variable_data.columns[col] in self.app_data._ALIAS_COLS:
+            self.variable_data.iat[row, col] = value
         else:
             return False
 
-        self.app_data.alias_data_changed.emit()
+        if self.mode == 'input':
+            self.app_data.input_alias_data_changed.emit()
+        else:
+            self.app_data.output_alias_data_changed.emit()
+
         self.dataChanged.emit(index.sibling(0, col),
                               index.sibling(self.rowCount(), col))
 
@@ -128,18 +191,26 @@ class VariableTableModel(QAbstractTableModel):
                    parent: QModelIndex = QModelIndex()):
         self.beginInsertRows(parent, row, row + count - 1)
         # create the empty rows
-        new_rows = [{'Path': '', 'Alias': 'alias_' + str(self.rowCount()),
-                     'Type': 'Choose a type'} for i in range(count)]
+        new_rows = pd.DataFrame.from_records(
+            [{'Path': '', 'Alias': 'alias_' + str(self.rowCount()),
+              'Type': 'Choose a type'} for i in range(count)]
+        )
         if row == 0:
             # prepend rows
-            new_rows.extend(self.variable_data)
-            self.variable_data = new_rows
+            self.variable_data = pd.concat([new_rows, self.variable_data],
+                                           axis='index', ignore_index=True)
         elif row == self.rowCount():
             # append rows
-            self.variable_data.extend(new_rows)
+            self.variable_data = pd.concat([self.variable_data, new_rows],
+                                           axis='index', ignore_index=True)
         else:
-            self.variable_data = self.variable_data[:row] + new_rows + \
-                self.variable_data[row:]
+            # the drop=True is to prevent an additional column
+            self.variable_data = pd.concat(
+                [self.variable_data.iloc[:row], new_rows,
+                 self.variable_data.iloc[row:]],
+                ignore_index=True
+            ).reset_index(drop=True)
+
         self.endInsertRows()
 
         if self.mode == 'input':
@@ -152,13 +223,15 @@ class VariableTableModel(QAbstractTableModel):
                    parent: QModelIndex = QModelIndex()):
         self.beginRemoveRows(parent, row, row + count - 1)
 
-        del self.variable_data[row: (row + count)]
+        df = self.variable_data
+        df.drop(labels=df.index[row: (row + count)], axis='index',
+                inplace=True)
         self.endRemoveRows()
 
         if self.mode == 'input':
-            self.app_data.input_table_data = self.variable_data
+            self.app_data.input_table_data = df
         else:
-            self.app_data.output_table_data = self.variable_data
+            self.app_data.output_table_data = df
         return True
 
     def headerData(self, section: int, orientation: Qt.Orientation,
@@ -177,7 +250,7 @@ class VariableTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        if col == 0:
+        if self.variable_data.columns[col] == 'Path':
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
         else:
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
@@ -218,8 +291,8 @@ class LoadSimulationTreeDialog(QDialog):
         table_input.setItemDelegateForColumn(1, self._input_alias_delegate)
         table_output.setItemDelegateForColumn(1, self._output_alias_delegate)
 
-        input_combo_list = ["Manipulated (MV)", "Disturbance (d)", "Auxiliary"]
-        output_combo_list = ["Candidate (CV)", "Auxiliary"]
+        input_combo_list = list(self.app_data._INPUT_ALIAS_TYPES.values())
+        output_combo_list = list(self.app_data._OUTPUT_ALIAS_TYPES.values())
         self._input_combo_delegate = ComboBoxDelegate(input_combo_list)
         self._output_combo_delegate = ComboBoxDelegate(output_combo_list)
         table_input.setItemDelegateForColumn(2, self._input_combo_delegate)
@@ -236,12 +309,6 @@ class LoadSimulationTreeDialog(QDialog):
         # ok push button pressed
         self.ui.pushButtonOK.clicked.connect(self.ok_button_pressed)
 
-        # forces the table views update from one another.
-        self.app_data.alias_data_changed.connect(
-            self._input_table_model.load_data)
-        self.app_data.alias_data_changed.connect(
-            self._output_table_model.load_data)
-
         # opens simulation GUI when checkbox is toggled
         self.ui.openSimGUICheckBox.stateChanged.connect(
             self.open_simulator_gui)
@@ -249,12 +316,11 @@ class LoadSimulationTreeDialog(QDialog):
 
     def open_simulator_gui(self, checkstate: Qt.CheckState):
         # check if there is a connection object and open if not
-        if hasattr(self, 'aspen_com'):
-            con_obj = self.aspen_com.get_connection_object()
+        if not hasattr(self, 'aspen_com'):
+            # FIXME: set an apropriate logic that doesn't freeze the UI
+            self.aspen_com = AspenConnection(self.app_data.simulation_file)
 
-        else:
-            self.load_tree()
-            con_obj = self.aspen_com.get_connection_object()
+        con_obj = self.aspen_com.get_connection_object()
 
         if checkstate == Qt.Checked:
             con_obj.Visible = 1
@@ -297,37 +363,80 @@ class LoadSimulationTreeDialog(QDialog):
 
         # start the progress bar dialog
         progress_dialog = QProgressDialog(
-            'Please wait while the variable tree is loaded...',
+            'Please wait while the simulation engine is loaded...',
             None, 0, 0, self)
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle("Loading variables")
         progress_dialog.show()
         progress_dialog.setValue(0)
 
-        # open the connection
-        aspen_com = AspenConnection(self.app_data.simulation_file)
-        self.aspen_com = aspen_com  # to keep the reference
+        self.progress_dialog = progress_dialog
 
-        # load and store simulation data dictionary
-        self.app_data.simulation_data = aspen_com.get_simulation_data()
+        self.connection_worker = ConnectionWorker(app_data=self.app_data,
+                                                  mode='tree')
+        self.connection_thread = QThread()
 
-        # load and store JSON dicts
-        input_tree_dict = aspen_com.get_simulation_partial_io_tree('input')
-        output_tree_dict = aspen_com.get_simulation_partial_io_tree('output')
-        self.app_data.tree_model_input = input_tree_dict
-        self.app_data.tree_model_output = output_tree_dict
+        # connect worker signals
+        self.connection_worker.connection_open.connect(
+            self.on_connection_opened
+        )
+        self.connection_worker.input_tree_loaded.connect(
+            self.on_input_tree_loaded
+        )
+        self.connection_worker.output_tree_loaded.connect(
+            self.on_output_tree_loaded
+        )
+        self.connection_worker.connection_id_created.connect(
+            self.on_connection_id_created
+        )
 
-        # transform the JSON dicts into tree models
-        self.populate_tree(self.ui.treeViewInput.model(), input_tree_dict)
-        self.populate_tree(self.ui.treeViewOutput.model(), output_tree_dict)
+        # move worker to thread
+        self.connection_worker.moveToThread(self.connection_thread)
 
-        # Complete progress dialog
-        progress_dialog.setMaximum(1)
-        progress_dialog.setValue(1)
+        # connect thread to load slot
+        self.connection_thread.started.connect(
+            self.connection_worker.load_tree
+        )
+
+        # start the thread
+        self.connection_thread.start()
+
+    def on_connection_opened(self):
+        self.progress_dialog.setLabelText('Loading input tree variables...')
+
+    def on_input_tree_loaded(self):
+        self.progress_dialog.setLabelText('Loading output tree variables...')
+
+        self.populate_tree(self.ui.treeViewInput.model(),
+                           self.app_data.tree_model_input)
+
+    def on_output_tree_loaded(self):
+        self.populate_tree(self.ui.tableViewOutput.model(),
+                           self.app_data.tree_model_output)
+
+        # close progress dialog
+        self.progress_dialog.setMaximum(1)
+        self.progress_dialog.setValue(1)
 
         # Enable the load tree and ok buttons
         self.ui.pushButtonLoadTreeFromFile.setEnabled(True)
         self.ui.pushButtonOK.setEnabled(True)
+
+    def on_connection_id_created(self, connection_id):
+        # make the server available to this thread
+        pythoncom.CoInitialize()
+        self.aspen_com = AspenConnection(self.app_data.simulation_file)
+
+        # populate internal connection variable of AspenConnection class
+        # this is a horrendous fix... it works though!
+        self.aspen_com._aspen = Dispatch(
+            pythoncom.CoGetInterfaceAndReleaseStream(connection_id,
+                                                     pythoncom.IID_IDispatch)
+        )
+
+        # quit the thread
+        if hasattr(self, 'connection_thread'):
+            self.connection_thread.quit()
 
     def populate_tree(self, model: QStandardItemModel, tree_nodes: dict):
         """Populates the model of a tree view.
@@ -413,9 +522,10 @@ class LoadSimulationTreeDialog(QDialog):
             fullpath = '\\' + '\\'.join(list(reversed(branch_list)))
 
             # verify if full path is already in the table
-            current_paths = [row['Path']
-                             for row in self.app_data.input_table_data +
-                             self.app_data.output_table_data]
+            current_paths = pd.concat([self.app_data.input_table_data,
+                                       self.app_data.output_table_data],
+                                      axis='index',
+                                      ignore_index=True)['Path'].tolist()
 
             if fullpath in current_paths:
                 # the variable is already in table, warn the user
@@ -454,19 +564,17 @@ class LoadSimulationTreeDialog(QDialog):
         input_var_data = self.app_data.input_table_data
         output_var_data = self.app_data.output_table_data
 
-        in_alias_list = [row['Alias'] for row in input_var_data]
-        out_alias_list = [row['Alias'] for row in output_var_data]
-
+        final_tab = pd.concat([input_var_data, output_var_data],
+                              axis='index', ignore_index=True)
         # check if there is any duplicates between input and output
-        is_alias_duplicated = True if len(in_alias_list + out_alias_list) != \
-            len(set(in_alias_list + out_alias_list)) else False
+        is_alias_duplicated = not final_tab['Alias'].is_unique
 
         # check if there any variable without its type defined
-        is_in_var_defined = False if 'Choose a type' in \
-            [row['Type'] for row in input_var_data] else True
+        is_in_var_defined = not input_var_data['Type'].eq(
+            'Choose a type').any()
 
-        is_out_var_defined = False if 'Choose a type' in \
-            [row['Type'] for row in output_var_data] else True
+        is_out_var_defined = not output_var_data['Type'].eq(
+            'Choose a type').any()
 
         if not is_in_var_defined or not is_out_var_defined:
             # user did not define all the variable types
@@ -531,12 +639,14 @@ class LoadSimulationTreeDialog(QDialog):
 if __name__ == "__main__":
     import sys
     from gui.calls.base import my_exception_hook
-    from tests_.mock_data import LOADSIM_SAMPLING_MOCK_DS
+    from tests_.mock_data import ASPEN_BKP_FILE_PATH, loadsim_mock
 
     app = QApplication(sys.argv)
 
     # Load application storage mock
-    ds = LOADSIM_SAMPLING_MOCK_DS
+    ds = loadsim_mock()
+    # ds = DataStorage()
+    ds.simulation_file = str(ASPEN_BKP_FILE_PATH)
 
     # start the application
     w = LoadSimulationTreeDialog(ds)

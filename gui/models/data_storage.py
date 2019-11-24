@@ -34,6 +34,8 @@ class DataStorage(QObject):
     simulation_file_changed = pyqtSignal()
     simulation_info_changed = pyqtSignal()
     alias_data_changed = pyqtSignal()
+    input_alias_data_changed = pyqtSignal()
+    output_alias_data_changed = pyqtSignal()
     expr_data_changed = pyqtSignal()
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
@@ -60,17 +62,49 @@ class DataStorage(QObject):
                       'reactions', 'sens_analysis', 'calculators',
                       'optimizations', 'design_specs']
 
+    # variables (aliases) columns
+    _ALIAS_COLS = ['Alias', 'Path', 'Type']
+
+    # expressions columns
+    _EXPR_COLS = ['Alias', 'Expression', 'Type']
+
+    # variables types
+    _INPUT_ALIAS_TYPES = {
+        'mv': 'Manipulated (MV)',
+        'd': 'Disturbance (d)'
+    }
+    _OUTPUT_ALIAS_TYPES = {
+        'aux': 'Auxiliary',
+        'cv': 'Candidate (CV)'
+    }
+    _EXPR_ALIAS_TYPES = {
+        'cv': 'Candidate (CV)',
+        'cst': 'Constraint',
+        'obj': 'Objective function (J)'
+    }
+
+    # input variables bounds columns (disturbances included)
+    _INP_BOUNDS_COLS = ['name', 'lb', 'ub']
+
+    # metamodel theta bounds columns
+    _META_THETA_BNDS = ['Alias', 'lb', 'ub', 'theta0']
+
+    # selected metamodel columns
+    _META_SELEC_COLS = ['Alias', 'Type', 'Checked']
+
+    # constraint activity index
+    _CONST_ACT_IDX = ['Active', 'Pairing', 'Type', 'Value']
+
     def __init__(self):
         super().__init__()
         self._simulation_file = ''
         self._tree_model_input = {}
         self._tree_model_output = {}
-        self.simulation_data = pd.DataFrame(columns=self._SIM_DATA_COLS)
-        self._input_table_data = []
-        self._output_table_data = []
-        self._expression_table_data = []
-        self._doe_data = {'mv_bounds': [],
-                          'lhs': {'n_samples': 50,
+        self.input_table_data = pd.DataFrame(columns=self._ALIAS_COLS)
+        self.output_table_data = pd.DataFrame(columns=self._ALIAS_COLS)
+        self.expression_table_data = pd.DataFrame(columns=self._EXPR_COLS)
+
+        self._doe_data = {'lhs': {'n_samples': 50,
                                   'n_iter': 5,
                                   'inc_vertices': False},
                           'csv': {'filepath': '',
@@ -78,12 +112,7 @@ class DataStorage(QObject):
                                   'pair_info': {}},
                           'sampled': {}
                           }
-        self._metamodel_data = {
-            'theta': [],
-            'selected': [],
-        }
-        # TODO: Move activity data into reduced data dictionary
-        self._activity_data = {'activity_info': {}}
+
         self._reduced_data = {'d_bounds': [],
                               'csv': {'filepath': '',
                                       'convergence_index': '',
@@ -106,76 +135,85 @@ class DataStorage(QObject):
                           }
 
         # --------------------------- SIGNALS/SLOTS ---------------------------
-        # whenever expression data changes, perform a simulation setup check
-        self.expr_data_changed.connect(self.check_simulation_setup)
+        # Whenever INPUT ALIAS data changes update (or check setup):
+        # - doe_mv_bounds
+        self.input_alias_data_changed.connect(self._update_mv_bounds)
+        # - metamodel_theta_data
+        self.input_alias_data_changed.connect(self._update_theta_data)
+        # - active_constraint_info
+        self.input_alias_data_changed.connect(self._update_constraint_activity)
+        # # - check_simulation_setup
+        # self.input_alias_data_changed.connect(self.check_simulation_setup)
+        # # - check_sampling_setup
+        # self.input_alias_data_changed.connect(self.check_sampling_setup)
 
-        # update doe_mv_bounds whenever aliases data changes
-        self.alias_data_changed.connect(self._update_mv_bounds)
+        # Whenever OUTPUT ALIAS data changes update (or check setup):
+        # - metamodel_selected_data (construct metamodels)
+        self.output_alias_data_changed.connect(self._update_selected_data)
+        # - active_constraint_info
+        self.output_alias_data_changed.connect(
+            self._update_constraint_activity)
+        # # - check_simulation_setup
+        # self.output_alias_data_changed.connect(self.check_simulation_setup)
+        # # - check_sampling_setup
+        # self.output_alias_data_changed.connect(self.check_sampling_setup)
 
-        # update theta data whenever aliases data changes
-        self.alias_data_changed.connect(self._update_theta_data)
-
-        # update selected variables data for construction whenever alias or
-        # expression data changes
-        self.alias_data_changed.connect(self._update_selected_data)
+        # Whenever EXPRESSION DATA changes update (or check setup):
+        # - metamodel_selected_data (construct metamodels)
         self.expr_data_changed.connect(self._update_selected_data)
-
-        # update constraint activity data whenever expression datas changes
-        self.alias_data_changed.connect(self._update_constraint_activity)
+        # - active_constraint_info
         self.expr_data_changed.connect(self._update_constraint_activity)
+        # # - check_simulation_setup
+        # self.expr_data_changed.connect(self.check_simulation_setup)
+        # # - check_sampling_setup
+        # self.expr_data_changed.connect(self.check_sampling_setup)
 
-        # whenever variable, expression or sampled data changes, perform a DOE
-        # setup check
-        self.alias_data_changed.connect(self.check_sampling_setup)
-        self.expr_data_changed.connect(self.check_sampling_setup)
-        self.doe_sampled_data_changed.connect(self.check_sampling_setup)
+        # # whenever constraint activity info changes, perform a setup check
+        # self.reduced_doe_constraint_activity_changed.connect(
+        #     self.check_reduced_space_setup)
 
-        # whenever constraint activity info changes, perform a setup check
-        self.reduced_doe_constraint_activity_changed.connect(
-            self.check_reduced_space_setup)
+        # # update reduced_doe_d_bounds whenever aliases data changes
+        # self.alias_data_changed.connect(self._update_d_bounds)
 
-        # update reduced_doe_d_bounds whenever aliases data changes
-        self.alias_data_changed.connect(self._update_d_bounds)
+        # # update reduced theta data whenever aliases or constraint activity
+        # # changes
+        # self.alias_data_changed.connect(self._update_reduced_theta_data)
+        # self.reduced_doe_constraint_activity_changed.connect(
+        #     self._update_reduced_theta_data)
 
-        # update reduced theta data whenever aliases or constraint activity
-        # changes
-        self.alias_data_changed.connect(self._update_reduced_theta_data)
-        self.reduced_doe_constraint_activity_changed.connect(
-            self._update_reduced_theta_data)
+        # # update selected variables data for construction whenever constraint
+        # # activity data changes
+        # self.reduced_doe_constraint_activity_changed.connect(
+        #     self._update_reduced_selected_data
+        # )
 
-        # update selected variables data for construction whenever constraint
-        # activity data changes
-        self.reduced_doe_constraint_activity_changed.connect(
-            self._update_reduced_selected_data
-        )
+        # # whenever reduced space sampled data changes, perform a checkup in
+        # # reduced space data
+        # self.reduced_doe_sampled_data_changed.connect(
+        #     self.check_reduced_space_setup)
 
-        # whenever reduced space sampled data changes, perform a checkup in
-        # reduced space data
-        self.reduced_doe_sampled_data_changed.connect(
-            self.check_reduced_space_setup)
+        # # whenever constraint activity/ expr data changes, update disturbance
+        # # and measurement error magnitudes data
+        # self.alias_data_changed.connect(self._update_magnitude_data)
+        # self.reduced_doe_constraint_activity_changed.connect(
+        #     self._update_magnitude_data
+        # )
 
-        # whenever constraint activity/ expr data changes, update disturbance
-        # and measurement error magnitudes data
-        self.alias_data_changed.connect(self._update_magnitude_data)
-        self.reduced_doe_constraint_activity_changed.connect(
-            self._update_magnitude_data
-        )
+        # # whenever reduced select data changes, update subset sizing list
+        # # data
+        # self.reduced_selected_data_changed.connect(
+        #     self._update_subset_data
+        # )
+        # self.reduced_selected_data_changed.connect(
+        #     self._update_magnitude_data
+        # )
 
-        # whenever reduced select data changes, update subset sizing list
-        # data
-        self.reduced_selected_data_changed.connect(
-            self._update_subset_data
-        )
-        self.reduced_selected_data_changed.connect(
-            self._update_magnitude_data
-        )
-
-        # perform a hessian setup check whenever gradient or hessian data
-        # changes
-        self.differential_gy_data_changed.connect(self.check_hessian_setup)
-        self.differential_gyd_data_changed.connect(self.check_hessian_setup)
-        self.differential_juu_data_changed.connect(self.check_hessian_setup)
-        self.differential_jud_data_changed.connect(self.check_hessian_setup)
+        # # perform a hessian setup check whenever gradient or hessian data
+        # # changes
+        # self.differential_gy_data_changed.connect(self.check_hessian_setup)
+        # self.differential_gyd_data_changed.connect(self.check_hessian_setup)
+        # self.differential_juu_data_changed.connect(self.check_hessian_setup)
+        # self.differential_jud_data_changed.connect(self.check_hessian_setup)
 
     # ------------------------------ PROPERTIES ------------------------------
     @property
@@ -228,76 +266,111 @@ class DataStorage(QObject):
     def simulation_data(self):
         """DataFrame containing the information about the simulation;
         """
+
+        if not hasattr(self, '_simulation_data'):
+            self._simulation_data = pd.DataFrame(columns=self._SIM_DATA_COLS)
+
         return self._simulation_data
 
     @simulation_data.setter
     def simulation_data(self, frame: pd.DataFrame):
         if isinstance(frame, pd.DataFrame):
-            # check if the columns are properly set.
-            if frame.columns.isin(self._SIM_DATA_COLS).all():
-                # all columns present, reorganize columns and emit signal
-                self._simulation_data = frame[self._SIM_DATA_COLS]
-                self.simulation_info_changed.emit()
+            # check for frame equality to avoid unnecessary operations
+            if not frame.equals(self.simulation_data):
+                # check if the columns are properly set.
+                if frame.columns.isin(self._SIM_DATA_COLS).all():
+                    # all columns present, reorganize columns and emit signal
+                    self._simulation_data = frame[self._SIM_DATA_COLS]
+
+                    self.simulation_info_changed.emit()
+                else:
+                    raise ValueError("All columns of 'simulation_data' must be "
+                                     "defined.")
             else:
-                raise KeyError("All columns of 'simulation data' must be "
-                               "defined")
+                # frame is equal, do nothing
+                pass
 
         else:
-            raise KeyError("Simulation data must be a DataFrame.")
+            raise TypeError("Simulation data must be a DataFrame.")
 
     @property
     def input_table_data(self):
-        """List of dicts containing the input variables aliases, paths and
-        types. Keys are: 'Alias', 'Path', 'Type'."""
+        """DataFrame containing the input variables aliases, paths and
+        types. columns are: 'Alias', 'Path', 'Type'."""
         return self._input_table_data
 
     @input_table_data.setter
-    def input_table_data(self, value: list):
-        if isinstance(value, list):
-            self._input_table_data = value
-            self.alias_data_changed.emit()
+    def input_table_data(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._ALIAS_COLS).all():
+                self._input_table_data = value
+                self.input_alias_data_changed.emit()
+
+            else:
+                raise ValueError("'input_table_data' must have its columns "
+                                 "defined.")
         else:
-            raise TypeError("Input table data must be a list.")
+            raise TypeError("Input table data must be a DataFrame.")
 
     @property
     def output_table_data(self):
-        """List of dicts containing the output variables aliases, paths and
+        """DataFrame containing the output variables aliases, paths and
         types. Keys are: 'Alias', 'Path', 'Type'."""
         return self._output_table_data
 
     @output_table_data.setter
     def output_table_data(self, value: list):
-        if isinstance(value, list):
-            self._output_table_data = value
-            self.alias_data_changed.emit()
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._ALIAS_COLS).all():
+                self._output_table_data = value
+                self.output_alias_data_changed.emit()
+            else:
+                raise ValueError("'output_table_data' must have its columns "
+                                 "defined.")
         else:
-            raise TypeError("Output table data must be a list.")
+            raise TypeError("Output table data must be a DataFrame.")
 
     @property
     def expression_table_data(self):
-        """List of dicts containing the expressions names, equations and
-        types. Keys are: 'Name', 'Expr', 'Type'."""
+        """DataFrame containing the expressions names, equations and
+        types. Keys are: 'Alias', 'Expression', 'Type'."""
         return self._expression_table_data
 
     @expression_table_data.setter
-    def expression_table_data(self, value: list):
-        if isinstance(value, list):
-            self._expression_table_data = value
-            self.expr_data_changed.emit()
+    def expression_table_data(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._EXPR_COLS).all():
+                self._expression_table_data = value
+                self.expr_data_changed.emit()
+            else:
+                raise ValueError("'expression_table_data' must have its "
+                                 "columns defined.")
         else:
-            raise TypeError("Expression table data must be a list.")
+            raise TypeError("Expression table data must be a DataFrame.")
 
     @property
     def doe_mv_bounds(self):
-        """List of dicts containing the MVs and its bounds to be displayed
-        or modified in doetab. Keys are: 'name', 'lb', 'ub'."""
-        return self._doe_data['mv_bounds']
+        """DataFrame containing the MVs and its bounds to be displayed or
+        modified in doetab. columns are: 'name', 'lb', 'ub'."""
+
+        if not hasattr(self, '_doe_mv_bounds'):
+            # attribute not created (init), create now
+            self._doe_mv_bounds = pd.DataFrame(
+                columns=self._INP_BOUNDS_COLS
+            )
+
+        return self._doe_mv_bounds
 
     @doe_mv_bounds.setter
-    def doe_mv_bounds(self, value: list):
-        if isinstance(value, list):
-            self._doe_data['mv_bounds'] = value
-            self.doe_mv_bounds_changed.emit()
+    def doe_mv_bounds(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._INP_BOUNDS_COLS).all():
+                self._doe_mv_bounds = value
+                self.doe_mv_bounds_changed.emit()
+
+            else:
+                raise ValueError("'doe_mv_bounds' must have its columns "
+                                 "defined.")
         else:
             raise TypeError("MV bounds table data must be a list.")
 
@@ -346,40 +419,68 @@ class DataStorage(QObject):
 
     @property
     def metamodel_theta_data(self):
-        """List of dicts containing lower and upper bounds, and estimates of
+        """DataFrame containing lower and upper bounds, and estimates of
         theta values."""
-        return self._metamodel_data['theta']
+        if not hasattr(self, '_metamodel_theta_data'):
+            # attribute not created (init), create now
+            self._metamodel_theta_data = pd.DataFrame(
+                columns=self._META_THETA_BNDS
+            )
+
+        return self._metamodel_theta_data
 
     @metamodel_theta_data.setter
-    def metamodel_theta_data(self, value: list):
-        if isinstance(value, list):
-            self._metamodel_data['theta'] = value
+    def metamodel_theta_data(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._META_THETA_BNDS).all():
+                self._metamodel_theta_data = value
+            else:
+                raise ValueError("metamodel_theta_data must have its columns "
+                                 "defined.")
         else:
-            raise TypeError("Theta data must be a list of dictionaries.")
+            raise TypeError("Theta data must be a DataFrame.")
 
     @property
     def metamodel_selected_data(self):
-        """List of dicts containing info which variables are checked for model
-        construction. Keys are 'Alias', 'Type' and 'Checked'."""
-        return self._metamodel_data['selected']
+        """DataFrame containing info which variables are checked for model
+        construction. Columns are 'Alias', 'Type' and 'Checked'."""
+
+        if not hasattr(self, '_metamodel_selected_data'):
+            # attribute not created (init), create now
+            self._metamodel_selected_data = pd.DataFrame(
+                columns=self._META_SELEC_COLS
+            )
+
+        return self._metamodel_selected_data
 
     @metamodel_selected_data.setter
-    def metamodel_selected_data(self, value: list):
-        if isinstance(value, list):
-            self._metamodel_data['selected'] = value
+    def metamodel_selected_data(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._META_SELEC_COLS).all():
+                self._metamodel_selected_data = value
+            else:
+                raise ValueError("metamodel_selected_data must have its "
+                                 "columns defined.")
         else:
-            raise TypeError("Selected data must be a list of dictionaries.")
+            raise TypeError("Selected data must be a DataFrame.")
 
     @property
     def active_constraint_info(self):
-        """Dictionary containing which variables from the optimization are
+        """DataFrame containing which variables from the optimization are
         active or not."""
-        return self._activity_data['activity_info']
+
+        if not hasattr(self, '_active_constraint_info'):
+            # attribute not created (init), create now
+            self._active_constraint_info = pd.DataFrame(
+                index=self._CONST_ACT_IDX
+            )
+
+        return self._active_constraint_info
 
     @active_constraint_info.setter
-    def active_constraint_info(self, value: dict):
-        if isinstance(value, dict):
-            self._activity_data['activity_info'] = value
+    def active_constraint_info(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            self._active_constraint_info = value
             self.reduced_doe_constraint_activity_changed.emit()
         else:
             raise TypeError("Activity constraint info must be a dictionary.")
@@ -574,10 +675,26 @@ class DataStorage(QObject):
             raise ValueError("Subset sizes must be a dictionary.")
 
     # ---------------------------- PRIVATE METHODS ---------------------------
-    def _uneven_array_to_frame(self, arr: dict):
+    def _uneven_array_to_frame(self, arr: dict) -> pd.DataFrame:
+        """Converts an uneven array represented by a dict into a DataFrame.
+        Empty fields are filled with NaN.
+
+        Parameters
+        ----------
+        arr : dict
+            Uneven array represented by a dict.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame representation of a different length array where empty
+            fields are represented by NaN
+        """
         if isinstance(arr, dict):
             dict_conversion = dict([(k, pd.Series(v)) for k, v in arr.items()])
             return pd.DataFrame(dict_conversion)
+        else:
+            raise ValueError("'arr' has to be a dictionary.")
 
     def _check_keys(self, key_list: list, value_dict: dict, prop: dict) \
             -> None:
@@ -602,21 +719,38 @@ class DataStorage(QObject):
                            str(key_list))
 
     def _update_mv_bounds(self) -> None:
-        """Updates the MV bounds data whenever alias data is changed. (SLOT)
+        """Updates the MV bounds data whenever input alias data is changed.
+        (SLOT)
         """
         # list of aliases that are MV
-        mv_aliases = [row['Alias'] for row in self._input_table_data
-                      if row['Type'] == 'Manipulated (MV)']
+        inps = self.input_table_data
+        mv_aliases = inps.loc[inps['Type'] == self._INPUT_ALIAS_TYPES['mv'],
+                              'Alias'].tolist()
 
         # delete the variables that aren't in the mv list
-        new_bnds = [row for idx, row in enumerate(self._doe_data['mv_bounds'])
-                    if row['name'] in mv_aliases]
+        bnd_df = self.doe_mv_bounds
+        new_bnds = bnd_df[~bnd_df['name'].isin(mv_aliases)]
 
-        mv_bnd_list = [row['name'] for row in new_bnds]
+        mv_bnd_list = new_bnds['name'].tolist()
 
         # insert new values
-        [new_bnds.append({'name': alias, 'lb': 0.0, 'ub': 1.0}) for alias
-         in mv_aliases if alias not in mv_bnd_list]
+        nv = []
+        for alias in mv_aliases:
+            if alias not in mv_bnd_list:
+                nv.append({
+                    'name': alias,
+                    'lb': 0.0,
+                    'ub': 1.0
+                })
+
+        new_bnds = pd.concat([new_bnds, pd.DataFrame.from_records(nv)],
+                             axis='index', ignore_index=True)
+
+        # sort frame to ensure that the order is the same as input table
+        new_bnds.set_index('name', inplace=True)
+        new_bnds = new_bnds.reindex(index=mv_aliases)
+        new_bnds.reset_index(inplace=True)
+        new_bnds = new_bnds[self._INP_BOUNDS_COLS]
 
         # store values
         self.doe_mv_bounds = new_bnds
@@ -625,19 +759,35 @@ class DataStorage(QObject):
         """Updates the theta list whenever alias data is changed. (SLOT)
         """
         # list of aliases that are MV
-        input_aliases = [row['Alias'] for row in self._input_table_data
-                         if row['Type'] == 'Manipulated (MV)']
+        inps = self.input_table_data
+        input_aliases = inps.loc[inps['Type'] == self._INPUT_ALIAS_TYPES['mv'],
+                                 'Alias'].tolist()
 
         # delete the variables that aren't in the mv list
-        new_thetas = [row for row in self._metamodel_data['theta']
-                      if row['Alias'] in input_aliases]
+        theta_df = self.metamodel_theta_data
+        new_thetas = theta_df[~theta_df['Alias'].isin(input_aliases)]
 
-        theta_bnd_list = [row['Alias'] for row in new_thetas]
+        theta_bnd_list = theta_df['Alias'].tolist()
 
         # insert new values
-        [new_thetas.append({'Alias': alias, 'lb': 1e-5,
-                            'ub': 1.0e5, 'theta0': 1.0})
-         for alias in input_aliases if alias not in theta_bnd_list]
+        nt = []
+        for alias in input_aliases:
+            if alias not in theta_bnd_list:
+                nt.append({
+                    'Alias': alias,
+                    'lb': 1e-5,
+                    'ub': 1.0e5,
+                    'theta0': 1.0
+                })
+
+        new_thetas = pd.concat([new_thetas, pd.DataFrame.from_records(nt)],
+                               axis='index', ignore_index=True)
+
+        # sort frame to ensure that the order is the same as input table
+        new_thetas.set_index('Alias', inplace=True)
+        new_thetas = new_thetas.reindex(index=input_aliases)
+        new_thetas.reset_index(inplace=True)
+        new_thetas = new_thetas[self._META_THETA_BNDS]
 
         # store values
         self.metamodel_theta_data = new_thetas
@@ -647,26 +797,43 @@ class DataStorage(QObject):
         whenever alias or expression data is changed (SLOT).
         """
         # list of variables
-        vars = [{'Alias': row['Alias'], 'Type': row['Type']}
-                for row in self._output_table_data +
-                self._expression_table_data
-                if row['Type'] == 'Candidate (CV)' or
-                row['Type'] == 'Constraint function' or
-                row['Type'] == 'Objective function (J)']
+        conc_tab = pd.concat([self.output_table_data,
+                              self.expression_table_data],
+                             axis='index', join='inner', ignore_index=True)
+        var_list = conc_tab.loc[
+            (conc_tab['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
+            (conc_tab['Type'].isin(self._EXPR_ALIAS_TYPES.values()))
+        ]
+
+        # set the var_list index to the aliases (easier indexing)
+        var_list.set_index('Alias', inplace=True)
 
         # list of aliases
-        aliases = [row['Alias'] for row in vars]
+        aliases = var_list.index.tolist()
 
         # delete variables that aren't in the list
-        new_vars = [row for row in self._metamodel_data['selected']
-                    if row['Alias'] in aliases]
-
-        vars_list = [row['Alias'] for row in new_vars]
+        sel_df = self.metamodel_selected_data
+        new_vars = sel_df[~sel_df['Alias'].isin(aliases)]
+        new_vars_list = new_vars['Alias'].tolist()
 
         # insert new variables
-        [new_vars.append({'Alias': var['Alias'], 'Type': var['Type'],
-                          'Checked': False})
-         for var in vars if var['Alias'] not in vars_list]
+        nv = []
+        for alias in aliases:
+            if alias not in new_vars_list:
+                nv.append({
+                    'Alias': alias,
+                    'Type': var_list.at[alias, 'Type'],
+                    'Checked': False
+                })
+
+        new_vars = pd.concat([new_vars, pd.DataFrame.from_records(nv)],
+                             axis='index', ignore_index=True)
+
+        # sort frame to ensure that the order is the same as output table
+        new_vars.set_index('Alias', inplace=True)
+        new_vars = new_vars.reindex(index=aliases)
+        new_vars.reset_index(inplace=True)
+        new_vars = new_vars[self._META_SELEC_COLS]
 
         # store values
         self.metamodel_selected_data = new_vars
@@ -676,32 +843,38 @@ class DataStorage(QObject):
         alias data changes (SLOT). Managed to be used by a pandas DataFrame.
         """
         # list of variables
-        vars = [{'Alias': row['Alias'], 'Type': row['Type']}
-                for row in self.input_table_data + self.output_table_data +
-                self._expression_table_data
-                if row['Type'] == 'Manipulated (MV)' or
-                row['Type'] == 'Candidate (CV)']
+        conc_tab = pd.concat([self.input_table_data,
+                              self.output_table_data,
+                              self.expression_table_data],
+                             axis='index', join='inner', ignore_index=True)
+        var_list = conc_tab.loc[
+            (conc_tab['Type'] == self._INPUT_ALIAS_TYPES['mv']) |
+            (conc_tab['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
+            (conc_tab['Type'] == self._EXPR_ALIAS_TYPES['cv'])
+        ]
 
         # list of aliases
-        aliases = [row['Alias'] for row in vars]
+        aliases = var_list['Alias'].tolist()
 
         # delete variables that aren't in the list
-        new_vars = {row: {'Type': self.active_constraint_info[row]['Type'],
-                          'Active': self.active_constraint_info[row]['Active'],
-                          'Value': self.active_constraint_info[row]['Value'],
-                          'Pairing': self.active_constraint_info[row]['Pairing']}
-                    for row in self.active_constraint_info
-                    if row in aliases}
+        act_df = self.active_constraint_info
+        # new_vars = act_df[~act_df['Alias'].isin(aliases)]
+        # new_vars = {row: {'Type': self.active_constraint_info[row]['Type'],
+        #                   'Active': self.active_constraint_info[row]['Active'],
+        #                   'Value': self.active_constraint_info[row]['Value'],
+        #                   'Pairing': self.active_constraint_info[row]['Pairing']}
+        #             for row in self.active_constraint_info
+        #             if row in aliases}
 
-        # insert new variables
-        [new_vars.update({var['Alias']: {'Type': var['Type'],
-                                         'Active': False,
-                                         'Value': None,
-                                         'Pairing': None}})
-         for var in vars if var['Alias'] not in new_vars]
+        # # insert new variables
+        # [new_vars.update({var['Alias']: {'Type': var['Type'],
+        #                                  'Active': False,
+        #                                  'Value': None,
+        #                                  'Pairing': None}})
+        #  for var in vars if var['Alias'] not in new_vars]
 
-        # store values
-        self.active_constraint_info = new_vars
+        # # store values
+        # self.active_constraint_info = new_vars
 
     def _update_d_bounds(self) -> None:
         """Updates the D bounds data whenever alias data is changed. (SLOT)
@@ -931,36 +1104,37 @@ class DataStorage(QObject):
 
         # loadsimtab
         self.simulation_file = sim_info['sim_filename']
-        self.simulation_data = self._uneven_array_to_frame(sim_info['sim_info'])
+        self.simulation_data = self._uneven_array_to_frame(
+            sim_info['sim_info'])
         self.tree_model_input = sim_info['sim_tree_input']
         self.tree_model_output = sim_info['sim_tree_output']
-        self.input_table_data = sim_info['mtc_input_table']
-        self.output_table_data = sim_info['mtc_output_table']
-        self.expression_table_data = sim_info['mtc_expr_table']
+        self.input_table_data = pd.DataFrame(sim_info['mtc_input_table'])
+        self.output_table_data = pd.DataFrame(sim_info['mtc_output_table'])
+        self.expression_table_data = pd.DataFrame(sim_info['mtc_expr_table'])
 
-        # doetab
-        self.doe_mv_bounds = doe_info['mtc_mv_bounds']
-        self.doe_sampled_data = doe_info['mtc_sampled_data']
+        # # doetab
+        # self.doe_mv_bounds = doe_info['mtc_mv_bounds']
+        # self.doe_sampled_data = doe_info['mtc_sampled_data']
 
-        # reducedpsacetab
-        self.active_constraint_info = redspace_info['mtc_constraint_activity']
-        self.reduced_doe_d_bounds = redspace_info['mtc_reduced_d_bounds']
+        # # reducedpsacetab
+        # self.active_constraint_info = redspace_info['mtc_constraint_activity']
+        # self.reduced_doe_d_bounds = redspace_info['mtc_reduced_d_bounds']
 
-        # when loading sampled data, do not call expr_eval by setting the
-        # property directly. Just bypass it and emit the signal.
-        self._reduced_data['sampled'] = redspace_info['mtc_reduced_sampled_data']
-        self.reduced_doe_sampled_data_changed.emit()
+        # # when loading sampled data, do not call expr_eval by setting the
+        # # property directly. Just bypass it and emit the signal.
+        # self._reduced_data['sampled'] = redspace_info['mtc_reduced_sampled_data']
+        # self.reduced_doe_sampled_data_changed.emit()
 
-        # hessianextraction tab
-        self.differential_gy = diff_info['mtc_gy']
-        self.differential_gyd = diff_info['mtc_gyd']
-        self.differential_juu = diff_info['mtc_juu']
-        self.differential_jud = diff_info['mtc_jud']
+        # # hessianextraction tab
+        # self.differential_gy = diff_info['mtc_gy']
+        # self.differential_gyd = diff_info['mtc_gyd']
+        # self.differential_juu = diff_info['mtc_juu']
+        # self.differential_jud = diff_info['mtc_jud']
 
-        # soc tab
-        self.soc_disturbance_magnitude = soc_info['mtc_disturbance_magnitude']
-        self.soc_measure_error_magnitude = soc_info['mtc_measurement_magnitude']
-        self.soc_subset_size_list = soc_info['mtc_subset_sizing_data']
+        # # soc tab
+        # self.soc_disturbance_magnitude = soc_info['mtc_disturbance_magnitude']
+        # self.soc_measure_error_magnitude = soc_info['mtc_measurement_magnitude']
+        # self.soc_subset_size_list = soc_info['mtc_subset_sizing_data']
 
     def check_simulation_setup(self):
         """Checks if there are aliases and expressions are mathematically
