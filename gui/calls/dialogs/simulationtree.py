@@ -1,3 +1,4 @@
+import pandas as pd
 import pythoncom
 from PyQt5.QtCore import (QAbstractTableModel, QEvent, QModelIndex, QObject,
                           QPersistentModelIndex, Qt, QThread, pyqtSignal,
@@ -12,11 +13,11 @@ from gui.calls.base import AliasEditorDelegate, ComboBoxDelegate, warn_the_user
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
 from gui.views.py_files.loadsimulationtree import Ui_Dialog
-import pandas as pd
+
+# import ptvsd
+
+
 # TODO: Include units in table display.
-import ptvsd
-
-
 class ConnectionWorker(QObject):
     # signals
     connection_open = pyqtSignal()
@@ -34,7 +35,7 @@ class ConnectionWorker(QObject):
 
     @pyqtSlot()
     def open_connection(self):
-        ptvsd.debug_this_thread()
+        # ptvsd.debug_this_thread()
 
         # open the connection
         pythoncom.CoInitialize()
@@ -173,13 +174,14 @@ class VariableTableModel(QAbstractTableModel):
 
         if self.variable_data.columns[col] in self.app_data._ALIAS_COLS:
             self.variable_data.iat[row, col] = value
+
+            if self.mode == 'input':
+                self.app_data.input_table_data = self.variable_data
+            else:
+                self.app_data.output_table_data = self.variable_data
+
         else:
             return False
-
-        if self.mode == 'input':
-            self.app_data.input_alias_data_changed.emit()
-        else:
-            self.app_data.output_alias_data_changed.emit()
 
         self.dataChanged.emit(index.sibling(0, col),
                               index.sibling(self.rowCount(), col))
@@ -238,12 +240,9 @@ class VariableTableModel(QAbstractTableModel):
                    role: int = Qt.DisplayRole):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                if section == 0:
-                    return "Variable path"
-                elif section == 1:
-                    return "Alias"
-                else:
-                    return "Type"
+                return str(self.variable_data.columns[section])
+            else:
+                return None
 
     def flags(self, index: QModelIndex):
 
