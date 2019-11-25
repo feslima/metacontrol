@@ -228,19 +228,31 @@ def warn_the_user(msg_text: str, msg_title: str) -> None:
     msg_box.exec_()
 
 
+class CustomErrorMessageBox(ErrorMessageBox):
+    def __init__(self, icon, title, text, buttons, parent, flags, width):
+        super().__init__(icon, title, text, buttons, parent, flags)
+        self.fixed_width = width
+
+    def resizeEvent(self, a0):
+        super().resizeEvent(a0)
+        self.setFixedWidth(self.fixed_width)
+
+
 def my_exception_hook(exctype, value, tback):
     """Exception hook to catch exceptions from PyQt and show the error message
     as a dialog box.
     """
-    # Show the dialog
-    error_dialog = ErrorMessageBox(QMessageBox.Critical, "Application ERROR!",
-                                   traceback.format_exception(
-                                       exctype, value, tback)[-1],
-                                   QMessageBox.NoButton, None,
-                                   Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint)
+    str_error_msg = ''.join(traceback.format_exception(exctype, value, tback))
 
-    error_dialog.setDetailedText(
-        ''.join(traceback.format_exception(exctype, value, tback)))
+    # Show the dialog
+    error_dialog = CustomErrorMessageBox(
+        QMessageBox.Critical,
+        "Application ERROR!",
+        str_error_msg,
+        QMessageBox.NoButton, None,
+        Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint,
+        600
+    )
 
     error_dialog.exec_()
 
