@@ -1,3 +1,4 @@
+import pandas as pd
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QApplication, QDialog
 
@@ -38,7 +39,7 @@ class LhsSettingDialog(QDialog):
                    'n_iter': int(self.ui.lineEditNIter.text()),
                    'inc_vertices': self.ui.checkBoxIncVertices.isChecked()}
 
-        self.app_data.doe_lhs_settings = lhs_set
+        self.app_data.doe_lhs_settings = pd.Series(lhs_set)
 
 
 if __name__ == "__main__":

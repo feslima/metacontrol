@@ -107,13 +107,9 @@ class DataStorage(QObject):
         self.output_table_data = pd.DataFrame(columns=self._ALIAS_COLS)
         self.expression_table_data = pd.DataFrame(columns=self._EXPR_COLS)
 
-        self._doe_data = {'lhs': {'n_samples': 50,
-                                  'n_iter': 5,
-                                  'inc_vertices': False},
-                          'csv': {'filepath': '',
+        self._doe_data = {'csv': {'filepath': '',
                                   'convergence_index': '',
-                                  'pair_info': {}},
-                          'sampled': {}
+                                  'pair_info': {}}
                           }
 
         self._reduced_data = {'csv': {'filepath': '',
@@ -389,17 +385,27 @@ class DataStorage(QObject):
 
     @property
     def doe_lhs_settings(self):
-        """LHS info (dict) to read/write into LHS settings dialog.
+        """LHS info (Series) to read/write into LHS settings dialog.
         Keys are: 'n_samples', 'n_iter', 'inc_vertices'."""
-        return self._doe_data['lhs']
+        if not hasattr(self, '_doe_lhs_settings'):
+            # attribute not created (init), create now
+            self._doe_lhs_settings = pd.Series({'n_samples': 50,
+                                                'n_iter': 5,
+                                                'inc_vertices': False})
+
+        return self._doe_lhs_settings
 
     @doe_lhs_settings.setter
-    def doe_lhs_settings(self, value: dict):
-        if isinstance(value, dict):
-            key_list = ['n_samples', 'n_iter', 'inc_vertices']
-            self._check_keys(key_list, value, self._doe_data['lhs'])
+    def doe_lhs_settings(self, value: pd.Series):
+        if isinstance(value, pd.Series):
+            if value.index.isin(['n_samples', 'n_iter', 'inc_vertices']).all():
+                self._doe_lhs_settings = value
+            else:
+                raise ValueError("'doe_lhs_settings' must have its fields "
+                                 "defined.")
+
         else:
-            raise TypeError("LHS settings must be a dictionary object.")
+            raise TypeError("LHS settings must be a Series.")
 
     @property
     def doe_csv_settings(self):

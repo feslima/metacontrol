@@ -1,116 +1,16 @@
 import numpy as np
 import pandas as pd
-from PyQt5.QtCore import (QAbstractItemModel, QAbstractTableModel, QModelIndex,
-                          QSize, Qt)
+from PyQt5.QtCore import (
+    QAbstractItemModel, QAbstractTableModel, QModelIndex, QSize, Qt)
 from PyQt5.QtGui import QBrush, QFont, QPalette
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QHeaderView,
                              QTableView, QTableWidgetItem, QWidget)
 
 from gui.calls.dialogs.csveditor import CsvEditorDialog
-from gui.calls.dialogs.samplingassistant import SamplingAssistantDialog
+from gui.calls.dialogs.samplingassistant import (InputBoundsModel,
+                                                 SamplingAssistantDialog)
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.doetab import Ui_Form
-
-
-class InputVariablesTableModel(QAbstractTableModel):
-    def __init__(self, application_data: DataStorage, parent: QTableView):
-        QAbstractTableModel.__init__(self, parent)
-        self.app_data = application_data
-        self.load_data()
-        self.app_data.doe_mv_bounds_changed.connect(self.load_data)
-        self.headers = ["Manipulated variable", "Lower bound", "Upper bound"]
-
-    def load_data(self):
-        self.layoutAboutToBeChanged.emit()
-        self.mv_bounds = self.app_data.doe_mv_bounds
-        self.layoutChanged.emit()
-
-    def rowCount(self, parent=None):
-        return self.mv_bounds.shape[0]
-
-    def columnCount(self, parent=None):
-        return self.mv_bounds.shape[1]
-
-    def headerData(self, section: int, orientation: Qt.Orientation,
-                   role: int = Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
-                return self.headers[section]
-
-            else:
-                return None
-
-        elif role == Qt.FontRole:
-            if orientation == Qt.Horizontal:
-                df_font = QFont()
-                df_font.setBold(True)
-                return df_font
-            else:
-                return None
-        else:
-            return None
-
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
-        if not index.isValid():
-            return None
-
-        row = index.row()
-        col = index.column()
-
-        value = self.mv_bounds.iat[row, col]
-
-        if role == Qt.DisplayRole:
-            return str(value)
-
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignCenter
-
-        elif role == Qt.BackgroundRole:
-            if col == 1 or col == 2:
-                if self.mv_bounds.at[row, 'lb'] >= \
-                        self.mv_bounds.at[row, 'ub']:
-                    return QBrush(Qt.red)
-                else:
-                    return QBrush(self.parent().palette().brush(QPalette.Base))
-            else:
-                return None
-
-        elif role == Qt.ToolTipRole:
-            if col == 1 or col == 2:
-                if self.mv_bounds.at[row, 'lb'] >= \
-                        self.mv_bounds.at[row, 'ub']:
-                    return "Lower bound can't be greater than upper bound!"
-                else:
-                    return ""
-            else:
-                return None
-
-        else:
-            return None
-
-    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
-        if role != Qt.EditRole or not index.isValid():
-            return False
-
-        row = index.row()
-        col = index.column()
-
-        if col == 1:
-            self.app_data.doe_mv_bounds.at[row, 'lb'] = float(value)
-        elif col == 2:
-            self.app_data.doe_mv_bounds.at[row, 'ub'] = float(value)
-        else:
-            return False
-
-        self.app_data.doe_mv_bounds_changed.emit()
-        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
-        return True
-
-    def flags(self, index: QModelIndex):
-        if index.column() != 0:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
-        else:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
 
 
 class DoeResultsView(QTableView):
@@ -298,7 +198,7 @@ class DoeTab(QWidget):
 
         # ----------------------- Widget Initialization -----------------------
         bounds_table = self.ui.tableViewInputVariables
-        bounds_model = InputVariablesTableModel(
+        bounds_model = InputBoundsModel(
             application_data=self.application_database,
             parent=bounds_table)
         bounds_table.setModel(bounds_model)
@@ -326,6 +226,10 @@ class DoeTab(QWidget):
         # open the csv editor dialog
         self.ui.csvImportPushButton.clicked.connect(self.open_csveditor)
 
+        self.application_database.doe_mv_bounds_changed.connect(
+            self.on_doe_mv_bounds_changed
+        )
+
         # ---------------------------------------------------------------------
 
     def open_sampling_assistant(self):
@@ -335,6 +239,27 @@ class DoeTab(QWidget):
     def open_csveditor(self):
         dialog = CsvEditorDialog(self.application_database)
         dialog.exec_()
+
+    def on_doe_mv_bounds_changed(self):
+        # check if the bounds are properly set. If so, enable the radio buttons
+        bnd_df = self.application_database.doe_mv_bounds
+
+        if bnd_df['lb'].ge(bnd_df['ub']).any():
+            self.ui.samplingAssistantRadioButton.setEnabled(False)
+            self.ui.csvEditorRadioButton.setEnabled(False)
+
+            if self.ui.samplingAssistantRadioButton.isChecked():
+                self.ui.openSamplerPushButton.setEnabled(False)
+            else:
+                self.ui.csvImportPushButton.setEnabled(False)
+        else:
+            self.ui.samplingAssistantRadioButton.setEnabled(True)
+            self.ui.csvEditorRadioButton.setEnabled(True)
+
+            if self.ui.samplingAssistantRadioButton.isChecked():
+                self.ui.openSamplerPushButton.setEnabled(True)
+            else:
+                self.ui.csvImportPushButton.setEnabled(True)
 
 
 if __name__ == "__main__":

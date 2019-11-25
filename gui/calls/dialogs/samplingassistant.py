@@ -16,6 +16,110 @@ from gui.models.sampling import SamplerThread, lhs
 from gui.views.py_files.samplingassistant import Ui_Dialog
 
 
+class InputBoundsModel(QAbstractTableModel):
+    def __init__(self, application_data: DataStorage, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+        self.app_data = application_data
+        self.load_data()
+        self.app_data.doe_mv_bounds_changed.connect(self.load_data)
+        self.headers = ["Manipulated variable", "Lower bound", "Upper bound"]
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+        self.mv_bounds = self.app_data.doe_mv_bounds
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return self.mv_bounds.shape[0]
+
+    def columnCount(self, parent=None):
+        return self.mv_bounds.shape[1]
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.headers[section]
+
+            else:
+                return None
+
+        elif role == Qt.FontRole:
+            if orientation == Qt.Horizontal:
+                df_font = QFont()
+                df_font.setBold(True)
+                return df_font
+            else:
+                return None
+        else:
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        value = self.mv_bounds.iat[row, col]
+
+        if role == Qt.DisplayRole:
+            return str(value)
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        elif role == Qt.BackgroundRole:
+            if col == 1 or col == 2:
+                if self.mv_bounds.at[row, 'lb'] >= \
+                        self.mv_bounds.at[row, 'ub']:
+                    return QBrush(Qt.red)
+                else:
+                    return QBrush(self.parent().palette().brush(QPalette.Base))
+            else:
+                return None
+
+        elif role == Qt.ToolTipRole:
+            if col == 1 or col == 2:
+                if self.mv_bounds.at[row, 'lb'] >= \
+                        self.mv_bounds.at[row, 'ub']:
+                    return "Lower bound can't be greater than upper bound!"
+                else:
+                    return ""
+            else:
+                return None
+
+        else:
+            return None
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole or not index.isValid():
+            return False
+
+        row = index.row()
+        col = index.column()
+
+        mv_df = self.app_data.doe_mv_bounds
+
+        if col == 1:
+            mv_df.at[row, 'lb'] = float(value)
+        elif col == 2:
+            mv_df.at[row, 'ub'] = float(value)
+        else:
+            return False
+
+        self.app_data.doe_mv_bounds = mv_df
+
+        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
+        return True
+
+    def flags(self, index: QModelIndex):
+        if index.column() != 0:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
+
+
 class SampledDataView(QTableView):
     def setModel(self, model: QAbstractTableModel):
         super().setModel(model)
@@ -37,17 +141,22 @@ class SampledDataTableModel(QAbstractTableModel):
     def __init__(self, application_data: DataStorage, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = application_data
-        self.headers_row1 = ['Case Number', 'Status', 'Inputs', 'Outputs']
         self.load_data()
 
     @property
     def input_design(self):
         """The input_design property."""
+        if not hasattr(self, '_input_design'):
+            # create empty input design and sample data dataframe on init
+            self._input_design = pd.DataFrame({})
+
+        self.is_input_design_generated = False
+
         return self._input_design
 
     @input_design.setter
     def input_design(self, value: pd.DataFrame):
-        if not value.equals(self._input_design):
+        if not value.equals(self.input_design):
             # if dataframe is diferent from the current one in display, warn
             # the about layout changes, and reset case number and status cols
             self.layoutAboutToBeChanged.emit()
@@ -80,6 +189,10 @@ class SampledDataTableModel(QAbstractTableModel):
     @property
     def samp_data(self):
         """The samp_data property."""
+        if not hasattr(self, '_samp_data'):
+            # create empty sample data dataframe on init
+            self._samp_data = pd.DataFrame({})
+
         return self._samp_data
 
     @samp_data.setter
@@ -91,20 +204,15 @@ class SampledDataTableModel(QAbstractTableModel):
                                              self.columnCount()))
 
     def load_data(self):
-        if not hasattr(self, '_input_design'):
-            # create empty input design and sample data dataframe on init
-            self._input_design = pd.DataFrame({})
-            self._samp_data = pd.DataFrame({})
-
-        self.is_input_design_generated = False
-
         # load internal headers names
-        self._input_alias = [row['Alias']
-                             for row in self.app_data.input_table_data
-                             if row['Type'] == 'Manipulated (MV)']
+        inp_data = self.app_data.input_table_data
+        out_data = self.app_data.output_table_data
+        self._input_alias = inp_data.loc[
+            inp_data['Type'] == self.app_data._INPUT_ALIAS_TYPES['mv'],
+            'Alias'
+        ].tolist()
 
-        self._output_alias = [row['Alias']
-                              for row in self.app_data.output_table_data]
+        self._output_alias = out_data.loc[:, 'Alias'].tolist()
 
         # number of experiments
         n_samp = self.app_data.doe_lhs_settings['n_samples']
@@ -144,9 +252,9 @@ class SampledDataTableModel(QAbstractTableModel):
             mv_bnds = self.app_data.doe_mv_bounds
             lhs_settings = self.app_data.doe_lhs_settings
 
-            names_list, lb_list, ub_list = map(
-                list, zip(*[(row['name'], row['lb'], row['ub'])
-                            for row in mv_bnds]))
+            names_list = mv_bnds['name'].tolist()
+            lb_list = mv_bnds['lb'].tolist()
+            ub_list = mv_bnds['ub'].tolist()
 
             lhs_table = lhs(lhs_settings['n_samples'], lb_list, ub_list,
                             lhs_settings['n_iter'],
@@ -183,7 +291,7 @@ class SampledDataTableModel(QAbstractTableModel):
     def on_sampling_done(self):
         """Stores the sampled data in the application storage.
         """
-        self.app_data.doe_sampled_data = self.get_doe_data().to_dict('list')
+        self.app_data.doe_sampled_data = self.get_doe_data()
 
     def rowCount(self, parent=None):
         return self._HEADER_ROW_OFFSET + self.input_design.shape[0]
@@ -290,113 +398,6 @@ class SampledDataTableModel(QAbstractTableModel):
             return super().span(index)
 
 
-class InputVariablesTableModel(QAbstractTableModel):
-    def __init__(self, application_data: DataStorage, parent: QTableView):
-        QAbstractTableModel.__init__(self, parent)
-        self.app_data = application_data
-        self.load_data()
-        self.headers = ["Manipulated variable", "Lower bound", "Upper bound"]
-
-    def load_data(self):
-        self.layoutAboutToBeChanged.emit()
-        self.mv_bounds = self.app_data.doe_mv_bounds
-        self.layoutChanged.emit()
-
-    def rowCount(self, parent=None):
-        return len(self.mv_bounds)
-
-    def columnCount(self, parent=None):
-        return len(self.headers)
-
-    def headerData(self, section: int, orientation: Qt.Orientation,
-                   role: int = Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
-                return self.headers[section]
-
-            else:
-                return None
-
-        elif role == Qt.FontRole:
-            if orientation == Qt.Horizontal:
-                df_font = QFont()
-                df_font.setBold(True)
-                return df_font
-            else:
-                return None
-        else:
-            return None
-
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
-        if not index.isValid():
-            return None
-
-        row = index.row()
-        col = index.column()
-
-        mv_data = self.mv_bounds[row]
-
-        if role == Qt.DisplayRole:
-            if col == 0:
-                return str(mv_data['name'])
-            elif col == 1:
-                return str(mv_data['lb'])
-            elif col == 2:
-                return str(mv_data['ub'])
-            else:
-                return None
-
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignCenter
-
-        elif role == Qt.BackgroundRole:
-            if col == 1 or col == 2:
-                if mv_data['lb'] >= mv_data['ub']:
-                    return QBrush(Qt.red)
-                else:
-                    return QBrush(self.parent().palette().brush(QPalette.Base))
-            else:
-                return None
-
-        elif role == Qt.ToolTipRole:
-            if col == 1 or col == 2:
-                if mv_data['lb'] >= mv_data['ub']:
-                    return "Lower bound can't be greater than upper bound!"
-                else:
-                    return ""
-            else:
-                return None
-
-        else:
-            return None
-
-    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
-        if role != Qt.EditRole or not index.isValid():
-            return False
-
-        row = index.row()
-        col = index.column()
-
-        var_data = self.mv_bounds[row]
-
-        if col == 1:
-            var_data['lb'] = float(value)
-        elif col == 2:
-            var_data['ub'] = float(value)
-        else:
-            return False
-
-        self.app_data.doe_mv_bounds_changed.emit()
-        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
-        return True
-
-    def flags(self, index: QModelIndex):
-        if index.column() != 0:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
-        else:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
-
-
 class SamplingAssistantDialog(QDialog):
 
     def __init__(self, application_database: DataStorage):
@@ -411,7 +412,7 @@ class SamplingAssistantDialog(QDialog):
         self.setWindowFlags(Qt.Window)
         # ----------------------- Widget Initialization -----------------------
         var_table = self.ui.tableViewInputVariables
-        var_model = InputVariablesTableModel(self.app_data, parent=var_table)
+        var_model = InputBoundsModel(self.app_data, parent=var_table)
         var_table.setModel(var_model)
 
         var_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -467,9 +468,24 @@ class SamplingAssistantDialog(QDialog):
 
         # exports data in display to csv when pressing button
         self.ui.exportCsvPushButton.clicked.connect(self.export_csv)
+
+        self.app_data.doe_mv_bounds_changed.connect(
+            self.on_doe_mv_bounds_changed
+        )
         # ---------------------------------------------------------------------
 
     # -------------------------------------------------------------------------
+
+    def on_doe_mv_bounds_changed(self):
+        # check if the bounds are properly set. If so, enable the radio buttons
+        bnd_df = self.app_data.doe_mv_bounds
+
+        if bnd_df['lb'].ge(bnd_df['ub']).any():
+            self.ui.genLhsPushButton.setEnabled(False)
+            self.ui.lhsSettingsPushButton.setEnabled(False)
+        else:
+            self.ui.genLhsPushButton.setEnabled(True)
+            self.ui.lhsSettingsPushButton.setEnabled(True)
 
     def on_sampling_done(self):
         """Stores the sampling in the application storage and closes the dialog

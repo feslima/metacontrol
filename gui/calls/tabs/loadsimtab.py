@@ -318,7 +318,8 @@ class SelectedAliasesTableModel(QAbstractTableModel):
         self.layoutAboutToBeChanged.emit()
         self.alias_data = pd.concat([self.app_data.input_table_data,
                                      self.app_data.output_table_data],
-                                    axis='index', ignore_index=True)
+                                    axis='index', ignore_index=True,
+                                    sort=False)
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):

@@ -57,6 +57,7 @@ class SamplerThread(QThread):
         self._aspen_connection.close_connection()
 
     def run(self):
+        # ptvsd.debug_this_thread()
         # initialize
         pythoncom.CoInitialize()
 
@@ -65,16 +66,17 @@ class SamplerThread(QThread):
             pythoncom.CoGetInterfaceAndReleaseStream(
                 self._aspen_id, pythoncom.IID_IDispatch)
         )
-
-        input_vars = [{'var': row['Alias'], 'Path': row['Path']}
-                      for row in self._app_data.input_table_data
-                      if row['Type'] == 'Manipulated (MV)']
-
-        output_vars = [{'var': row['Alias'], 'Path': row['Path']}
-                       for row in self._app_data.output_table_data]
+        inp_data = self._app_data.input_table_data
+        out_data = self._app_data.output_table_data
+        input_vars = inp_data.loc[
+            inp_data['Type'] == self._app_data._INPUT_ALIAS_TYPES['mv'],
+            ['Alias', 'Path']
+        ].to_dict(orient='records')
+        output_vars = out_data.loc[:,
+                                   ['Alias', 'Path']].to_dict(orient='records')
 
         for row in range(self._input_des_data.shape[0]):
-            [var.update({'value': self._input_des_data.loc[row, var['var']]})
+            [var.update({'value': self._input_des_data.loc[row, var['Alias']]})
              for var in input_vars]
             self.case_sampled.emit(row + 1,
                                    run_case(input_vars, output_vars, aspen_con)
@@ -117,12 +119,12 @@ def run_case(mv_values: list, output_data: list, aspen_obj):
     if UOSTAT2_val == 8:
         res_dict['success'] = 'ok'
         for out_var in output_data:
-            res_dict[out_var['var']] = aspen_obj.Tree.FindNode(
+            res_dict[out_var['Alias']] = aspen_obj.Tree.FindNode(
                 out_var['Path']).Value
     else:
         res_dict['success'] = 'error'
         for out_var in output_data:
-            res_dict[out_var['var']] = np.spacing(1)
+            res_dict[out_var['Alias']] = np.spacing(1)
 
     return res_dict
 
