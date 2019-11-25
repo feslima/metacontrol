@@ -729,7 +729,7 @@ class DataStorage(QObject):
 
         # delete the variables that aren't in the mv list
         bnd_df = self.doe_mv_bounds
-        new_bnds = bnd_df[~bnd_df['name'].isin(mv_aliases)]
+        new_bnds = bnd_df[bnd_df['name'].isin(mv_aliases)]
 
         mv_bnd_list = new_bnds['name'].tolist()
 
@@ -748,9 +748,9 @@ class DataStorage(QObject):
 
         # sort frame to ensure that the order is the same as input table
         new_bnds.set_index('name', inplace=True)
-        new_bnds = new_bnds.reindex(index=mv_aliases)
+        new_bnds = new_bnds.loc[mv_aliases, :]
         new_bnds.reset_index(inplace=True)
-        new_bnds = new_bnds[self._INP_BOUNDS_COLS]
+        new_bnds = new_bnds.loc[:, self._INP_BOUNDS_COLS]
 
         # store values
         self.doe_mv_bounds = new_bnds
@@ -765,7 +765,7 @@ class DataStorage(QObject):
 
         # delete the variables that aren't in the mv list
         theta_df = self.metamodel_theta_data
-        new_thetas = theta_df[~theta_df['Alias'].isin(input_aliases)]
+        new_thetas = theta_df[theta_df['Alias'].isin(input_aliases)]
 
         theta_bnd_list = theta_df['Alias'].tolist()
 
@@ -785,9 +785,9 @@ class DataStorage(QObject):
 
         # sort frame to ensure that the order is the same as input table
         new_thetas.set_index('Alias', inplace=True)
-        new_thetas = new_thetas.reindex(index=input_aliases)
+        new_thetas = new_thetas.loc[input_aliases, :]
         new_thetas.reset_index(inplace=True)
-        new_thetas = new_thetas[self._META_THETA_BNDS]
+        new_thetas = new_thetas.loc[:, self._META_THETA_BNDS]
 
         # store values
         self.metamodel_theta_data = new_thetas
@@ -833,9 +833,9 @@ class DataStorage(QObject):
 
         # sort frame to ensure that the order is the same as output table
         new_vars.set_index('Alias', inplace=True)
-        new_vars = new_vars.reindex(index=aliases)
+        new_vars = new_vars.loc[aliases, :]
         new_vars.reset_index(inplace=True)
-        new_vars = new_vars[self._META_SELEC_COLS]
+        new_vars = new_vars.loc[:, self._META_SELEC_COLS]
 
         # store values
         self.metamodel_selected_data = new_vars
@@ -848,35 +848,43 @@ class DataStorage(QObject):
         conc_tab = pd.concat([self.input_table_data,
                               self.output_table_data,
                               self.expression_table_data],
-                             axis='index', join='inner', ignore_index=True)
+                             axis='index', join='inner', ignore_index=True
+                             ).drop_duplicates().reset_index(drop=True)
         var_list = conc_tab.loc[
             (conc_tab['Type'] == self._INPUT_ALIAS_TYPES['mv']) |
             (conc_tab['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
             (conc_tab['Type'] == self._EXPR_ALIAS_TYPES['cv'])
         ]
 
+        # set the var_list index to the aliases (easier indexing)
+        var_list.set_index('Alias', inplace=True)
+
         # list of aliases
-        aliases = var_list['Alias'].tolist()
+        aliases = var_list.index.tolist()
 
         # delete variables that aren't in the list
         act_df = self.active_constraint_info
-        # new_vars = act_df[~act_df['Alias'].isin(aliases)]
-        # new_vars = {row: {'Type': self.active_constraint_info[row]['Type'],
-        #                   'Active': self.active_constraint_info[row]['Active'],
-        #                   'Value': self.active_constraint_info[row]['Value'],
-        #                   'Pairing': self.active_constraint_info[row]['Pairing']}
-        #             for row in self.active_constraint_info
-        #             if row in aliases}
+        new_vars = act_df.loc[:, ~act_df.columns.isin(aliases)]
+        new_vars_list = new_vars.columns.tolist()
 
-        # # insert new variables
-        # [new_vars.update({var['Alias']: {'Type': var['Type'],
-        #                                  'Active': False,
-        #                                  'Value': None,
-        #                                  'Pairing': None}})
-        #  for var in vars if var['Alias'] not in new_vars]
+        # insert new variables
+        nv = {}
+        for alias in aliases:
+            if alias not in new_vars_list:
+                nv[alias] = {
+                    'Type': var_list.at[alias, 'Type'],
+                    'Pairing': None,
+                    'Value': None,
+                    'Active': False
+                }
+        new_vars = pd.concat([new_vars, pd.DataFrame(nv)],
+                             axis='columns', ignore_index=False, sort=False)
+
+        # sort frame to ensure that column order is the same as output table
+        new_vars = new_vars.loc[self._CONST_ACT_IDX, aliases]
 
         # # store values
-        # self.active_constraint_info = new_vars
+        self.active_constraint_info = new_vars
 
     def _update_d_bounds(self) -> None:
         """Updates the D bounds data whenever alias data is changed. (SLOT)
