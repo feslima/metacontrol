@@ -278,11 +278,12 @@ class CsvEditorDialog(QDialog):
                 display_view.setModel(table_model)
 
                 # grab defined aliases
-                input_alias = [row['Alias'] for row in
-                               self.app_data.input_table_data
-                               if row['Type'] == 'Manipulated (MV)']
-                output_alias = [row['Alias']
-                                for row in self.app_data.output_table_data]
+                inp_data = self.app_data.input_table_data
+                out_data = self.app_data.output_table_data
+                input_alias = inp_data.loc[
+                    inp_data['Type'] == self.app_data._INPUT_ALIAS_TYPES['mv'],
+                    'Alias'].tolist()
+                output_alias = out_data.loc[:, 'Alias'].tolist()
                 aliases = input_alias + output_alias
 
                 # create delegates with reference anchoring
@@ -321,11 +322,12 @@ class CsvEditorDialog(QDialog):
         else:
             # no duplicates or undefined found. Check if all the aliases from
             # app storage are defined
-            input_alias = [row['Alias'] for row in
-                           self.app_data.input_table_data
-                           if row['Type'] == 'Manipulated (MV)']
-            output_alias = [row['Alias']
-                            for row in self.app_data.output_table_data]
+            inp_data = self.app_data.input_table_data
+            out_data = self.app_data.output_table_data
+            input_alias = inp_data.loc[
+                inp_data['Type'] == self.app_data._INPUT_ALIAS_TYPES['mv'],
+                'Alias'].tolist()
+            output_alias = out_data.loc[:, 'Alias'].tolist()
             aliases = input_alias + output_alias
 
             all_defined = True \
@@ -360,7 +362,7 @@ class CsvEditorDialog(QDialog):
                           value=range(1, df.shape[0] + 1))
 
                 # convert to dict and store in application data
-                self.app_data.doe_sampled_data = df.to_dict('list')
+                self.app_data.doe_sampled_data = df
 
                 # close the dialog
                 self.close()
@@ -369,11 +371,11 @@ class CsvEditorDialog(QDialog):
 if __name__ == "__main__":
     import sys
     from gui.calls.base import my_exception_hook
-    from tests_.mock_data import DOE_TAB_MOCK_DS, CSVEDIT_PAIRINFO_MOCK
+    from tests_.mock_data import loadsim_mock, CSVEDIT_PAIRINFO_MOCK
 
     app = QApplication(sys.argv)
 
-    ds = DOE_TAB_MOCK_DS
+    ds = loadsim_mock()
     ds.doe_csv_settings['pair_info'] = CSVEDIT_PAIRINFO_MOCK
     w = CsvEditorDialog(application_data=ds)
     w.show()

@@ -107,11 +107,6 @@ class DataStorage(QObject):
         self.output_table_data = pd.DataFrame(columns=self._ALIAS_COLS)
         self.expression_table_data = pd.DataFrame(columns=self._EXPR_COLS)
 
-        self._doe_data = {'csv': {'filepath': '',
-                                  'convergence_index': '',
-                                  'pair_info': {}}
-                          }
-
         self._reduced_data = {'csv': {'filepath': '',
                                       'convergence_index': '',
                                       'pair_info': {}},
@@ -411,7 +406,12 @@ class DataStorage(QObject):
     def doe_csv_settings(self):
         """CSV info (dict) to read/write into csveditor dialog.
         Keys are: 'filepath', 'convergence_index', pair_info"""
-        return self._doe_data['csv']
+        if not hasattr(self, '_doe_csv_settings'):
+            self._doe_csv_settings = {'filepath': '',
+                                      'convergence_index': '',
+                                      'pair_info': {}}
+
+        return self._doe_csv_settings
 
     @doe_csv_settings.setter
     def doe_csv_settings(self, value: dict):
