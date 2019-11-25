@@ -95,6 +95,9 @@ class DataStorage(QObject):
     # constraint activity index
     _CONST_ACT_IDX = ['Active', 'Pairing', 'Type', 'Value']
 
+    # reduced space bounds
+    _REDSPACE_BNDS_COLS = ['name', 'lb', 'ub', 'nominal']
+
     def __init__(self):
         super().__init__()
         self._simulation_file = ''
@@ -113,8 +116,7 @@ class DataStorage(QObject):
                           'sampled': {}
                           }
 
-        self._reduced_data = {'d_bounds': [],
-                              'csv': {'filepath': '',
+        self._reduced_data = {'csv': {'filepath': '',
                                       'convergence_index': '',
                                       'pair_info': {}},
                               'sampled': {}
@@ -142,6 +144,8 @@ class DataStorage(QObject):
         self.input_alias_data_changed.connect(self._update_theta_data)
         # - active_constraint_info
         self.input_alias_data_changed.connect(self._update_constraint_activity)
+        # - reduced_doe_d_bounds
+        self.input_alias_data_changed.connect(self._update_reduced_d_bounds)
         # - check_simulation_setup
         self.input_alias_data_changed.connect(self.check_simulation_setup)
         # # - check_sampling_setup
@@ -171,9 +175,6 @@ class DataStorage(QObject):
         # # whenever constraint activity info changes, perform a setup check
         # self.reduced_doe_constraint_activity_changed.connect(
         #     self.check_reduced_space_setup)
-
-        # # update reduced_doe_d_bounds whenever aliases data changes
-        # self.alias_data_changed.connect(self._update_d_bounds)
 
         # # update reduced theta data whenever aliases or constraint activity
         # # changes
@@ -502,17 +503,30 @@ class DataStorage(QObject):
 
     @property
     def reduced_doe_d_bounds(self):
-        """List of dicts containing the D's and its bounds to be displayed
-        or modified in doetab. Keys are: 'name', 'lb', 'ub'."""
-        return self._reduced_data['d_bounds']
+        """DataFrame containing the reduced space disturbance bounds and
+        nominal values. columns are: 'name', 'lb', 'ub', 'nominal'."""
+
+        if not hasattr(self, '_reduced_doe_d_bounds'):
+            # attribute not created (init), create now
+            self._reduced_doe_d_bounds = pd.DataFrame(
+                columns=self._REDSPACE_BNDS_COLS
+            )
+
+        return self._reduced_doe_d_bounds
 
     @reduced_doe_d_bounds.setter
-    def reduced_doe_d_bounds(self, value: list):
-        if isinstance(value, list):
-            self._reduced_data['d_bounds'] = value
-            self.reduced_d_bounds_changed.emit()
+    def reduced_doe_d_bounds(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._REDSPACE_BNDS_COLS).all():
+                self._reduced_doe_d_bounds = value
+                self.reduced_d_bounds_changed.emit()
+
+            else:
+                raise ValueError("'reduced_doe_d_bounds' must have its "
+                                 "columns defined.")
         else:
-            raise TypeError("Disturbance bounds table data must be a list.")
+            raise TypeError("Reduced space bounds table data must be a "
+                            "DataFrame")
 
     @property
     def reduced_doe_sampled_data(self):
@@ -886,25 +900,40 @@ class DataStorage(QObject):
         # # store values
         self.active_constraint_info = new_vars
 
-    def _update_d_bounds(self) -> None:
-        """Updates the D bounds data whenever alias data is changed. (SLOT)
+    def _update_reduced_d_bounds(self) -> None:
+        """Updates the reduced space disturbance bounds data whenever input
+        alias data is changed. (SLOT)
         """
         # list of aliases that are D
-        d_aliases = [row['Alias'] for row in self._input_table_data
-                     if row['Type'] == 'Disturbance (d)']
+        inps = self.input_table_data
+        d_aliases = inps.loc[inps['Type'] == self._INPUT_ALIAS_TYPES['d'],
+                             'Alias'].tolist()
 
         # delete the variables that aren't in the mv list
-        new_bnds = [row for _, row in enumerate(self._reduced_data['d_bounds'])
-                    if row['name'] in d_aliases]
+        bnd_df = self.reduced_doe_d_bounds
+        new_bnds = bnd_df[bnd_df['name'].isin(d_aliases)]
 
-        d_bnd_list = [row['name'] for row in new_bnds]
+        d_bnd_list = new_bnds['name'].tolist()
 
         # insert new values
-        [new_bnds.append({'name': alias,
-                          'lb': 0.0,
-                          'ub': 1.0,
-                          'nom': 0.5}) for alias
-         in d_aliases if alias not in d_bnd_list]
+        nv = []
+        for alias in d_aliases:
+            if alias not in d_bnd_list:
+                nv.append({
+                    'name': alias,
+                    'lb': 0.0,
+                    'ub': 1.0,
+                    'nominal': 0.5
+                })
+
+        new_bnds = pd.concat([new_bnds, pd.DataFrame.from_records(nv)],
+                             axis='index', ignore_index=True)
+
+        # sort frame to ensure that the order is the same as input table
+        new_bnds.set_index('name', inplace=True)
+        new_bnds = new_bnds.loc[d_aliases, :]
+        new_bnds.reset_index(inplace=True)
+        new_bnds = new_bnds.loc[:, self._REDSPACE_BNDS_COLS]
 
         # store values
         self.reduced_doe_d_bounds = new_bnds
@@ -1123,12 +1152,15 @@ class DataStorage(QObject):
         self.expression_table_data = pd.DataFrame(sim_info['mtc_expr_table'])
 
         # # doetab
-        # self.doe_mv_bounds = doe_info['mtc_mv_bounds']
+        self.doe_mv_bounds = doe_info['mtc_mv_bounds']
         # self.doe_sampled_data = doe_info['mtc_sampled_data']
 
-        # # reducedpsacetab
-        # self.active_constraint_info = redspace_info['mtc_constraint_activity']
-        # self.reduced_doe_d_bounds = redspace_info['mtc_reduced_d_bounds']
+        # reducedpsacetab
+        self.active_constraint_info = pd.DataFrame(
+            redspace_info['mtc_constraint_activity'])
+        self.reduced_doe_d_bounds = pd.DataFrame(
+            redspace_info['mtc_reduced_d_bounds']
+        )
 
         # # when loading sampled data, do not call expr_eval by setting the
         # # property directly. Just bypass it and emit the signal.
