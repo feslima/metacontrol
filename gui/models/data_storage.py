@@ -79,7 +79,7 @@ class DataStorage(QObject):
     }
     _EXPR_ALIAS_TYPES = {
         'cv': 'Candidate (CV)',
-        'cst': 'Constraint',
+        'cst': 'Constraint function',
         'obj': 'Objective function (J)'
     }
 
@@ -304,6 +304,9 @@ class DataStorage(QObject):
     def input_table_data(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
             if value.columns.isin(self._ALIAS_COLS).all():
+                if value.index.is_object():
+                    value.index = value.index.astype(int)
+
                 self._input_table_data = value
                 self.input_alias_data_changed.emit()
 
@@ -323,6 +326,9 @@ class DataStorage(QObject):
     def output_table_data(self, value: list):
         if isinstance(value, pd.DataFrame):
             if value.columns.isin(self._ALIAS_COLS).all():
+                if value.index.is_object():
+                    value.index = value.index.astype(int)
+
                 self._output_table_data = value
                 self.output_alias_data_changed.emit()
             else:
@@ -341,6 +347,9 @@ class DataStorage(QObject):
     def expression_table_data(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
             if value.columns.isin(self._EXPR_COLS).all():
+                if value.index.is_object():
+                    value.index = value.index.astype(int)
+
                 self._expression_table_data = value
                 self.expr_data_changed.emit()
             else:
@@ -366,6 +375,9 @@ class DataStorage(QObject):
     def doe_mv_bounds(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
             if value.columns.isin(self._INP_BOUNDS_COLS).all():
+                if value.index.is_object():
+                    value.index = value.index.astype(int)
+
                 self._doe_mv_bounds = value
                 self.doe_mv_bounds_changed.emit()
 
@@ -373,7 +385,7 @@ class DataStorage(QObject):
                 raise ValueError("'doe_mv_bounds' must have its columns "
                                  "defined.")
         else:
-            raise TypeError("MV bounds table data must be a list.")
+            raise TypeError("MV bounds table data must be a DataFrame.")
 
     @property
     def doe_lhs_settings(self):
@@ -407,16 +419,20 @@ class DataStorage(QObject):
     def doe_sampled_data(self):
         """Sampled data dictionary. This dictionary is JSON compatible
         (dumped from pandas.DataFrame.to_dict('list'))."""
-        return self._doe_data['sampled']
+
+        if not hasattr(self, '_doe_sampled_data'):
+            # attribute not created (init), create now
+            self._doe_sampled_data = pd.DataFrame()
+
+        return self._doe_sampled_data
 
     @doe_sampled_data.setter
-    def doe_sampled_data(self, value: dict):
-        if isinstance(value, dict):
-            self._doe_data['sampled'] = self.evaluate_expr_data(
-                value, 'original')
+    def doe_sampled_data(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            self._doe_sampled_data = self.evaluate_expr_data(value, 'original')
             self.doe_sampled_data_changed.emit()
         else:
-            raise TypeError("Sampled data must be a dictionary object")
+            raise TypeError("Sampled data must be a DataFrame")
 
     @property
     def metamodel_theta_data(self):
@@ -1152,8 +1168,8 @@ class DataStorage(QObject):
         self.expression_table_data = pd.DataFrame(sim_info['mtc_expr_table'])
 
         # # doetab
-        self.doe_mv_bounds = doe_info['mtc_mv_bounds']
-        # self.doe_sampled_data = doe_info['mtc_sampled_data']
+        self.doe_mv_bounds = pd.DataFrame(doe_info['mtc_mv_bounds'])
+        self.doe_sampled_data = pd.DataFrame(doe_info['mtc_sampled_data'])
 
         # reducedpsacetab
         self.active_constraint_info = pd.DataFrame(
@@ -1305,56 +1321,52 @@ class DataStorage(QObject):
         else:
             self.soc_enabled.emit(False)
 
-    def evaluate_expr_data(self, sampled_data_dict: dict, space_type: str) -> \
-            dict:
+    def evaluate_expr_data(self, sampled_data: pd.DataFrame,
+                           space_type: str) -> pd.DataFrame:
         """Evaluates the expressions and append values to the current sampled
         data.
 
         Parameters
         ----------
-        sampled_data_dict: dict
-            Sampled data in dictionary format. (dumped from another Dataframe)
+        sampled_data: pd.DataFrame
+            Sampled data.
         space_type : str
             Which space the data represents: 'original' or 'reduced'
 
         Returns
         -------
-        out : dict
-            The complete dataframe with expressions evaluated as a dict
+        out : pd.DataFrame
+            The complete dataframe with expressions evaluated as a DataFrame.
         """
         if space_type not in ['original', 'reduced']:
             raise ValueError("The space type must be 'original' or 'reduced'.")
 
-        samp_data = pd.DataFrame(sampled_data_dict)
+        aliases = pd.concat([self.input_table_data, self.output_table_data],
+                            axis='index', ignore_index=True, sort=False)
 
         if space_type == 'original':
-            hdr = [row['Alias']
-                   for row in self.input_table_data +
-                   self.output_table_data
-                   if row['Type'] != "Disturbance (d)"]
+            hdr = aliases.loc[aliases['Type'] != self._INPUT_ALIAS_TYPES['d'],
+                              'Alias'].tolist()
         else:
-            hdr = [row['Alias']
-                   for row in self.input_table_data +
-                   self.output_table_data]
+            hdr = aliases.loc[:, 'Alias'].tolist()
 
         df_headers = ['case', 'status'] + hdr
-        if not samp_data.empty:
-            samp_data = samp_data[df_headers]
+        if not sampled_data.empty:
+            sampled_data = sampled_data[df_headers]
         else:
-            samp_data = pd.DataFrame(columns=df_headers)
+            sampled_data = pd.DataFrame(columns=df_headers)
 
         # intialize empty dataframe
-        expr_df = pd.DataFrame(columns=[row['Alias'] for row in
-                                        self.expression_table_data])
+        expr_df = pd.DataFrame(columns=self.expression_table_data['Alias'])
 
         parser = Parser()
 
-        for idx, row in samp_data.iterrows():
+        for idx, row in sampled_data.iterrows():
             row_val_dict = row.to_dict()  # convert row series to dict
             expr_row_values = {}
 
-            for expr in self.expression_table_data:
-                expr_to_parse = parser.parse(expr['Expr'])
+            for _, expr in self.expression_table_data.iterrows():
+                expr_to_parse = parser.parse(expr['Expression'])
                 var_list = expr_to_parse.variables()
                 expr_row_values[expr['Alias']] = expr_to_parse.evaluate(
                     row_val_dict)
@@ -1364,8 +1376,8 @@ class DataStorage(QObject):
 
         # merge sampled data and expression data and store them, if they don't
         # already exist
-        if expr_df.columns.difference(samp_data.columns).size != 0:
-            samp_data = samp_data.merge(expr_df, left_index=True,
-                                        right_index=True)
+        if expr_df.columns.difference(sampled_data.columns).size != 0:
+            sampled_data = sampled_data.merge(expr_df, left_index=True,
+                                              right_index=True)
 
-        return samp_data.to_dict(orient='list')
+        return sampled_data

@@ -12,6 +12,107 @@ from gui.models.data_storage import DataStorage
 from gui.views.py_files.doetab import Ui_Form
 
 
+class InputVariablesTableModel(QAbstractTableModel):
+    def __init__(self, application_data: DataStorage, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+        self.app_data = application_data
+        self.load_data()
+        self.app_data.doe_mv_bounds_changed.connect(self.load_data)
+        self.headers = ["Manipulated variable", "Lower bound", "Upper bound"]
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+        self.mv_bounds = self.app_data.doe_mv_bounds
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return self.mv_bounds.shape[0]
+
+    def columnCount(self, parent=None):
+        return self.mv_bounds.shape[1]
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.headers[section]
+
+            else:
+                return None
+
+        elif role == Qt.FontRole:
+            if orientation == Qt.Horizontal:
+                df_font = QFont()
+                df_font.setBold(True)
+                return df_font
+            else:
+                return None
+        else:
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        value = self.mv_bounds.iat[row, col]
+
+        if role == Qt.DisplayRole:
+            return str(value)
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        elif role == Qt.BackgroundRole:
+            if col == 1 or col == 2:
+                if self.mv_bounds.at[row, 'lb'] >= \
+                        self.mv_bounds.at[row, 'ub']:
+                    return QBrush(Qt.red)
+                else:
+                    return QBrush(self.parent().palette().brush(QPalette.Base))
+            else:
+                return None
+
+        elif role == Qt.ToolTipRole:
+            if col == 1 or col == 2:
+                if self.mv_bounds.at[row, 'lb'] >= \
+                        self.mv_bounds.at[row, 'ub']:
+                    return "Lower bound can't be greater than upper bound!"
+                else:
+                    return ""
+            else:
+                return None
+
+        else:
+            return None
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole or not index.isValid():
+            return False
+
+        row = index.row()
+        col = index.column()
+
+        if col == 1:
+            self.app_data.doe_mv_bounds.at[row, 'lb'] = float(value)
+        elif col == 2:
+            self.app_data.doe_mv_bounds.at[row, 'ub'] = float(value)
+        else:
+            return False
+
+        self.app_data.doe_mv_bounds_changed.emit()
+        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
+        return True
+
+    def flags(self, index: QModelIndex):
+        if index.column() != 0:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
+
+
 class DoeResultsView(QTableView):
     """TableView subclassing overriding the setModel to properly set the first
     and second row headers."""
@@ -35,30 +136,38 @@ class DoeResultsModel(QAbstractTableModel):
 
         self.app_data = application_data
         self.load_data()
+        self.app_data.doe_sampled_data_changed.connect(self.load_data)
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
-        data = pd.DataFrame(self.app_data.doe_sampled_data)
+        data = self.app_data.doe_sampled_data
+        inp_data = self.app_data.input_table_data
+        out_data = self.app_data.output_table_data
+        expr_data = self.app_data.expression_table_data
 
-        self._input_alias = [row['Alias']
-                             for row in self.app_data.input_table_data
-                             if row['Type'] == 'Manipulated (MV)']
-        self._candidates_alias = [row['Alias']
-                                  for row in self.app_data.output_table_data
-                                  if row['Type'] == 'Candidate (CV)'] + \
-            [row['Alias']
-             for row in self.app_data.expression_table_data
-             if row['Type'] == 'Candidate (CV)']
-        self._const_alias = [row['Alias']
-                             for row in self.app_data.expression_table_data
-                             if row['Type'] == "Constraint function"]
-        self._obj_alias = [row['Alias']
-                           for row in self.app_data.expression_table_data
-                           if row['Type'] == "Objective function (J)"]
-        self._aux_alias = [row['Alias']
-                           for row in self.app_data.input_table_data +
-                           self.app_data.output_table_data
-                           if row['Type'] == 'Auxiliary']
+        self._input_alias = inp_data.loc[
+            inp_data['Type'] == self.app_data._INPUT_ALIAS_TYPES['mv'],
+            'Alias'
+        ].tolist()
+        cand_data = pd.concat([out_data, expr_data], axis='index',
+                              ignore_index=True, sort=False)
+        self._candidates_alias = cand_data.loc[
+            (cand_data['Type'] == self.app_data._OUTPUT_ALIAS_TYPES['cv']) |
+            (cand_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['cv']),
+            'Alias'
+        ].tolist()
+        self._const_alias = expr_data.loc[
+            expr_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['cst'],
+            'Alias'
+        ].tolist()
+        self._obj_alias = expr_data.loc[
+            expr_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['obj'],
+            'Alias'
+        ].tolist()
+        self._aux_alias = out_data.loc[
+            out_data['Type'] == self.app_data._OUTPUT_ALIAS_TYPES['aux'],
+            'Alias'
+        ].tolist()
 
         header_list = self._input_alias + self._candidates_alias + \
             self._const_alias + self._obj_alias + self._aux_alias
@@ -188,6 +297,15 @@ class DoeTab(QWidget):
         self.application_database = application_database
 
         # ----------------------- Widget Initialization -----------------------
+        bounds_table = self.ui.tableViewInputVariables
+        bounds_model = InputVariablesTableModel(
+            application_data=self.application_database,
+            parent=bounds_table)
+        bounds_table.setModel(bounds_model)
+
+        bounds_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
+
         results_table = DoeResultsView(parent=self.ui.groupBox_4)
         results_model = DoeResultsModel(self.application_database,
                                         parent=results_table)
@@ -207,9 +325,6 @@ class DoeTab(QWidget):
 
         # open the csv editor dialog
         self.ui.csvImportPushButton.clicked.connect(self.open_csveditor)
-
-        self.application_database.doe_sampled_data_changed.connect(
-            results_model.load_data)
 
         # ---------------------------------------------------------------------
 
