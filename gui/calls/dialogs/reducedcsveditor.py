@@ -99,12 +99,10 @@ class ReducedCsvEditorDialog(CsvEditorDialog):
                 display_view.setModel(table_model)
 
                 # grab defined aliases
-                input_alias = [row['Alias'] for row in
-                               self.app_data.input_table_data
-                               if row['Type'] == 'Manipulated (MV)' or
-                               row['Type'] == 'Disturbance (d)']
-                output_alias = [row['Alias']
-                                for row in self.app_data.output_table_data]
+                inp_data = self.app_data.input_table_data
+                out_data = self.app_data.output_table_data
+                input_alias = inp_data.loc[:, 'Alias'].tolist()
+                output_alias = out_data.loc[:, 'Alias'].tolist()
                 aliases = input_alias + output_alias
 
                 # create delegates with reference anchoring
@@ -140,10 +138,10 @@ class ReducedCsvEditorDialog(CsvEditorDialog):
         else:
             # no duplicates or undefined found. Check if all the aliases from
             # app storage are defined
-            input_alias = [row['Alias'] for row in
-                           self.app_data.input_table_data]
-            output_alias = [row['Alias']
-                            for row in self.app_data.output_table_data]
+            inp_data = self.app_data.input_table_data
+            out_data = self.app_data.output_table_data
+            input_alias = inp_data.loc[:, 'Alias'].tolist()
+            output_alias = out_data.loc[:, 'Alias'].tolist()
             aliases = input_alias + output_alias
 
             all_defined = True \
@@ -178,7 +176,7 @@ class ReducedCsvEditorDialog(CsvEditorDialog):
                           value=range(1, df.shape[0] + 1))
 
                 # convert to dict and store in application data
-                self.app_data.reduced_doe_sampled_data = df.to_dict('list')
+                self.app_data.reduced_doe_sampled_data = df
 
                 # close the dialog
                 self.close()

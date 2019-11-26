@@ -227,7 +227,7 @@ class ReducedDoeResultsModel(DoeResultsModel):
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
-        doe_data = self.app_data.reduced_doe_sampled_data
+        doe_data = self.app_data.reduced_doe_sampled_data.copy(deep=True)
 
         inp_data = self.app_data.input_table_data
         out_data = self.app_data.output_table_data

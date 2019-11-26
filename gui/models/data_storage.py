@@ -1044,39 +1044,59 @@ class DataStorage(QObject):
         """Updates the reduced model theta list whenever alias data is changed.
         (SLOT) - associated with alias and constraint activity change.
         """
-
-        # # list of aliases that are disturbances and not paired (consumed) MVs.
-        # dist_aliases = [row['Alias'] for row in self.input_table_data
-        #                 if row['Type'] == 'Disturbance (d)']
+        # list of aliases that are D
+        inps = self.input_table_data
+        d_aliases = inps.loc[inps['Type'] == self._INPUT_ALIAS_TYPES['d'],
+                             'Alias'].tolist()
 
         # get the non consumed aliases from constraint activity info where the
         # type of alias is not active and manipulated.
         con_act = self.active_constraint_info
-        # consumed_aliases = [con_act[con]['Pairing']
-        #                     for con in con_act
-        #                     if con_act[con]['Type'] == 'Candidate (CV)' and
-        #                     con_act[con]['Active']]
+        consumed_aliases = con_act.loc[
+            'Pairing',
+            (
+                (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
+                (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
+            ) &
+            (con_act.loc['Active'])
+        ].dropna().tolist()
 
-        # non_consumed_aliases = [con for con in con_act
-        #                         if con_act[con]['Type'] == 'Manipulated (MV)'
-        #                         and not con_act[con]['Active']
-        #                         and con not in consumed_aliases]
-        # # aliases to be displayed in the theta table
-        # input_aliases = dist_aliases + non_consumed_aliases
+        non_consumed_aliases = con_act.columns[
+            (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
+            (~con_act.loc['Active']) &
+            (~con_act.columns.isin(consumed_aliases))
+        ].tolist()
 
-        # # delete the variables that aren't in the input list
-        # new_thetas = [row for row in self.reduced_metamodel_theta_data
-        #               if row['Alias'] in input_aliases]
+        input_aliases = d_aliases + non_consumed_aliases
 
-        # theta_bnd_list = [row['Alias'] for row in new_thetas]
+        # delete the variables that aren't in the mv list
+        theta_df = self.reduced_metamodel_theta_data
+        new_thetas = theta_df[theta_df['Alias'].isin(input_aliases)]
 
-        # # insert new values
-        # [new_thetas.append({'Alias': alias, 'lb': 1e-12,
-        #                     'ub': 1.e-3, 'theta0': 1e-6})
-        #  for alias in input_aliases if alias not in theta_bnd_list]
+        theta_bnd_list = theta_df['Alias'].tolist()
+
+        # insert new values
+        nt = []
+        for alias in input_aliases:
+            if alias not in theta_bnd_list:
+                nt.append({
+                    'Alias': alias,
+                    'lb': 1e-12,
+                    'ub': 1e-3,
+                    'theta0': 1e-6
+                })
+
+        new_thetas = pd.concat([new_thetas, pd.DataFrame.from_records(nt)],
+                               axis='index', ignore_index=True)
+
+        # sort frame to ensure that the order is the same as input table
+        new_thetas.set_index('Alias', inplace=True)
+        new_thetas = new_thetas.loc[input_aliases, :]
+        new_thetas.reset_index(inplace=True)
+        new_thetas = new_thetas.loc[:, self._META_THETA_BNDS]
 
         # # store values
-        # self.reduced_metamodel_theta_data = new_thetas
+        self.reduced_metamodel_theta_data = new_thetas
 
     def _update_reduced_selected_data(self) -> None:
         """Updates the list of selected variables for model construction
@@ -1085,6 +1105,29 @@ class DataStorage(QObject):
         # list of non active constraints
 
         con_act = self.active_constraint_info
+        non_act_aliases = con_act.columns[
+            (con_act.loc['Type'] != self._INPUT_ALIAS_TYPES['mv']) &
+            (~con_act.loc['Active'])
+        ].tolist()
+
+        conc_tab = pd.concat([self.output_table_data,
+                              self.expression_table_data],
+                             axis='index', join='inner',
+                             ignore_index=True
+                             ).drop_duplicates().reset_index(drop=True)
+
+        var_list = conc_tab.loc[
+            (conc_tab['Alias'].isin(non_act_aliases)) &
+            (
+                (conc_tab['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
+                (conc_tab['Type'] == self._EXPR_ALIAS_TYPES['obj'])
+            ),
+            ['Alias', 'Type']
+        ]
+
+        # set the var_list index to the aliases (easier indexing)
+        var_list.set_index('Alias', inplace=True)
+
         # non_act_aliases = [{'Alias': con, 'Type': con_act[con]['Type']}
         #                    for con in con_act
         #                    if not con_act[con]['Active'] and
@@ -1097,22 +1140,35 @@ class DataStorage(QObject):
 
         # vars = non_act_aliases + obj_fun
 
-        # # list of aliases
-        # aliases = [row['Alias'] for row in vars]
+        # list of aliases
+        aliases = var_list.index.tolist()
 
-        # # delete variables that aren't in the list
-        # new_vars = [row for row in self.reduced_metamodel_selected_data
-        #             if row['Alias'] in aliases]
+        # delete variables that aren't in the list
+        sel_df = self.reduced_metamodel_selected_data
+        new_vars = sel_df[~sel_df['Alias'].isin(aliases)]
+        new_vars_list = new_vars['Alias'].tolist()
 
-        # vars_list = [row['Alias'] for row in new_vars]
+        # insert new variables
+        nv = []
+        for alias in aliases:
+            if alias not in new_vars_list:
+                nv.append({
+                    'Alias': alias,
+                    'Type': var_list.at[alias, 'Type'],
+                    'Checked': True
+                })
 
-        # # insert new vairables
-        # [new_vars.append({'Alias': var['Alias'], 'Type': var['Type'],
-        #                   'Checked': True})
-        #  for var in vars if var['Alias'] not in vars_list]
+        new_vars = pd.concat([new_vars, pd.DataFrame.from_records(nv)],
+                             axis='index', ignore_index=True)
+
+        # sort frame to ensure that the order is the same as output table
+        new_vars.set_index('Alias', inplace=True)
+        new_vars = new_vars.loc[aliases, :]
+        new_vars.reset_index(inplace=True)
+        new_vars = new_vars.loc[:, self._META_SELEC_COLS]
 
         # # store values
-        # self.reduced_metamodel_selected_data = new_vars
+        self.reduced_metamodel_selected_data = new_vars
 
     def _update_magnitude_data(self) -> None:
         """Updates the distubance and measurement error magnitudes whenever
