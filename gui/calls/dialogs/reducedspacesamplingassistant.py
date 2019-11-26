@@ -218,9 +218,8 @@ class SampledDataTableModel(QAbstractTableModel):
         # load internal headers names
         inp_data = self.app_data.input_table_data
         out_data = self.app_data.output_table_data
-        self._input_alias = inp_data.loc[
-            inp_data['Type'] == self.app_data._INPUT_ALIAS_TYPES['mv'],
-            'Alias'
+        self._input_alias = self.app_data.reduced_doe_d_bounds.loc[
+            :, 'name'
         ].tolist()
 
         self._output_alias = out_data.loc[:, 'Alias'].tolist()
@@ -494,7 +493,7 @@ class SamplingAssistantDialog(QDialog):
 
         if bnd_df['lb'].ge(bnd_df['ub']).any() or \
                 bnd_df['nominal'].lt(bnd_df['lb']).any() or \
-        bnd_df['nominal'].gt(bnd_df['ub']).any():
+            bnd_df['nominal'].gt(bnd_df['ub']).any():
             self.ui.genLhsPushButton.setEnabled(False)
             self.ui.lhsSettingsPushButton.setEnabled(False)
         else:

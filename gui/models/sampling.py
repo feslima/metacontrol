@@ -118,12 +118,15 @@ class ReducedSamplerThread(SamplerThread):
         inp_data = self._app_data.input_table_data
         out_data = self._app_data.output_table_data
         # TODO: move consumed aliases from input into output collection
-        input_vars = inp_data.loc[
-            inp_data['Type'] == self._app_data._INPUT_ALIAS_TYPES['mv'],
-            ['Alias', 'Path']
-        ].to_dict(orient='records')
-        output_vars = out_data.loc[:,
-                                   ['Alias', 'Path']].to_dict(orient='records')
+        inp_data_ph = inp_data.set_index('Alias')
+        red_inp_alias = self._app_data.reduced_doe_d_bounds.loc[
+            :, 'name'].tolist()
+        output_mvs = inp_data.loc[~inp_data['Alias'].isin(red_inp_alias)]
+        input_vars = inp_data_ph.loc[red_inp_alias,
+                                     'Path'].reset_index().to_dict(orient='records')
+        output_vars = pd.concat([out_data.loc[:, ['Alias', 'Path']],
+                                 output_mvs], ignore_index=True,
+                                axis='index', sort=False).to_dict(orient='records')
 
         for row in range(self._input_des_data.shape[0]):
             [var.update({'value': self._input_des_data.loc[row, var['Alias']]})

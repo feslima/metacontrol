@@ -5388,7 +5388,7 @@
             "nominal": {
                 "0": 273.0,
                 "1": 147.0,
-                "2": 0.1,
+                "2": 0.0,
                 "3": 13.5632
             }
         },
@@ -7668,8 +7668,38 @@
         "mtc_jud": {}
     },
     "soc_info": {
-        "mtc_disturbance_magnitude": {},
-        "mtc_measurement_magnitude": {},
-        "mtc_subset_sizing_data": {}
+        "mtc_disturbance_magnitude": {
+            "Value": {
+                "flow1": null,
+                "flow2": null,
+                "phif": null
+            }
+        },
+        "mtc_measurement_magnitude": {
+            "Value": {
+                "df_out": null,
+                "rr_out": null,
+                "xb": null,
+                "lf": null,
+                "vf": null
+            }
+        },
+        "mtc_subset_sizing_data": {
+            "1": {
+                "Subset number": 5
+            },
+            "2": {
+                "Subset number": 10
+            },
+            "3": {
+                "Subset number": 10
+            },
+            "4": {
+                "Subset number": 5
+            },
+            "5": {
+                "Subset number": 1
+            }
+        }
     }
 }
