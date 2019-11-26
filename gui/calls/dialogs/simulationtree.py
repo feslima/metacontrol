@@ -200,11 +200,13 @@ class VariableTableModel(QAbstractTableModel):
         if row == 0:
             # prepend rows
             self.variable_data = pd.concat([new_rows, self.variable_data],
-                                           axis='index', ignore_index=True)
+                                           axis='index', ignore_index=True,
+                                           sort=False)
         elif row == self.rowCount():
             # append rows
             self.variable_data = pd.concat([self.variable_data, new_rows],
-                                           axis='index', ignore_index=True)
+                                           axis='index', ignore_index=True,
+                                           sort=False)
         else:
             # the drop=True is to prevent an additional column
             self.variable_data = pd.concat(
@@ -410,7 +412,7 @@ class LoadSimulationTreeDialog(QDialog):
                            self.app_data.tree_model_input)
 
     def on_output_tree_loaded(self):
-        self.populate_tree(self.ui.tableViewOutput.model(),
+        self.populate_tree(self.ui.treeViewOutput.model(),
                            self.app_data.tree_model_output)
 
         # close progress dialog

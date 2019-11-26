@@ -2,32 +2,51 @@
     "simulation_info": {
         "sim_filename": "C:/Users/Felipe/PycharmProjects/metacontrol/tests_/model_files/infill.bkp",
         "sim_info": {
-            "components": [
-                "PROPENE",
-                "PROPANE"
-            ],
-            "therm_method": [
-                "PENG-ROB"
-            ],
-            "blocks": [
-                "TOWER"
-            ],
-            "streams": [
-                "B",
-                "D",
-                "FEED"
-            ],
-            "reactions": [],
-            "sens_analysis": [
-                "S-1"
-            ],
-            "calculators": [
-                "C-1"
-            ],
-            "optimizations": [
-                "O-1"
-            ],
-            "design_specs": []
+            "components": {
+                "0": "PROPENE",
+                "1": "PROPANE",
+                "2": null
+            },
+            "therm_method": {
+                "0": "PENG-ROB",
+                "1": null,
+                "2": null
+            },
+            "blocks": {
+                "0": "TOWER",
+                "1": null,
+                "2": null
+            },
+            "streams": {
+                "0": "B",
+                "1": "D",
+                "2": "FEED"
+            },
+            "reactions": {
+                "0": null,
+                "1": null,
+                "2": null
+            },
+            "sens_analysis": {
+                "0": "S-1",
+                "1": null,
+                "2": null
+            },
+            "calculators": {
+                "0": "C-1",
+                "1": null,
+                "2": null
+            },
+            "optimizations": {
+                "0": "O-1",
+                "1": null,
+                "2": null
+            },
+            "design_specs": {
+                "0": null,
+                "1": null,
+                "2": null
+            }
         },
         "sim_tree_input": {
             "node": "Data",
@@ -5174,239 +5193,182 @@
                 }
             ]
         },
-        "mtc_input_table": [
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Input\\BASIS_RR",
-                "Alias": "rr",
-                "Type": "Manipulated (MV)"
+        "mtc_input_table": {
+            "Path": {
+                "0": "\\Data\\Blocks\\TOWER\\Input\\BASIS_RR",
+                "1": "\\Data\\Blocks\\TOWER\\Input\\D:F",
+                "2": "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\PROPENE",
+                "3": "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\PROPANE",
+                "4": "\\Data\\Streams\\FEED\\Input\\VFRAC\\MIXED"
             },
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Input\\D:F",
-                "Alias": "df",
-                "Type": "Manipulated (MV)"
+            "Alias": {
+                "0": "rr",
+                "1": "df",
+                "2": "flow1",
+                "3": "flow2",
+                "4": "phif"
             },
-            {
-                "Path": "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\PROPENE",
-                "Alias": "flow1",
-                "Type": "Disturbance (d)"
-            },
-            {
-                "Path": "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\PROPANE",
-                "Alias": "flow2",
-                "Type": "Disturbance (d)"
-            },
-            {
-                "Path": "\\Data\\Streams\\FEED\\Input\\VFRAC\\MIXED",
-                "Alias": "phif",
-                "Type": "Disturbance (d)"
+            "Type": {
+                "0": "Manipulated (MV)",
+                "1": "Manipulated (MV)",
+                "2": "Disturbance (d)",
+                "3": "Disturbance (d)",
+                "4": "Disturbance (d)"
             }
-        ],
-        "mtc_output_table": [
-            {
-                "Path": "\\Data\\Streams\\D\\Output\\MOLEFRAC\\MIXED\\PROPENE",
-                "Alias": "xd",
-                "Type": "Candidate (CV)"
+        },
+        "mtc_output_table": {
+            "Path": {
+                "0": "\\Data\\Blocks\\TOWER\\Output\\MOLE_VN",
+                "1": "\\Data\\Blocks\\TOWER\\Output\\MOLE_L1",
+                "2": "\\Data\\Blocks\\TOWER\\Output\\REB_DUTY",
+                "3": "\\Data\\Blocks\\TOWER\\Output\\MOLE_DFR",
+                "4": "\\Data\\Blocks\\TOWER\\Output\\MOLE_RR",
+                "5": "\\Data\\Streams\\B\\Output\\MOLEFRAC\\MIXED\\PROPENE",
+                "6": "\\Data\\Streams\\B\\Output\\MOLEFLMX\\MIXED",
+                "7": "\\Data\\Streams\\D\\Output\\MOLEFRAC\\MIXED\\PROPENE",
+                "8": "\\Data\\Streams\\D\\Output\\MOLEFLMX\\MIXED",
+                "9": "\\Data\\Streams\\FEED\\Output\\MOLEFLMX\\MIXED"
             },
-            {
-                "Path": "\\Data\\Streams\\B\\Output\\MOLEFRAC\\MIXED\\PROPENE",
-                "Alias": "xb",
-                "Type": "Candidate (CV)"
+            "Alias": {
+                "0": "v",
+                "1": "l",
+                "2": "qr",
+                "3": "df_out",
+                "4": "rr_out",
+                "5": "xb",
+                "6": "b",
+                "7": "xd",
+                "8": "d",
+                "9": "f"
             },
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_VN",
-                "Alias": "v",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_L1",
-                "Alias": "l",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Streams\\FEED\\Output\\MOLEFLMX\\MIXED",
-                "Alias": "f",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Streams\\D\\Output\\MOLEFLMX\\MIXED",
-                "Alias": "d",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Streams\\B\\Output\\MOLEFLMX\\MIXED",
-                "Alias": "b",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Output\\REB_DUTY",
-                "Alias": "qr",
-                "Type": "Auxiliary"
-            },
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_DFR",
-                "Alias": "df_out",
-                "Type": "Candidate (CV)"
-            },
-            {
-                "Path": "\\Data\\Blocks\\TOWER\\Output\\MOLE_RR",
-                "Alias": "rr_out",
-                "Type": "Candidate (CV)"
+            "Type": {
+                "0": "Auxiliary",
+                "1": "Auxiliary",
+                "2": "Auxiliary",
+                "3": "Candidate (CV)",
+                "4": "Candidate (CV)",
+                "5": "Candidate (CV)",
+                "6": "Auxiliary",
+                "7": "Candidate (CV)",
+                "8": "Auxiliary",
+                "9": "Auxiliary"
             }
-        ],
-        "mtc_expr_table": [
-            {
-                "Alias": "lf",
-                "Expr": "l / f",
-                "Type": "Candidate (CV)"
+        },
+        "mtc_expr_table": {
+            "Alias": {
+                "0": "lf",
+                "1": "vf",
+                "2": "c1",
+                "3": "c2",
+                "4": "j"
             },
-            {
-                "Alias": "vf",
-                "Expr": "v / f",
-                "Type": "Candidate (CV)"
+            "Expression": {
+                "0": "l/f",
+                "1": "v/f",
+                "2": "qr*4.1868 - 80",
+                "3": "0.995 - xd",
+                "4": "-(20*d + (10 - 20*xb)*b - 70*4.1868*qr)"
             },
-            {
-                "Alias": "c1",
-                "Expr": "qr - 80",
-                "Type": "Constraint function"
-            },
-            {
-                "Alias": "c2",
-                "Expr": "0.995 - xd",
-                "Type": "Constraint function"
-            },
-            {
-                "Alias": "j",
-                "Expr": "-(20*d + (10 - 20*xb)*b - 70*4.1868*qr)",
-                "Type": "Objective function (J)"
+            "Type": {
+                "0": "Candidate (CV)",
+                "1": "Candidate (CV)",
+                "2": "Constraint function",
+                "3": "Constraint function",
+                "4": "Objective function (J)"
             }
-        ]
+        }
     },
     "doe_info": {
-        "mtc_mv_bounds": [
-            {
-                "name": "rr",
-                "lb": 0.0,
-                "ub": 1.0
+        "mtc_mv_bounds": {
+            "name": {
+                "0": "rr",
+                "1": "df"
             },
-            {
-                "name": "df",
-                "lb": 0.0,
-                "ub": 1.0
+            "lb": {
+                "0": 0.0,
+                "1": 0.0
+            },
+            "ub": {
+                "0": 1.0,
+                "1": 1.0
             }
-        ],
-        "mtc_sampled_data": {
-            "case": [],
-            "status": [],
-            "rr": [],
-            "df": [],
-            "xd": [],
-            "xb": [],
-            "v": [],
-            "l": [],
-            "f": [],
-            "d": [],
-            "b": [],
-            "qr": [],
-            "lf": [],
-            "vf": [],
-            "c1": [],
-            "c2": [],
-            "j": []
-        }
+        },
+        "mtc_sampled_data": {}
     },
     "reduced_space_info": {
         "mtc_constraint_activity": {
             "rr": {
-                "Type": "Manipulated (MV)",
                 "Active": false,
-                "Value": null,
-                "Pairing": null
+                "Pairing": null,
+                "Type": "Manipulated (MV)",
+                "Value": null
             },
             "df": {
+                "Active": false,
+                "Pairing": null,
                 "Type": "Manipulated (MV)",
-                "Active": false,
-                "Value": null,
-                "Pairing": null
-            },
-            "xd": {
-                "Type": "Candidate (CV)",
-                "Active": false,
-                "Value": null,
-                "Pairing": null
-            },
-            "xb": {
-                "Type": "Candidate (CV)",
-                "Active": false,
-                "Value": null,
-                "Pairing": null
-            },
-            "lf": {
-                "Type": "Candidate (CV)",
-                "Active": false,
-                "Value": null,
-                "Pairing": null
-            },
-            "vf": {
-                "Type": "Candidate (CV)",
-                "Active": false,
-                "Value": null,
-                "Pairing": null
+                "Value": null
             },
             "df_out": {
-                "Type": "Candidate (CV)",
                 "Active": false,
-                "Value": null,
-                "Pairing": null
+                "Pairing": null,
+                "Type": "Candidate (CV)",
+                "Value": null
             },
             "rr_out": {
-                "Type": "Candidate (CV)",
                 "Active": false,
-                "Value": null,
-                "Pairing": null
+                "Pairing": null,
+                "Type": "Candidate (CV)",
+                "Value": null
+            },
+            "xb": {
+                "Active": false,
+                "Pairing": null,
+                "Type": "Candidate (CV)",
+                "Value": null
+            },
+            "xd": {
+                "Active": false,
+                "Pairing": null,
+                "Type": "Candidate (CV)",
+                "Value": null
+            },
+            "lf": {
+                "Active": false,
+                "Pairing": null,
+                "Type": "Candidate (CV)",
+                "Value": null
+            },
+            "vf": {
+                "Active": false,
+                "Pairing": null,
+                "Type": "Candidate (CV)",
+                "Value": null
             }
         },
-        "mtc_reduced_d_bounds": [
-            {
-                "name": "flow1",
-                "lb": 0.0,
-                "ub": 1.0,
-                "nom": 0.5
+        "mtc_reduced_d_bounds": {
+            "name": {
+                "0": "flow1",
+                "1": "flow2",
+                "2": "phif"
             },
-            {
-                "name": "flow2",
-                "lb": 0.0,
-                "ub": 1.0,
-                "nom": 0.5
+            "lb": {
+                "0": 0.0,
+                "1": 0.0,
+                "2": 0.0
             },
-            {
-                "name": "phif",
-                "lb": 0.0,
-                "ub": 1.0,
-                "nom": 0.5
+            "ub": {
+                "0": 1.0,
+                "1": 1.0,
+                "2": 1.0
+            },
+            "nominal": {
+                "0": 0.5,
+                "1": 0.5,
+                "2": 0.5
             }
-        ],
-        "mtc_reduced_sampled_data": {
-            "case": [],
-            "status": [],
-            "rr": [],
-            "df": [],
-            "flow1": [],
-            "flow2": [],
-            "phif": [],
-            "xd": [],
-            "xb": [],
-            "v": [],
-            "l": [],
-            "f": [],
-            "d": [],
-            "b": [],
-            "qr": [],
-            "lf": [],
-            "vf": [],
-            "c1": [],
-            "c2": [],
-            "j": []
-        }
+        },
+        "mtc_reduced_sampled_data": {}
     },
     "differential_info": {
         "mtc_gy": {},
@@ -5415,42 +5377,8 @@
         "mtc_jud": {}
     },
     "soc_info": {
-        "mtc_disturbance_magnitude": {
-            "Value": {
-                "flow1": null,
-                "flow2": null,
-                "phif": null
-            }
-        },
-        "mtc_measurement_magnitude": {
-            "Value": {
-                "xd": null,
-                "xb": null,
-                "lf": null,
-                "vf": null,
-                "df_out": null,
-                "rr_out": null
-            }
-        },
-        "mtc_subset_sizing_data": {
-            "1": {
-                "Subset number": 0
-            },
-            "2": {
-                "Subset number": 0
-            },
-            "3": {
-                "Subset number": 0
-            },
-            "4": {
-                "Subset number": 0
-            },
-            "5": {
-                "Subset number": 0
-            },
-            "6": {
-                "Subset number": 0
-            }
-        }
+        "mtc_disturbance_magnitude": {},
+        "mtc_measurement_magnitude": {},
+        "mtc_subset_sizing_data": {}
     }
 }
