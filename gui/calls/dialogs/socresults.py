@@ -126,7 +126,7 @@ class HTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             # NaN cells show as empty
-            return str(value) if not np.isnan(value) else "∅"
+            return str(value) if not np.isnan(value) else "-"
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
         elif role == Qt.FontRole:
@@ -189,7 +189,7 @@ class SensitivityTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             # NaN cells show as empty
-            return str(value) if not np.isnan(value) else "∅"
+            return str(value) if not np.isnan(value) else "-"
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
         elif role == Qt.FontRole:
