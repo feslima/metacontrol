@@ -222,7 +222,13 @@ class SampledDataTableModel(QAbstractTableModel):
             :, 'name'
         ].tolist()
 
-        self._output_alias = out_data.loc[:, 'Alias'].tolist()
+        output_mvs = inp_data.loc[~inp_data['Alias'].isin(self._input_alias), 'Alias']
+
+        self._output_alias = pd.concat([out_data.loc[:, 'Alias'],
+                   output_mvs], ignore_index=True,
+                  axis='index', sort=False).tolist()
+
+        # self._output_alias = out_data.loc[:, 'Alias'].tolist()
 
         # number of experiments
         n_samp = self.app_data.reduced_doe_lhs_settings['n_samples']
