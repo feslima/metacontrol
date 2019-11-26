@@ -108,13 +108,7 @@ class DataStorage(QObject):
         self.output_table_data = pd.DataFrame(columns=self._ALIAS_COLS)
         self.expression_table_data = pd.DataFrame(columns=self._EXPR_COLS)
 
-        self._reduced_data = {'csv': {'filepath': '',
-                                      'convergence_index': '',
-                                      'pair_info': {}}
-                              }
-        self._hessian_data = {'metamodel_data': {'theta': [],
-                                                 'selected': []
-                                                 },
+        self._hessian_data = {'metamodel_data': {'selected': []},
                               'regression': 'poly0',
                               'correlation': 'corrgauss',
                               'gy': {},
@@ -137,6 +131,8 @@ class DataStorage(QObject):
         self.input_alias_data_changed.connect(self._update_constraint_activity)
         # - reduced_doe_d_bounds
         self.input_alias_data_changed.connect(self._update_reduced_d_bounds)
+        # - reduced_metamodel_theta_data
+        self.input_alias_data_changed.connect(self._update_reduced_theta_data)
         # - check_simulation_setup
         self.input_alias_data_changed.connect(self.check_simulation_setup)
         # - check_sampling_setup
@@ -167,26 +163,27 @@ class DataStorage(QObject):
         # - check_sampling_setup
         self.doe_sampled_data_changed.connect(self.check_sampling_setup)
 
-        # # whenever constraint activity info changes, perform a setup check
-        # self.reduced_doe_constraint_activity_changed.connect(
-        #     self.check_reduced_space_setup)
+        # Whenever ACTIVE CONSTRAINT INFO changes update (or check setup):
+        # - reduced_doe_d_bounds
+        self.reduced_doe_constraint_activity_changed.connect(
+            self._update_reduced_d_bounds
+        )
+        # - reduced_metamodel_theta_data
+        self.reduced_doe_constraint_activity_changed.connect(
+            self._update_reduced_theta_data
+        )
+        # - reduced_metamodel_selected_data
+        self.reduced_doe_constraint_activity_changed.connect(
+            self._update_reduced_selected_data
+        )
+        # - check_reduced_space_setup
+        self.reduced_doe_constraint_activity_changed.connect(
+            self.check_reduced_space_setup)
 
-        # # update reduced theta data whenever aliases or constraint activity
-        # # changes
-        # self.alias_data_changed.connect(self._update_reduced_theta_data)
-        # self.reduced_doe_constraint_activity_changed.connect(
-        #     self._update_reduced_theta_data)
-
-        # # update selected variables data for construction whenever constraint
-        # # activity data changes
-        # self.reduced_doe_constraint_activity_changed.connect(
-        #     self._update_reduced_selected_data
-        # )
-
-        # # whenever reduced space sampled data changes, perform a checkup in
-        # # reduced space data
-        # self.reduced_doe_sampled_data_changed.connect(
-        #     self.check_reduced_space_setup)
+        # Whenever REDUCED DOE SAMPLED DATA changes update (or check setup):
+        # - check_reduced_space_setup
+        self.reduced_doe_sampled_data_changed.connect(
+            self.check_reduced_space_setup)
 
         # # whenever constraint activity/ expr data changes, update disturbance
         # # and measurement error magnitudes data
@@ -421,7 +418,7 @@ class DataStorage(QObject):
     def doe_csv_settings(self, value: dict):
         if isinstance(value, dict):
             key_list = ['filepath', 'convergence_index', 'pair_info']
-            self._check_keys(key_list, value, self._doe_data['csv'])
+            self._check_keys(key_list, value, self._doe_csv_settings)
         else:
             raise TypeError("CSV editor settings must be a dictionary object.")
 
@@ -464,7 +461,7 @@ class DataStorage(QObject):
             if value.columns.isin(self._META_THETA_BNDS).all():
                 self._metamodel_theta_data = value
             else:
-                raise ValueError("metamodel_theta_data must have its columns "
+                raise ValueError("'metamodel_theta_data' must have its columns "
                                  "defined.")
         else:
             raise TypeError("Theta data must be a DataFrame.")
@@ -488,7 +485,7 @@ class DataStorage(QObject):
             if value.columns.isin(self._META_SELEC_COLS).all():
                 self._metamodel_selected_data = value
             else:
-                raise ValueError("metamodel_selected_data must have its "
+                raise ValueError("'metamodel_selected_data' must have its "
                                  "columns defined.")
         else:
             raise TypeError("Selected data must be a DataFrame.")
@@ -518,13 +515,18 @@ class DataStorage(QObject):
     def reduced_doe_csv_settings(self):
         """Reduced space CSV info (dict) to read/write into csveditor dialog.
         Keys are: 'filepath', convergence_index, pair_info"""
-        return self._reduced_data['csv']
+        if not hasattr(self, '_reduced_doe_csv_settings'):
+            self._reduced_doe_csv_settings = {'filepath': '',
+                                              'convergence_index': '',
+                                              'pair_info': {}}
+
+        return self._reduced_doe_csv_settings
 
     @reduced_doe_csv_settings.setter
     def reduced_doe_csv_settings(self, value):
         if isinstance(value, dict):
             key_list = ['filepath', 'convergence_index', 'pair_info']
-            self._check_keys(key_list, value, self._reduced_data['csv'])
+            self._check_keys(key_list, value, self._reduced_doe_csv_settings)
         else:
             raise TypeError("Reduced space CSV editor settings must be a "
                             "dictionary object.")
@@ -582,31 +584,52 @@ class DataStorage(QObject):
 
     @property
     def reduced_metamodel_theta_data(self):
-        """List of dicts containing lower and upper bounds, and estimates of
+        """DataFrame containing lower and upper bounds, and estimates of
         reduced space variables theta values."""
-        return self._hessian_data['metamodel_data']['theta']
+
+        if not hasattr(self, '_reduced_metamodel_theta_data'):
+            # attribute not created (init), create now
+            self._reduced_metamodel_theta_data = pd.DataFrame(
+                columns=self._META_THETA_BNDS
+            )
+
+        return self._reduced_metamodel_theta_data
 
     @reduced_metamodel_theta_data.setter
-    def reduced_metamodel_theta_data(self, value):
-        if isinstance(value, list):
-            self._hessian_data['metamodel_data']['theta'] = value
+    def reduced_metamodel_theta_data(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._META_THETA_BNDS).all():
+                self._reduced_metamodel_theta_data = value
+            else:
+                raise ValueError("'reduced_metamodel_theta_data' must have "
+                                 "its columns defined.")
         else:
-            raise TypeError(
-                "Reduced theta data must be a list of dictionaries.")
+            raise TypeError("Reduced theta data must be a DataFrame.")
 
     @property
     def reduced_metamodel_selected_data(self):
         """Updates the list of selected variables for reduced model
         construction whenever alias or expression data is changed (SLOT)."""
-        return self._hessian_data['metamodel_data']['selected']
+
+        if not hasattr(self, '_reduced_metamodel_selected_data'):
+            # attribute not created (init), create now
+            self._reduced_metamodel_selected_data = pd.DataFrame(
+                columns=self._META_SELEC_COLS
+            )
+
+        return self._reduced_metamodel_selected_data
 
     @reduced_metamodel_selected_data.setter
-    def reduced_metamodel_selected_data(self, value):
-        if isinstance(value, list):
-            self._hessian_data['metamodel_data']['selected'] = value
-            self.reduced_selected_data_changed.emit()
+    def reduced_metamodel_selected_data(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.columns.isin(self._META_SELEC_COLS).all():
+                self._reduced_metamodel_selected_data = value
+                self.reduced_selected_data_changed.emit()
+            else:
+                raise ValueError("'reduced_metamodel_selected_data' must have "
+                                 "its columns defined.")
         else:
-            raise TypeError("Selected data must be a list of dictionaries.")
+            raise TypeError("Reduced selected data must be a DataFrame.")
 
     @property
     def differential_regression_model(self):
@@ -944,16 +967,36 @@ class DataStorage(QObject):
         d_aliases = inps.loc[inps['Type'] == self._INPUT_ALIAS_TYPES['d'],
                              'Alias'].tolist()
 
+        # get the non consumed aliases from constraint activity info where the
+        # type of alias is not active and manipulated.
+        con_act = self.active_constraint_info
+        consumed_aliases = con_act.loc[
+            'Pairing',
+            (
+                (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
+                (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
+            ) &
+            (con_act.loc['Active'])
+        ].dropna().tolist()
+
+        non_consumed_aliases = con_act.columns[
+            (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
+            (~con_act.loc['Active']) &
+            (~con_act.columns.isin(consumed_aliases))
+        ].tolist()
+
+        input_aliases = d_aliases + non_consumed_aliases
+
         # delete the variables that aren't in the mv list
         bnd_df = self.reduced_doe_d_bounds
-        new_bnds = bnd_df[bnd_df['name'].isin(d_aliases)]
+        new_bnds = bnd_df[bnd_df['name'].isin(input_aliases)]
 
-        d_bnd_list = new_bnds['name'].tolist()
+        bnd_list = new_bnds['name'].tolist()
 
         # insert new values
         nv = []
-        for alias in d_aliases:
-            if alias not in d_bnd_list:
+        for alias in input_aliases:
+            if alias not in bnd_list:
                 nv.append({
                     'name': alias,
                     'lb': 0.0,
@@ -966,7 +1009,7 @@ class DataStorage(QObject):
 
         # sort frame to ensure that the order is the same as input table
         new_bnds.set_index('name', inplace=True)
-        new_bnds = new_bnds.loc[d_aliases, :]
+        new_bnds = new_bnds.loc[input_aliases, :]
         new_bnds.reset_index(inplace=True)
         new_bnds = new_bnds.loc[:, self._REDSPACE_BNDS_COLS]
 
@@ -978,38 +1021,38 @@ class DataStorage(QObject):
         (SLOT) - associated with alias and constraint activity change.
         """
 
-        # list of aliases that are disturbances and not paired (consumed) MVs.
-        dist_aliases = [row['Alias'] for row in self.input_table_data
-                        if row['Type'] == 'Disturbance (d)']
+        # # list of aliases that are disturbances and not paired (consumed) MVs.
+        # dist_aliases = [row['Alias'] for row in self.input_table_data
+        #                 if row['Type'] == 'Disturbance (d)']
 
         # get the non consumed aliases from constraint activity info where the
         # type of alias is not active and manipulated.
         con_act = self.active_constraint_info
-        consumed_aliases = [con_act[con]['Pairing']
-                            for con in con_act
-                            if con_act[con]['Type'] == 'Candidate (CV)' and
-                            con_act[con]['Active']]
+        # consumed_aliases = [con_act[con]['Pairing']
+        #                     for con in con_act
+        #                     if con_act[con]['Type'] == 'Candidate (CV)' and
+        #                     con_act[con]['Active']]
 
-        non_consumed_aliases = [con for con in con_act
-                                if con_act[con]['Type'] == 'Manipulated (MV)'
-                                and not con_act[con]['Active']
-                                and con not in consumed_aliases]
-        # aliases to be displayed in the theta table
-        input_aliases = dist_aliases + non_consumed_aliases
+        # non_consumed_aliases = [con for con in con_act
+        #                         if con_act[con]['Type'] == 'Manipulated (MV)'
+        #                         and not con_act[con]['Active']
+        #                         and con not in consumed_aliases]
+        # # aliases to be displayed in the theta table
+        # input_aliases = dist_aliases + non_consumed_aliases
 
-        # delete the variables that aren't in the input list
-        new_thetas = [row for row in self.reduced_metamodel_theta_data
-                      if row['Alias'] in input_aliases]
+        # # delete the variables that aren't in the input list
+        # new_thetas = [row for row in self.reduced_metamodel_theta_data
+        #               if row['Alias'] in input_aliases]
 
-        theta_bnd_list = [row['Alias'] for row in new_thetas]
+        # theta_bnd_list = [row['Alias'] for row in new_thetas]
 
-        # insert new values
-        [new_thetas.append({'Alias': alias, 'lb': 1e-12,
-                            'ub': 1.e-3, 'theta0': 1e-6})
-         for alias in input_aliases if alias not in theta_bnd_list]
+        # # insert new values
+        # [new_thetas.append({'Alias': alias, 'lb': 1e-12,
+        #                     'ub': 1.e-3, 'theta0': 1e-6})
+        #  for alias in input_aliases if alias not in theta_bnd_list]
 
-        # store values
-        self.reduced_metamodel_theta_data = new_thetas
+        # # store values
+        # self.reduced_metamodel_theta_data = new_thetas
 
     def _update_reduced_selected_data(self) -> None:
         """Updates the list of selected variables for model construction
@@ -1018,34 +1061,34 @@ class DataStorage(QObject):
         # list of non active constraints
 
         con_act = self.active_constraint_info
-        non_act_aliases = [{'Alias': con, 'Type': con_act[con]['Type']}
-                           for con in con_act
-                           if not con_act[con]['Active'] and
-                           con_act[con]['Type'] != "Manipulated (MV)"]
+        # non_act_aliases = [{'Alias': con, 'Type': con_act[con]['Type']}
+        #                    for con in con_act
+        #                    if not con_act[con]['Active'] and
+        #                    con_act[con]['Type'] != "Manipulated (MV)"]
 
-        obj_fun = [{'Alias': row['Alias'], 'Type': row['Type']}
-                   for row in self.output_table_data +
-                   self.expression_table_data
-                   if row['Type'] == 'Objective function (J)']
+        # obj_fun = [{'Alias': row['Alias'], 'Type': row['Type']}
+        #            for row in self.output_table_data +
+        #            self.expression_table_data
+        #            if row['Type'] == 'Objective function (J)']
 
-        vars = non_act_aliases + obj_fun
+        # vars = non_act_aliases + obj_fun
 
-        # list of aliases
-        aliases = [row['Alias'] for row in vars]
+        # # list of aliases
+        # aliases = [row['Alias'] for row in vars]
 
-        # delete variables that aren't in the list
-        new_vars = [row for row in self.reduced_metamodel_selected_data
-                    if row['Alias'] in aliases]
+        # # delete variables that aren't in the list
+        # new_vars = [row for row in self.reduced_metamodel_selected_data
+        #             if row['Alias'] in aliases]
 
-        vars_list = [row['Alias'] for row in new_vars]
+        # vars_list = [row['Alias'] for row in new_vars]
 
-        # insert new vairables
-        [new_vars.append({'Alias': var['Alias'], 'Type': var['Type'],
-                          'Checked': True})
-         for var in vars if var['Alias'] not in vars_list]
+        # # insert new vairables
+        # [new_vars.append({'Alias': var['Alias'], 'Type': var['Type'],
+        #                   'Checked': True})
+        #  for var in vars if var['Alias'] not in vars_list]
 
-        # store values
-        self.reduced_metamodel_selected_data = new_vars
+        # # store values
+        # self.reduced_metamodel_selected_data = new_vars
 
     def _update_magnitude_data(self) -> None:
         """Updates the distubance and measurement error magnitudes whenever
@@ -1197,13 +1240,9 @@ class DataStorage(QObject):
         self.reduced_doe_d_bounds = pd.DataFrame(
             redspace_info['mtc_reduced_d_bounds']
         )
-
-        # when loading sampled data, do not call expr_eval by setting the
-        # property directly. Just bypass it and emit the signal.
         self.reduced_doe_sampled_data = pd.DataFrame(
             redspace_info['mtc_reduced_sampled_data']
         )
-        # self.reduced_doe_sampled_data_changed.emit()
 
         # # hessianextraction tab
         # self.differential_gy = diff_info['mtc_gy']
@@ -1313,7 +1352,7 @@ class DataStorage(QObject):
             is_pairing_defined = not pairings.isna().any()
 
             # check if reduced space doe is sampled
-            red_df = pd.DataFrame(self.reduced_doe_sampled_data)
+            red_df = self.reduced_doe_sampled_data
 
             is_sampling_empty = red_df.empty
         else:
