@@ -1121,7 +1121,7 @@ class DataStorage(QObject):
                              ).drop_duplicates().reset_index(drop=True)
 
         var_list = conc_tab.loc[
-            (conc_tab['Alias'].isin(non_act_aliases)) &
+            (~conc_tab['Alias'].isin(act_aliases)) &
             (
                 (conc_tab['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
                 (conc_tab['Type'] == self._EXPR_ALIAS_TYPES['obj'])

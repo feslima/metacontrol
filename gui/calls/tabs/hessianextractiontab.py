@@ -151,20 +151,19 @@ class HessianExtractionTab(QWidget):
 
     def on_generate_grad_hess_pressed(self):
         # get reduced space inputs from reduced theta data
-        X_labels = [row['Alias']
-                    for row in
-                    self.application_database.reduced_metamodel_theta_data]
+        t_data = self.application_database.reduced_metamodel_theta_data
+        X_labels = t_data.loc[:, 'Alias'].tolist()
 
         # sampled data
-        sampled_data = pd.DataFrame(
-            self.application_database.reduced_doe_sampled_data)
+        sampled_data = self.application_database.reduced_doe_sampled_data
 
         G = self.get_differentials(X_labels, sampled_data, difftype='gradient')
 
         # split G in Gy and Gyd
-        d_labels = [var['Alias'] for var in
-                    self.application_database.input_table_data
-                    if var['Type'] == 'Disturbance (d)']
+        inps = self.application_database.input_table_data
+        d_labels = inps.loc[inps['Type'] ==
+                            self.application_database._INPUT_ALIAS_TYPES['d'],
+                            'Alias'].tolist()
 
         u_labels = [label for label in X_labels if label not in d_labels]
 
@@ -188,17 +187,25 @@ class HessianExtractionTab(QWidget):
                           difftype: str):
 
         app_data = self.application_database
+        t_data = app_data.reduced_metamodel_selected_data
 
         # get output data labels
         if difftype == 'gradient':
-            Y_labels = [var['Alias'] for var in
-                        app_data.reduced_metamodel_selected_data
-                        if var['Type'] == 'Candidate (CV)' and
-                        var['Checked']]
+            Y_labels = t_data.loc[
+                (t_data['Checked']) &
+                (t_data['Type'] == app_data._OUTPUT_ALIAS_TYPES['cv']), 'Alias'
+            ].tolist()
+            # Y_labels = [var['Alias'] for var in
+            #             app_data.reduced_metamodel_selected_data
+            #             if var['Type'] == 'Candidate (CV)' and
+            #             var['Checked']]
         else:
-            Y_labels = [var['Alias'] for var in
-                        app_data.reduced_metamodel_selected_data
-                        if var['Type'] == 'Objective function (J)']
+            Y_labels = t_data.loc[
+                (t_data['Type'] == app_data._EXPR_ALIAS_TYPES['obj']), 'Alias'
+            ].tolist()
+            # Y_labels = [var['Alias'] for var in
+            #             app_data.reduced_metamodel_selected_data
+            #             if var['Type'] == 'Objective function (J)']
 
         # extract data
         X = sampled_data.loc[:, X_labels].to_numpy()
@@ -216,17 +223,11 @@ class HessianExtractionTab(QWidget):
         corr = self.application_database.differential_correlation_model
 
         # theta and bounds values
-        theta_data = []
+        theta_data = app_data.reduced_metamodel_theta_data.set_index('Alias')
 
-        for row in app_data.reduced_metamodel_theta_data:
-            for label in X_labels:
-                if row['Alias'] == label:
-                    # reorder theta values in X label order
-                    theta_data.append(row)
-
-        theta0, lob, upb = map(list,
-                               zip(*[(row['theta0'], row['lb'], row['ub'])
-                                     for row in theta_data]))
+        theta0 = theta_data.loc[X_labels, 'theta0'].tolist()
+        lob = theta_data.loc[X_labels, 'lb'].tolist()
+        upb = theta_data.loc[X_labels, 'ub'].tolist()
 
         theta0 = np.asarray(theta0)
         lob = np.asarray(lob)
@@ -234,13 +235,15 @@ class HessianExtractionTab(QWidget):
 
         # get nominal values
         # FIXME: implement better way to ensure order of MV's are correct
-        act_info = app_data.active_constraint_info
-        values = [var['nom']
-                  for var in app_data.reduced_doe_d_bounds
-                  if var['name'] in X_labels] + \
-            [act_info[var]['Value']
-             for var in act_info
-             if var in X_labels]
+        doe_bnds = app_data.reduced_doe_d_bounds
+        values = doe_bnds.loc[:, 'nominal'].tolist()
+        # act_info = app_data.active_constraint_info
+        # values = [var['nom']
+        #           for var in app_data.reduced_doe_d_bounds
+        #           if var['name'] in X_labels] + \
+        #     [act_info[var]['Value']
+        #      for var in act_info
+        #      if var in X_labels]
         x_nom = np.array([values])
 
         if difftype == 'gradient':
