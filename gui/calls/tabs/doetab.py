@@ -40,7 +40,7 @@ class DoeResultsModel(QAbstractTableModel):
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
-        data = self.app_data.doe_sampled_data.copy(deep=True)
+        doe_data = self.app_data.doe_sampled_data.copy(deep=True)
         inp_data = self.app_data.input_table_data
         out_data = self.app_data.output_table_data
         expr_data = self.app_data.expression_table_data
@@ -73,19 +73,19 @@ class DoeResultsModel(QAbstractTableModel):
             self._const_alias + self._obj_alias + self._aux_alias
 
         # extract the inputs, candidate outputs and expression data
-        if not data.empty:
-            self._case_data = data.pop('case')
-            self._stat_data = data.pop('status')
+        if not doe_data.empty:
+            self._case_data = doe_data.pop('case')
+            self._stat_data = doe_data.pop('status')
 
-        self._data = data[header_list]
+        self._doe_data = doe_data[header_list]
 
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return self._data.shape[0] + self._HEADER_ROW_OFFSET
+        return self._doe_data.shape[0] + self._HEADER_ROW_OFFSET
 
     def columnCount(self, parent=None):
-        return self._data.shape[1] + self._INPUT_COL_OFFSET
+        return self._doe_data.shape[1] + self._INPUT_COL_OFFSET
 
     def span(self, index: QModelIndex):
         row = index.row()
@@ -128,7 +128,7 @@ class DoeResultsModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        df_rows, df_cols = self._data.shape
+        df_rows, df_cols = self._doe_data.shape
         rowoffset = self._HEADER_ROW_OFFSET
         coloffset = self._INPUT_COL_OFFSET
 
@@ -136,7 +136,7 @@ class DoeResultsModel(QAbstractTableModel):
             if rowoffset - 1 < row < df_rows + rowoffset:
                 if coloffset - 1 < col < df_cols + coloffset:
                     # numeric data display
-                    val = self._data.iloc[row - rowoffset, col - coloffset]
+                    val = self._doe_data.iloc[row - rowoffset, col - coloffset]
                     return "{0:.7f}".format(val)
 
                 elif col == 0:
@@ -170,7 +170,7 @@ class DoeResultsModel(QAbstractTableModel):
             elif row == 1:
                 # second row headers
                 if coloffset - 1 < col:
-                    return str(self._data.columns[col - coloffset])
+                    return str(self._doe_data.columns[col - coloffset])
 
         elif role == Qt.FontRole:
             if row == 0 or row == 1:
