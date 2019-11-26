@@ -1,7 +1,8 @@
 import copy
-import json
+import simplejson as json
 import pathlib
 
+import numpy as np
 import pandas as pd
 from py_expression_eval import Parser
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -139,8 +140,8 @@ class DataStorage(QObject):
         self.input_alias_data_changed.connect(self._update_reduced_d_bounds)
         # - check_simulation_setup
         self.input_alias_data_changed.connect(self.check_simulation_setup)
-        # # - check_sampling_setup
-        # self.input_alias_data_changed.connect(self.check_sampling_setup)
+        # - check_sampling_setup
+        self.input_alias_data_changed.connect(self.check_sampling_setup)
 
         # Whenever OUTPUT ALIAS data changes update (or check setup):
         # - metamodel_selected_data (construct metamodels)
@@ -150,8 +151,8 @@ class DataStorage(QObject):
             self._update_constraint_activity)
         # - check_simulation_setup
         self.output_alias_data_changed.connect(self.check_simulation_setup)
-        # # - check_sampling_setup
-        # self.output_alias_data_changed.connect(self.check_sampling_setup)
+        # - check_sampling_setup
+        self.output_alias_data_changed.connect(self.check_sampling_setup)
 
         # Whenever EXPRESSION DATA changes update (or check setup):
         # - metamodel_selected_data (construct metamodels)
@@ -160,8 +161,12 @@ class DataStorage(QObject):
         self.expr_data_changed.connect(self._update_constraint_activity)
         # - check_simulation_setup
         self.expr_data_changed.connect(self.check_simulation_setup)
-        # # - check_sampling_setup
-        # self.expr_data_changed.connect(self.check_sampling_setup)
+        # - check_sampling_setup
+        self.expr_data_changed.connect(self.check_sampling_setup)
+
+        # Whenever DOE SAMPLED DATA changes update (or check setup):
+        # - check_sampling_setup
+        self.doe_sampled_data_changed.connect(self.check_sampling_setup)
 
         # # whenever constraint activity info changes, perform a setup check
         # self.reduced_doe_constraint_activity_changed.connect(
@@ -435,6 +440,8 @@ class DataStorage(QObject):
     @doe_sampled_data.setter
     def doe_sampled_data(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
+            if value.index.is_object():
+                value.index = value.index.astype(int)
             self._doe_sampled_data = self.evaluate_expr_data(value, 'original')
             self.doe_sampled_data_changed.emit()
         else:
@@ -728,7 +735,7 @@ class DataStorage(QObject):
         """
         if isinstance(arr, dict):
             dict_conversion = dict([(k, pd.Series(v)) for k, v in arr.items()])
-            return pd.DataFrame(dict_conversion)
+            return pd.DataFrame(dict_conversion).fillna(value=pd.np.nan)
         else:
             raise ValueError("'arr' has to be a dictionary.")
 
@@ -1142,7 +1149,8 @@ class DataStorage(QObject):
 
         # perfom the JSON dump
         with open(output_path, 'w') as mtc_file:
-            json.dump(app_data, mtc_file, indent=4, cls=PandasEncoder)
+            json.dump(app_data, mtc_file, indent=4, cls=PandasEncoder,
+                      ignore_nan=True)
 
     def load(self, mtc_filepath: str) -> None:
         """Reads .mtc file data and updates the object attributes.
@@ -1245,15 +1253,18 @@ class DataStorage(QObject):
         means that the metamodel construction phase is good to go, otherwise
         the value is False.
         """
-        input_alias = [row['Alias'] for row in self.input_table_data
-                       if row['Type'] == 'Manipulated (MV)']
-        output_alias = [row['Alias']
-                        for row in self.output_table_data]
-        expr_alias = [row['Alias'] for row in self.expression_table_data]
+        inp_data = self.input_table_data
+        out_data = self.output_table_data
+        expr_data = self.expression_table_data
+        input_alias = inp_data.loc[
+            inp_data['Type'] == self._INPUT_ALIAS_TYPES['mv'], 'Alias'
+        ].tolist()
+        output_alias = out_data.loc[:, 'Alias'].tolist()
+        expr_alias = expr_data.loc[:, 'Alias'].tolist()
         aliases = input_alias + output_alias + expr_alias
 
         # build the DataFrame
-        df = pd.DataFrame(self.doe_sampled_data)
+        df = self.doe_sampled_data
 
         is_sampling_empty = df.empty
 
