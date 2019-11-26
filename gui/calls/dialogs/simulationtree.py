@@ -144,7 +144,8 @@ class VariableTableModel(QAbstractTableModel):
                 # paints red if duplicates are found between input/output
                 aliases = pd.concat([self.app_data.input_table_data,
                                      self.app_data.output_table_data],
-                                    axis='index', ignore_index=True)
+                                    axis='index', ignore_index=True,
+                                    sort=False)
 
                 if aliases['Alias'].value_counts()[value] > 1:
                     return QBrush(Qt.red)
@@ -526,7 +527,8 @@ class LoadSimulationTreeDialog(QDialog):
             current_paths = pd.concat([self.app_data.input_table_data,
                                        self.app_data.output_table_data],
                                       axis='index',
-                                      ignore_index=True)['Path'].tolist()
+                                      ignore_index=True,
+                                      sort=False)['Path'].tolist()
 
             if fullpath in current_paths:
                 # the variable is already in table, warn the user
@@ -566,7 +568,7 @@ class LoadSimulationTreeDialog(QDialog):
         output_var_data = self.app_data.output_table_data
 
         final_tab = pd.concat([input_var_data, output_var_data],
-                              axis='index', ignore_index=True)
+                              axis='index', ignore_index=True, sort=False)
         # check if there is any duplicates between input and output
         is_alias_duplicated = not final_tab['Alias'].is_unique
 
