@@ -37,10 +37,8 @@ class RedVarSelectionTableModel(VariableSelectionTableModel):
         row = index.row()
         col = index.column()
 
-        var_data = self.variables[row]
-
         if col == 0:
-            var_data['Checked'] = True if value == 1 else False
+            self.variables.at[row, 'Checked'] = True if value == 1 else False
 
             self.dataChanged.emit(index.sibling(row, col + 1),
                                   index.sibling(row, self.columnCount()))
