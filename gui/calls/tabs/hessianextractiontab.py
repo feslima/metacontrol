@@ -208,8 +208,14 @@ class HessianExtractionTab(QWidget):
             #             if var['Type'] == 'Objective function (J)']
 
         # extract data
-        X = sampled_data.loc[:, X_labels].to_numpy()
-        Y = sampled_data.loc[:, Y_labels].to_numpy()
+        X = sampled_data.loc[
+            (sampled_data['status'] == 'ok'),
+            X_labels
+        ].to_numpy()
+        Y = sampled_data.loc[
+            (sampled_data['status'] == 'ok'),
+            Y_labels
+        ].to_numpy()
 
         Y_dim = Y.shape[1] if Y.ndim > 1 else 1
         if len(Y_labels) == 1:
