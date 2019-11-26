@@ -185,28 +185,28 @@ class DataStorage(QObject):
         self.reduced_doe_sampled_data_changed.connect(
             self.check_reduced_space_setup)
 
-        # # whenever constraint activity/ expr data changes, update disturbance
-        # # and measurement error magnitudes data
-        # self.alias_data_changed.connect(self._update_magnitude_data)
-        # self.reduced_doe_constraint_activity_changed.connect(
-        #     self._update_magnitude_data
-        # )
+        # whenever constraint activity/ expr data changes, update disturbance
+        # and measurement error magnitudes data
+        self.alias_data_changed.connect(self._update_magnitude_data)
+        self.reduced_doe_constraint_activity_changed.connect(
+            self._update_magnitude_data
+        )
 
-        # # whenever reduced select data changes, update subset sizing list
-        # # data
-        # self.reduced_selected_data_changed.connect(
-        #     self._update_subset_data
-        # )
-        # self.reduced_selected_data_changed.connect(
-        #     self._update_magnitude_data
-        # )
+        # whenever reduced select data changes, update subset sizing list
+        # data
+        self.reduced_selected_data_changed.connect(
+            self._update_subset_data
+        )
+        self.reduced_selected_data_changed.connect(
+            self._update_magnitude_data
+        )
 
-        # # perform a hessian setup check whenever gradient or hessian data
-        # # changes
-        # self.differential_gy_data_changed.connect(self.check_hessian_setup)
-        # self.differential_gyd_data_changed.connect(self.check_hessian_setup)
-        # self.differential_juu_data_changed.connect(self.check_hessian_setup)
-        # self.differential_jud_data_changed.connect(self.check_hessian_setup)
+        # perform a hessian setup check whenever gradient or hessian data
+        # changes
+        self.differential_gy_data_changed.connect(self.check_hessian_setup)
+        self.differential_gyd_data_changed.connect(self.check_hessian_setup)
+        self.differential_juu_data_changed.connect(self.check_hessian_setup)
+        self.differential_jud_data_changed.connect(self.check_hessian_setup)
 
     # ------------------------------ PROPERTIES ------------------------------
     @property
@@ -1112,7 +1112,7 @@ class DataStorage(QObject):
 
         non_act_aliases = con_act.columns[
             ~ con_act.columns.isin(act_aliases)
-            ].tolist()
+        ].tolist()
 
         conc_tab = pd.concat([self.output_table_data,
                               self.expression_table_data],
@@ -1178,8 +1178,11 @@ class DataStorage(QObject):
         """Updates the distubance and measurement error magnitudes whenever
         alias data changes. (SLOT)"""
         # disturbances
-        d_aliases = [row['Alias'] for row in self.input_table_data
-                     if row['Type'] == 'Disturbance (d)']
+        inps = self.input_table_data
+        d_aliases = inps.loc[inps['Type'] == self._INPUT_ALIAS_TYPES['d'],
+                             'Alias'].tolist()
+        # d_aliases = [row['Alias'] for row in self.input_table_data
+        #              if row['Type'] == 'Disturbance (d)']
 
         # delete vars
         soc_d = copy.deepcopy(self.soc_disturbance_magnitude)
@@ -1193,10 +1196,15 @@ class DataStorage(QObject):
         self.soc_disturbance_magnitude = {'Value': soc_d}
 
         # measurement errors
-        y_aliases = [row['Alias']
-                     for row in self.reduced_metamodel_selected_data
-                     if row['Type'] == 'Candidate (CV)'
-                     and row['Checked']]
+        t_data = self.reduced_metamodel_selected_data
+        y_aliases = t_data.loc[
+            (t_data['Checked']) &
+            (t_data['Type'] == self._OUTPUT_ALIAS_TYPES['cv']), 'Alias'
+        ].tolist()
+        # y_aliases = [row['Alias']
+        #              for row in self.reduced_metamodel_selected_data
+        #              if row['Type'] == 'Candidate (CV)'
+        #              and row['Checked']]
 
         # delete vars
         soc_me = copy.deepcopy(self.soc_measure_error_magnitude)
@@ -1214,10 +1222,11 @@ class DataStorage(QObject):
         changes. (SLOT)"""
         # list of aliases that are reduced space CV's
         #con_act = self.active_constraint_info
-        y_aliases = [row['Alias']
-                     for row in self.reduced_metamodel_selected_data
-                     if row['Type'] == 'Candidate (CV)'
-                     and row['Checked']]
+        t_data = self.reduced_metamodel_selected_data
+        y_aliases = t_data.loc[
+            (t_data['Checked']) &
+            (t_data['Type'] == self._OUTPUT_ALIAS_TYPES['cv']), 'Alias'
+        ].tolist()
 
         # possible number of subset
         n_y_list = len(y_aliases)
