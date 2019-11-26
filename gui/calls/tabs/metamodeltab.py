@@ -31,7 +31,7 @@ class ThetaTableModel(QAbstractTableModel):
         self.load_data()
         self.headers = ['Variable', 'Lower Bound', 'Upper Bound', 'Estimate']
 
-        self.app_data.alias_data_changed.connect(self.load_data)
+        self.app_data.input_alias_data_changed.connect(self.load_data)
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
@@ -39,10 +39,10 @@ class ThetaTableModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return len(self.theta_data)
+        return self.theta_data.shape[0]
 
     def columnCount(self, parent):
-        return len(self.headers)
+        return self.theta_data.shape[1]
 
     def headerData(self, section: int, orientation: Qt.Orientation,
                    role: int = Qt.DisplayRole):
@@ -69,33 +69,27 @@ class ThetaTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        theta_row = self.theta_data[row]
+        value = self.theta_data.iat[row, col]
 
         if role == Qt.DisplayRole:
-            if col == 0:
-                return str(theta_row['Alias'])
-            elif col == 1:
-                return str(theta_row['lb'])
-            elif col == 2:
-                return str(theta_row['ub'])
-            elif col == 3:
-                return str(theta_row['theta0'])
-            else:
-                return None
+            return str(value)
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
         elif role == Qt.BackgroundColorRole:
             if col == 1 or col == 2:
-                if theta_row['lb'] >= theta_row['ub']:
+                if self.theta_data.at[row, 'lb'] >= \
+                        self.theta_data.at[row, 'ub']:
                     return QBrush(Qt.red)
                 else:
                     return QBrush(self.parent().palette().brush(QPalette.Base))
 
             elif col == 3:
-                if theta_row['theta0'] < theta_row['lb'] or \
-                        theta_row['theta0'] > theta_row['ub']:
+                if self.theta_data.at[row, 'theta0'] < \
+                    self.theta_data.at[row, 'lb'] or \
+                    self.theta_data.at[row, 'theta0'] > \
+                        self.theta_data.at[row, 'ub']:
                     return QBrush(Qt.red)
                 else:
                     return QBrush(self.parent().palette().brush(QPalette.Base))
@@ -104,13 +98,16 @@ class ThetaTableModel(QAbstractTableModel):
 
         elif role == Qt.ToolTipRole:
             if col == 1 or col == 2:
-                if theta_row['lb'] >= theta_row['ub']:
+                if self.theta_data.at[row, 'lb'] >= \
+                        self.theta_data.at[row, 'ub']:
                     return "Lower bound can't be greater than upper bound!"
                 else:
                     return ""
             elif col == 3:
-                if theta_row['theta0'] < theta_row['lb'] or \
-                        theta_row['theta0'] > theta_row['ub']:
+                if self.theta_data.at[row, 'theta0'] < \
+                    self.theta_data.at[row, 'lb'] or \
+                    self.theta_data.at[row, 'theta0'] > \
+                        self.theta_data.at[row, 'ub']:
                     return ("Initial estimate can't be lower than lb or "
                             "greater than ub!")
                 else:
@@ -128,14 +125,8 @@ class ThetaTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        theta_row = self.theta_data[row]
-
-        if col == 1:
-            theta_row['lb'] = float(value)
-        elif col == 2:
-            theta_row['ub'] = float(value)
-        elif col == 3:
-            theta_row['theta0'] = float(value)
+        if col != 0:
+            self.theta_data.iat[row, col] = float(value)
         else:
             return False
 
@@ -156,7 +147,7 @@ class VariableSelectionTableModel(QAbstractTableModel):
         self.headers = ['Select', 'Alias', 'Type']
         self.load_data()
 
-        self.app_data.alias_data_changed.connect(self.load_data)
+        self.app_data.output_alias_data_changed.connect(self.load_data)
         self.app_data.expr_data_changed.connect(self.load_data)
 
     def load_data(self):
@@ -168,7 +159,7 @@ class VariableSelectionTableModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return len(self.variables)
+        return self.variables.shape[0]
 
     def columnCount(self, parent=None):
         return len(self.headers)
@@ -199,19 +190,17 @@ class VariableSelectionTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        var_data = self.variables[row]
-
         if role == Qt.DisplayRole:
             if col == 1:
-                return str(var_data['Alias'])
+                return str(self.variables.at[row, 'Alias'])
             elif col == 2:
-                return str(var_data['Type'])
+                return str(self.variables.at[row, 'Type'])
             else:
                 return None
 
         elif role == Qt.CheckStateRole:
             if col == 0:
-                if var_data['Checked']:
+                if self.variables.at[row, 'Checked']:
                     return Qt.Checked
                 else:
                     return Qt.Unchecked
@@ -228,10 +217,8 @@ class VariableSelectionTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        var_data = self.variables[row]
-
         if col == 0:
-            var_data['Checked'] = True if value == 1 else False
+            self.variables.at[row, 'Checked'] = True if value == 1 else False
 
             self.dataChanged.emit(index.sibling(row, col + 1),
                                   index.sibling(row, self.columnCount()))
@@ -244,13 +231,11 @@ class VariableSelectionTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        var_data = self.variables[row]
-
         if col == 0:
             return Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | \
                 Qt.ItemIsEditable
         else:
-            if var_data['Checked']:
+            if self.variables.iat[row, col]:
                 # enable row
                 return Qt.ItemIsEnabled | Qt.ItemIsSelectable
             else:
@@ -454,7 +439,7 @@ class MetamodelTab(QWidget):
         # check which variables are elected to model construction
         mtm_var_data = self.application_database.metamodel_selected_data
 
-        if all(not var['Checked'] for var in mtm_var_data):
+        if not mtm_var_data.loc[:, 'Checked'].any():
             msg_title = "No variable chosen for model building!"
             msg_text = ("You have to select at least one variable to have its "
                         "model built!")
@@ -464,13 +449,19 @@ class MetamodelTab(QWidget):
             return
 
         else:
-            X_labels = [row['Alias']
-                        for row in self.application_database.input_table_data
-                        if row['Type'] == 'Manipulated (MV)']
-            Y_labels = [var['Alias'] for var in mtm_var_data if var['Checked']]
+            inp_data = self.application_database.input_table_data
+
+            X_labels = inp_data.loc[
+                inp_data['Type'] ==
+                self.application_database._INPUT_ALIAS_TYPES['mv'],
+                'Alias'].tolist()
+
+            Y_labels = mtm_var_data.loc[
+                mtm_var_data['Checked'], 'Alias'
+            ].tolist()
 
         # sampled data
-        sampled_data = pd.DataFrame(self.application_database.doe_sampled_data)
+        sampled_data = self.application_database.doe_sampled_data
         # get converged cases index
         valid_idx = np.logical_or(sampled_data['status'] == True,
                                   sampled_data['status'] == 'ok')
@@ -497,17 +488,11 @@ class MetamodelTab(QWidget):
         corr = 'corrgauss'
 
         # theta and bounds values
-        theta_data = []
-
-        for row in self.application_database.metamodel_theta_data:
-            for label in X_labels:
-                if row['Alias'] == label:
-                    # reorder theta values in X label order
-                    theta_data.append(row)
-
-        theta0, lob, upb = map(list,
-                               zip(*[(row['theta0'], row['lb'], row['ub'])
-                                     for row in theta_data]))
+        theta_data = \
+            self.application_database.metamodel_theta_data.set_index('Alias')
+        theta0 = theta_data.loc[X_labels, 'theta0'].tolist()
+        lob = theta_data.loc[X_labels, 'lb'].tolist()
+        upb = theta_data.loc[X_labels, 'ub'].tolist()
 
         theta0 = np.asarray(theta0)
         lob = np.asarray(lob)

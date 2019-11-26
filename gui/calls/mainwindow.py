@@ -48,8 +48,8 @@ class MainWindow(QMainWindow):
                                       parent_tab=self.ui.simulationTab)
         self.tab_doe = DoeTab(self.application_database,
                               parent_tab=self.ui.samplingTab)
-        # self.tab_metamodel = MetamodelTab(self.application_database,
-        #                                   parent_tab=self.ui.metamodelTab)
+        self.tab_metamodel = MetamodelTab(self.application_database,
+                                          parent_tab=self.ui.metamodelTab)
         # self.tab_optimization = OptimizationTab(self.application_database,
         #                                         parent_tab=self.ui.optimizationTab)
         # self.tab_reducedspace = ReducedSpaceTab(self.application_database,
