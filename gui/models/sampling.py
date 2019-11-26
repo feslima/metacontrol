@@ -86,6 +86,56 @@ class SamplerThread(QThread):
                 return
 
 
+class ReducedSamplerThread(SamplerThread):
+    def __init__(self, input_design_data: pd.DataFrame,
+                 app_data: DataStorage, bkp_filepath: str, parent=None):
+        QThread.__init__(self, parent)
+        self._input_des_data = input_design_data
+        self._app_data = app_data
+
+        # initialize
+        pythoncom.CoInitialize()
+        self._aspen_connection = AspenConnection(bkp_filepath)
+
+        # create id
+        self._aspen_id = pythoncom.CoMarshalInterThreadInterfaceInStream(
+            pythoncom.IID_IDispatch,
+            self._aspen_connection.get_connection_object())
+
+        # clean up
+        self.finished.connect(self.__del__)
+
+    def run(self):
+        # ptvsd.debug_this_thread()
+        # initialize
+        pythoncom.CoInitialize()
+
+        # get instance from id
+        aspen_con = win32com.client.Dispatch(
+            pythoncom.CoGetInterfaceAndReleaseStream(
+                self._aspen_id, pythoncom.IID_IDispatch)
+        )
+        inp_data = self._app_data.input_table_data
+        out_data = self._app_data.output_table_data
+        # TODO: move consumed aliases from input into output collection
+        input_vars = inp_data.loc[
+            inp_data['Type'] == self._app_data._INPUT_ALIAS_TYPES['mv'],
+            ['Alias', 'Path']
+        ].to_dict(orient='records')
+        output_vars = out_data.loc[:,
+                                   ['Alias', 'Path']].to_dict(orient='records')
+
+        for row in range(self._input_des_data.shape[0]):
+            [var.update({'value': self._input_des_data.loc[row, var['Alias']]})
+             for var in input_vars]
+            self.case_sampled.emit(row + 1,
+                                   run_case(input_vars, output_vars, aspen_con)
+                                   )
+
+            if self.isInterruptionRequested():  # to allow task abortion
+                return
+
+
 def run_case(mv_values: list, output_data: list, aspen_obj):
     """
     Samples a single case of DOE.

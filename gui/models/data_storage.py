@@ -512,6 +512,30 @@ class DataStorage(QObject):
             raise TypeError("Activity constraint info must be a dictionary.")
 
     @property
+    def reduced_doe_lhs_settings(self):
+        """LHS info (Series) to read/write into LHS settings dialog.
+        Keys are: 'n_samples', 'n_iter', 'inc_vertices'."""
+        if not hasattr(self, '_reduced_doe_lhs_settings'):
+            # attribute not created (init), create now
+            self._reduced_doe_lhs_settings = pd.Series({'n_samples': 50,
+                                                        'n_iter': 5,
+                                                        'inc_vertices': False})
+
+        return self._reduced_doe_lhs_settings
+
+    @reduced_doe_lhs_settings.setter
+    def reduced_doe_lhs_settings(self, value: pd.Series):
+        if isinstance(value, pd.Series):
+            if value.index.isin(['n_samples', 'n_iter', 'inc_vertices']).all():
+                self._reduced_doe_lhs_settings = value
+            else:
+                raise ValueError("'reduced_doe_lhs_settings' must have its "
+                                 "fields defined.")
+
+        else:
+            raise TypeError("LHS settings must be a Series.")
+
+    @property
     def reduced_doe_csv_settings(self):
         """Reduced space CSV info (dict) to read/write into csveditor dialog.
         Keys are: 'filepath', convergence_index, pair_info"""

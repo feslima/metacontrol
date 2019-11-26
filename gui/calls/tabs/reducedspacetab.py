@@ -1,12 +1,17 @@
+import pathlib
+
 import pandas as pd
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QObject,
-                          QStringListModel, Qt)
+                          QStringListModel, Qt, pyqtSignal)
 from PyQt5.QtGui import QBrush, QFont, QPalette
-from PyQt5.QtWidgets import QApplication, QHeaderView, QTableView, QWidget
+from PyQt5.QtWidgets import (QApplication, QFileDialog, QHeaderView,
+                             QTableView, QWidget)
 
 from gui.calls.base import (CheckBoxDelegate, ComboBoxDelegate,
                             DoubleEditorDelegate)
 from gui.calls.dialogs.reducedcsveditor import ReducedCsvEditorDialog
+from gui.calls.dialogs.reducedspacesamplingassistant import (
+    RangeOfDisturbanceTableModel, SamplingAssistantDialog)
 from gui.calls.tabs.doetab import DoeResultsModel, DoeResultsView
 from gui.models.data_storage import DataStorage
 from gui.views.py_files.reducedspacetab import Ui_Form
@@ -265,122 +270,9 @@ class ReducedDoeResultsModel(DoeResultsModel):
         self.layoutChanged.emit()
 
 
-class RangeOfDisturbanceTableModel(QAbstractTableModel):
-    def __init__(self, app_data: DataStorage, parent: QTableView):
-        QAbstractTableModel.__init__(self, parent)
-        self.app_data = app_data
-        self.load_data()
-        self.headers = ["Disturbance variable", "Lower bound", "Upper bound",
-                        "Nominal Value"]
-        self.app_data.reduced_d_bounds_changed.connect(self.load_data)
-
-    def load_data(self):
-        self.layoutAboutToBeChanged.emit()
-
-        self.d_bounds = self.app_data.reduced_doe_d_bounds
-
-        self.layoutChanged.emit()
-
-    def rowCount(self, parent=None):
-        return self.d_bounds.shape[0]
-
-    def columnCount(self, parent=None):
-        return self.d_bounds.shape[1]
-
-    def headerData(self, section: int, orientation: Qt.Orientation,
-                   role: int = Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
-                return self.headers[section]
-
-            else:
-                return None
-
-        elif role == Qt.FontRole:
-            if orientation == Qt.Horizontal or orientation == Qt.Vertical:
-                df_font = QFont()
-                df_font.setBold(True)
-                return df_font
-            else:
-                return None
-        else:
-            return None
-
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
-        if not index.isValid():
-            return None
-
-        row = index.row()
-        col = index.column()
-
-        value = self.d_bounds.iat[row, col]
-
-        if role == Qt.DisplayRole:
-            return str(value)
-
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignCenter
-
-        elif role == Qt.BackgroundRole or role == Qt.ToolTipRole:
-            if col == 1 or col == 2:
-                if self.d_bounds.at[row, 'lb'] >= self.d_bounds.at[row, 'ub']:
-                    return QBrush(Qt.red) if role == Qt.BackgroundRole \
-                        else "Lower bound can't be greater than upper bound!"
-                else:
-                    par = self.parent()
-                    return QBrush(par.palette().brush(QPalette.Base)) \
-                        if role == Qt.BackgroundRole else ""
-
-            elif col == 3:
-                if self.d_bounds.at[row, 'nominal'] > \
-                        self.d_bounds.at[row, 'ub'] or \
-                    self.d_bounds.at[row, 'nominal'] < \
-                        self.d_bounds.at[row, 'lb']:
-                    return QBrush(Qt.red) if role == Qt.BackgroundRole \
-                        else "Nominal value must be between lower and upper " \
-                        "bound!"
-                else:
-                    par = self.parent()
-                    return QBrush(par.palette().brush(QPalette.Base)) \
-                        if role == Qt.BackgroundRole else ""
-
-            else:
-                return None
-
-        else:
-            return None
-
-    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
-        if role != Qt.EditRole or not index.isValid():
-            return False
-
-        row = index.row()
-        col = index.column()
-
-        d_df = self.app_data.reduced_doe_d_bounds
-
-        if col == 1:
-            d_df.at[row, 'lb'] = float(value)
-        elif col == 2:
-            d_df.at[row, 'ub'] = float(value)
-        elif col == 3:
-            d_df.at[row, 'nominal'] = float(value)
-        else:
-            return False
-
-        self.app_data.reduced_doe_d_bounds = d_df
-
-        self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
-        return True
-
-    def flags(self, index: QModelIndex):
-        if index.column() != 0:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
-        else:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | ~Qt.ItemIsEditable
-
-
 class ReducedSpaceTab(QWidget):
+    bkp_filepath_changed = pyqtSignal()
+
     def __init__(self, application_database: DataStorage, parent_tab=None):
         # ------------------------ Form Initialization ------------------------
         super().__init__()
@@ -391,6 +283,7 @@ class ReducedSpaceTab(QWidget):
         # ------------------------ Internal Variables -------------------------
         self.application_database = application_database
         # ----------------------- Widget Initialization -----------------------
+        self.ui.openSamplingPushButton.setEnabled(False)
         active_table = self.ui.activeConstraintTableView
         active_model = ActiveConstraintTableModel(self.application_database,
                                                   parent=active_table)
@@ -449,7 +342,68 @@ class ReducedSpaceTab(QWidget):
         self.application_database.input_alias_data_changed.connect(
             self.update_combobox_items
         )
+
+        self.ui.loadSimulationPushButton.clicked.connect(
+            self.open_simulation_file_dialog)
+        self.bkp_filepath_changed.connect(self.update_simfilepath_display)
+
+        self.ui.openSamplingPushButton.clicked.connect(
+            self.open_sampling_assistant
+        )
         # ---------------------------------------------------------------------
+
+    @property
+    def bkp_filepath(self):
+        """The bkp_filepath property."""
+        return self._bkp_filepath
+
+    @bkp_filepath.setter
+    def bkp_filepath(self, value):
+        self._bkp_filepath = value
+        self.bkp_filepath_changed.emit()
+
+    def open_simulation_file_dialog(self):
+        """Prompts the user to select Aspen Plus simulation files.
+        """
+        homedir = pathlib.Path().home()
+        sim_filename, sim_filetype = QFileDialog.getOpenFileName(
+            self, "Select Aspen Plus simulation files.",
+            str(homedir),
+            "BKP files (*.bkp);; Input files (*.inp)"
+        )
+
+        self.bkp_filepath = sim_filename
+
+    def update_simfilepath_display(self):
+        """Grabs the simulation file path and displays it on the linedit widget
+        """
+        browser = self.ui.redspaceSimFileLineEdit
+        sim_file_name = self.application_database.simulation_file
+        sim_file_ext = pathlib.Path(sim_file_name).suffix
+
+        if sim_file_name == "" or \
+                (sim_file_ext != ".bkp" and sim_file_ext != ".inp"):
+            # user canceled the file dialog or selected an invalid file
+            if browser.styleSheet() != "color: blue":
+                # if there isn't an invalid path in display already
+                browser.setText("Invalid or no file selected.")
+                browser.setStyleSheet("color: red")
+
+                # deactivate the open sampling assistant
+                self.ui.openSamplingPushButton.setEnabled(False)
+
+        else:
+            # it's a valid file. Set its path as string and color.
+            browser.setText(sim_file_name)
+            browser.setStyleSheet("")
+
+            # enable the load simulation tree button
+            self.ui.openSamplingPushButton.setEnabled(True)
+
+    def open_sampling_assistant(self):
+        dialog = SamplingAssistantDialog(
+            self.application_database, self.bkp_filepath)
+        dialog.exec_()
 
     def open_reduced_csv_editor(self):
         dialog = ReducedCsvEditorDialog(self.application_database)
