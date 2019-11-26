@@ -40,7 +40,7 @@ class DoeResultsModel(QAbstractTableModel):
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
-        data = self.app_data.doe_sampled_data
+        data = self.app_data.doe_sampled_data.copy(deep=True)
         inp_data = self.app_data.input_table_data
         out_data = self.app_data.output_table_data
         expr_data = self.app_data.expression_table_data
