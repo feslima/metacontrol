@@ -247,16 +247,20 @@ class CaballeroWorker(QObject):
         ipopt_con_tol = params['ipopt_con_tol']
 
         # setup the problem data
-        inp_aliases = [var['Alias'] for var in self.app_data.input_table_data
-                       if var['Type'] == 'Manipulated (MV)']
-        con_aliases = [var['Alias']
-                       for var in self.app_data.expression_table_data
-                       if var['Type'] == 'Constraint function']
-        obj_alias = [var['Alias']
-                     for var in self.app_data.expression_table_data
-                     if var['Type'] == 'Objective function (J)']
+        inp_data = self.app_data.input_table_data
+        expr_data = self.app_data.expression_table_data
 
-        doe = pd.DataFrame(self.app_data.doe_sampled_data)
+        inp_aliases = inp_data.loc[
+            inp_data['Type'] == self.app_data._INPUT_ALIAS_TYPES['mv'],
+            'Alias'].tolist()
+        con_aliases = expr_data.loc[
+            expr_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['cst'],
+            'Alias'].tolist()
+        obj_alias = expr_data.loc[
+            expr_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['obj'],
+            'Alias'].tolist()
+
+        doe = self.app_data.doe_sampled_data
         x = doe.loc[:, inp_aliases].to_numpy()
         g = doe.loc[:, con_aliases].to_numpy()
         f = doe.loc[:, obj_alias].to_numpy().flatten()
@@ -268,10 +272,8 @@ class CaballeroWorker(QObject):
         def model_fun(pt): return self.model_function(pt)
 
         # nlp bounds
-        lb_list, ub_list = map(
-            list, zip(*[(row['lb'], row['ub'])
-                        for row in self.app_data.doe_mv_bounds])
-        )
+        lb_list = self.app_data.doe_mv_bounds.loc[:, 'lb'].tolist()
+        ub_list = self.app_data.doe_mv_bounds.loc[:, 'ub'].tolist()
 
         # nlp options (assumes that the user already tested the connection)
         nlp_opts = DockerNLPOptions(name='nlp-server',
@@ -310,12 +312,15 @@ class CaballeroWorker(QObject):
         self.connection_opened.emit()
 
     def model_function(self, x):
-        input_vars = [{'var': row['Alias'], 'Path': row['Path']}
-                      for row in self.app_data.input_table_data
-                      if row['Type'] == 'Manipulated (MV)']
-
-        output_vars = [{'var': row['Alias'], 'Path': row['Path']}
-                       for row in self.app_data.output_table_data]
+        inp_data = self.app_data.input_table_data
+        out_data = self.app_data.output_table_data
+        expr_data = self.app_data.expression_table_data
+        input_vars = inp_data.loc[
+            inp_data['Type'] == self.app_data._INPUT_ALIAS_TYPES['mv'],
+            ['Alias', 'Path']
+        ].to_dict(orient='records')
+        output_vars = out_data.loc[:,
+                                   ['Alias', 'Path']].to_dict(orient='records')
 
         # update input values
         [var.update({'value': x[idx]}) for idx, var in enumerate(input_vars)]
@@ -326,20 +331,24 @@ class CaballeroWorker(QObject):
         # evaluate constraint and objective functions
         expr_values = {}
         parser = self.parser
-        for expr in self.app_data.expression_table_data:
-            expr_to_parse = parser.parse(expr['Expr'])
+        for _, expr in expr_data.iterrows():
+            expr_to_parse = parser.parse(expr['Expression'])
             var_list = expr_to_parse.variables()
             expr_values[expr['Alias']] = expr_to_parse.evaluate(results)
 
         # separate constraints values
-        g = [expr_values[row['Alias']]
-             for row in self.app_data.expression_table_data
-             if row['Type'] == 'Constraint function']
+        con_aliases = expr_data.loc[
+            expr_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['cst'],
+            'Alias'].tolist()
+
+        g = [expr_values[cn_alias] for cn_alias in con_aliases]
 
         # objective function
-        f = [expr_values[row['Alias']]
-             for row in self.app_data.expression_table_data
-             if row['Type'] == 'Objective function (J)']
+        obj_alias = expr_data.loc[
+            expr_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['obj'],
+            'Alias'].tolist()
+
+        f = [expr_values[alias] for alias in obj_alias]
 
         res = {
             'status': results['success'] == 'ok',
