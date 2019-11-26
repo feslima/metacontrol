@@ -1105,10 +1105,14 @@ class DataStorage(QObject):
         # list of non active constraints
 
         con_act = self.active_constraint_info
-        non_act_aliases = con_act.columns[
+        act_aliases = con_act.columns[
             (con_act.loc['Type'] != self._INPUT_ALIAS_TYPES['mv']) &
-            (~con_act.loc['Active'])
+            (con_act.loc['Active'])
         ].tolist()
+
+        non_act_aliases = con_act.columns[
+            ~ con_act.columns.isin(act_aliases)
+            ].tolist()
 
         conc_tab = pd.concat([self.output_table_data,
                               self.expression_table_data],

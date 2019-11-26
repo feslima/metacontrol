@@ -119,7 +119,7 @@ class ReducedSpaceMetamodelDialog(QDialog):
         app_data = self.application_database
         mtm_var_data = app_data.reduced_metamodel_selected_data
 
-        if all(not var['Checked'] for var in mtm_var_data):
+        if not mtm_var_data.loc[:, 'Checked'].any():
             msg_title = "No variable chosen for model building!"
             msg_text = ("You have to select at least one variable to have its "
                         "model built!")
@@ -130,16 +130,16 @@ class ReducedSpaceMetamodelDialog(QDialog):
 
         else:
             # get reduced space inputs from reduced theta data
-            X_labels = [row['Alias']
-                        for row in
-                        self.application_database.reduced_metamodel_theta_data]
+            t_data = self.application_database.reduced_metamodel_theta_data
+            X_labels = t_data.loc[:, 'Alias'].tolist()
 
             # outputs from all the reduced selected data
-            Y_labels = [var['Alias'] for var in mtm_var_data if var['Checked']]
+            Y_labels = mtm_var_data.loc[
+                mtm_var_data['Checked'], 'Alias'
+            ].tolist()
 
         # sampled data
-        sampled_data = pd.DataFrame(
-            self.application_database.reduced_doe_sampled_data)
+        sampled_data = self.application_database.reduced_doe_sampled_data
 
         X = sampled_data.loc[:, X_labels].to_numpy()
         Y = sampled_data.loc[:, Y_labels].to_numpy()
@@ -163,17 +163,13 @@ class ReducedSpaceMetamodelDialog(QDialog):
         corr = 'corrgauss'
 
         # theta and bounds values
-        theta_data = []
+        theta_data = \
+            self.application_database.reduced_metamodel_theta_data.set_index(
+                'Alias')
 
-        for row in self.application_database.reduced_metamodel_theta_data:
-            for label in X_labels:
-                if row['Alias'] == label:
-                    # reorder theta values in X label order
-                    theta_data.append(row)
-
-        theta0, lob, upb = map(list,
-                               zip(*[(row['theta0'], row['lb'], row['ub'])
-                                     for row in theta_data]))
+        theta0 = theta_data.loc[X_labels, 'theta0'].tolist()
+        lob = theta_data.loc[X_labels, 'lb'].tolist()
+        upb = theta_data.loc[X_labels, 'ub'].tolist()
 
         theta0 = np.asarray(theta0)
         lob = np.asarray(lob)
