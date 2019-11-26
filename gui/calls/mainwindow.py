@@ -52,8 +52,8 @@ class MainWindow(QMainWindow):
                                           parent_tab=self.ui.metamodelTab)
         self.tab_optimization = OptimizationTab(self.application_database,
                                                 parent_tab=self.ui.optimizationTab)
-        # self.tab_reducedspace = ReducedSpaceTab(self.application_database,
-        #                                         parent_tab=self.ui.reducedspaceTab)
+        self.tab_reducedspace = ReducedSpaceTab(self.application_database,
+                                                parent_tab=self.ui.reducedspaceTab)
         # self.tab_hessianext = HessianExtractionTab(self.application_database,
         #                                            parent_tab=self.ui.hessianextractionTab)
         # self.tab_soc = SocTab(self.application_database,

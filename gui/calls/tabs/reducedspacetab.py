@@ -25,7 +25,7 @@ class ActiveConstraintTableModel(QAbstractTableModel):
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
 
-        self.con_info = pd.DataFrame(self.app_data.active_constraint_info)
+        self.con_info = self.app_data.active_constraint_info.copy(deep=True)
 
         self.layoutChanged.emit()
 
@@ -50,7 +50,7 @@ class ActiveConstraintTableModel(QAbstractTableModel):
             elif self.con_info.index[row] == 'Value':
                 # display fields only for MV types
                 var_name = self.con_info.columns[col]
-                if self.con_info[var_name]['Type'] == 'Manipulated (MV)':
+                if self.con_info.at['Type', var_name] == 'Manipulated (MV)':
                     if value is None:
                         return 'Type an optimal value'
                     else:
@@ -60,7 +60,7 @@ class ActiveConstraintTableModel(QAbstractTableModel):
 
             elif self.con_info.index[row] == 'Pairing':
                 var_name = self.con_info.columns[col]
-                if self.con_info[var_name]['Type'] != 'Manipulated (MV)':
+                if self.con_info.at['Type', var_name] != 'Manipulated (MV)':
                     if value is None:
                         return "Select a MV"
                     else:
@@ -74,20 +74,20 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         elif role == Qt.BackgroundRole:
             var_name = self.con_info.columns[col]
             if value is None and \
-                    self.con_info[var_name]['Type'] == 'Manipulated (MV)':
+                    self.con_info.at['Type', var_name] == 'Manipulated (MV)':
                 if self.con_info.index[row] == 'Value':
                     # paint cell red if no value is defined for the MVs
                     return QBrush(Qt.red)
 
             if self.con_info.index[row] == 'Pairing' and \
-                    self.con_info[var_name]['Type'] != 'Manipulated (MV)' and \
-                    self.con_info.loc['Active', var_name] is True:
+                    self.con_info.at['Type', var_name] != 'Manipulated (MV)' and \
+                    self.con_info.at['Active', var_name] is True:
                 # paint cell red if no pairing is selected and the active
                 # variable is a constraint (do not paint cells corresponding to
                 # MV's)
-                if self.con_info[var_name]['Pairing'] is None or \
+                if self.con_info.at['Pairing', var_name] is None or \
                         (self.con_info.loc['Pairing', :] ==
-                         self.con_info[var_name]['Pairing']).sum() > 1:
+                         self.con_info.at['Pairing', var_name]).sum() > 1:
                     return QBrush(Qt.red)
 
         elif role == Qt.TextAlignmentRole:
@@ -95,7 +95,7 @@ class ActiveConstraintTableModel(QAbstractTableModel):
 
         elif role == Qt.CheckStateRole:
             if self.con_info.index[row] == 'Active':
-                if self.con_info.iloc[row, col]:
+                if self.con_info.iat[row, col]:
                     return Qt.Checked
                 else:
                     return Qt.Unchecked
@@ -115,43 +115,37 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         alias = self.con_info.columns[col]
 
         if self.con_info.index[row] == 'Active':
-            set_value = True if value == 1 else False
-            self.con_info.iat[row, col] = set_value
+            value = True if value == 1 else False
 
             # change corresponding data in app storage
-            self.app_data.active_constraint_info[alias]['Active'] = set_value
+            self.app_data.active_constraint_info.at['Active', alias] = value
+            self.app_data.reduced_doe_constraint_activity_changed.emit()
 
             # update the entire row
             self.dataChanged.emit(index.sibling(row, 0),
                                   index.sibling(row, self.columnCount()))
 
-            self.app_data.reduced_doe_constraint_activity_changed.emit()
-
             return True
 
         elif self.con_info.index[row] == 'Value':
             value = None if value == '' else float(value)
-            self.con_info.iat[row, col] = value
 
-            self.app_data.active_constraint_info[alias]['Value'] = value
+            self.app_data.active_constraint_info.at['Value', alias] = value
+            self.app_data.reduced_doe_constraint_activity_changed.emit()
 
             self.dataChanged.emit(index.sibling(row, 0),
                                   index.sibling(row, self.columnCount()))
-
-            self.app_data.reduced_doe_constraint_activity_changed.emit()
 
             return True
 
         elif self.con_info.index[row] == 'Pairing':
             value = None if value == 'Select a MV' else value
-            self.con_info.iat[row, col] = value
 
-            self.app_data.active_constraint_info[alias]['Pairing'] = value
+            self.app_data.active_constraint_info.at['Pairing', alias] = value
+            self.app_data.reduced_doe_constraint_activity_changed.emit()
 
             self.dataChanged.emit(index.sibling(row, 0),
                                   index.sibling(row, self.columnCount()))
-
-            self.app_data.reduced_doe_constraint_activity_changed.emit()
 
             return True
 
@@ -199,15 +193,15 @@ class ActiveConstraintTableModel(QAbstractTableModel):
                 Qt.ItemIsUserCheckable
 
         elif row_type == 'Value' and \
-                self.con_info[var_name]['Type'] == 'Manipulated (MV)':
+                self.con_info.at['Type', var_name] == 'Manipulated (MV)':
             # enable editing only for MV values
             return Qt.ItemIsEditable | Qt.ItemIsEnabled
 
         elif row_type == 'Pairing' and \
-                self.con_info[var_name]['Type'] != 'Manipulated (MV)':
+                self.con_info.at['Type', var_name] != 'Manipulated (MV)':
             # enable pairing dropdown if the constraints marked as active are
             # not MV's
-            if self.con_info.loc['Active', var_name] is True:
+            if self.con_info.at['Active', var_name] is True:
                 return Qt.ItemIsEditable | Qt.ItemIsEnabled
             else:
                 return ~Qt.ItemIsEditable & ~Qt.ItemIsEnabled | \
@@ -219,39 +213,54 @@ class ActiveConstraintTableModel(QAbstractTableModel):
 
 class ReducedDoeResultsModel(DoeResultsModel):
 
+    def __init__(self, application_data: DataStorage, parent=None):
+        QAbstractTableModel.__init__(self, parent)
+
+        self.app_data = application_data
+        self.load_data()
+        self.app_data.reduced_doe_sampled_data_changed.connect(self.load_data)
+
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
-        data = pd.DataFrame(self.app_data.reduced_doe_sampled_data)
+        doe_data = self.app_data.reduced_doe_sampled_data
 
-        self._input_alias = [row['Alias']
-                             for row in self.app_data.input_table_data
-                             if row['Type'] == 'Manipulated (MV)']
-        self._candidates_alias = [row['Alias']
-                                  for row in self.app_data.output_table_data
-                                  if row['Type'] == 'Candidate (CV)'] + \
-            [row['Alias']
-             for row in self.app_data.expression_table_data
-             if row['Type'] == 'Candidate (CV)']
-        self._const_alias = [row['Alias']
-                             for row in self.app_data.expression_table_data
-                             if row['Type'] == "Constraint function"]
-        self._obj_alias = [row['Alias']
-                           for row in self.app_data.expression_table_data
-                           if row['Type'] == "Objective function (J)"]
-        self._aux_alias = [row['Alias']
-                           for row in self.app_data.input_table_data +
-                           self.app_data.output_table_data
-                           if row['Type'] == 'Auxiliary']
+        inp_data = self.app_data.input_table_data
+        out_data = self.app_data.output_table_data
+        expr_data = self.app_data.expression_table_data
+
+        self._input_alias = inp_data.loc[
+            inp_data['Type'] == self.app_data._INPUT_ALIAS_TYPES['mv'],
+            'Alias'
+        ].tolist()
+        cand_data = pd.concat([out_data, expr_data], axis='index',
+                              ignore_index=True, sort=False)
+        self._candidates_alias = cand_data.loc[
+            (cand_data['Type'] == self.app_data._OUTPUT_ALIAS_TYPES['cv']) |
+            (cand_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['cv']),
+            'Alias'
+        ].tolist()
+        self._const_alias = expr_data.loc[
+            expr_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['cst'],
+            'Alias'
+        ].tolist()
+        self._obj_alias = expr_data.loc[
+            expr_data['Type'] == self.app_data._EXPR_ALIAS_TYPES['obj'],
+            'Alias'
+        ].tolist()
+        self._aux_alias = out_data.loc[
+            out_data['Type'] == self.app_data._OUTPUT_ALIAS_TYPES['aux'],
+            'Alias'
+        ].tolist()
 
         header_list = self._input_alias + self._candidates_alias + \
             self._const_alias + self._obj_alias + self._aux_alias
 
         # extract the inputs, candidate outputs and expression data
-        if not data.empty:
-            self._case_data = data.pop('case')
-            self._stat_data = data.pop('status')
+        if not doe_data.empty:
+            self._case_data = doe_data.pop('case')
+            self._stat_data = doe_data.pop('status')
 
-        self._data = data[header_list]
+        self._doe_data = doe_data[header_list]
 
         self.layoutChanged.emit()
 
@@ -273,10 +282,10 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return len(self.d_bounds)
+        return self.d_bounds.shape[0]
 
     def columnCount(self, parent=None):
-        return len(self.headers)
+        return self.d_bounds.shape[1]
 
     def headerData(self, section: int, orientation: Qt.Orientation,
                    role: int = Qt.DisplayRole):
@@ -304,26 +313,17 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        d_data = self.d_bounds[row]
+        value = self.d_bounds.iat[row, col]
 
         if role == Qt.DisplayRole:
-            if col == 0:
-                return str(d_data['name'])
-            elif col == 1:
-                return str(d_data['lb'])
-            elif col == 2:
-                return str(d_data['ub'])
-            elif col == 3:
-                return str(d_data['nom'])
-            else:
-                return None
+            return str(value)
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
         elif role == Qt.BackgroundRole or role == Qt.ToolTipRole:
             if col == 1 or col == 2:
-                if d_data['lb'] >= d_data['ub']:
+                if self.d_bounds.at[row, 'lb'] >= self.d_bounds.at[row, 'ub']:
                     return QBrush(Qt.red) if role == Qt.BackgroundRole \
                         else "Lower bound can't be greater than upper bound!"
                 else:
@@ -332,8 +332,10 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
                         if role == Qt.BackgroundRole else ""
 
             elif col == 3:
-                if d_data['nom'] > d_data['ub'] or \
-                        d_data['nom'] < d_data['lb']:
+                if self.d_bounds.at[row, 'nominal'] > \
+                        self.d_bounds.at[row, 'ub'] or \
+                    self.d_bounds.at[row, 'nominal'] < \
+                        self.d_bounds.at[row, 'lb']:
                     return QBrush(Qt.red) if role == Qt.BackgroundRole \
                         else "Nominal value must be between lower and upper " \
                         "bound!"
@@ -355,16 +357,18 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        var_data = self.d_bounds[row]
+        d_df = self.app_data.reduced_doe_d_bounds
 
         if col == 1:
-            var_data['lb'] = float(value)
+            d_df.at[row, 'lb'] = float(value)
         elif col == 2:
-            var_data['ub'] = float(value)
+            d_df.at[row, 'ub'] = float(value)
         elif col == 3:
-            var_data['nom'] = float(value)
+            d_df.at[row, 'nominal'] = float(value)
         else:
             return False
+
+        self.app_data.reduced_doe_d_bounds = d_df
 
         self.dataChanged.emit(index.sibling(row, 1), index.sibling(row, 2))
         return True
@@ -398,9 +402,11 @@ class ReducedSpaceTab(QWidget):
         self._check_delegate = CheckBoxDelegate()
         self._value_delegate = DoubleEditorDelegate()
 
-        mv_list = [row['Alias']
-                   for row in self.application_database.input_table_data
-                   if row['Type'] == 'Manipulated (MV)']
+        inp_data = self.application_database.input_table_data
+        mv_list = inp_data.loc[
+            inp_data['Type'] ==
+            self.application_database._INPUT_ALIAS_TYPES['mv'],
+            'Alias'].tolist()
         self._pairing_delegate = ComboBoxDelegate(item_list=mv_list)
 
         active_table.setItemDelegateForRow(0, self._check_delegate)
@@ -440,7 +446,7 @@ class ReducedSpaceTab(QWidget):
         )
 
         # whenever alias data changes, update combobox delegate item list
-        self.application_database.alias_data_changed.connect(
+        self.application_database.input_alias_data_changed.connect(
             self.update_combobox_items
         )
         # ---------------------------------------------------------------------
@@ -450,9 +456,11 @@ class ReducedSpaceTab(QWidget):
         dialog.exec_()
 
     def update_combobox_items(self):
-        mv_list = [row['Alias']
-                   for row in self.application_database.input_table_data
-                   if row['Type'] == 'Manipulated (MV)']
+        inp_data = self.application_database.input_table_data
+        mv_list = inp_data.loc[
+            inp_data['Type'] ==
+            self.application_database._INPUT_ALIAS_TYPES['mv'],
+            'Alias'].tolist()
         self._pairing_delegate.item_list = mv_list
 
 

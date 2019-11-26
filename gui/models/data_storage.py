@@ -110,8 +110,7 @@ class DataStorage(QObject):
 
         self._reduced_data = {'csv': {'filepath': '',
                                       'convergence_index': '',
-                                      'pair_info': {}},
-                              'sampled': {}
+                                      'pair_info': {}}
                               }
         self._hessian_data = {'metamodel_data': {'theta': [],
                                                  'selected': []
@@ -547,6 +546,9 @@ class DataStorage(QObject):
     def reduced_doe_d_bounds(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
             if value.columns.isin(self._REDSPACE_BNDS_COLS).all():
+                if value.index.is_object():
+                    value.index = value.index.astype(int)
+
                 self._reduced_doe_d_bounds = value
                 self.reduced_d_bounds_changed.emit()
 
@@ -559,20 +561,24 @@ class DataStorage(QObject):
 
     @property
     def reduced_doe_sampled_data(self):
-        """Reduced model sampled data dictionary. This dictionary is JSON compatible
-        (dumped from pandas.DataFrame.to_dict('list'))."""
-        return self._reduced_data['sampled']
+        """Reduced model sampled data DataFrame."""
+
+        if not hasattr(self, '_reduced_doe_sampled_data'):
+            # attribute not created (init), create now
+            self._reduced_doe_sampled_data = pd.DataFrame()
+
+        return self._reduced_doe_sampled_data
 
     @reduced_doe_sampled_data.setter
-    def reduced_doe_sampled_data(self, value):
-        self._reduced_doe_sampled_data = value
-        if isinstance(value, dict):
-            self._reduced_data['sampled'] = self.evaluate_expr_data(
-                value, 'reduced')
+    def reduced_doe_sampled_data(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            if value.index.is_object():
+                value.index = value.index.astype(int)
+            self._reduced_doe_sampled_data = self.evaluate_expr_data(value,
+                                                                     'reduced')
             self.reduced_doe_sampled_data_changed.emit()
         else:
-            raise TypeError("Reduced model sampled data must be a dictionary "
-                            "object")
+            raise TypeError("Reduced model sampled data must be a DataFrame.")
 
     @property
     def reduced_metamodel_theta_data(self):
@@ -1192,9 +1198,11 @@ class DataStorage(QObject):
             redspace_info['mtc_reduced_d_bounds']
         )
 
-        # # when loading sampled data, do not call expr_eval by setting the
-        # # property directly. Just bypass it and emit the signal.
-        # self._reduced_data['sampled'] = redspace_info['mtc_reduced_sampled_data']
+        # when loading sampled data, do not call expr_eval by setting the
+        # property directly. Just bypass it and emit the signal.
+        self.reduced_doe_sampled_data = pd.DataFrame(
+            redspace_info['mtc_reduced_sampled_data']
+        )
         # self.reduced_doe_sampled_data_changed.emit()
 
         # # hessianextraction tab
