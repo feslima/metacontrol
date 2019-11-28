@@ -89,6 +89,15 @@ BLOCKS_INPUT_CATALOGUE = {
             {'Name': 'CTEMP', 'Description': 'Constant thermal fluid temperature'},
             {'Name': 'PRES', 'Description': 'Absolute units: Process stream pressure at reactor inlet if value > 0; Pressure drop at inlet if value <= 0. Gauge units: Pressure at inlet for all values.'}
         ],
+    'RCSTR':
+        [
+            {'Name': 'PRES',
+             'Description': 'Reactor outlet pressure or pressure drop. Absolute units: value > 0 - outlet pressure; value <= 0 - pressure drop. Gauge units: outlet pressure.'},
+            {'Name': 'TEMP', 'Description': 'Reactor outlet temperature.'},
+            {'Name': 'VFRAC', 'Description': 'Vapor fraction.'},
+            {'Name': 'VOL', 'Description': 'Total reactor volume.'},
+            {'Name': 'RES_TIME', 'Description': 'Reactor residence time (composite for all phases, see aspen plus help).'}
+        ],
     'Valve':
         [
             {'Name': 'P_OUT', 'Description': 'Outlet Pressure'},
@@ -264,6 +273,15 @@ BLOCKS_OUTPUT_CATALOGUE = {
             {'Name': 'TMIN', 'Description': 'Minimum temperature'},
             {'Name': 'TMAX', 'Description': 'Maximum temperature'},
             {'Name': 'RES_TIME', 'Description': 'Residence time'}
+        ],
+    'RCSTR':
+        [
+            {'Name': 'QCALC', 'Description': 'Heat Duty.'},
+            {'Name': 'QNET', 'Description': 'Net heat Duty.'},
+            {'Name': 'TOT_VOL', 'Description': 'Total Reactor volume.'},
+            {'Name': 'VAP_VOL', 'Description': 'Vapor phase volume.'},
+            {'Name': 'LIQ_VOL', 'Description': 'Liquid phase volume.'},
+            {'Name': 'TOT_RES_TIME', 'Description': 'Total reactor residence time.'}
         ],
     'Valve':
         [
