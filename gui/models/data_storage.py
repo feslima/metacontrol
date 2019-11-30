@@ -1337,16 +1337,16 @@ class DataStorage(QObject):
             redspace_info['mtc_reduced_sampled_data']
         )
 
-        # # hessianextraction tab
-        # self.differential_gy = diff_info['mtc_gy']
-        # self.differential_gyd = diff_info['mtc_gyd']
-        # self.differential_juu = diff_info['mtc_juu']
-        # self.differential_jud = diff_info['mtc_jud']
+        # hessianextraction tab
+        self.differential_gy = diff_info['mtc_gy']
+        self.differential_gyd = diff_info['mtc_gyd']
+        self.differential_juu = diff_info['mtc_juu']
+        self.differential_jud = diff_info['mtc_jud']
 
-        # # soc tab
-        # self.soc_disturbance_magnitude = soc_info['mtc_disturbance_magnitude']
-        # self.soc_measure_error_magnitude = soc_info['mtc_measurement_magnitude']
-        # self.soc_subset_size_list = soc_info['mtc_subset_sizing_data']
+        # soc tab
+        self.soc_disturbance_magnitude = soc_info['mtc_disturbance_magnitude']
+        self.soc_measure_error_magnitude = soc_info['mtc_measurement_magnitude']
+        self.soc_subset_size_list = soc_info['mtc_subset_sizing_data']
 
     def check_simulation_setup(self):
         """Checks if there are aliases and expressions are mathematically
