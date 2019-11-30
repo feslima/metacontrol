@@ -1,8 +1,11 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
-from PyQt5.QtGui import QFont
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from PyQt5.QtCore import QAbstractTableModel, QModelIndex, QRect, Qt
+from PyQt5.QtGui import QFont, QImage, QPainter, QPixmap
 from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog, QHeaderView,
+                             QItemDelegate, QStyle, QStyleOptionViewItem,
                              QTableView)
 from pysoc.bnb import pb3wc
 from pysoc.soc import helm
@@ -76,9 +79,78 @@ class LossTableModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
 
+def tex2pixmap(equation: str, font_size: int):
+    # matplotlib render
+    fig = plt.Figure()
+    fig.patch.set_facecolor('none')
+    fig.set_canvas(FigureCanvasAgg(fig))
+    renderer = fig.canvas.get_renderer()
+
+    # plot expression
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.axis('off')
+    ax.patch.set_facecolor('none')
+    t = ax.text(0, 0, r'${}$'.format(equation), ha='left', va='bottom',
+                fontsize=font_size)
+
+    # fit figure
+    fwidth, fheight = fig.get_size_inches()
+    fig_bbox = fig.get_window_extent(renderer)
+
+    text_bbox = t.get_window_extent(renderer)
+
+    tight_fwidth = text_bbox.width * fwidth / fig_bbox.width
+    tight_fheight = text_bbox.height * fheight / fig_bbox.height
+
+    fig.set_size_inches(tight_fwidth, tight_fheight)
+
+    # convert to pixmap
+    buf, size = fig.canvas.print_to_buffer()
+    qimage = QImage.rgbSwapped(QImage(buf, size[0], size[1],
+                                      QImage.Format_ARGB32))
+    qpixmap = QPixmap(qimage)
+
+    return qpixmap
+
+
+class EquationDelegate(QItemDelegate):
+
+    def __init__(self, dataframe: pd.DataFrame, parent=None):
+        super().__init__(parent)
+        self.df = dataframe.copy()
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem,
+              index: QModelIndex):
+        # load pix map
+        row = index.row()
+        col = index.column()
+
+        if not self.df.empty:
+
+            eq = ""
+            for col in range(self.df.shape[1]):
+                value = self.df.iat[row, col]
+                if not np.isnan(value):
+                    eq += " {0:+.5f} {1}".format(value,
+                                                 self.df.columns[col]).strip("+")
+
+            pixmap = tex2pixmap(eq, font_size=8)
+
+            # position pixmap
+            x = option.rect.center().x() - pixmap.rect().width() / 2
+            y = option.rect.center().y() - pixmap.rect().height() / 2
+
+            painter.drawPixmap(QRect(x, y, pixmap.rect().width(),
+                                     pixmap.rect().height()), pixmap)
+
+        else:
+            super().paint(painter, option, index)
+
+
 class HTableModel(QAbstractTableModel):
     def __init__(self, dataframe: pd.DataFrame, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
+        self.headers = ['Structure equation']
 
         self.df = dataframe.copy()
 
@@ -88,10 +160,10 @@ class HTableModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return self.df.shape[0] if not self.df.empty else 0
+        return self.df.shape[0]
 
     def columnCount(self, parent=None):
-        return self.df.shape[1] if not self.df.empty else 0
+        return len(self.headers)
 
     def headerData(self, section: int, orientation: Qt.Orientation,
                    role: int = Qt.DisplayRole):
@@ -100,7 +172,7 @@ class HTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return self.df.columns[section]
+                return self.headers[section]
             else:
                 return self.df.index[section]
 
@@ -112,29 +184,6 @@ class HTableModel(QAbstractTableModel):
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
-        else:
-            return None
-
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
-        if not index.isValid() or self.df.empty:
-            return None
-
-        row = index.row()
-        col = index.column()
-
-        value = self.df.iat[row, col]
-
-        if role == Qt.DisplayRole:
-            # NaN cells show as empty
-            return str(value) if not np.isnan(value) else "-"
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignCenter
-        elif role == Qt.FontRole:
-            df_font = QFont()
-            if np.isnan(value):
-                df_font.setPointSize(16)
-
-            return df_font
         else:
             return None
 
@@ -317,6 +366,9 @@ class SocResultsDialog(QDialog):
         h_table = self.ui.hMatrixTableView
         h_model = HTableModel(pd.DataFrame({}), parent=h_table)
         h_table.setModel(h_model)
+        self.eq_delegate = EquationDelegate(dataframe=pd.DataFrame({}))
+
+        h_table.setItemDelegateForColumn(0, self.eq_delegate)
 
         h_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         h_table.resizeRowsToContents()
@@ -380,6 +432,8 @@ class SocResultsDialog(QDialog):
 
         h_model = self.ui.hMatrixTableView.model()
         h_model.set_dataframe(h_values)
+
+        self.eq_delegate.df = h_values
 
     def on_combo_set_number_changed(self, set_number: str):
         ss_size = self.ui.subsetSizeComboBox.currentText()
