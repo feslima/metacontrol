@@ -266,6 +266,7 @@ class CaballeroWorker(QObject):
     opening_connection = pyqtSignal()
     connection_opened = pyqtSignal()
     optimization_finished = pyqtSignal()
+    results_ready = pyqtSignal(object)
 
     def __init__(self, app_data: DataStorage, params: dict,
                  report: ReportObject, parent=None):
@@ -349,6 +350,14 @@ class CaballeroWorker(QObject):
         opt_obj.optimize()
 
         self.asp_obj.close_connection()
+
+        # create the results table report
+        opt_vals = np.append(opt_obj.xopt,
+                             np.append(opt_obj.gopt, opt_obj.fopt)).tolist()
+        report = pd.Series(opt_vals, index=inp_aliases + con_aliases +
+                           obj_alias).to_dict()
+
+        self.results_ready.emit(report)
 
         self.optimization_finished.emit()
 

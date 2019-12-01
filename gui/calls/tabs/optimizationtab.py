@@ -1,11 +1,68 @@
-from PyQt5.QtCore import QThread
-from PyQt5.QtWidgets import QApplication, QMessageBox, QWidget
+import pandas as pd
+from PyQt5.QtCore import QThread, QAbstractTableModel, QModelIndex, Qt
+from PyQt5.QtWidgets import QApplication, QMessageBox, QWidget, QHeaderView
+from PyQt5.QtGui import QFont
 from surropt.core.options.nlp import DockerNLPOptions
 from win32com.client import Dispatch
 
 from gui.models.data_storage import DataStorage
 from gui.models.sampling import CaballeroWorker, ReportObject
 from gui.views.py_files.caballerotab import Ui_Form
+
+
+class ResultsTableModel(QAbstractTableModel):
+    def __init__(self, results_frame: pd.DataFrame, parent=None):
+        super().__init__(parent)
+        self.df = results_frame
+
+    def load_results(self, results_frame: pd.DataFrame):
+        self.layoutAboutToBeChanged.emit()
+        self.df = results_frame
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return self.df.shape[0]
+
+    def columnCount(self, parent=None):
+        return self.df.shape[1]
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if self.df.empty:
+            return None
+
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return self.df.columns[section]
+            else:
+                return self.df.index[section]
+
+        elif role == Qt.FontRole:
+            df_font = QFont()
+            df_font.setBold(True)
+            return df_font
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        else:
+            return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid() or self.df.empty:
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        value = self.df.iat[row, col]
+
+        if role == Qt.DisplayRole:
+            return str(value)
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+        else:
+            return None
 
 
 class OptimizationTab(QWidget):
@@ -20,6 +77,12 @@ class OptimizationTab(QWidget):
         self.application_database = application_database
 
         # ----------------------- Widget Initialization -----------------------
+        res_tab = self.ui.resultsTableView
+        res_model = ResultsTableModel(results_frame=pd.DataFrame({}))
+        res_tab.setModel(res_model)
+
+        res_tab.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
         # disable abort button (for now, while surropt api does not implement)
         self.ui.abortOptPushButton.setEnabled(False)
 
@@ -79,6 +142,7 @@ class OptimizationTab(QWidget):
             self.on_opening_sim_connection)
         self.opt_worker.connection_opened.connect(
             self.on_sim_connection_opened)
+        self.opt_worker.results_ready.connect(self.on_opt_results_ready)
 
         # move the worker to another thread
         self.opt_worker.moveToThread(self.opt_thread)
@@ -90,6 +154,13 @@ class OptimizationTab(QWidget):
 
         # start the thread
         self.opt_thread.start()
+
+    def on_opt_results_ready(self, report: dict):
+        report = pd.DataFrame(report, index=['Values'])
+
+        model = self.ui.resultsTableView.model()
+
+        model.load_results(report)
 
     def on_optimization_finished(self):
         # enable ui elements
