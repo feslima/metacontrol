@@ -1,18 +1,21 @@
-import pathlib
-
-from PyQt5.QtCore import QRegExp, Qt, QAbstractItemModel
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QItemDelegate,
-                             QLineEdit, QMainWindow, QMessageBox, QComboBox)
-
-from gui.models.data_storage import DataStorage
 from gui.views.py_files.mainwindow import Ui_MainWindow
-from gui.calls.tabs.loadsimtab import LoadSimTab
-from gui.calls.tabs.doetab import DoeTab
-from gui.calls.tabs.metamodeltab import MetamodelTab
-from gui.calls.tabs.optimizationtab import OptimizationTab
-from gui.calls.tabs.reducedspacetab import ReducedSpaceTab
-from gui.calls.tabs.hessianextractiontab import HessianExtractionTab
+from gui.models.data_storage import DataStorage
 from gui.calls.tabs.soctab import SocTab
+from gui.calls.tabs.reducedspacetab import ReducedSpaceTab
+from gui.calls.tabs.optimizationtab import OptimizationTab
+from gui.calls.tabs.metamodeltab import MetamodelTab
+from gui.calls.tabs.loadsimtab import LoadSimTab
+from gui.calls.tabs.hessianextractiontab import HessianExtractionTab
+from gui.calls.tabs.doetab import DoeTab
+from PyQt5.QtWidgets import (QApplication, QComboBox, QFileDialog,
+                             QItemDelegate, QLineEdit, QMainWindow,
+                             QMessageBox)
+from PyQt5.QtCore import QAbstractItemModel, QRegExp, Qt
+import pathlib
+import sys
+
+# append directory to sys path
+sys.path.append(str(pathlib.Path(__file__).resolve().parent))
 
 
 class MainWindow(QMainWindow):
@@ -151,7 +154,6 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    import sys
     from gui.calls.base import my_exception_hook
 
     app = QApplication(sys.argv)
