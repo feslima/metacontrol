@@ -103,9 +103,31 @@ class OptimizationTab(QWidget):
         tol2 = float(self.ui.tol2LineEdit.text())
         maxfunevals = int(self.ui.maxFunEvalsLineEdit.text())
         regrpoly = self.ui.regrpolyComboBox.currentText()
-        ipopt_tol = float(self.ui.ipoptDualFeasLineEdit.text())
-        ipopt_max_iter = int(self.ui.ipoptMaxIterLineEdit.text())
-        ipopt_con_tol = float(self.ui.ipoptConTolLineEdit.text())
+
+        nlp_solver_type = self.ui.selectSolverComboBox.currentText()
+
+        if nlp_solver_type == "IpOpt (local)":
+            ipopt_tol = float(self.ui.ipoptLocalDualFeasLineEdit.text())
+            ipopt_max_iter = int(self.ui.ipoptLocalMaxIterLineEdit.text())
+            ipopt_con_tol = float(self.ui.ipoptLocalConTolLineEdit.text())
+            nlp_dict = {'solver': "ipopt_local",
+                        'ipopt_tol': ipopt_tol,
+                        'ipopt_max_iter': ipopt_max_iter,
+                        'ipopt_con_tol': ipopt_con_tol}
+
+        elif nlp_solver_type == "IpOpt (server)":
+            server_url = self.ui.ipoptServerAddressLineEdit.text()
+            ipopt_tol = float(self.ui.ipoptLocalDualFeasLineEdit.text())
+            ipopt_max_iter = int(self.ui.ipoptLocalMaxIterLineEdit.text())
+            ipopt_con_tol = float(self.ui.ipoptLocalConTolLineEdit.text())
+            nlp_dict = {'solver': "ipopt_server",
+                        'server_url': server_url,
+                        'ipopt_tol': ipopt_tol,
+                        'ipopt_max_iter': ipopt_max_iter,
+                        'ipopt_con_tol': ipopt_con_tol}
+
+        else:
+            raise ValueError("Invalid NLP solver selected.")
 
         params = {
             'first_factor': first_factor,
@@ -117,10 +139,7 @@ class OptimizationTab(QWidget):
             'tol2': tol2,
             'maxfunevals': maxfunevals,
             'regrpoly': regrpoly,
-            'server_url': self.ui.ipoptAddressLineEdit.text(),
-            'ipopt_tol': ipopt_tol,
-            'ipopt_max_iter': ipopt_max_iter,
-            'ipopt_con_tol': ipopt_con_tol
+            'nlp_dict': nlp_dict
         }
 
         # disable ui elements

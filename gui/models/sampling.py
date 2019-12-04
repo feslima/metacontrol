@@ -9,7 +9,7 @@ from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
 from surropt.caballero import Caballero, CaballeroOptions
 from surropt.caballero.problem import CaballeroReport
-from surropt.core.options.nlp import DockerNLPOptions
+from surropt.core.options.nlp import DockerNLPOptions, IpOptOptions
 
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
@@ -295,10 +295,8 @@ class CaballeroWorker(QObject):
         tol2 = params['tol2']
         maxfunevals = params['maxfunevals']
         regrpoly = params['regrpoly']
-        server_url = params['server_url']
-        ipopt_tol = params['ipopt_tol']
-        ipopt_max_iter = params['ipopt_max_iter']
-        ipopt_con_tol = params['ipopt_con_tol']
+
+        nlp_params = params['nlp_dict']
 
         # setup the problem data
         inp_data = self.app_data.input_table_data
@@ -330,8 +328,25 @@ class CaballeroWorker(QObject):
         ub_list = self.app_data.doe_mv_bounds.loc[:, 'ub'].tolist()
 
         # nlp options (assumes that the user already tested the connection)
-        nlp_opts = DockerNLPOptions(name='nlp-server',
-                                    server_url=server_url)
+        if nlp_params['solver'] == "ipopt_server":
+            server_url = nlp_params['server_url']
+            ipopt_tol = nlp_params['ipopt_tol']
+            ipopt_max_iter = nlp_params['ipopt_max_iter']
+            ipopt_con_tol = nlp_params['ipopt_con_tol']
+            nlp_opts = DockerNLPOptions(name='nlp-server',
+                                        server_url=server_url,
+                                        tol=ipopt_tol,
+                                        max_iter=ipopt_max_iter,
+                                        con_tol=ipopt_con_tol)
+
+        elif nlp_params['solver'] == "ipopt_local":
+            ipopt_tol = nlp_params['ipopt_tol']
+            ipopt_max_iter = nlp_params['ipopt_max_iter']
+            ipopt_con_tol = nlp_params['ipopt_con_tol']
+            nlp_opts = IpOptOptions(name='nlp-server',
+                                    tol=ipopt_tol,
+                                    max_iter=ipopt_max_iter,
+                                    con_tol=ipopt_con_tol)
 
         # algorithm options
         cab_opts = CaballeroOptions(max_fun_evals=maxfunevals,

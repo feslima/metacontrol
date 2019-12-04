@@ -133,7 +133,7 @@
          <item row="5" column="1">
           <widget class="QLineEdit" name="tol1LineEdit">
            <property name="text">
-            <string>1e-6</string>
+            <string>1e-5</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -150,7 +150,7 @@
          <item row="6" column="1">
           <widget class="QLineEdit" name="tol2LineEdit">
            <property name="text">
-            <string>1e-7</string>
+            <string>1e-6</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -249,6 +249,9 @@
          </item>
          <item row="2" column="0">
           <widget class="QPushButton" name="abortOptPushButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Abort</string>
            </property>
@@ -283,9 +286,71 @@
            <property name="currentIndex">
             <number>0</number>
            </property>
+           <widget class="QWidget" name="tab_2">
+            <attribute name="title">
+             <string>IpOpt - Local</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout_7">
+             <item row="0" column="0">
+              <layout class="QFormLayout" name="formLayout_3">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_19">
+                 <property name="text">
+                  <string>Maximum number of iterations:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="ipoptLocalMaxIterLineEdit">
+                 <property name="text">
+                  <string>3000</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_20">
+                 <property name="text">
+                  <string>Constraint tolerance:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="ipoptLocalConTolLineEdit">
+                 <property name="text">
+                  <string>1e-6</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_21">
+                 <property name="text">
+                  <string>Dual feasibility tolerance:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="ipoptLocalDualFeasLineEdit">
+                 <property name="text">
+                  <string>1e-8</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
            <widget class="QWidget" name="tab">
             <attribute name="title">
-             <string>IpOpt</string>
+             <string>IpOpt - Server</string>
             </attribute>
             <layout class="QFormLayout" name="formLayout_2">
              <item row="0" column="0">
@@ -296,7 +361,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="ipoptAddressLineEdit">
+              <widget class="QLineEdit" name="ipoptServerAddressLineEdit">
                <property name="text">
                 <string>http://localhost:5000</string>
                </property>
@@ -313,7 +378,7 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLineEdit" name="ipoptMaxIterLineEdit">
+              <widget class="QLineEdit" name="ipoptServerMaxIterLineEdit">
                <property name="text">
                 <string>3000</string>
                </property>
@@ -330,7 +395,7 @@
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLineEdit" name="ipoptConTolLineEdit">
+              <widget class="QLineEdit" name="ipoptServerConTolLineEdit">
                <property name="text">
                 <string>1e-6</string>
                </property>
@@ -347,7 +412,7 @@
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLineEdit" name="ipoptDualFeasLineEdit">
+              <widget class="QLineEdit" name="ipoptServerDualFeasLineEdit">
                <property name="text">
                 <string>1e-8</string>
                </property>
@@ -381,13 +446,13 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QComboBox" name="comboBox">
+          <widget class="QComboBox" name="selectSolverComboBox">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <item>
             <property name="text">
-             <string>Choose NLP solver</string>
+             <string>IpOpt (local)</string>
             </property>
            </item>
            <item>
@@ -533,5 +598,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>selectSolverComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>tabWidget</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>343</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>181</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>selectSolverComboBox</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>136</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
