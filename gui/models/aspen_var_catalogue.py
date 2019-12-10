@@ -126,6 +126,13 @@ STREAMS_INPUT_CATALOGUE = {'HEAT':
         ]
 }
 
+DESPEC_INPUT_CATALOGE = {
+    'DESIGN-SPEC':
+    [
+        {'Name': 'EXPR2', 'Description': 'Specified design spec variable value'}
+    ]
+}
+
 # ----------------------------- OUTPUT SECTION -----------------------------
 
 # RadFrac block profile vars that need to be inserted on tree construction
@@ -321,9 +328,17 @@ STREAMS_OUTPUT_CATALOGUE = {
 		]
 }
 
+DESPEC_OUTPUT_CATALOGUE = {
+    'DESIGN-SPEC':
+    [
+        {'Name': 'FINAL_VAL', 'Description': 'Calculated value for design specification (specified or free)'}
+    ]
+}
 # ----------------------------- MERGE SECTION -----------------------------
 BLOCKS_CATALOGUE = {'Input': BLOCKS_INPUT_CATALOGUE,
                     'Output': BLOCKS_OUTPUT_CATALOGUE}
 
 STREAMS_CATALOGUE = {'Input': STREAMS_INPUT_CATALOGUE,
                      'Output': STREAMS_OUTPUT_CATALOGUE}
+DESPEC_CATALOGUE = {'Input': DESPEC_INPUT_CATALOGE,
+                    'Output': DESPEC_OUTPUT_CATALOGUE}

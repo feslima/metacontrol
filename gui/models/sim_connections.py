@@ -1,8 +1,11 @@
-import pathlib
 import copy
+import pathlib
+
 import pywintypes
 from win32com import client as win32
-from gui.models.aspen_var_catalogue import BLOCKS_CATALOGUE, STREAMS_CATALOGUE
+
+from gui.models.aspen_var_catalogue import (
+    BLOCKS_CATALOGUE, DESPEC_CATALOGUE, STREAMS_CATALOGUE)
 
 
 # ---------------------------- ASPEN PLUS SECTION ----------------------------
@@ -119,7 +122,8 @@ class AspenConnection:
             JSON compatible dictionary containing the nodes names of streams
             and blocks in simulation.
         """
-        sim_nodes = {'Streams': {}, 'Blocks': {}}
+        sim_nodes = {'Streams': {}, 'Blocks': {},
+                     'Flowsheeting Options\\Design-Spec': {}}
         for node in sim_nodes:
             for o in self._aspen.Tree.FindNode("\\Data\\" + node).Elements:
                 sim_nodes[node][o.Name] = o.AttributeValue(
@@ -151,16 +155,18 @@ class AspenConnection:
         This function does not return values. It only works on the references
         of `root_node`. Thus this variable will be altered.
         """
-        if iotype != 'input' and iotype != 'output':
+        iotypes = ['input', 'output']
+        nodetypes = ['blocks', 'streams', 'des_spec']
+        if iotype not in iotypes:
             raise ValueError(
                 "Invalid IO type specification. "
                 "Valid values are 'input' and 'output'."
             )
 
-        if nodetype != 'blocks' and nodetype != 'streams':
+        if nodetype not in nodetypes:
             raise ValueError(
                 "Invalid node type specification. "
-                "Valid values are 'blocks' and 'streams'."
+                "Valid values are 'blocks', 'streams' and 'des_spec'."
             )
 
         # if the node name is present in the catalogue, build the branches for
@@ -168,9 +174,22 @@ class AspenConnection:
         if nodetype == 'blocks':
             INPUT_CATALOGUE = BLOCKS_CATALOGUE['Input']
             OUTPUT_CATALOGUE = BLOCKS_CATALOGUE['Output']
-        else:
+
+            nodetype = nodetype.capitalize()
+
+        elif nodetype == 'streams':
             INPUT_CATALOGUE = STREAMS_CATALOGUE['Input']
             OUTPUT_CATALOGUE = STREAMS_CATALOGUE['Output']
+
+            nodetype = nodetype.capitalize()
+
+        else:
+            INPUT_CATALOGUE = DESPEC_CATALOGUE['Input']
+            OUTPUT_CATALOGUE = DESPEC_CATALOGUE['Output']
+
+            # swap to an aspen accepted node name since that the design spec
+            # node is inside flowsheeting options
+            nodetype = 'Flowsheeting Options\\Design-Spec'
 
         # grab the catalogue for that block
         if iotype == 'input':
@@ -194,11 +213,19 @@ class AspenConnection:
                         leaf['description'] = leaf.pop('Description')
 
                     # append children nodes if they exist
-                    children_node_ph = self._aspen.Tree.FindNode(
-                        self._NODE_PATH_FORMAT.format(nodetype.capitalize(),
-                                                      node,
-                                                      iotype.capitalize(),
-                                                      leaf['node']))
+                    node_path = self._NODE_PATH_FORMAT.format(
+                        nodetype,
+                        node,
+                        iotype.capitalize(),
+                        leaf['node']
+                    )
+                    children_node_ph = self._aspen.Tree.FindNode(node_path)
+
+                    if children_node_ph is None:
+                        # node not found, raise exception
+                        raise ValueError(
+                            "Can't find path: \n{0}".format(node_path)
+                        )
                     children_nodes = self._traverse_branch(children_node_ph)
                     if 'children' in children_nodes:
                         leaf.update(children_nodes)
@@ -346,7 +373,15 @@ class AspenConnection:
 
         root_block = {'node': 'Blocks', 'children': []}
         root_stream = {'node': 'Streams', 'children': []}
-        root_node = {'node': 'Data', 'children': [root_block, root_stream]}
+        root_desspec = {'node': 'Design-Spec', 'children': []}
+        root_node = {
+            'node': 'Data',
+            'children':
+            [
+                root_block,
+                root_stream,
+                {'node': 'Flowsheeting Options', 'children': [root_desspec]}
+            ]}
 
         # streams
         self._build_nodes(sim_nodes['Streams'], root_stream,
@@ -355,6 +390,10 @@ class AspenConnection:
         # blocks
         self._build_nodes(sim_nodes['Blocks'], root_block,
                           'blocks', iotype)
+
+        # design specs
+        self._build_nodes(sim_nodes['Flowsheeting Options\\Design-Spec'],
+                          root_desspec, 'des_spec', iotype)
 
         return root_node
 
