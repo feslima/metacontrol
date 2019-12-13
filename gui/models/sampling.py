@@ -405,6 +405,9 @@ class CaballeroWorker(QObject):
         # query the simulation engine, store the results
         results = run_case(input_vars, output_vars, self._aspen_connection)
 
+        # update the results including input variables values
+        results.update({var['Alias']: var['value'] for var in input_vars})
+        
         # evaluate constraint and objective functions
         expr_values = {}
         parser = self.parser
