@@ -82,7 +82,8 @@ BLOCKS_INPUT_CATALOGUE = {
             {'Name': "D:F", 'Description': 'Ratio of Distillate to Feed Flow Rate'},
             {'Name': "B:F", 'Description': 'Ratio of Bottoms to Feed Flow Rate'},
             {'Name': "Q1", 'Description': 'Condenser Duty'},
-            {'Name': "QN", 'Description': 'Reboiler Duty'}
+            {'Name': "QN", 'Description': 'Reboiler Duty'},
+            {'Name': "VALUE", 'Description': 'Design Spec Value'}
         ],
     'RPlug':
         [
