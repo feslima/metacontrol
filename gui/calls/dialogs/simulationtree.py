@@ -14,7 +14,7 @@ from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
 from gui.views.py_files.loadsimulationtree import Ui_Dialog
 
-import ptvsd
+#import ptvsd
 
 
 # TODO: Include units in table display.
@@ -35,7 +35,7 @@ class ConnectionWorker(QObject):
 
     @pyqtSlot()
     def open_connection(self):
-        ptvsd.debug_this_thread()
+        #ptvsd.debug_this_thread()
 
         # open the connection
         pythoncom.CoInitialize()
