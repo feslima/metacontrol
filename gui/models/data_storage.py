@@ -1254,8 +1254,7 @@ class DataStorage(QObject):
 
         # starting from subsets of size 1 to n_y_list
         self.soc_subset_size_list = {str(y):
-                                     {'Subset number': comb(N=n_y_list,
-                                                            k=y, exact=True)}
+                                     {'Subset number': 1}
                                      for y in range(n_u, n_y_list + 1)}
 
     # ---------------------------- PUBLIC METHODS ----------------------------
