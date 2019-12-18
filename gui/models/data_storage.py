@@ -1231,11 +1231,32 @@ class DataStorage(QObject):
         # possible number of subset
         n_y_list = len(y_aliases)
 
+        # get the non consumed aliases from constraint activity info where the
+        # type of alias is not active and manipulated.
+        con_act = self.active_constraint_info
+        consumed_aliases = con_act.loc[
+            'Pairing',
+            (
+                (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
+                (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
+            ) &
+            (con_act.loc['Active'])
+        ].dropna().tolist()
+
+        non_consumed_aliases = con_act.columns[
+            (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
+            (~con_act.loc['Active']) &
+            (~con_act.columns.isin(consumed_aliases))
+        ].tolist()
+
+        n_u = 1 if len(non_consumed_aliases) == 0 else len(
+            non_consumed_aliases)
+
         # starting from subsets of size 1 to n_y_list
         self.soc_subset_size_list = {str(y):
                                      {'Subset number': comb(N=n_y_list,
                                                             k=y, exact=True)}
-                                     for y in range(1, n_y_list + 1)}
+                                     for y in range(n_u, n_y_list + 1)}
 
     # ---------------------------- PUBLIC METHODS ----------------------------
 
