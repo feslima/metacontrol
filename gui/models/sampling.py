@@ -235,17 +235,11 @@ class SamplerWorker(QObject):
         return res_dict
 
 
-class ReportMetaClass(type(QObject), type(CaballeroReport)):
-    # metaclass to resolve conflict of multiple inheritance
-    pass
+class ReportObject(CaballeroReport):
 
-
-class ReportObject(QObject, CaballeroReport, metaclass=ReportMetaClass):
-    iteration_printed = pyqtSignal(str)
-
-    def __init__(self, terminal=False, plot=False):
+    def __init__(self, iteration_printed, terminal=False, plot=False):
         CaballeroReport.__init__(self, terminal=terminal, plot=plot)
-        QObject.__init__(self)
+        self.iteration_printed = iteration_printed
 
     def build_iter_report(self, movement, iter_count, x, f_pred, f_actual,
                           g_actual, header=False, field_size=12):
@@ -263,19 +257,21 @@ class ReportObject(QObject, CaballeroReport, metaclass=ReportMetaClass):
 
 
 class CaballeroWorker(QObject):
-    opening_connection = pyqtSignal()
-    connection_opened = pyqtSignal()
     optimization_finished = pyqtSignal()
     results_ready = pyqtSignal(object)
 
     def __init__(self, app_data: DataStorage, params: dict,
-                 report: ReportObject, parent=None):
-        super().__init__(parent=parent)
+                 iteration_printed: pyqtSignal,
+                 opening_connection: pyqtSignal,
+                 connection_opened: pyqtSignal):
+        QObject.__init__(self)
 
         self.app_data = app_data
         self.params = params
         self.parser = Parser()
-        self.report = report
+        self.iteration_printed = iteration_printed
+        self.opening_connection = opening_connection
+        self.connection_opened = connection_opened
 
     def __del__(self):
         if hasattr(self, 'asp_obj'):
@@ -357,10 +353,13 @@ class CaballeroWorker(QObject):
                                     second_factor=sec_factor,
                                     contraction_tol=tol_contract)
 
+        report_obj = ReportObject(iteration_printed=self.iteration_printed,
+                                  terminal=False, plot=False)
+
         opt_obj = Caballero(x=x, g=g, f=f, model_function=model_fun,
                             lb=lb_list, ub=ub_list, regression=regrpoly,
                             options=cab_opts, nlp_options=nlp_opts,
-                            report_options=self.report)
+                            report_options=report_obj)
 
         opt_obj.optimize()
 
@@ -407,7 +406,7 @@ class CaballeroWorker(QObject):
 
         # update the results including input variables values
         results.update({var['Alias']: var['value'] for var in input_vars})
-        
+
         # evaluate constraint and objective functions
         expr_values = {}
         parser = self.parser
