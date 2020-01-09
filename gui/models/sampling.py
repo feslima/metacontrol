@@ -140,7 +140,8 @@ class ReducedSamplerThread(SamplerThread):
                 return
 
 
-def run_case(mv_values: list, output_data: list, aspen_obj):
+def run_case(mv_values: list, output_data: list, aspen_obj,
+             reset_sim: bool = True):
     """
     Samples a single case of DOE.
 
@@ -152,6 +153,9 @@ def run_case(mv_values: list, output_data: list, aspen_obj):
         List containing all the output variables info to sample.
     aspen_obj : COM object
         Object connection handle.
+    reset_sim : float
+        Whether or not to purge all results before running the case. Default
+        is True (Purge).
 
     Returns
     -------
@@ -162,6 +166,10 @@ def run_case(mv_values: list, output_data: list, aspen_obj):
     # get the paths to feed to the aspen obj
     for var in mv_values:
         aspen_obj.Tree.FindNode(var['Path']).Value = var['value']
+
+    if reset_sim:
+        # reset the simulation before running
+        aspen_obj.Reinit()
 
     # run the engine
     aspen_obj.Engine.Run2()
