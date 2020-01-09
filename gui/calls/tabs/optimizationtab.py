@@ -70,6 +70,7 @@ class OptimizationTab(QWidget):
     iteration_printed = pyqtSignal(str)
     opening_connection = pyqtSignal()
     connection_opened = pyqtSignal()
+    optimization_failed = pyqtSignal(str)
 
     def __init__(self, application_database: DataStorage, parent_tab=None):
         # ------------------------ Form Initialization ------------------------
@@ -100,6 +101,7 @@ class OptimizationTab(QWidget):
         self.opening_connection.connect(self.on_opening_sim_connection)
         self.connection_opened.connect(self.on_sim_connection_opened)
         self.iteration_printed.connect(self.on_iteration_printed)
+        self.optimization_failed.connect(self.on_optimization_failed)
         # ---------------------------------------------------------------------
 
     def on_start_pressed(self):
@@ -164,7 +166,8 @@ class OptimizationTab(QWidget):
             params=params,
             iteration_printed=self.iteration_printed,
             opening_connection=self.opening_connection,
-            connection_opened=self.connection_opened
+            connection_opened=self.connection_opened,
+            optimization_failed=self.optimization_failed
         )
 
         # worker signals connection
@@ -187,6 +190,16 @@ class OptimizationTab(QWidget):
         model = self.ui.resultsTableView.model()
 
         model.load_results(report)
+
+    def on_optimization_failed(self, error_msg: str):
+        # append message to the control panel
+        err_msg = "\n\n-------OPTIMIZATION PROCEDURE FAILED!-------\n\n" + \
+            "This is the error returned by the procedure:\n\n" + error_msg + \
+            "\n\n---------------USEFUL INFO----------------\n\n" + \
+            "Depending on the error type, if you change the optimization " + \
+            "parameters you might obtain a better outcome."
+
+        self.ui.controlPanelTextBrowser.append(err_msg)
 
     def on_optimization_finished(self):
         # enable ui elements

@@ -1,12 +1,13 @@
+import traceback
+
 import numpy as np
 import pandas as pd
 import pythoncom
+import pywintypes
 import win32com.client
 from py_expression_eval import Parser
 from pydace.utils import lhsdesign
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
-# import ptvsd
-
 from surropt.caballero import Caballero, CaballeroOptions
 from surropt.caballero.problem import CaballeroReport
 from surropt.core.options.nlp import DockerNLPOptions, IpOptOptions
@@ -14,7 +15,7 @@ from surropt.core.options.nlp import DockerNLPOptions, IpOptOptions
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
 
-
+# import ptvsd
 def lhs(n_samples: int, lb: list, ub: list, n_iter: int, inc_vertices: bool) \
         -> np.ndarray:
     lb = np.asarray(lb)
@@ -263,7 +264,8 @@ class CaballeroWorker(QObject):
     def __init__(self, app_data: DataStorage, params: dict,
                  iteration_printed: pyqtSignal,
                  opening_connection: pyqtSignal,
-                 connection_opened: pyqtSignal):
+                 connection_opened: pyqtSignal,
+                 optimization_failed: pyqtSignal):
         QObject.__init__(self)
 
         self.app_data = app_data
@@ -272,6 +274,7 @@ class CaballeroWorker(QObject):
         self.iteration_printed = iteration_printed
         self.opening_connection = opening_connection
         self.connection_opened = connection_opened
+        self.optimization_failed = optimization_failed
 
     def __del__(self):
         if hasattr(self, 'asp_obj'):
@@ -361,19 +364,31 @@ class CaballeroWorker(QObject):
                             options=cab_opts, nlp_options=nlp_opts,
                             report_options=report_obj)
 
-        opt_obj.optimize()
+        try:
+            opt_obj.optimize()
+        except (pywintypes.com_error, NotImplementedError, IndexError,
+                ValueError, AttributeError) as ex:
+            # close the connection
+            self.asp_obj.close_connection()
 
-        self.asp_obj.close_connection()
+            # emit the error message to be re raised in the main thread
+            self.optimization_failed.emit(traceback.format_exc())
 
-        # create the results table report
-        opt_vals = np.append(opt_obj.xopt,
-                             np.append(opt_obj.gopt, opt_obj.fopt)).tolist()
-        report = pd.Series(opt_vals, index=inp_aliases + con_aliases +
-                           obj_alias).to_dict()
+            # notify the main thread (quit this one)
+            self.optimization_finished.emit()
 
-        self.results_ready.emit(report)
+        else:
+            self.asp_obj.close_connection()
 
-        self.optimization_finished.emit()
+            # create the results table report
+            opt_vals = np.append(opt_obj.xopt,
+                                 np.append(opt_obj.gopt, opt_obj.fopt)).tolist()
+            report = pd.Series(opt_vals, index=inp_aliases + con_aliases +
+                               obj_alias).to_dict()
+
+            self.results_ready.emit(report)
+
+            self.optimization_finished.emit()
 
     def open_connection(self):
         # warn others that a simulation engine connection is about to be opened
