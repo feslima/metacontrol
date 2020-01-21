@@ -1000,12 +1000,12 @@ class DataStorage(QObject):
                 (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
                 (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
             ) &
-            (con_act.loc['Active'])
+            (con_act.loc['Active'].astype(bool))
         ].dropna().tolist()
 
         non_consumed_aliases = con_act.columns[
             (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
-            (~con_act.loc['Active']) &
+            (~con_act.loc['Active'].astype(bool)) &
             (~con_act.columns.isin(consumed_aliases))
         ].tolist()
 
@@ -1058,12 +1058,12 @@ class DataStorage(QObject):
                 (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
                 (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
             ) &
-            (con_act.loc['Active'])
+            (con_act.loc['Active'].astype(bool))
         ].dropna().tolist()
 
         non_consumed_aliases = con_act.columns[
             (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
-            (~con_act.loc['Active']) &
+            (~con_act.loc['Active'].astype(bool)) &
             (~con_act.columns.isin(consumed_aliases))
         ].tolist()
 
@@ -1107,7 +1107,7 @@ class DataStorage(QObject):
         con_act = self.active_constraint_info
         act_aliases = con_act.columns[
             (con_act.loc['Type'] != self._INPUT_ALIAS_TYPES['mv']) &
-            (con_act.loc['Active'])
+            (con_act.loc['Active'].astype(bool))
         ].tolist()
 
         non_act_aliases = con_act.columns[
@@ -1240,12 +1240,12 @@ class DataStorage(QObject):
                 (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
                 (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
             ) &
-            (con_act.loc['Active'])
+            (con_act.loc['Active'].astype(bool))
         ].dropna().tolist()
 
         non_consumed_aliases = con_act.columns[
             (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
-            (~con_act.loc['Active']) &
+            (~con_act.loc['Active'].astype(bool)) &
             (~con_act.columns.isin(consumed_aliases))
         ].tolist()
 
