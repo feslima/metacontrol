@@ -16,6 +16,8 @@ from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
 
 # import ptvsd
+
+
 def lhs(n_samples: int, lb: list, ub: list, n_iter: int, inc_vertices: bool) \
         -> np.ndarray:
     lb = np.asarray(lb)
@@ -141,7 +143,7 @@ class ReducedSamplerThread(SamplerThread):
 
 
 def run_case(mv_values: list, output_data: list, aspen_obj,
-             reset_sim: bool = True):
+             reset_sim: bool = False):
     """
     Samples a single case of DOE.
 
@@ -155,7 +157,7 @@ def run_case(mv_values: list, output_data: list, aspen_obj,
         Object connection handle.
     reset_sim : float
         Whether or not to purge all results before running the case. Default
-        is True (Purge).
+        is False (do not purge previous results).
 
     Returns
     -------
@@ -187,6 +189,9 @@ def run_case(mv_values: list, output_data: list, aspen_obj,
         res_dict['success'] = 'error'
         for out_var in output_data:
             res_dict[out_var['Alias']] = np.spacing(1)
+
+        # reset the simulation when an error occurs
+        aspen_obj.Reinit()
 
     return res_dict
 
