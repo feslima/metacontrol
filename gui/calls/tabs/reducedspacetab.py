@@ -378,7 +378,7 @@ class ReducedSpaceTab(QWidget):
         """Grabs the simulation file path and displays it on the linedit widget
         """
         browser = self.ui.redspaceSimFileLineEdit
-        sim_file_name = self.application_database.simulation_file
+        sim_file_name = self.bkp_filepath
         sim_file_ext = pathlib.Path(sim_file_name).suffix
 
         if sim_file_name == "" or \
