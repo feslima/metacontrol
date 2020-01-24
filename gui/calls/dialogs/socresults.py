@@ -341,7 +341,7 @@ class SocResultsDialog(QDialog):
                 soc_results[ss]['f']["Set " + str(i + 1)] = F
                 # populate H matrix
                 for col, j in enumerate(ss_row):
-                    h_df.loc[:, Gy.index[j - 1]] = H_list[i][0, col]
+                    h_df.loc[:, Gy.index[j - 1]] = H_list[i][:, col]
                 soc_results[ss]['h'][loss_df.at[i, 'Structure']] = h_df
 
         self.soc_results = soc_results
