@@ -75,6 +75,7 @@ class Ui_Dialog(object):
         self.gridLayout_2.addWidget(self.label_5, 0, 4, 1, 1)
         self.errorMatrixTableView = QtWidgets.QTableView(self.groupBox)
         self.errorMatrixTableView.setObjectName("errorMatrixTableView")
+        self.errorMatrixTableView.verticalHeader().setMinimumSectionSize(39)
         self.gridLayout_2.addWidget(self.errorMatrixTableView, 1, 4, 1, 1)
         self.line_2 = QtWidgets.QFrame(self.groupBox)
         self.line_2.setFrameShape(QtWidgets.QFrame.VLine)

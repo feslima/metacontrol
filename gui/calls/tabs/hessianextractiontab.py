@@ -9,6 +9,7 @@ from gui.models.data_storage import DataStorage
 from gui.views.py_files.hessianextractiontab import Ui_Form
 from gui.models.hessian_eval import hesscorrgauss
 from gui.calls.dialogs.redspacemetamodel import ReducedSpaceMetamodelDialog
+from gui.calls.dialogs.choleskymod import CholeskyDialog
 
 
 class DiffTableModel(QAbstractTableModel):
@@ -143,7 +144,15 @@ class HessianExtractionTab(QWidget):
         self.ui.trainMetamodelPushButton.clicked.connect(
             self.on_reduced_space_metamodel_pressed
         )
+
+        self.ui.cholmodPushButton.clicked.connect(
+            self.on_cholesky_mod_pressed
+        )
         # ---------------------------------------------------------------------
+
+    def on_cholesky_mod_pressed(self):
+        dialog = CholeskyDialog(self.application_database)
+        dialog.exec_()
 
     def on_reduced_space_metamodel_pressed(self):
         dialog = ReducedSpaceMetamodelDialog(self.application_database)
