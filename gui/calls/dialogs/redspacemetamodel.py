@@ -247,9 +247,6 @@ class ReducedSpaceMetamodelDialog(QDialog):
                        'Sample Std'],
                 columns=Y_labels)
 
-            metric_model = self.ui.crossValMetricTableView.model()
-            metric_model.load_data(metric_frame)
-
         else:
             split_ratio = self.ui.holdoutHorizontalSlider.value() / 100.0
 
@@ -286,14 +283,33 @@ class ReducedSpaceMetamodelDialog(QDialog):
                                            multioutput='raw_values')
 
             metric_frame = pd.DataFrame(
-                np.vstack((mse, rmse, mae, r2, evs, np.mean(Y, axis=0),
-                           np.std(Y, axis=0))),
+                np.vstack((mse, rmse, mae, r2, evs,
+                           np.mean(Y, axis=0), np.std(Y, axis=0))),
                 index=['MSE', 'RMSE', 'MAE', 'R2', 'EV', 'Sample Mean',
                        'Sample Std'],
                 columns=Y_labels)
 
-            metric_model = self.ui.crossValMetricTableView.model()
-            metric_model.load_data(metric_frame)
+        # get the final perfs values, reconstruct everything using all points
+        model_perf = np.empty(Y_dim)
+        model_perf.fill(np.NaN)
+
+        for j in range(Y_dim):
+            # build the univariate models
+            krmodel = Dace(regression=regr, correlation=corr)
+            krmodel.fit(S=X, Y=Y[:, j], theta0=theta0,
+                        lob=lob, upb=upb)
+
+            # get final viable perf value
+            col_idx = np.flatnonzero(krmodel.perf['perf'][-1, :] > 0)[-1]
+            model_perf[j] = krmodel.perf['perf'][-2, col_idx]
+
+        metric_frame.loc['Perf', :] = model_perf
+        index_list = metric_frame.index.to_list()
+        index_list.pop(index_list.index('Perf'))
+        metric_frame = metric_frame.reindex(['Perf'] + index_list)
+
+        metric_model = self.ui.crossValMetricTableView.model()
+        metric_model.load_data(metric_frame)
 
     def on_view_plots_pressed(self):
         if hasattr(self, 'metamodel_data'):

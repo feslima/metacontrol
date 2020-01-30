@@ -256,7 +256,8 @@ class CrossValidationMetricsTableModel(QAbstractTableModel):
                    'R2': 'R^2 linear coefficient',
                    'EV': 'Explained Variance',
                    'Sample Mean': 'Sample mean of the variable',
-                   'Sample Std': 'Sample standard deviation of the variable'}
+                   'Sample Std': 'Sample standard deviation of the variable',
+                   'Perf': 'Maximum Likelihood value'}
 
     def __init__(self, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
@@ -311,7 +312,7 @@ class CrossValidationMetricsTableModel(QAbstractTableModel):
         col = index.column()
 
         if role == Qt.DisplayRole:
-            return str(self.metric_data.iloc[row, col])
+            return '{:8.6E}'.format(self.metric_data.iat[row, col])
 
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignCenter

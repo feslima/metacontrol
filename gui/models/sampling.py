@@ -1,18 +1,21 @@
+import traceback
+
 import numpy as np
 import pandas as pd
 import pythoncom
+import pywintypes
 import win32com.client
 from py_expression_eval import Parser
 from pydace.utils import lhsdesign
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
-# import ptvsd
-
 from surropt.caballero import Caballero, CaballeroOptions
 from surropt.caballero.problem import CaballeroReport
 from surropt.core.options.nlp import DockerNLPOptions, IpOptOptions
 
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
+
+# import ptvsd
 
 
 def lhs(n_samples: int, lb: list, ub: list, n_iter: int, inc_vertices: bool) \
@@ -139,7 +142,8 @@ class ReducedSamplerThread(SamplerThread):
                 return
 
 
-def run_case(mv_values: list, output_data: list, aspen_obj):
+def run_case(mv_values: list, output_data: list, aspen_obj,
+             reset_sim: bool = False):
     """
     Samples a single case of DOE.
 
@@ -151,6 +155,9 @@ def run_case(mv_values: list, output_data: list, aspen_obj):
         List containing all the output variables info to sample.
     aspen_obj : COM object
         Object connection handle.
+    reset_sim : float
+        Whether or not to purge all results before running the case. Default
+        is False (do not purge previous results).
 
     Returns
     -------
@@ -161,6 +168,10 @@ def run_case(mv_values: list, output_data: list, aspen_obj):
     # get the paths to feed to the aspen obj
     for var in mv_values:
         aspen_obj.Tree.FindNode(var['Path']).Value = var['value']
+
+    if reset_sim:
+        # reset the simulation before running
+        aspen_obj.Reinit()
 
     # run the engine
     aspen_obj.Engine.Run2()
@@ -178,6 +189,9 @@ def run_case(mv_values: list, output_data: list, aspen_obj):
         res_dict['success'] = 'error'
         for out_var in output_data:
             res_dict[out_var['Alias']] = np.spacing(1)
+
+        # reset the simulation when an error occurs
+        aspen_obj.Reinit()
 
     return res_dict
 
@@ -235,17 +249,11 @@ class SamplerWorker(QObject):
         return res_dict
 
 
-class ReportMetaClass(type(QObject), type(CaballeroReport)):
-    # metaclass to resolve conflict of multiple inheritance
-    pass
+class ReportObject(CaballeroReport):
 
-
-class ReportObject(QObject, CaballeroReport, metaclass=ReportMetaClass):
-    iteration_printed = pyqtSignal(str)
-
-    def __init__(self, terminal=False, plot=False):
+    def __init__(self, iteration_printed, terminal=False, plot=False):
         CaballeroReport.__init__(self, terminal=terminal, plot=plot)
-        QObject.__init__(self)
+        self.iteration_printed = iteration_printed
 
     def build_iter_report(self, movement, iter_count, x, f_pred, f_actual,
                           g_actual, header=False, field_size=12):
@@ -263,19 +271,23 @@ class ReportObject(QObject, CaballeroReport, metaclass=ReportMetaClass):
 
 
 class CaballeroWorker(QObject):
-    opening_connection = pyqtSignal()
-    connection_opened = pyqtSignal()
     optimization_finished = pyqtSignal()
     results_ready = pyqtSignal(object)
 
     def __init__(self, app_data: DataStorage, params: dict,
-                 report: ReportObject, parent=None):
-        super().__init__(parent=parent)
+                 iteration_printed: pyqtSignal,
+                 opening_connection: pyqtSignal,
+                 connection_opened: pyqtSignal,
+                 optimization_failed: pyqtSignal):
+        QObject.__init__(self)
 
         self.app_data = app_data
         self.params = params
         self.parser = Parser()
-        self.report = report
+        self.iteration_printed = iteration_printed
+        self.opening_connection = opening_connection
+        self.connection_opened = connection_opened
+        self.optimization_failed = optimization_failed
 
     def __del__(self):
         if hasattr(self, 'asp_obj'):
@@ -357,24 +369,39 @@ class CaballeroWorker(QObject):
                                     second_factor=sec_factor,
                                     contraction_tol=tol_contract)
 
+        report_obj = ReportObject(iteration_printed=self.iteration_printed,
+                                  terminal=False, plot=False)
+
         opt_obj = Caballero(x=x, g=g, f=f, model_function=model_fun,
                             lb=lb_list, ub=ub_list, regression=regrpoly,
                             options=cab_opts, nlp_options=nlp_opts,
-                            report_options=self.report)
+                            report_options=report_obj)
 
-        opt_obj.optimize()
+        try:
+            opt_obj.optimize()
+        except (pywintypes.com_error, NotImplementedError, IndexError,
+                ValueError, AttributeError) as ex:
+            # close the connection
+            self.asp_obj.close_connection()
 
-        self.asp_obj.close_connection()
+            # emit the error message to be re raised in the main thread
+            self.optimization_failed.emit(traceback.format_exc())
 
-        # create the results table report
-        opt_vals = np.append(opt_obj.xopt,
-                             np.append(opt_obj.gopt, opt_obj.fopt)).tolist()
-        report = pd.Series(opt_vals, index=inp_aliases + con_aliases +
-                           obj_alias).to_dict()
+            # notify the main thread (quit this one)
+            self.optimization_finished.emit()
 
-        self.results_ready.emit(report)
+        else:
+            self.asp_obj.close_connection()
 
-        self.optimization_finished.emit()
+            # create the results table report
+            opt_vals = np.append(opt_obj.xopt,
+                                 np.append(opt_obj.gopt, opt_obj.fopt)).tolist()
+            report = pd.Series(opt_vals, index=inp_aliases + con_aliases +
+                               obj_alias).to_dict()
+
+            self.results_ready.emit(report)
+
+            self.optimization_finished.emit()
 
     def open_connection(self):
         # warn others that a simulation engine connection is about to be opened
@@ -407,7 +434,7 @@ class CaballeroWorker(QObject):
 
         # update the results including input variables values
         results.update({var['Alias']: var['value'] for var in input_vars})
-        
+
         # evaluate constraint and objective functions
         expr_values = {}
         parser = self.parser

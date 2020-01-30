@@ -1,7 +1,8 @@
 import pandas as pd
-from PyQt5.QtCore import QThread, QAbstractTableModel, QModelIndex, Qt
-from PyQt5.QtWidgets import QApplication, QMessageBox, QWidget, QHeaderView
+from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QThread,
+                          pyqtSignal)
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication, QHeaderView, QMessageBox, QWidget
 from surropt.core.options.nlp import DockerNLPOptions
 from win32com.client import Dispatch
 
@@ -66,6 +67,11 @@ class ResultsTableModel(QAbstractTableModel):
 
 
 class OptimizationTab(QWidget):
+    iteration_printed = pyqtSignal(str)
+    opening_connection = pyqtSignal()
+    connection_opened = pyqtSignal()
+    optimization_failed = pyqtSignal(str)
+
     def __init__(self, application_database: DataStorage, parent_tab=None):
         # ------------------------ Form Initialization ------------------------
         super().__init__()
@@ -90,6 +96,12 @@ class OptimizationTab(QWidget):
         self.ui.startOptPushButton.clicked.connect(self.on_start_pressed)
         self.ui.ipoptTestConnectionPushButton.clicked.connect(
             self.on_ipopt_test_connection_pressed)
+
+        # control panel related stuff
+        self.opening_connection.connect(self.on_opening_sim_connection)
+        self.connection_opened.connect(self.on_sim_connection_opened)
+        self.iteration_printed.connect(self.on_iteration_printed)
+        self.optimization_failed.connect(self.on_optimization_failed)
         # ---------------------------------------------------------------------
 
     def on_start_pressed(self):
@@ -147,20 +159,18 @@ class OptimizationTab(QWidget):
         self.ui.regrpolyComboBox.setEnabled(False)
         self.ui.ipoptTestConnectionPushButton.setEnabled(False)
 
-        # instantiate the report object (communication with UI)
-        ro = ReportObject(terminal=False)
-        ro.iteration_printed.connect(self.on_iteration_printed)
-
         # instantiate the optimization thread and worker
         self.opt_thread = QThread()
-        self.opt_worker = CaballeroWorker(app_data=self.application_database,
-                                          params=params, report=ro)
+        self.opt_worker = CaballeroWorker(
+            app_data=self.application_database,
+            params=params,
+            iteration_printed=self.iteration_printed,
+            opening_connection=self.opening_connection,
+            connection_opened=self.connection_opened,
+            optimization_failed=self.optimization_failed
+        )
 
         # worker signals connection
-        self.opt_worker.opening_connection.connect(
-            self.on_opening_sim_connection)
-        self.opt_worker.connection_opened.connect(
-            self.on_sim_connection_opened)
         self.opt_worker.results_ready.connect(self.on_opt_results_ready)
 
         # move the worker to another thread
@@ -175,11 +185,21 @@ class OptimizationTab(QWidget):
         self.opt_thread.start()
 
     def on_opt_results_ready(self, report: dict):
-        report = pd.DataFrame(report, index=['Values'])
+        report = pd.DataFrame(report, index=['Values']).copy(deep=True)
 
         model = self.ui.resultsTableView.model()
 
         model.load_results(report)
+
+    def on_optimization_failed(self, error_msg: str):
+        # append message to the control panel
+        err_msg = "\n\n-------OPTIMIZATION PROCEDURE FAILED!-------\n\n" + \
+            "This is the error returned by the procedure:\n\n" + error_msg + \
+            "\n\n---------------USEFUL INFO----------------\n\n" + \
+            "Depending on the error type, if you change the optimization " + \
+            "parameters you might obtain a better outcome."
+
+        self.ui.controlPanelTextBrowser.append(err_msg)
 
     def on_optimization_finished(self):
         # enable ui elements
