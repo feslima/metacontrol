@@ -80,3 +80,12 @@ def soc_mock():
     SOC_TAB_MOC_DS.simulation_file = str(ASPEN_BKP_FILE_PATH)
 
     return SOC_TAB_MOC_DS
+
+
+def indirect_mock():
+    # C3 splitter column - indirect control
+    INDIRECT_MOC_DS = DataStorage()
+    INDIRECT_MOC_DS.load(MTC_FOLDER_PATH /
+                         "indirect control - c3 splitter.mtc")
+
+    return INDIRECT_MOC_DS
