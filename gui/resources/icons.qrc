@@ -6,6 +6,7 @@
   </qresource>
   <qresource prefix="mainwindow">
     <file>metacontrol_icon.svg</file>
+    <file>mtc.ico</file>
   </qresource>
   <qresource prefix="loadsim">
     <file>delete_icon.svg</file>

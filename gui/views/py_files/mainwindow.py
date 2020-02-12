@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\mainwindow.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -18,7 +18,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/mainwindow/metacontrol_icon.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/mainwindow/mtc.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setWhatsThis("")
         MainWindow.setStyleSheet("")

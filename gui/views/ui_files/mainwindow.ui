@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/mainwindow/metacontrol_icon.svg</normaloff>:/mainwindow/metacontrol_icon.svg</iconset>
+    <normaloff>:/mainwindow/mtc.ico</normaloff>:/mainwindow/mtc.ico</iconset>
   </property>
   <property name="whatsThis">
    <string/>
