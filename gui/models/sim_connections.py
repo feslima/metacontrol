@@ -4,6 +4,10 @@ import pathlib
 import pywintypes
 from win32com import client as win32
 
+from anytree import Node, RenderTree, PostOrderIter
+from anytree.exporter import DictExporter
+from anytree.importer import DictImporter
+
 from gui.models.aspen_var_catalogue import (
     BLOCKS_CATALOGUE, DESPEC_CATALOGUE, STREAMS_CATALOGUE)
 
@@ -82,12 +86,10 @@ class AspenConnection:
         bool
             Whether the node is a leaf (True) or not (False).
         """
-        if node.Dimension == 0:  # node is a leaf
+        if node.AttributeValue(self._HAP_HASCHILDREN) == 0:  # node is a leaf
             return True
         else:
-            # check HAP_CHILDREN AttributeValue
-            return False if node.AttributeValue(self._HAP_HASCHILDREN) \
-                else True
+            return False
 
     def _traverse_branch(self, node: win32.CDispatch) -> dict:
         """Traverse the branch through recursion and return its nodes as JSON tree
@@ -110,6 +112,12 @@ class AspenConnection:
         if not self._isleaf(node):
             n['children'] = [self._traverse_branch(child)
                              for child in node.Elements]
+        else:
+            # node is a leaf, if the value is a float and not None append its
+            # units
+            if node.ValueType == 2 and node.Value is not None:
+                n['value'] = node.Value
+                n['units'] = node.UnitString
 
         return n
 
@@ -227,7 +235,7 @@ class AspenConnection:
                             "Can't find path: \n{0}".format(node_path)
                         )
                     children_nodes = self._traverse_branch(children_node_ph)
-                    if 'children' in children_nodes:
+                    if any(x in children_nodes for x in ['children', 'value']):
                         leaf.update(children_nodes)
 
                 leaves_node = {'node': iotype.capitalize(), 'children': leaves}
@@ -254,6 +262,40 @@ class AspenConnection:
                     raise KeyError(
                         "{0} type {1} not inplemented in {0} {1} catalogue."
                         .format(nodetype.capitalize(), iotype))
+
+    def _prune_leaves(self, root_node) -> dict:
+        """Prune all the leaves that does not have 'value' attribute in them.
+        In other words, remove the leaves that user did not set in file.
+
+        Parameters
+        ----------
+        root_node : dict
+            Branch to be pruned.
+
+        Returns
+        -------
+        dict
+            Pruned branch.
+        """
+        importer = DictImporter()
+        exporter = DictExporter()
+
+        inptree = importer.import_(root_node)
+
+        # keep checking for leaves without value attribute
+        while True:
+            all_has_value = all(hasattr(leaf, 'value')
+                                for leaf in inptree.leaves)
+
+            if all_has_value:
+                break
+
+            for leaf in inptree.leaves:
+                if not hasattr(leaf, 'value'):
+                    # prune leaves without value attribute
+                    leaf.parent = None
+
+        return exporter.export(inptree)
 
     # --------------------------- PUBLIC FUNCTIONS --------------------------
     def open_connection(self) -> None:
@@ -395,6 +437,9 @@ class AspenConnection:
         self._build_nodes(sim_nodes['Flowsheeting Options\\Design-Spec'],
                           root_desspec, 'des_spec', iotype)
 
+        if iotype == 'input':
+            root_node = self._prune_leaves(root_node)
+
         return root_node
 
     def get_simulation_tree(self) -> dict:
@@ -435,15 +480,16 @@ class AspenConnection:
 
 
 if __name__ == "__main__":
-    filepath = r"C:\Users\Felipe\Desktop\GUI\python\infill.bkp"
-
+    from tests_.mock_data import ASPEN_BKP_FILE_PATH
+    # filepath = r"C:\Users\Felipe\Desktop\GUI\python\infill.bkp"
+    filepath = ASPEN_BKP_FILE_PATH
     con_obj = AspenConnection(filepath)
 
     print(con_obj.get_simulation_data())
 
     import json
-    print(json.dumps(con_obj.get_simulation_partial_io_tree('input'), indent=2))
-    print(json.dumps(con_obj.get_simulation_partial_io_tree('output'), indent=2))
-    print(json.dumps(con_obj.get_simulation_tree(), indent=2))
+    # print(json.dumps(con_obj.get_simulation_partial_io_tree('input'), indent=2))
+    # print(json.dumps(con_obj.get_simulation_partial_io_tree('output'), indent=2))
+    print(json.dumps(con_obj.get_simulation_tree(), indent=4))
 
     del con_obj
