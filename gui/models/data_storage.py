@@ -9,6 +9,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from scipy.special import comb
 
 from gui.models.math_check import is_expression_valid
+from gui.calls.base import warn_the_user
 
 # TODO: Implement class object to handle temporary file/folder creation for the
 # application
@@ -122,6 +123,10 @@ class DataStorage(QObject):
                           }
 
         # --------------------------- SIGNALS/SLOTS ---------------------------
+        # Whenever simulation file changes, check simulation and sampling setup
+        self.simulation_file_changed.connect(self.check_simulation_setup)
+        self.simulation_file_changed.connect(self.check_sampling_setup)
+
         # Whenever INPUT ALIAS data changes update (or check setup):
         # - doe_mv_bounds
         self.input_alias_data_changed.connect(self._update_mv_bounds)
@@ -1334,7 +1339,16 @@ class DataStorage(QObject):
         soc_info = app_data['soc_info']
 
         # loadsimtab
-        self.simulation_file = sim_info['sim_filename']
+        try:
+            self.simulation_file = sim_info['sim_filename']
+        except FileNotFoundError:
+            msg_tile = 'File not found!'
+            msg_str = ("The .bkp file specified in the .mtc could not "
+                       "be found!\nPlease, load the .bkp file that "
+                       "corresponds to this setup.")
+            warn_the_user(msg_text=msg_str, msg_title=msg_tile)
+            self.simulation_file = ''
+
         self.simulation_data = self._uneven_array_to_frame(
             sim_info['sim_info'])
         self.tree_model_input = sim_info['sim_tree_input']
@@ -1377,6 +1391,10 @@ class DataStorage(QObject):
         means that the sampling phase is good to go, otherwise the value is
         False.
         """
+        # check if the bkp file is valid
+        fpath = pathlib.Path(self.simulation_file)
+        is_bkp_valid = fpath.exists() and fpath.is_file()
+
         # get aliases
         aliases = pd.concat([self.input_table_data, self.output_table_data],
                             axis='index', ignore_index=True, sort=False)
@@ -1398,7 +1416,8 @@ class DataStorage(QObject):
         is_expr_defined = expr_df['Type'].ne('Choose a type').any() and \
             not expr_df.empty
 
-        if is_exprs_valid and is_name_not_duplicated and is_expr_defined:
+        if is_exprs_valid and is_name_not_duplicated and is_expr_defined \
+                and is_bkp_valid:
             # everything is ok, proceed to sampling
             self.sampling_enabled.emit(True)
         else:
@@ -1413,6 +1432,10 @@ class DataStorage(QObject):
         means that the metamodel construction phase is good to go, otherwise
         the value is False.
         """
+        # check if the bkp file is valid
+        fpath = pathlib.Path(self.simulation_file)
+        is_bkp_valid = fpath.exists() and fpath.is_file()
+
         inp_data = self.input_table_data
         out_data = self.output_table_data
         expr_data = self.expression_table_data
@@ -1430,7 +1453,7 @@ class DataStorage(QObject):
 
         is_alias_sampled = all(alias in df.columns for alias in aliases)
 
-        if is_alias_sampled and not is_sampling_empty:
+        if is_alias_sampled and not is_sampling_empty and is_bkp_valid:
             self.metamodel_enabled.emit(True)
         else:
             self.metamodel_enabled.emit(False)
