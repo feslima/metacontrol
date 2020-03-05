@@ -83,7 +83,8 @@ BLOCKS_INPUT_CATALOGUE = {
             {'Name': "B:F", 'Description': 'Ratio of Bottoms to Feed Flow Rate'},
             {'Name': "Q1", 'Description': 'Condenser Duty'},
             {'Name': "QN", 'Description': 'Reboiler Duty'},
-            {'Name': "VALUE", 'Description': 'Design Spec Value'}
+            {'Name': "VALUE", 'Description': 'Design Spec Value'},
+            {'Name': 'PROD_FLOW', 'Description': 'Flow rate. This or Flow Ratio must be specified for sidedraws (except those from decanters).'}
         ],
     'RPlug':
         [
