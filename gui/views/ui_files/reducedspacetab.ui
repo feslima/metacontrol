@@ -43,12 +43,12 @@ QGroupBox::title {
          </font>
         </property>
         <property name="text">
-         <string>Variable Activity</string>
+         <string>Select Reduced Space Degrees of Freedom</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QTableView" name="activeConstraintTableView">
+       <widget class="QTableView" name="reducedSpaceDofTableView">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
           <horstretch>0</horstretch>
@@ -69,6 +69,36 @@ QGroupBox::title {
         </property>
         <property name="editTriggers">
          <set>QAbstractItemView::AllEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QTableView" name="activeCandidatesTableView">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>150</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_5">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Select Active Candidates</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" rowspan="2">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>

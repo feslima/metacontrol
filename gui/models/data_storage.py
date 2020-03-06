@@ -41,6 +41,8 @@ class DataStorage(QObject):
     expr_data_changed = pyqtSignal()
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
+    reduced_space_dof_changed = pyqtSignal()
+    active_candidates_changed = pyqtSignal()
     reduced_doe_constraint_activity_changed = pyqtSignal()
     reduced_d_bounds_changed = pyqtSignal()
     reduced_doe_sampled_data_changed = pyqtSignal()
@@ -94,8 +96,9 @@ class DataStorage(QObject):
     # selected metamodel columns
     _META_SELEC_COLS = ['Alias', 'Type', 'Checked']
 
-    # constraint activity index
-    _CONST_ACT_IDX = ['Active', 'Pairing', 'Type', 'Value']
+    # reduced space dof
+    _RED_SPACE_DOF_COLS = ['Alias', 'Checked']
+    _RED_SPACE_ACT_COLS = ['Alias', 'Checked']
 
     # reduced space bounds
     _REDSPACE_BNDS_COLS = ['name', 'lb', 'ub', 'nominal']
@@ -132,8 +135,8 @@ class DataStorage(QObject):
         self.input_alias_data_changed.connect(self._update_mv_bounds)
         # - metamodel_theta_data
         self.input_alias_data_changed.connect(self._update_theta_data)
-        # - active_constraint_info
-        self.input_alias_data_changed.connect(self._update_constraint_activity)
+        # reduced_space_dof
+        self.input_alias_data_changed.connect(self._update_reduced_space_dof)
         # - reduced_doe_d_bounds
         self.input_alias_data_changed.connect(self._update_reduced_d_bounds)
         # - reduced_metamodel_theta_data
@@ -148,7 +151,7 @@ class DataStorage(QObject):
         self.output_alias_data_changed.connect(self._update_selected_data)
         # - active_constraint_info
         self.output_alias_data_changed.connect(
-            self._update_constraint_activity)
+            self._update_active_candidates)
         # - check_simulation_setup
         self.output_alias_data_changed.connect(self.check_simulation_setup)
         # - check_sampling_setup
@@ -158,7 +161,7 @@ class DataStorage(QObject):
         # - metamodel_selected_data (construct metamodels)
         self.expr_data_changed.connect(self._update_selected_data)
         # - active_constraint_info
-        self.expr_data_changed.connect(self._update_constraint_activity)
+        self.expr_data_changed.connect(self._update_active_candidates)
         # - check_simulation_setup
         self.expr_data_changed.connect(self.check_simulation_setup)
         # - check_sampling_setup
@@ -170,19 +173,23 @@ class DataStorage(QObject):
 
         # Whenever ACTIVE CONSTRAINT INFO changes update (or check setup):
         # - reduced_doe_d_bounds
-        self.reduced_doe_constraint_activity_changed.connect(
+        self.reduced_space_dof_changed.connect(
             self._update_reduced_d_bounds
         )
+
         # - reduced_metamodel_theta_data
-        self.reduced_doe_constraint_activity_changed.connect(
+        self.reduced_space_dof_changed.connect(
             self._update_reduced_theta_data
         )
         # - reduced_metamodel_selected_data
-        self.reduced_doe_constraint_activity_changed.connect(
+        self.active_candidates_changed.connect(
             self._update_reduced_selected_data
         )
         # - check_reduced_space_setup
-        self.reduced_doe_constraint_activity_changed.connect(
+        self.reduced_space_dof_changed.connect(
+            self.check_reduced_space_setup)
+
+        self.active_candidates_changed.connect(
             self.check_reduced_space_setup)
 
         # Whenever REDUCED DOE SAMPLED DATA changes update (or check setup):
@@ -193,7 +200,10 @@ class DataStorage(QObject):
         # whenever constraint activity/ expr data changes, update disturbance
         # and measurement error magnitudes data
         self.alias_data_changed.connect(self._update_magnitude_data)
-        self.reduced_doe_constraint_activity_changed.connect(
+        self.reduced_space_dof_changed.connect(
+            self._update_magnitude_data
+        )
+        self.active_candidates_changed.connect(
             self._update_magnitude_data
         )
 
@@ -494,6 +504,46 @@ class DataStorage(QObject):
                                  "columns defined.")
         else:
             raise TypeError("Selected data must be a DataFrame.")
+
+    @property
+    def reduced_space_dof(self):
+        """DataFrame containing which MV's are in the reduced space degrees of
+        freedom."""
+
+        if not hasattr(self, '_reduced_space_dof'):
+            self._reduced_space_dof = pd.DataFrame(
+                columns=self._RED_SPACE_DOF_COLS
+            )
+
+        return self._reduced_space_dof
+
+    @reduced_space_dof.setter
+    def reduced_space_dof(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            self._reduced_space_dof = value
+            self.reduced_space_dof_changed.emit()
+        else:
+            raise TypeError("Reduced space DOF must be a DataFrame.")
+
+    @property
+    def active_candidates(self):
+        """DataFrame containing which candidates are active or not."""
+
+        if not hasattr(self, '_active_candidates'):
+            self._active_candidates = pd.DataFrame(
+                columns=self._RED_SPACE_ACT_COLS
+            )
+
+        return self._active_candidates
+
+    @active_candidates.setter
+    def active_candidates(self, value: pd.DataFrame):
+        if isinstance(value, pd.DataFrame):
+            self._active_candidates = value
+            self.active_candidates_changed.emit()
+
+        else:
+            raise TypeError("Active candidates must be a DataFrame.")
 
     @property
     def active_constraint_info(self):
@@ -941,51 +991,82 @@ class DataStorage(QObject):
         # store values
         self.metamodel_selected_data = new_vars
 
-    def _update_constraint_activity(self) -> None:
-        """Updates the constraint activity info to be displayed whenever
-        alias data changes (SLOT). Managed to be used by a pandas DataFrame.
-        """
-        # list of variables
-        conc_tab = pd.concat([self.input_table_data,
-                              self.output_table_data,
-                              self.expression_table_data],
-                             axis='index', join='inner', ignore_index=True
-                             ).drop_duplicates().reset_index(drop=True)
-        var_list = conc_tab.loc[
-            (conc_tab['Type'] == self._INPUT_ALIAS_TYPES['mv']) |
-            (conc_tab['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
-            (conc_tab['Type'] == self._EXPR_ALIAS_TYPES['cv'])
+    def _update_reduced_space_dof(self) -> None:
+        inp_tab = self.input_table_data
+        aliases = inp_tab.loc[
+            inp_tab['Type'] == self._INPUT_ALIAS_TYPES['mv'],
+            'Alias'
+        ].tolist()
+
+        dof_df = self.reduced_space_dof
+        # delete the variables that aren't in the mv list
+        new_vars = dof_df.loc[
+            dof_df[self._RED_SPACE_DOF_COLS[0]].isin(aliases),
+            :
         ]
+        new_vars_list = new_vars['Alias'].tolist()
 
-        # set the var_list index to the aliases (easier indexing)
-        var_list.set_index('Alias', inplace=True)
-
-        # list of aliases
-        aliases = var_list.index.tolist()
-
-        # delete variables that aren't in the list
-        act_df = self.active_constraint_info
-        new_vars = act_df.loc[:, ~act_df.columns.isin(aliases)]
-        new_vars_list = new_vars.columns.tolist()
-
-        # insert new variables
-        nv = {}
+        # insert new values from input table
+        nv = []
         for alias in aliases:
             if alias not in new_vars_list:
-                nv[alias] = {
-                    'Type': var_list.at[alias, 'Type'],
-                    'Pairing': None,
-                    'Value': None,
-                    'Active': False
-                }
-        new_vars = pd.concat([new_vars, pd.DataFrame(nv)],
-                             axis='columns', ignore_index=False, sort=False)
+                nv.append({
+                    'Alias': alias,
+                    'Checked': False
+                })
 
-        # sort frame to ensure that column order is the same as output table
-        new_vars = new_vars.loc[self._CONST_ACT_IDX, aliases]
+        new_vars = pd.concat([new_vars, pd.DataFrame.from_records(nv)],
+                             ignore_index=True, axis='index')
 
-        # # store values
-        self.active_constraint_info = new_vars
+        # sort frame to ensure that the order is the same as input table
+        new_vars.set_index('Alias', inplace=True)
+        new_vars = new_vars.loc[aliases, :]
+        new_vars.reset_index(inplace=True)
+        new_vars = new_vars.loc[:, self._RED_SPACE_DOF_COLS]
+
+        # store values
+        self.reduced_space_dof = new_vars
+
+    def _update_active_candidates(self) -> None:
+        out_data = self.output_table_data
+        exp_data = self.expression_table_data
+
+        var_tab = pd.concat([out_data, exp_data], axis='index',
+                            ignore_index=True)
+        aliases = var_tab.loc[
+            (var_tab['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
+            (var_tab['Type'] == self._EXPR_ALIAS_TYPES['cv']),
+            'Alias'
+        ].tolist()
+        act_df = self.active_candidates
+
+        # delete the variables that aren't in the mv list
+        new_vars = act_df.loc[
+            act_df[self._RED_SPACE_ACT_COLS[0]].isin(aliases),
+            :
+        ]
+        new_vars_list = new_vars['Alias'].tolist()
+
+        # insert new values from input table
+        nv = []
+        for alias in aliases:
+            if alias not in new_vars_list:
+                nv.append({
+                    'Alias': alias,
+                    'Checked': False
+                })
+
+        new_vars = pd.concat([new_vars, pd.DataFrame.from_records(nv)],
+                             ignore_index=True, axis='index')
+
+        # sort frame to ensure that the order is the same as input table
+        new_vars.set_index('Alias', inplace=True)
+        new_vars = new_vars.loc[aliases, :]
+        new_vars.reset_index(inplace=True)
+        new_vars = new_vars.loc[:, self._RED_SPACE_ACT_COLS]
+
+        # store values
+        self.active_candidates = new_vars
 
     def _update_reduced_d_bounds(self) -> None:
         """Updates the reduced space disturbance bounds data whenever input
@@ -996,23 +1077,8 @@ class DataStorage(QObject):
         d_aliases = inps.loc[inps['Type'] == self._INPUT_ALIAS_TYPES['d'],
                              'Alias'].tolist()
 
-        # get the non consumed aliases from constraint activity info where the
-        # type of alias is not active and manipulated.
-        con_act = self.active_constraint_info
-        consumed_aliases = con_act.loc[
-            'Pairing',
-            (
-                (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
-                (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
-            ) &
-            (con_act.loc['Active'].astype(bool))
-        ].dropna().tolist()
-
-        non_consumed_aliases = con_act.columns[
-            (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
-            (~con_act.loc['Active'].astype(bool)) &
-            (~con_act.columns.isin(consumed_aliases))
-        ].tolist()
+        red_dof = self.reduced_space_dof
+        non_consumed_aliases = red_dof[red_dof['Checked'], 'Alias'].tolist()
 
         input_aliases = d_aliases + non_consumed_aliases
 
@@ -1054,23 +1120,8 @@ class DataStorage(QObject):
         d_aliases = inps.loc[inps['Type'] == self._INPUT_ALIAS_TYPES['d'],
                              'Alias'].tolist()
 
-        # get the non consumed aliases from constraint activity info where the
-        # type of alias is not active and manipulated.
-        con_act = self.active_constraint_info
-        consumed_aliases = con_act.loc[
-            'Pairing',
-            (
-                (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
-                (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
-            ) &
-            (con_act.loc['Active'].astype(bool))
-        ].dropna().tolist()
-
-        non_consumed_aliases = con_act.columns[
-            (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
-            (~con_act.loc['Active'].astype(bool)) &
-            (~con_act.columns.isin(consumed_aliases))
-        ].tolist()
+        red_dof = self.reduced_space_dof
+        non_consumed_aliases = red_dof[red_dof['Checked'], 'Alias'].tolist()
 
         input_aliases = d_aliases + non_consumed_aliases
 
@@ -1109,14 +1160,16 @@ class DataStorage(QObject):
         alias and constraint activity change."""
         # list of non active constraints
 
-        con_act = self.active_constraint_info
-        act_aliases = con_act.columns[
-            (con_act.loc['Type'] != self._INPUT_ALIAS_TYPES['mv']) &
-            (con_act.loc['Active'].astype(bool))
+        act_cvars = self.active_candidates
+
+        non_act_aliases = act_cvars.loc[
+            ~ act_cvars['Checked'],
+            'Alias'
         ].tolist()
 
-        non_act_aliases = con_act.columns[
-            ~ con_act.columns.isin(act_aliases)
+        act_aliases = act_cvars.loc[
+            act_cvars['Checked'],
+            'Alias'
         ].tolist()
 
         conc_tab = pd.concat([self.output_table_data,
@@ -1136,18 +1189,6 @@ class DataStorage(QObject):
 
         # set the var_list index to the aliases (easier indexing)
         var_list.set_index('Alias', inplace=True)
-
-        # non_act_aliases = [{'Alias': con, 'Type': con_act[con]['Type']}
-        #                    for con in con_act
-        #                    if not con_act[con]['Active'] and
-        #                    con_act[con]['Type'] != "Manipulated (MV)"]
-
-        # obj_fun = [{'Alias': row['Alias'], 'Type': row['Type']}
-        #            for row in self.output_table_data +
-        #            self.expression_table_data
-        #            if row['Type'] == 'Objective function (J)']
-
-        # vars = non_act_aliases + obj_fun
 
         # list of aliases
         aliases = var_list.index.tolist()
@@ -1226,7 +1267,6 @@ class DataStorage(QObject):
         """Updates the subset size list whenever alias or expression data
         changes. (SLOT)"""
         # list of aliases that are reduced space CV's
-        #con_act = self.active_constraint_info
         t_data = self.reduced_metamodel_selected_data
         y_aliases = t_data.loc[
             (t_data['Checked']) &
@@ -1236,23 +1276,8 @@ class DataStorage(QObject):
         # possible number of subset
         n_y_list = len(y_aliases)
 
-        # get the non consumed aliases from constraint activity info where the
-        # type of alias is not active and manipulated.
-        con_act = self.active_constraint_info
-        consumed_aliases = con_act.loc[
-            'Pairing',
-            (
-                (con_act.loc['Type'] == self._OUTPUT_ALIAS_TYPES['cv']) |
-                (con_act.loc['Type'] == self._EXPR_ALIAS_TYPES['cv'])
-            ) &
-            (con_act.loc['Active'].astype(bool))
-        ].dropna().tolist()
-
-        non_consumed_aliases = con_act.columns[
-            (con_act.loc['Type'] == self._INPUT_ALIAS_TYPES['mv']) &
-            (~con_act.loc['Active'].astype(bool)) &
-            (~con_act.columns.isin(consumed_aliases))
-        ].tolist()
+        red_dof = self.reduced_space_dof
+        non_consumed_aliases = red_dof[red_dof['Checked'], 'Alias'].tolist()
 
         n_u = 1 if len(non_consumed_aliases) == 0 else len(
             non_consumed_aliases)
@@ -1467,39 +1492,23 @@ class DataStorage(QObject):
         """
         # FIXME: Case where there is not active constraint selected is not
         # treated. What to do? Proceed or not?
-        cact_df = pd.DataFrame(self.active_constraint_info)
+        dof_df = self.reduced_space_dof
+        act_cvs = self.active_candidates
 
-        # TODO: check if disturbance bounds and nominal values are set
-        # correctly
+        # check if reduced space doe is sampled
+        red_df = self.reduced_doe_sampled_data
 
-        if not cact_df.empty:
-            # check if the optimum mv values are set
-            mv_var_idx = cact_df.loc['Type', :] == 'Manipulated (MV)'
-            mv_values = cact_df.loc['Value', mv_var_idx]
-            is_mv_set = mv_values.notna().all()
+        is_sampling_empty = red_df.empty
 
-            # check if the pairing MVs aren't repeated
-            active_con_funs = cact_df.loc['Active', :].astype(bool)
-            not_mvs_active = cact_df.columns[~mv_var_idx & active_con_funs]
-            pairings = cact_df.loc['Pairing', not_mvs_active]
-            is_pairing_repeated = pairings.duplicated().sum() > 0
-
-            # check if the pairings are defined
-            is_pairing_defined = not pairings.isna().any()
-
-            # check if reduced space doe is sampled
-            red_df = self.reduced_doe_sampled_data
-
-            is_sampling_empty = red_df.empty
-        else:
+        if dof_df.empty or act_cvs.empty:
             # empty active contraint info object
-            is_mv_set = False
-            is_pairing_repeated = True
-            is_pairing_defined = False
-            is_sampling_empty = True
+            is_dof_set = False
 
-        if is_mv_set and not is_pairing_repeated and is_pairing_defined and \
-                not is_sampling_empty:
+        else:
+            # check if at least one dof is checked
+            is_dof_set = dof_df['Checked'].any()
+
+        if is_dof_set and not is_sampling_empty:
             self.hessian_enabled.emit(True)
         else:
             self.hessian_enabled.emit(False)

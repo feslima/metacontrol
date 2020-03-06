@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\reducedspacetab.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\reducedspacetab.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -38,17 +38,33 @@ class Ui_Form(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
-        self.activeConstraintTableView = QtWidgets.QTableView(self.groupBox)
+        self.reducedSpaceDofTableView = QtWidgets.QTableView(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.activeConstraintTableView.sizePolicy().hasHeightForWidth())
-        self.activeConstraintTableView.setSizePolicy(sizePolicy)
-        self.activeConstraintTableView.setMinimumSize(QtCore.QSize(0, 0))
-        self.activeConstraintTableView.setMaximumSize(QtCore.QSize(16777215, 150))
-        self.activeConstraintTableView.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
-        self.activeConstraintTableView.setObjectName("activeConstraintTableView")
-        self.gridLayout_2.addWidget(self.activeConstraintTableView, 1, 0, 1, 1)
+        sizePolicy.setHeightForWidth(self.reducedSpaceDofTableView.sizePolicy().hasHeightForWidth())
+        self.reducedSpaceDofTableView.setSizePolicy(sizePolicy)
+        self.reducedSpaceDofTableView.setMinimumSize(QtCore.QSize(0, 0))
+        self.reducedSpaceDofTableView.setMaximumSize(QtCore.QSize(16777215, 150))
+        self.reducedSpaceDofTableView.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
+        self.reducedSpaceDofTableView.setObjectName("reducedSpaceDofTableView")
+        self.gridLayout_2.addWidget(self.reducedSpaceDofTableView, 1, 0, 1, 1)
+        self.activeCandidatesTableView = QtWidgets.QTableView(self.groupBox)
+        self.activeCandidatesTableView.setMaximumSize(QtCore.QSize(16777215, 150))
+        self.activeCandidatesTableView.setObjectName("activeCandidatesTableView")
+        self.gridLayout_2.addWidget(self.activeCandidatesTableView, 1, 2, 1, 1)
+        self.label_5 = QtWidgets.QLabel(self.groupBox)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_5.setFont(font)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout_2.addWidget(self.label_5, 0, 2, 1, 1)
+        self.line = QtWidgets.QFrame(self.groupBox)
+        self.line.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.gridLayout_2.addWidget(self.line, 0, 1, 2, 1)
         self.gridLayout.addWidget(self.groupBox, 0, 1, 1, 1)
         self.groupBox_2 = QtWidgets.QGroupBox(Form)
         self.groupBox_2.setStyleSheet("QGroupBox {\n"
@@ -182,7 +198,8 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.label.setText(_translate("Form", "Variable Activity"))
+        self.label.setText(_translate("Form", "Select Reduced Space Degrees of Freedom"))
+        self.label_5.setText(_translate("Form", "Select Active Candidates"))
         self.openSamplingPushButton.setText(_translate("Form", "Open sampling assistant"))
         self.radioButton.setText(_translate("Form", "Simulation file"))
         self.label_2.setText(_translate("Form", "Data Source"))

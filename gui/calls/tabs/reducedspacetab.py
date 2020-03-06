@@ -17,28 +17,47 @@ from gui.models.data_storage import DataStorage
 from gui.views.py_files.reducedspacetab import Ui_Form
 
 
-class ActiveConstraintTableModel(QAbstractTableModel):
+class ReducedSpaceDofTableModel(QAbstractTableModel):
 
     def __init__(self, app_data: DataStorage, parent: QTableView):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = app_data
         self.load_data()
 
-        self.app_data.reduced_doe_constraint_activity_changed.connect(
-            self.load_data)
+        self.app_data.reduced_space_dof_changed.connect(self.load_data)
 
     def load_data(self):
         self.layoutAboutToBeChanged.emit()
 
-        self.con_info = self.app_data.active_constraint_info.copy(deep=True)
+        self.dof_info = self.app_data.reduced_space_dof
 
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
-        return self.con_info.shape[0]
+        return self.dof_info.shape[0]
 
     def columnCount(self, parent=None):
-        return self.con_info.shape[1]
+        return self.dof_info.shape[1]
+
+    def headerData(self, section: int, orientation: Qt.Orientation,
+                   role: int = Qt.DisplayRole):
+        if orientation == Qt.Horizontal:
+            if role == Qt.DisplayRole:
+                return self.dof_info.columns[section]
+
+            elif role == Qt.FontRole:
+                df_font = QFont()
+                df_font.setBold(True)
+                return df_font
+
+            else:
+                return None
+
+        elif orientation == Qt.Vertical:
+            return None
+
+        else:
+            return None
 
     def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
         if not index.isValid():
@@ -47,65 +66,25 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        value = self.con_info.iloc[row, col]
+        value = self.dof_info.iat[row, col]
 
         if role == Qt.DisplayRole:
-            if self.con_info.index[row] == 'Type':
+            if self.dof_info.columns[col] == 'Alias':
                 return str(value)
-            elif self.con_info.index[row] == 'Value':
-                # display fields only for MV types
-                var_name = self.con_info.columns[col]
-                if self.con_info.at['Type', var_name] == 'Manipulated (MV)':
-                    if value is None:
-                        return 'Type an optimal value'
-                    else:
-                        return str(value)
-                else:
-                    return None
-
-            elif self.con_info.index[row] == 'Pairing':
-                var_name = self.con_info.columns[col]
-                if self.con_info.at['Type', var_name] != 'Manipulated (MV)':
-                    if value is None:
-                        return "Select a MV"
-                    else:
-                        return str(value)
-                else:
-                    return None
-
             else:
                 return None
 
-        elif role == Qt.BackgroundRole:
-            var_name = self.con_info.columns[col]
-            if value is None and \
-                    self.con_info.at['Type', var_name] == 'Manipulated (MV)':
-                if self.con_info.index[row] == 'Value':
-                    # paint cell red if no value is defined for the MVs
-                    return QBrush(Qt.red)
-
-            if self.con_info.index[row] == 'Pairing' and \
-                    self.con_info.at['Type', var_name] != 'Manipulated (MV)' and \
-                    self.con_info.at['Active', var_name] is True:
-                # paint cell red if no pairing is selected and the active
-                # variable is a constraint (do not paint cells corresponding to
-                # MV's)
-                if self.con_info.at['Pairing', var_name] is None or \
-                        (self.con_info.loc['Pairing', :] ==
-                         self.con_info.at['Pairing', var_name]).sum() > 1:
-                    return QBrush(Qt.red)
-
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignCenter
-
         elif role == Qt.CheckStateRole:
-            if self.con_info.index[row] == 'Active':
-                if self.con_info.iat[row, col]:
+            if self.dof_info.column[col] == 'Checked':
+                if value:
                     return Qt.Checked
                 else:
                     return Qt.Unchecked
             else:
                 return None
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
 
         else:
             return None
@@ -117,38 +96,14 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        alias = self.con_info.columns[col]
-
-        if self.con_info.index[row] == 'Active':
+        if self.dof_info.columns[col] == 'Checked':
             value = True if value == 1 else False
 
             # change corresponding data in app storage
-            self.app_data.active_constraint_info.at['Active', alias] = value
-            self.app_data.reduced_doe_constraint_activity_changed.emit()
+            self.app_data.reduced_space_dof.iat[row, col] = value
+            self.app_data.reduced_space_dof_changed.emit()
 
             # update the entire row
-            self.dataChanged.emit(index.sibling(row, 0),
-                                  index.sibling(row, self.columnCount()))
-
-            return True
-
-        elif self.con_info.index[row] == 'Value':
-            value = None if value == '' else float(value)
-
-            self.app_data.active_constraint_info.at['Value', alias] = value
-            self.app_data.reduced_doe_constraint_activity_changed.emit()
-
-            self.dataChanged.emit(index.sibling(row, 0),
-                                  index.sibling(row, self.columnCount()))
-
-            return True
-
-        elif self.con_info.index[row] == 'Pairing':
-            value = None if value == 'Select a MV' else value
-
-            self.app_data.active_constraint_info.at['Pairing', alias] = value
-            self.app_data.reduced_doe_constraint_activity_changed.emit()
-
             self.dataChanged.emit(index.sibling(row, 0),
                                   index.sibling(row, self.columnCount()))
 
@@ -157,11 +112,45 @@ class ActiveConstraintTableModel(QAbstractTableModel):
         else:
             return False
 
+    def flags(self, index: QModelIndex):
+        row = index.row()
+        col = index.column()
+
+        if self.dof_info.columns[col] == 'Checked':
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled | \
+                Qt.ItemIsUserCheckable
+
+        else:
+            return ~Qt.ItemIsEditable | Qt.ItemIsSelectable
+
+
+class ActiveCandidatesTableModel(QAbstractTableModel):
+
+    def __init__(self, app_data: DataStorage, parent: QTableView):
+        QAbstractTableModel.__init__(self, parent)
+        self.app_data = app_data
+        self.load_data()
+
+        self.app_data.active_candidates_changed.connect(self.load_data)
+
+    def load_data(self):
+        self.layoutAboutToBeChanged.emit()
+
+        self.act_info = self.app_data.active_candidates
+
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=None):
+        return self.act_info.shape[0]
+
+    def columnCount(self, parent=None):
+        return self.act_info.shape[1]
+
     def headerData(self, section: int, orientation: Qt.Orientation,
                    role: int = Qt.DisplayRole):
         if orientation == Qt.Horizontal:
             if role == Qt.DisplayRole:
-                return self.con_info.columns[section]
+                return self.act_info.columns[section]
 
             elif role == Qt.FontRole:
                 df_font = QFont()
@@ -172,45 +161,81 @@ class ActiveConstraintTableModel(QAbstractTableModel):
                 return None
 
         elif orientation == Qt.Vertical:
-            if role == Qt.DisplayRole:
-                return self.con_info.index[section]
-
-            elif role == Qt.FontRole:
-                df_font = QFont()
-                df_font.setBold(True)
-                return df_font
-
-            else:
-                return None
+            return None
 
         else:
             return None
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        col = index.column()
+
+        value = self.act_info.iat[row, col]
+
+        if role == Qt.DisplayRole:
+            if self.act_info.columns[col] == 'Alias':
+                return str(value)
+            else:
+                return None
+
+        elif role == Qt.CheckStateRole:
+            if self.act_info.column[col] == 'Checked':
+                if value:
+                    return Qt.Checked
+                else:
+                    return Qt.Unchecked
+            else:
+                return None
+
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        elif role == Qt.BackgroundRole:
+            # if the number of checked cvs is greater than the number of
+            # unchecked DOFS, turn the cell red
+            doe_df_info = self.app_data.reduced_space_dof
+            if self.act_info['Checked'].sum() > ~doe_df_info['Checked'].sum():
+                return QBrush(Qt.red)
+
+            else:
+                return QBrush(self.parent().palette().brush(QPalette.Base))
+
+        else:
+            return None
+
+    def setData(self, index: QModelIndex, value, role: int = Qt.EditRole):
+        if role != Qt.EditRole or not index.isValid():
+            return False
+
+        row = index.row()
+        col = index.column()
+
+        if self.act_info.columns[col] == 'Checked':
+            value = True if value == 1 else False
+
+            # change corresponding data in app storage
+            self.app_data.active_candidates.iat[row, col] = value
+            self.app_data.active_candidates_changed.emit()
+
+            # update the entire row
+            self.dataChanged.emit(index.sibling(row, 0),
+                                  index.sibling(row, self.columnCount()))
+
+            return True
+
+        else:
+            return False
 
     def flags(self, index: QModelIndex):
         row = index.row()
         col = index.column()
 
-        row_type = self.con_info.index[row]
-        var_name = self.con_info.columns[col]
-
-        if row_type == 'Active':
+        if self.act_info.columns[col] == 'Checked':
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | \
                 Qt.ItemIsUserCheckable
-
-        elif row_type == 'Value' and \
-                self.con_info.at['Type', var_name] == 'Manipulated (MV)':
-            # enable editing only for MV values
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled
-
-        elif row_type == 'Pairing' and \
-                self.con_info.at['Type', var_name] != 'Manipulated (MV)':
-            # enable pairing dropdown if the constraints marked as active are
-            # not MV's
-            if self.con_info.at['Active', var_name] is True:
-                return Qt.ItemIsEditable | Qt.ItemIsEnabled
-            else:
-                return ~Qt.ItemIsEditable & ~Qt.ItemIsEnabled | \
-                    Qt.ItemIsSelectable
 
         else:
             return ~Qt.ItemIsEditable | Qt.ItemIsSelectable
@@ -284,27 +309,30 @@ class ReducedSpaceTab(QWidget):
         self.application_database = application_database
         # ----------------------- Widget Initialization -----------------------
         self.ui.openSamplingPushButton.setEnabled(False)
-        active_table = self.ui.activeConstraintTableView
-        active_model = ActiveConstraintTableModel(self.application_database,
-                                                  parent=active_table)
-        active_table.setModel(active_model)
+        dof_table = self.ui.reducedSpaceDofTableView
+        dof_model = ReducedSpaceDofTableModel(self.application_database,
+                                              parent=dof_table)
+        dof_table.setModel(dof_model)
 
-        active_table.horizontalHeader().setSectionResizeMode(
+        dof_table.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
 
         self._check_delegate = CheckBoxDelegate()
-        self._value_delegate = DoubleEditorDelegate()
 
-        inp_data = self.application_database.input_table_data
-        mv_list = inp_data.loc[
-            inp_data['Type'] ==
-            self.application_database._INPUT_ALIAS_TYPES['mv'],
-            'Alias'].tolist()
-        self._pairing_delegate = ComboBoxDelegate(item_list=mv_list)
+        dof_table.setItemDelegateForColumn(1, self._check_delegate)
 
-        active_table.setItemDelegateForRow(0, self._check_delegate)
-        active_table.setItemDelegateForRow(1, self._pairing_delegate)
-        active_table.setItemDelegateForRow(3, self._value_delegate)
+        act_table = self.ui.activeCandidatesTableView
+        act_model = ActiveCandidatesTableModel(self.application_database,
+                                               parent=act_table)
+
+        act_table.setModel(act_model)
+
+        act_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
+
+        self._act_check_delegate = CheckBoxDelegate()
+
+        act_table.setItemDelegateForColumn(1, self._act_check_delegate)
 
         dist_table = self.ui.disturbanceRangeTableView
         dist_model = RangeOfDisturbanceTableModel(self.application_database,
