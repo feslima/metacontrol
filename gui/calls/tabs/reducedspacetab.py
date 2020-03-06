@@ -75,7 +75,7 @@ class ReducedSpaceDofTableModel(QAbstractTableModel):
                 return None
 
         elif role == Qt.CheckStateRole:
-            if self.dof_info.column[col] == 'Checked':
+            if self.dof_info.columns[col] == 'Checked':
                 if value:
                     return Qt.Checked
                 else:
@@ -182,7 +182,7 @@ class ActiveCandidatesTableModel(QAbstractTableModel):
                 return None
 
         elif role == Qt.CheckStateRole:
-            if self.act_info.column[col] == 'Checked':
+            if self.act_info.columns[col] == 'Checked':
                 if value:
                     return Qt.Checked
                 else:
@@ -197,7 +197,8 @@ class ActiveCandidatesTableModel(QAbstractTableModel):
             # if the number of checked cvs is greater than the number of
             # unchecked DOFS, turn the cell red
             doe_df_info = self.app_data.reduced_space_dof
-            if self.act_info['Checked'].sum() > ~doe_df_info['Checked'].sum():
+            if self.act_info['Checked'].astype(bool).sum() > \
+                    ~doe_df_info['Checked'].astype(bool).sum():
                 return QBrush(Qt.red)
 
             else:
@@ -366,10 +367,10 @@ class ReducedSpaceTab(QWidget):
             results_model.load_data
         )
 
-        # whenever alias data changes, update combobox delegate item list
-        self.application_database.input_alias_data_changed.connect(
-            self.update_combobox_items
-        )
+        # # whenever alias data changes, update combobox delegate item list
+        # self.application_database.input_alias_data_changed.connect(
+        #     self.update_combobox_items
+        # )
 
         self.ui.loadSimulationPushButton.clicked.connect(
             self.open_simulation_file_dialog)

@@ -1078,7 +1078,7 @@ class DataStorage(QObject):
                              'Alias'].tolist()
 
         red_dof = self.reduced_space_dof
-        non_consumed_aliases = red_dof[red_dof['Checked'], 'Alias'].tolist()
+        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist()
 
         input_aliases = d_aliases + non_consumed_aliases
 
@@ -1121,7 +1121,7 @@ class DataStorage(QObject):
                              'Alias'].tolist()
 
         red_dof = self.reduced_space_dof
-        non_consumed_aliases = red_dof[red_dof['Checked'], 'Alias'].tolist()
+        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist()
 
         input_aliases = d_aliases + non_consumed_aliases
 
@@ -1163,7 +1163,7 @@ class DataStorage(QObject):
         act_cvars = self.active_candidates
 
         non_act_aliases = act_cvars.loc[
-            ~ act_cvars['Checked'],
+            ~ act_cvars['Checked'].astype(bool),
             'Alias'
         ].tolist()
 
@@ -1277,7 +1277,7 @@ class DataStorage(QObject):
         n_y_list = len(y_aliases)
 
         red_dof = self.reduced_space_dof
-        non_consumed_aliases = red_dof[red_dof['Checked'], 'Alias'].tolist()
+        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist()
 
         n_u = 1 if len(non_consumed_aliases) == 0 else len(
             non_consumed_aliases)
