@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\lhssettings.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\lhssettings.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -53,4 +55,3 @@ class Ui_Dialog(object):
         self.label.setText(_translate("Dialog", "Number of samples:"))
         self.label_2.setText(_translate("Dialog", "Number of iterations:"))
         self.checkBoxIncVertices.setText(_translate("Dialog", "Include hypercube vertices"))
-

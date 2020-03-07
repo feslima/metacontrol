@@ -43,7 +43,6 @@ class DataStorage(QObject):
     doe_sampled_data_changed = pyqtSignal()
     reduced_space_dof_changed = pyqtSignal()
     active_candidates_changed = pyqtSignal()
-    reduced_doe_constraint_activity_changed = pyqtSignal()
     reduced_d_bounds_changed = pyqtSignal()
     reduced_doe_sampled_data_changed = pyqtSignal()
     reduced_selected_data_changed = pyqtSignal()
@@ -520,6 +519,8 @@ class DataStorage(QObject):
     @reduced_space_dof.setter
     def reduced_space_dof(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
+            if value.index.is_object():
+                value.index = value.index.astype(int)
             self._reduced_space_dof = value
             self.reduced_space_dof_changed.emit()
         else:
@@ -539,32 +540,13 @@ class DataStorage(QObject):
     @active_candidates.setter
     def active_candidates(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
+            if value.index.is_object():
+                value.index = value.index.astype(int)
             self._active_candidates = value
             self.active_candidates_changed.emit()
 
         else:
             raise TypeError("Active candidates must be a DataFrame.")
-
-    @property
-    def active_constraint_info(self):
-        """DataFrame containing which variables from the optimization are
-        active or not."""
-
-        if not hasattr(self, '_active_constraint_info'):
-            # attribute not created (init), create now
-            self._active_constraint_info = pd.DataFrame(
-                index=self._CONST_ACT_IDX
-            )
-
-        return self._active_constraint_info
-
-    @active_constraint_info.setter
-    def active_constraint_info(self, value: pd.DataFrame):
-        if isinstance(value, pd.DataFrame):
-            self._active_constraint_info = value
-            self.reduced_doe_constraint_activity_changed.emit()
-        else:
-            raise TypeError("Activity constraint info must be a dictionary.")
 
     @property
     def reduced_doe_lhs_settings(self):
@@ -1078,7 +1060,8 @@ class DataStorage(QObject):
                              'Alias'].tolist()
 
         red_dof = self.reduced_space_dof
-        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist()
+        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist(
+        )
 
         input_aliases = d_aliases + non_consumed_aliases
 
@@ -1121,7 +1104,8 @@ class DataStorage(QObject):
                              'Alias'].tolist()
 
         red_dof = self.reduced_space_dof
-        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist()
+        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist(
+        )
 
         input_aliases = d_aliases + non_consumed_aliases
 
@@ -1277,7 +1261,8 @@ class DataStorage(QObject):
         n_y_list = len(y_aliases)
 
         red_dof = self.reduced_space_dof
-        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist()
+        non_consumed_aliases = red_dof.loc[red_dof['Checked'], 'Alias'].tolist(
+        )
 
         n_u = 1 if len(non_consumed_aliases) == 0 else len(
             non_consumed_aliases)
@@ -1322,7 +1307,8 @@ class DataStorage(QObject):
                 'mtc_sampled_data': self.doe_sampled_data
             },
             'reduced_space_info': {
-                'mtc_constraint_activity': self.active_constraint_info,
+                'mtc_reduced_space_dof': self.reduced_space_dof,
+                'mtc_reduced_active_candidates': self.active_candidates,
                 'mtc_reduced_d_bounds': self.reduced_doe_d_bounds,
                 'mtc_reduced_sampled_data': self.reduced_doe_sampled_data
             },
@@ -1387,14 +1373,14 @@ class DataStorage(QObject):
         self.doe_sampled_data = pd.DataFrame(doe_info['mtc_sampled_data'])
 
         # reducedpsacetab
-        self.active_constraint_info = pd.DataFrame(
-            redspace_info['mtc_constraint_activity'])
+        self.reduced_space_dof = pd.DataFrame(
+            redspace_info['mtc_reduced_space_dof'])
+        self.active_candidates = pd.DataFrame(
+            redspace_info['mtc_reduced_active_candidates'])
         self.reduced_doe_d_bounds = pd.DataFrame(
-            redspace_info['mtc_reduced_d_bounds']
-        )
+            redspace_info['mtc_reduced_d_bounds'])
         self.reduced_doe_sampled_data = pd.DataFrame(
-            redspace_info['mtc_reduced_sampled_data']
-        )
+            redspace_info['mtc_reduced_sampled_data'])
 
         # hessianextraction tab
         self.differential_gy = diff_info['mtc_gy']

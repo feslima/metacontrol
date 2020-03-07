@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\reducedspacetab.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\reducedspacetab.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -39,20 +41,16 @@ class Ui_Form(object):
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
         self.reducedSpaceDofTableView = QtWidgets.QTableView(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.reducedSpaceDofTableView.sizePolicy().hasHeightForWidth())
         self.reducedSpaceDofTableView.setSizePolicy(sizePolicy)
         self.reducedSpaceDofTableView.setMinimumSize(QtCore.QSize(0, 0))
-        self.reducedSpaceDofTableView.setMaximumSize(QtCore.QSize(16777215, 150))
+        self.reducedSpaceDofTableView.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.reducedSpaceDofTableView.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
         self.reducedSpaceDofTableView.setObjectName("reducedSpaceDofTableView")
         self.gridLayout_2.addWidget(self.reducedSpaceDofTableView, 1, 0, 1, 1)
-        self.activeCandidatesTableView = QtWidgets.QTableView(self.groupBox)
-        self.activeCandidatesTableView.setMaximumSize(QtCore.QSize(16777215, 150))
-        self.activeCandidatesTableView.setObjectName("activeCandidatesTableView")
-        self.gridLayout_2.addWidget(self.activeCandidatesTableView, 1, 2, 1, 1)
         self.label_5 = QtWidgets.QLabel(self.groupBox)
         font = QtGui.QFont()
         font.setBold(True)
@@ -65,6 +63,10 @@ class Ui_Form(object):
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
         self.gridLayout_2.addWidget(self.line, 0, 1, 2, 1)
+        self.activeCandidatesTableView = QtWidgets.QTableView(self.groupBox)
+        self.activeCandidatesTableView.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.activeCandidatesTableView.setObjectName("activeCandidatesTableView")
+        self.gridLayout_2.addWidget(self.activeCandidatesTableView, 1, 2, 1, 1)
         self.gridLayout.addWidget(self.groupBox, 0, 1, 1, 1)
         self.groupBox_2 = QtWidgets.QGroupBox(Form)
         self.groupBox_2.setStyleSheet("QGroupBox {\n"
@@ -207,5 +209,4 @@ class Ui_Form(object):
         self.openCsvEditorPushButton.setText(_translate("Form", "Open CSV Editor"))
         self.label_3.setText(_translate("Form", "Reduced Space Sampled Data"))
         self.label_4.setText(_translate("Form", "Range of Disturbances"))
-
 from gui.resources import icons_rc

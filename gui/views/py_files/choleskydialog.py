@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\choleskydialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\choleskydialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -94,4 +96,3 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "<html><head/><body><p>Modified J<span style=\" vertical-align:sub;\">uu</span></p></body></html>"))
         self.label.setText(_translate("Dialog", "<html><head/><body><p>Original J<span style=\" vertical-align:sub;\">uu</span></p></body></html>"))
         self.label_5.setText(_translate("Dialog", "Error"))
-

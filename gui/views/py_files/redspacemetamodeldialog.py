@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\redspacemetamodeldialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\redspacemetamodeldialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -280,4 +282,3 @@ class Ui_Dialog(object):
         self.label_7.setText(_translate("Dialog", "Choose which variables will have their model built"))
         self.confirmPushButton.setText(_translate("Dialog", "OK"))
         self.label_10.setText(_translate("Dialog", "Validation metrics"))
-

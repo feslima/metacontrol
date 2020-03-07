@@ -50,7 +50,7 @@ QGroupBox::title {
       <item row="1" column="0">
        <widget class="QTableView" name="reducedSpaceDofTableView">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -64,21 +64,11 @@ QGroupBox::title {
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>150</height>
+          <height>16777215</height>
          </size>
         </property>
         <property name="editTriggers">
          <set>QAbstractItemView::AllEditTriggers</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QTableView" name="activeCandidatesTableView">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>150</height>
-         </size>
         </property>
        </widget>
       </item>
@@ -99,6 +89,16 @@ QGroupBox::title {
        <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QTableView" name="activeCandidatesTableView">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
         </property>
        </widget>
       </item>

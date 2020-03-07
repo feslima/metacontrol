@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\metamodeltab.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\metamodeltab.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -271,4 +273,3 @@ class Ui_Form(object):
         self.label_10.setText(_translate("Form", "Validation metrics"))
         self.label.setText(_translate("Form", "Hyperparameters (theta) definition"))
         self.label_7.setText(_translate("Form", "Choose which variables will have their model built"))
-

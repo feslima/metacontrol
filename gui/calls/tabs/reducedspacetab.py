@@ -105,7 +105,7 @@ class ReducedSpaceDofTableModel(QAbstractTableModel):
 
             # update the entire row
             self.dataChanged.emit(index.sibling(row, 0),
-                                  index.sibling(row, self.columnCount()))
+                                  index.sibling(row, self.columnCount() - 1))
 
             return True
 
@@ -197,8 +197,8 @@ class ActiveCandidatesTableModel(QAbstractTableModel):
             # if the number of checked cvs is greater than the number of
             # unchecked DOFS, turn the cell red
             doe_df_info = self.app_data.reduced_space_dof
-            if self.act_info['Checked'].astype(bool).sum() > \
-                    ~doe_df_info['Checked'].astype(bool).sum():
+            if (self.act_info['Checked'].astype(bool)).sum() > \
+                    (~doe_df_info['Checked'].astype(bool)).sum():
                 return QBrush(Qt.red)
 
             else:
@@ -223,7 +223,7 @@ class ActiveCandidatesTableModel(QAbstractTableModel):
 
             # update the entire row
             self.dataChanged.emit(index.sibling(row, 0),
-                                  index.sibling(row, self.columnCount()))
+                                  index.sibling(row, self.columnCount() - 1))
 
             return True
 
