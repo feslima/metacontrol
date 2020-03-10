@@ -48,7 +48,7 @@
          <item row="0" column="1">
           <widget class="QLineEdit" name="firstFactorLineEdit">
            <property name="text">
-            <string>0.8</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -65,7 +65,7 @@
          <item row="1" column="1">
           <widget class="QLineEdit" name="secondFactorLineEdit">
            <property name="text">
-            <string>0.4</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -82,7 +82,7 @@
          <item row="2" column="1">
           <widget class="QLineEdit" name="tolContractLineEdit">
            <property name="text">
-            <string>1e-4</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -99,7 +99,7 @@
          <item row="3" column="1">
           <widget class="QLineEdit" name="conTolLineEdit">
            <property name="text">
-            <string>1e-6</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -116,7 +116,7 @@
          <item row="4" column="1">
           <widget class="QLineEdit" name="penaltyFactorLineEdit">
            <property name="text">
-            <string>200</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -133,7 +133,7 @@
          <item row="5" column="1">
           <widget class="QLineEdit" name="tol1LineEdit">
            <property name="text">
-            <string>1e-5</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -150,7 +150,7 @@
          <item row="6" column="1">
           <widget class="QLineEdit" name="tol2LineEdit">
            <property name="text">
-            <string>1e-6</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -167,7 +167,7 @@
          <item row="7" column="1">
           <widget class="QLineEdit" name="maxFunEvalsLineEdit">
            <property name="text">
-            <string>4000</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -286,7 +286,7 @@
            <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="tab_2">
+           <widget class="QWidget" name="ipOptLocalTab">
             <attribute name="title">
              <string>IpOpt - Local</string>
             </attribute>
@@ -303,7 +303,7 @@
                <item row="0" column="1">
                 <widget class="QLineEdit" name="ipoptLocalMaxIterLineEdit">
                  <property name="text">
-                  <string>3000</string>
+                  <string/>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -320,7 +320,7 @@
                <item row="1" column="1">
                 <widget class="QLineEdit" name="ipoptLocalConTolLineEdit">
                  <property name="text">
-                  <string>1e-6</string>
+                  <string/>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -337,7 +337,7 @@
                <item row="2" column="1">
                 <widget class="QLineEdit" name="ipoptLocalDualFeasLineEdit">
                  <property name="text">
-                  <string>1e-8</string>
+                  <string/>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -348,7 +348,7 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tab">
+           <widget class="QWidget" name="ipOptServerTab">
             <attribute name="title">
              <string>IpOpt - Server</string>
             </attribute>

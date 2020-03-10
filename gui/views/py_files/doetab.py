@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\doetab.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\doetab.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -146,4 +144,5 @@ class Ui_Form(object):
         self.csvEditorRadioButton.setText(_translate("Form", "Load data from CSV file:"))
         self.samplingAssistantRadioButton.setText(_translate("Form", "Generate input from LHS and sample the data:"))
         self.label.setText(_translate("Form", "Bounds definition"))
+
 from gui.resources import icons_rc

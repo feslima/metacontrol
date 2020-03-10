@@ -83,6 +83,8 @@ class OptimizationTab(QWidget):
         self.application_database = application_database
 
         # ----------------------- Widget Initialization -----------------------
+        self.load_opt_params()
+
         res_tab = self.ui.resultsTableView
         res_model = ResultsTableModel(results_frame=pd.DataFrame({}))
         res_tab.setModel(res_model)
@@ -97,6 +99,33 @@ class OptimizationTab(QWidget):
         self.ui.ipoptTestConnectionPushButton.clicked.connect(
             self.on_ipopt_test_connection_pressed)
 
+        # whenever any of the opt parameters changes update the underlying obj
+        factor1_le, factor2_le, tol_contract_le, con_tol_le, penalty_le, \
+            tol1_le, tol2_le, maxfunevals_le, \
+            regrpoly_cb = self._get_lineedit_handles()
+
+        factor1_le.textChanged.connect(self.set_opt_params)
+        factor2_le.textChanged.connect(self.set_opt_params)
+        tol_contract_le.textChanged.connect(self.set_opt_params)
+        con_tol_le.textChanged.connect(self.set_opt_params)
+        penalty_le.textChanged.connect(self.set_opt_params)
+        tol1_le.textChanged.connect(self.set_opt_params)
+        tol2_le.textChanged.connect(self.set_opt_params)
+        maxfunevals_le.textChanged.connect(self.set_opt_params)
+        regrpoly_cb.currentIndexChanged.connect(self.set_opt_params)
+        self.ui.ipoptLocalDualFeasLineEdit.textChanged.connect(
+            self.set_opt_params)
+        self.ui.ipoptLocalMaxIterLineEdit.textChanged.connect(
+            self.set_opt_params)
+        self.ui.ipoptLocalConTolLineEdit.textChanged.connect(
+            self.set_opt_params)
+        self.ui.ipoptServerDualFeasLineEdit.textChanged.connect(
+            self.set_opt_params)
+        self.ui.ipoptServerMaxIterLineEdit.textChanged.connect(
+            self.set_opt_params)
+        self.ui.ipoptServerConTolLineEdit.textChanged.connect(
+            self.set_opt_params)
+
         # control panel related stuff
         self.opening_connection.connect(self.on_opening_sim_connection)
         self.connection_opened.connect(self.on_sim_connection_opened)
@@ -104,42 +133,161 @@ class OptimizationTab(QWidget):
         self.optimization_failed.connect(self.on_optimization_failed)
         # ---------------------------------------------------------------------
 
-    def on_start_pressed(self):
-        # get caballero parameters from ui
-        first_factor = float(self.ui.firstFactorLineEdit.text())
-        sec_factor = float(self.ui.secondFactorLineEdit.text())
-        tol_contract = float(self.ui.tolContractLineEdit.text())
-        con_tol = float(self.ui.conTolLineEdit.text())
-        penalty = float(self.ui.penaltyFactorLineEdit.text())
-        tol1 = float(self.ui.tol1LineEdit.text())
-        tol2 = float(self.ui.tol2LineEdit.text())
-        maxfunevals = int(self.ui.maxFunEvalsLineEdit.text())
-        regrpoly = self.ui.regrpolyComboBox.currentText()
+    def _get_lineedit_handles(self):
+        factor1_le = self.ui.firstFactorLineEdit
+        factor2_le = self.ui.secondFactorLineEdit
+        tol_contract_le = self.ui.secondFactorLineEdit
+        con_tol_le = self.ui.conTolLineEdit
+        penalty_le = self.ui.penaltyFactorLineEdit
+        tol1_le = self.ui.tol1LineEdit
+        tol2_le = self.ui.tol2LineEdit
+        maxfunevals_le = self.ui.maxFunEvalsLineEdit
+        regrpoly_cb = self.ui.regrpolyComboBox
 
-        nlp_solver_type = self.ui.selectSolverComboBox.currentText()
+        return factor1_le, factor2_le, tol_contract_le, con_tol_le, \
+            penalty_le, tol1_le, tol2_le, maxfunevals_le, regrpoly_cb
 
-        if nlp_solver_type == "IpOpt (local)":
-            ipopt_tol = float(self.ui.ipoptLocalDualFeasLineEdit.text())
-            ipopt_max_iter = int(self.ui.ipoptLocalMaxIterLineEdit.text())
-            ipopt_con_tol = float(self.ui.ipoptLocalConTolLineEdit.text())
-            nlp_dict = {'solver': "ipopt_local",
-                        'ipopt_tol': ipopt_tol,
-                        'ipopt_max_iter': ipopt_max_iter,
-                        'ipopt_con_tol': ipopt_con_tol}
+    def load_opt_params(self):
+        factor1_le, factor2_le, tol_contract_le, con_tol_le, penalty_le, \
+            tol1_le, tol2_le, maxfunevals_le, \
+            regrpoly_cb = self._get_lineedit_handles()
 
-        elif nlp_solver_type == "IpOpt (server)":
-            server_url = self.ui.ipoptServerAddressLineEdit.text()
-            ipopt_tol = float(self.ui.ipoptLocalDualFeasLineEdit.text())
-            ipopt_max_iter = int(self.ui.ipoptLocalMaxIterLineEdit.text())
-            ipopt_con_tol = float(self.ui.ipoptLocalConTolLineEdit.text())
-            nlp_dict = {'solver': "ipopt_server",
-                        'server_url': server_url,
-                        'ipopt_tol': ipopt_tol,
-                        'ipopt_max_iter': ipopt_max_iter,
-                        'ipopt_con_tol': ipopt_con_tol}
+        opt_params = self.application_database.optimization_parameters
+        solver_params = opt_params['nlp_params']
+
+        factor1_le.setText(str(opt_params['first_factor']))
+        factor2_le.setText(str(opt_params['second_factor']))
+        tol_contract_le.setText(str(opt_params['tol_contract']))
+        con_tol_le.setText(str(opt_params['con_tol']))
+        penalty_le.setText(str(opt_params['penalty']))
+        tol1_le.setText(str(opt_params['tol1']))
+        tol2_le.setText(str(opt_params['tol2']))
+        maxfunevals_le.setText(str(opt_params['maxfunevals']))
+
+        if opt_params['regrpoly'] == 'poly0':
+            regrpoly_cb.setCurrentIndex(0)
+        elif opt_params['regrpoly'] == 'poly1':
+            regrpoly_cb.setCurrentIndex(1)
+        elif opt_params['regrpoly'] == 'poly2':
+            regrpoly_cb.setCurrentIndex(2)
+        else:
+            raise ValueError("Invalid polynomial regression option.")
+
+        if solver_params['solver_type'] == 'ipopt_local':
+            ipopt_tol_le = self.ui.ipoptLocalDualFeasLineEdit
+            ipopt_max_iter_le = self.ui.ipoptLocalMaxIterLineEdit
+            ipopt_con_tol_le = self.ui.ipoptLocalConTolLineEdit
+
+            tol = solver_params['tol']
+            max_iter = solver_params['max_iter']
+            con_tol = solver_params['con_tol']
+
+        elif solver_params['solver_type'] == 'ipopt_server':
+            server_url_le = self.ui.ipoptServerAddressLineEdit
+
+            server_url_le.setText(solver_params['server_url'])
+            ipopt_tol_le = self.ui.ipoptServerDualFeasLineEdit
+            ipopt_max_iter_le = self.ui.ipoptServerMaxIterLineEdit
+            ipopt_con_tol_le = self.ui.ipoptServerConTolLineEdit
+
+            tol = solver_params['tol']
+            max_iter = solver_params['max_iter']
+            con_tol = solver_params['con_tol']
 
         else:
-            raise ValueError("Invalid NLP solver selected.")
+            raise ValueError("Invalid solver type.")
+
+        ipopt_tol_le.setText(str(tol))
+        ipopt_max_iter_le.setText(str(max_iter))
+        ipopt_con_tol_le.setText(str(con_tol))
+
+    def set_opt_params(self):
+        factor1_le, factor2_le, tol_contract_le, con_tol_le, penalty_le, \
+            tol1_le, tol2_le, maxfunevals_le, \
+            regrpoly_cb = self._get_lineedit_handles()
+
+        le_name = self.sender().objectName()
+
+        opt_params = self.application_database.optimization_parameters
+        solver_params = opt_params['nlp_params']
+
+        if le_name == factor1_le.objectName():
+            opt_params['first_factor'] = float(factor1_le.text())
+
+        elif le_name == factor2_le.objectName():
+            opt_params['second_factor'] = float(factor2_le.text())
+
+        elif le_name == tol_contract_le.objectName():
+            opt_params['tol_contract'] = float(tol_contract_le.text())
+
+        elif le_name == con_tol_le.objectName():
+            opt_params['con_tol'] = float(con_tol_le.text())
+
+        elif le_name == penalty_le.objectName():
+            opt_params['penalty'] = float(penalty_le.text())
+
+        elif le_name == tol1_le.objectName():
+            opt_params['tol1'] = float(tol1_le.text())
+
+        elif le_name == tol2_le.objectName():
+            opt_params['tol2'] = float(tol2_le.text())
+
+        elif le_name == maxfunevals_le.objectName():
+            opt_params['maxfunevals'] = float(maxfunevals_le.text())
+
+        elif le_name == regrpoly_cb.objectName():
+            if regrpoly_cb.currentIndex() == 0:
+                opt_params['regrpoly'] = 'poly0'
+            elif regrpoly_cb.currentIndex() == 1:
+                opt_params['regrpoly'] = 'poly1'
+            else:
+                opt_params['regrpoly'] = 'poly2'
+
+        tabw = self.ui.tabWidget
+
+        if tabw.currentWidget().objectName() == 'ipOptLocalTab':
+            ipopt_tol_le = self.ui.ipoptLocalDualFeasLineEdit
+            ipopt_max_iter_le = self.ui.ipoptLocalMaxIterLineEdit
+            ipopt_con_tol_le = self.ui.ipoptLocalConTolLineEdit
+
+            solver_params['solver_type'] = 'ipopt_local'
+
+        elif tabw.currentWidget().objectName() == 'ipOptServerTab':
+            server_url_le = self.ui.ipoptServerAddressLineEdit
+            ipopt_tol_le = self.ui.ipoptServerDualFeasLineEdit
+            ipopt_max_iter_le = self.ui.ipoptServerMaxIterLineEdit
+            ipopt_con_tol_le = self.ui.ipoptServerConTolLineEdit
+
+            solver_params['server_url'] = server_url_le.text()
+            solver_params['solver_type'] = 'ipopt_server'
+
+        else:
+            raise IndexError('Tab object not found.')
+
+        solver_params['tol'] = float(ipopt_tol_le.text())
+        solver_params['max_iter'] = int(ipopt_max_iter_le.text())
+        solver_params['con_tol'] = float(ipopt_con_tol_le.text())
+
+        opt_params['nlp_params'] = solver_params
+
+        self.application_database.optimization_parameters = opt_params
+
+    def on_start_pressed(self):
+        # get caballero parameters from storage
+        opt_params = self.application_database.optimization_parameters
+        solver_params = opt_params['nlp_params']
+
+        first_factor = opt_params['first_factor']
+        sec_factor = opt_params['second_factor']
+        tol_contract = opt_params['tol_contract']
+        con_tol = opt_params['con_tol']
+        penalty = opt_params['penalty']
+        tol1 = opt_params['tol1']
+        tol2 = opt_params['tol2']
+        maxfunevals = opt_params['maxfunevals']
+        regrpoly = opt_params['regrpoly']
+
+        nlp_dict = solver_params
 
         params = {
             'first_factor': first_factor,

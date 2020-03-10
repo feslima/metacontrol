@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\loadsimulationtree.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\loadsimulationtree.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -80,4 +78,5 @@ class Ui_Dialog(object):
         self.pushButtonLoadTreeFromFile.setText(_translate("Dialog", "Load Variable Tree"))
         self.pushButtonOK.setText(_translate("Dialog", "OK"))
         self.openSimGUICheckBox.setText(_translate("Dialog", "Open Simulator GUI"))
+
 from gui.resources import icons_rc

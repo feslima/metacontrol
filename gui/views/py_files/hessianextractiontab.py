@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\hessianextractiontab.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\hessianextractiontab.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
-
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -113,9 +112,11 @@ class Ui_Form(object):
         self.label_10.setObjectName("label_10")
         self.gridLayout_5.addWidget(self.label_10, 2, 0, 1, 1)
         self.gridLayout_3.addWidget(self.groupBox_4, 2, 0, 1, 4)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_3.addItem(spacerItem, 3, 2, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_3.addItem(spacerItem1, 3, 0, 1, 1)
         self.groupBox = QtWidgets.QGroupBox(Form)
         self.groupBox.setMaximumSize(QtCore.QSize(390, 65))
@@ -156,15 +157,20 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.label_7.setText(_translate("Form", "Hessian matrix positive-definite correction"))
-        self.cholmodPushButton.setText(_translate("Form", "Cholesky Modification"))
+        self.label_7.setText(_translate(
+            "Form", "Hessian matrix positive-definite correction"))
+        self.cholmodPushButton.setText(
+            _translate("Form", "Cholesky Modification"))
         self.label_3.setText(_translate("Form", "Gradient results"))
         self.label_5.setText(_translate("Form", "G<sup>y</sup>"))
         self.label_6.setText(_translate("Form", "G<sup>y</sup><sub>d</sub>"))
         self.label_9.setText(_translate("Form", "J<sub>ud</sub>"))
         self.label_4.setText(_translate("Form", "Hessian results"))
         self.label_10.setText(_translate("Form", "J<sub>uu</sub>"))
-        self.trainMetamodelPushButton.setText(_translate("Form", "Open training dialog"))
-        self.label.setText(_translate("Form", "Reduced space metamodel training"))
+        self.trainMetamodelPushButton.setText(
+            _translate("Form", "Open training dialog"))
+        self.label.setText(_translate(
+            "Form", "Reduced space metamodel training"))
         self.label_8.setText(_translate("Form", "Gradient and Hessian"))
-        self.genGradHessPushButton.setText(_translate("Form", "Estimate Gradient and Hessian"))
+        self.genGradHessPushButton.setText(
+            _translate("Form", "Estimate Gradient and Hessian"))

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\loadsimtab.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\loadsimtab.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -214,4 +212,5 @@ class Ui_Form(object):
         self.buttonAddExpr.setToolTip(_translate("Form", "<html><head/><body><p>Inserts a new expression slot</p></body></html>"))
         self.buttonAddExpr.setText(_translate("Form", "Add Expression"))
         self.label_12.setText(_translate("Form", "Function definitions"))
+
 from gui.resources import icons_rc

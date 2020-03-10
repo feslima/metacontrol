@@ -44,6 +44,7 @@ class DataStorage(QObject):
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
     optimization_results_changed = pyqtSignal()
+    optimization_parameters_changed = pyqtSignal()
     reduced_space_dof_changed = pyqtSignal()
     active_candidates_changed = pyqtSignal()
     reduced_d_bounds_changed = pyqtSignal()
@@ -529,6 +530,42 @@ class DataStorage(QObject):
 
         else:
             raise TypeError("Optimization results must be a Series object.")
+    
+    @property
+    def optimization_parameters(self):
+        """Dictionary containing the parameters for the optimization phase."""
+
+        if not hasattr(self, '_optimization_parameters'):
+            dc = {
+                'first_factor': 0.8,
+                'second_factor': 0.4,
+                'tol_contract': 1e-4,
+                'con_tol': 1e-6,
+                'penalty': 1e3,
+                'tol1': 1e-4,
+                'tol2': 1e-5,
+                'maxfunevals': 1000,
+                'regrpoly': 'poly0',
+                'nlp_params': {
+                    'solver_type': 'ipopt_local',
+                    'tol': 1e-8,
+                    'con_tol': 1e-6,
+                    'max_iter': 3000
+                }
+            }
+
+            self._optimization_parameters = dc
+
+        return self._optimization_parameters
+
+    @optimization_parameters.setter
+    def optimization_parameters(self, value: dict):
+        if isinstance(value, dict):
+            self._optimization_parameters = value
+            self.optimization_parameters_changed.emit()
+
+        else:
+            raise TypeError("Optimization parameters must be a dictionary.")
 
     @property
     def reduced_space_dof(self):
@@ -1339,8 +1376,9 @@ class DataStorage(QObject):
                 'mtc_mv_bounds': self.doe_mv_bounds,
                 'mtc_sampled_data': self.doe_sampled_data
             },
-            'optimization_info': {
-                'mtc_opt_results': self.optimization_results
+            'opt_info': {
+                'mtc_opt_results': self.optimization_results,
+                'mtc_optimization_parameters': self.optimization_parameters
             },
             'reduced_space_info': {
                 'mtc_reduced_space_dof': self.reduced_space_dof,
@@ -1381,7 +1419,7 @@ class DataStorage(QObject):
 
         sim_info = app_data['simulation_info']
         doe_info = app_data['doe_info']
-        opt_info = app_data['optimization_info']
+        opt_info = app_data['opt_info']
         redspace_info = app_data['reduced_space_info']
         diff_info = app_data['differential_info']
         soc_info = app_data['soc_info']
@@ -1409,9 +1447,9 @@ class DataStorage(QObject):
         self.doe_mv_bounds = pd.DataFrame(doe_info['mtc_mv_bounds'])
         self.doe_sampled_data = pd.DataFrame(doe_info['mtc_sampled_data'])
 
-        # optimization results
-        self.optimization_results = pd.Series(opt_info['mtc_opt_results'])
-        
+        # optimization tab
+        self.optimization_parameters = opt_info['mtc_optimization_parameters']
+
         # reducedpsacetab
         self.reduced_space_dof = pd.DataFrame(
             redspace_info['mtc_reduced_space_dof'])

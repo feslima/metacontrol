@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\socresults.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\socresults.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -114,3 +112,4 @@ class Ui_Dialog(object):
         self.reportPushButton.setText(_translate("Dialog", "Generate report"))
         self.label_5.setText(_translate("Dialog", "Set number:"))
         self.label_3.setText(_translate("Dialog", "Sensitivity matrices (F)"))
+

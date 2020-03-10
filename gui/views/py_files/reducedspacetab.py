@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Felipe\PycharmProjects\metacontrol\gui\views\ui_files\reducedspacetab.ui'
+# Form implementation generated from reading ui file 'C:\Users\Felipe\metacontrol\gui\views\ui_files\reducedspacetab.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -209,4 +207,5 @@ class Ui_Form(object):
         self.openCsvEditorPushButton.setText(_translate("Form", "Open CSV Editor"))
         self.label_3.setText(_translate("Form", "Reduced Space Sampled Data"))
         self.label_4.setText(_translate("Form", "Range of Disturbances"))
+
 from gui.resources import icons_rc
