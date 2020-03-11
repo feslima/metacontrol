@@ -21,8 +21,8 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.app_data = app_data
         self.load_data()
-        self.headers = ["Disturbance variable", "Lower bound", "Upper bound",
-                        "Nominal Value"]
+        self.headers = ["Disturbance variable", "Lower bound", "Nominal Value",
+                        "Upper bound"]
         self.app_data.reduced_d_bounds_changed.connect(self.load_data)
 
     def load_data(self):
@@ -73,7 +73,7 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
             return Qt.AlignCenter
 
         elif role == Qt.BackgroundRole or role == Qt.ToolTipRole:
-            if col == 1 or col == 2:
+            if col == 1 or col == 3:
                 if self.d_bounds.at[row, 'lb'] >= self.d_bounds.at[row, 'ub']:
                     return QBrush(Qt.red) if role == Qt.BackgroundRole \
                         else "Lower bound can't be greater than upper bound!"
@@ -82,7 +82,7 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
                     return QBrush(par.palette().brush(QPalette.Base)) \
                         if role == Qt.BackgroundRole else ""
 
-            elif col == 3:
+            elif col == 2:
                 if self.d_bounds.at[row, 'nominal'] > \
                         self.d_bounds.at[row, 'ub'] or \
                     self.d_bounds.at[row, 'nominal'] < \
@@ -113,9 +113,9 @@ class RangeOfDisturbanceTableModel(QAbstractTableModel):
         if col == 1:
             d_df.at[row, 'lb'] = float(value)
         elif col == 2:
-            d_df.at[row, 'ub'] = float(value)
-        elif col == 3:
             d_df.at[row, 'nominal'] = float(value)
+        elif col == 3:
+            d_df.at[row, 'ub'] = float(value)
         else:
             return False
 
@@ -222,11 +222,12 @@ class SampledDataTableModel(QAbstractTableModel):
             :, 'name'
         ].tolist()
 
-        output_mvs = inp_data.loc[~inp_data['Alias'].isin(self._input_alias), 'Alias']
+        output_mvs = inp_data.loc[~inp_data['Alias'].isin(
+            self._input_alias), 'Alias']
 
         self._output_alias = pd.concat([out_data.loc[:, 'Alias'],
-                   output_mvs], ignore_index=True,
-                  axis='index', sort=False).tolist()
+                                        output_mvs], ignore_index=True,
+                                       axis='index', sort=False).tolist()
 
         # self._output_alias = out_data.loc[:, 'Alias'].tolist()
 

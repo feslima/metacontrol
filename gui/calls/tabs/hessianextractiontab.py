@@ -204,17 +204,10 @@ class HessianExtractionTab(QWidget):
                 (t_data['Checked']) &
                 (t_data['Type'] == app_data._OUTPUT_ALIAS_TYPES['cv']), 'Alias'
             ].tolist()
-            # Y_labels = [var['Alias'] for var in
-            #             app_data.reduced_metamodel_selected_data
-            #             if var['Type'] == 'Candidate (CV)' and
-            #             var['Checked']]
         else:
             Y_labels = t_data.loc[
                 (t_data['Type'] == app_data._EXPR_ALIAS_TYPES['obj']), 'Alias'
             ].tolist()
-            # Y_labels = [var['Alias'] for var in
-            #             app_data.reduced_metamodel_selected_data
-            #             if var['Type'] == 'Objective function (J)']
 
         # extract data
         X = sampled_data.loc[
@@ -252,13 +245,6 @@ class HessianExtractionTab(QWidget):
         # FIXME: implement better way to ensure order of MV's are correct
         doe_bnds = app_data.reduced_doe_d_bounds
         values = doe_bnds.loc[:, 'nominal'].tolist()
-        # act_info = app_data.active_constraint_info
-        # values = [var['nom']
-        #           for var in app_data.reduced_doe_d_bounds
-        #           if var['name'] in X_labels] + \
-        #     [act_info[var]['Value']
-        #      for var in act_info
-        #      if var in X_labels]
         x_nom = np.array([values])
 
         if difftype == 'gradient':

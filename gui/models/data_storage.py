@@ -19,6 +19,8 @@ class PandasEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, pd.DataFrame):
             return o.to_dict()
+        elif isinstance(o, pd.Series):
+            return o.to_dict()
         return json.JSONEncoder.default(self, o)
 
 
@@ -41,6 +43,7 @@ class DataStorage(QObject):
     expr_data_changed = pyqtSignal()
     doe_mv_bounds_changed = pyqtSignal()
     doe_sampled_data_changed = pyqtSignal()
+    optimization_results_changed = pyqtSignal()
     reduced_space_dof_changed = pyqtSignal()
     active_candidates_changed = pyqtSignal()
     reduced_d_bounds_changed = pyqtSignal()
@@ -100,7 +103,7 @@ class DataStorage(QObject):
     _RED_SPACE_ACT_COLS = ['Alias', 'Checked']
 
     # reduced space bounds
-    _REDSPACE_BNDS_COLS = ['name', 'lb', 'ub', 'nominal']
+    _REDSPACE_BNDS_COLS = ['name', 'lb', 'nominal', 'ub']
 
     def __init__(self):
         super().__init__()
@@ -222,6 +225,11 @@ class DataStorage(QObject):
         self.differential_juu_data_changed.connect(self.check_hessian_setup)
         self.differential_jud_data_changed.connect(self.check_hessian_setup)
 
+        # whenever optimization results change update the reduced space bounds
+        self.optimization_results_changed.connect(
+            self._update_reduced_d_bounds
+        )
+
     # ------------------------------ PROPERTIES ------------------------------
     @property
     def simulation_file(self):
@@ -329,7 +337,7 @@ class DataStorage(QObject):
         return self._output_table_data
 
     @output_table_data.setter
-    def output_table_data(self, value: list):
+    def output_table_data(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
             if value.columns.isin(self._ALIAS_COLS).all():
                 if value.index.is_object():
@@ -505,6 +513,24 @@ class DataStorage(QObject):
             raise TypeError("Selected data must be a DataFrame.")
 
     @property
+    def optimization_results(self):
+        """Series containing the results from the optimization."""
+
+        if not hasattr(self, '_optimization_results'):
+            self._optimization_results = pd.Series()
+
+        return self._optimization_results
+
+    @optimization_results.setter
+    def optimization_results(self, value: pd.Series):
+        if isinstance(value, pd.Series):
+            self._optimization_results = value
+            self.optimization_results_changed.emit()
+
+        else:
+            raise TypeError("Optimization results must be a Series object.")
+
+    @property
     def reduced_space_dof(self):
         """DataFrame containing which MV's are in the reduced space degrees of
         freedom."""
@@ -609,6 +635,7 @@ class DataStorage(QObject):
     def reduced_doe_d_bounds(self, value: pd.DataFrame):
         if isinstance(value, pd.DataFrame):
             if value.columns.isin(self._REDSPACE_BNDS_COLS).all():
+                value = value[self._REDSPACE_BNDS_COLS]  # reorder columns
                 if value.index.is_object():
                     value.index = value.index.astype(int)
 
@@ -1074,12 +1101,18 @@ class DataStorage(QObject):
         # insert new values
         nv = []
         for alias in input_aliases:
+            if alias in self.optimization_results.index:
+                # set default values from optimization
+                nom = self.optimization_results.at[alias]
+            else:
+                nom = 0.5
+
             if alias not in bnd_list:
                 nv.append({
                     'name': alias,
                     'lb': 0.0,
                     'ub': 1.0,
-                    'nominal': 0.5
+                    'nominal': nom
                 })
 
         new_bnds = pd.concat([new_bnds, pd.DataFrame.from_records(nv)],
@@ -1306,6 +1339,9 @@ class DataStorage(QObject):
                 'mtc_mv_bounds': self.doe_mv_bounds,
                 'mtc_sampled_data': self.doe_sampled_data
             },
+            'optimization_info': {
+                'mtc_opt_results': self.optimization_results
+            },
             'reduced_space_info': {
                 'mtc_reduced_space_dof': self.reduced_space_dof,
                 'mtc_reduced_active_candidates': self.active_candidates,
@@ -1345,6 +1381,7 @@ class DataStorage(QObject):
 
         sim_info = app_data['simulation_info']
         doe_info = app_data['doe_info']
+        opt_info = app_data['optimization_info']
         redspace_info = app_data['reduced_space_info']
         diff_info = app_data['differential_info']
         soc_info = app_data['soc_info']
@@ -1372,6 +1409,9 @@ class DataStorage(QObject):
         self.doe_mv_bounds = pd.DataFrame(doe_info['mtc_mv_bounds'])
         self.doe_sampled_data = pd.DataFrame(doe_info['mtc_sampled_data'])
 
+        # optimization results
+        self.optimization_results = pd.Series(opt_info['mtc_opt_results'])
+        
         # reducedpsacetab
         self.reduced_space_dof = pd.DataFrame(
             redspace_info['mtc_reduced_space_dof'])

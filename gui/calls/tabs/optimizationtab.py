@@ -185,11 +185,14 @@ class OptimizationTab(QWidget):
         self.opt_thread.start()
 
     def on_opt_results_ready(self, report: dict):
+        report_s = pd.Series(report)  # make a copy as series
         report = pd.DataFrame(report, index=['Values']).copy(deep=True)
 
         model = self.ui.resultsTableView.model()
 
         model.load_results(report)
+
+        self.application_database.optimization_results = report_s
 
     def on_optimization_failed(self, error_msg: str):
         # append message to the control panel
