@@ -84,7 +84,7 @@ profile_default/
 ipython_config.py
 
 # sphinx docs preview
-docs/source/_build
+docsrc/source/_build
 
 # pyenv
 .python-version
