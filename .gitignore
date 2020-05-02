@@ -15,7 +15,6 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
-!docs/build
 develop-eggs/
 dist/
 downloads/
@@ -83,6 +82,9 @@ target/
 # IPython
 profile_default/
 ipython_config.py
+
+# sphinx docs preview
+docs/source/_build
 
 # pyenv
 .python-version
