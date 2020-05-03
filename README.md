@@ -4,4 +4,5 @@
 </p>
 
 # Documentation
-Documentation is under construction...
+
+The official documentation with installation instructions, theory and examples can be found at https://feslima.github.io/metacontrol.

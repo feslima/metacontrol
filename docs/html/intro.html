@@ -38,7 +38,89 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>Placeholder Text…</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Currently, there are two ways to install the software: via binaries or
+source code.</p>
+<dl class="simple">
+<dt><strong>Prerequisites</strong>:</dt><dd><ol class="arabic simple">
+<li><p>Windows OS;</p></li>
+<li><p><a class="reference external" href="https://www.aspentech.com/en/products/engineering/aspen-plus">AspenTech Aspen Plus</a> installed;</p></li>
+</ol>
+</dd>
+</dl>
+<div class="section" id="installing-from-binaries">
+<h3>Installing from binaries<a class="headerlink" href="#installing-from-binaries" title="Permalink to this headline">¶</a></h3>
+<p>This is the most straightforward way to install <em>Metacontrol</em>. You just need to
+download the desired version from the repository <a class="reference external" href="https://github.com/feslima/metacontrol/releases">releases page</a>.</p>
+</div>
+<div class="section" id="installing-from-source">
+<h3>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt><strong>Additional prerequisites</strong>:</dt><dd><ul class="simple">
+<li><p>A conda installation from either <a class="reference external" href="https://www.anaconda.com/">Anaconda</a> or <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>;</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Steps</strong>:</p>
+<ol class="arabic">
+<li><dl>
+<dt>Create the virtual environment:</dt><dd><p>You will need to create a conda environment exclusively for
+<em>Metacontrol</em> and install the <a class="reference external" href="https://www.python.org/">Python interpreter</a>
+via the following conda prompt command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">your_env_name</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">python</span>
+</pre></div>
+</div>
+<p>The argument <code class="docutils literal notranslate"><span class="pre">your_env_name</span></code> can be changed to whichever valid name you like.
+We suggest to keep it simple to remember (simply calling <code class="docutils literal notranslate"><span class="pre">metacontrol</span></code> or
+<code class="docutils literal notranslate"><span class="pre">mtc</span></code> will suffice), since you will need it activated whenever you run
+the <em>Metacontrol</em> application.</p>
+</dd>
+</dl>
+</li>
+<li><p>Then activate the environment via:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">your_env_name</span>
+</pre></div>
+</div>
+</li>
+<li><dl class="simple">
+<dt>Install the optimization package:</dt><dd><p>Now you will need to install the <a class="reference external" href="https://github.com/matthias-k/cyipopt">Python IpOpt optimization package</a>
+required. This step is crucial, so we recommend you follow the package
+<a class="reference external" href="https://github.com/matthias-k/cyipopt#from-source-on-windows">installation instructions</a>
+accordingly.</p>
+</dd>
+</dl>
+</li>
+<li><p>Then you will need to install the base packages via the commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pywin32</span> <span class="n">pandas</span> <span class="n">sklearn</span> <span class="n">simplejson</span> <span class="n">matplotlib</span> <span class="n">scipy</span>
+
+<span class="n">pip</span> <span class="n">install</span> <span class="n">py</span><span class="o">-</span><span class="n">expression</span><span class="o">-</span><span class="nb">eval</span>
+
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">felipes21</span> <span class="n">pydace</span> <span class="n">surropt</span> <span class="n">pysoc</span>
+</pre></div>
+</div>
+</li>
+<li><dl class="simple">
+<dt>Download the source code:</dt><dd><p>From the <a class="reference external" href="https://github.com/feslima/metacontrol">repository</a>
+and unzip it to your folder of preference.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Run the application:</dt><dd><p>You will need to have a conda prompt with the environment you created in the
+previous steps activated. Then you just type the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The argument <code class="docutils literal notranslate"><span class="pre">path/to/</span></code> is just the path to folder you unzipped. Your can
+either change the current directory via the <code class="docutils literal notranslate"><span class="pre">cd</span></code> command and running
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">mainwindow.py</span></code>, or type the full path as mentioned above.</p>
+</dd>
+</dl>
+</li>
+</ol>
+</div>
+</div>
 </div>
 
 
@@ -47,6 +129,18 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#installing-from-binaries">Installing from binaries</a></li>
+<li><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome!</a></p>
