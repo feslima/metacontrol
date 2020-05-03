@@ -3,20 +3,31 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome!
-========
+Metacontrol: A metamodel based toolbox for self-optimizing control structure selection
+======================================================================================
 
 Metacontrol is a Python based software which assembles several methodologies 
 into a single bundle so that a fast implementation of the Self-Optimizing 
-Control (SOC) technique can be achieved. 
+Control (SOC) technique can be achieved.
 
-Metacontrol Documentation Contents
+How to cite us
+==============
+
+.. code-block:: none
+
+   place BibTeX entry here
+
+Documentation Contents
 ==================================
 
 .. toctree::
    :maxdepth: 2
 
    intro
+   overview/mtc
+   soc/concepts
+   metamodels/surrogates
+   optimization/infill
 
 
 

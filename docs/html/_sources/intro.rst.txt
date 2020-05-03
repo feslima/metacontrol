@@ -2,6 +2,27 @@
 Introduction
 ************
 
+What Metacontrol is capable of and what it isn't
+================================================
+
+The primary objective of the *Metacontrol* methodology is to facilitate the 
+implementation of the Self-Optimizing Control (SOC) concept in industrial
+processes via software analysis.
+
+The SOC concept is used to guide a decision on how to design the control 
+structure of a given process. Other decisions such as which type of 
+controllers to use or how to tune them is a responsibility of classical 
+control design whose concepts are not implemented (yet) in this software.
+
+The basic idea behind *Metacontrol* is to tell you **what** control 
+structure you should implement, **not how** you should implement.
+
+Nonetheless, *Metacontrol* is a congregation of methodologies such as 
+`Surrogate modeling <https://en.wikipedia.org/wiki/Surrogate_model>`_ via
+`Kriging metamodels <https://en.wikipedia.org/wiki/Kriging>`_,
+`Black-box process optimization <http://www.ressources-actuarielles.net/EXT/ISFA/1226.nsf/9c8e3fd4d8874d60c1257052003eced6/e7dc33e4da12c5a9c12576d8002e442b/$FILE/Jones01.pdf>`_
+and `SOC <https://folk.ntnu.no/skoge/research/research-selfopt.html>`_.
+
 Installation
 ============
 
@@ -16,7 +37,8 @@ Installing from binaries
 ------------------------
 
 This is the most straightforward way to install *Metacontrol*. You just need to 
-download the desired version from the repository `releases page <https://github.com/feslima/metacontrol/releases>`_.
+download and install the desired version from the repository 
+`releases page <https://github.com/feslima/metacontrol/releases>`_.
 
 Installing from source
 ----------------------

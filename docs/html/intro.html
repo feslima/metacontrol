@@ -1,11 +1,12 @@
 
-<!DOCTYPE html>
+
+<!doctype html>
 
 <html>
   <head>
     <meta charset="utf-8" />
     <title>Introduction &#8212; Metacontrol 1.0.4 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,10 +14,15 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
-    
+    <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Welcome!" href="index.html" /> 
+    <link rel="next" title="Methodology Overview" href="overview/mtc.html" />
+    <link rel="prev" title="Metacontrol: A metamodel based toolbox for control structure selection" href="index.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,11 +31,57 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="index.html" title="Welcome!"
+          <a href="overview/mtc.html" title="Methodology Overview"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Metacontrol: A metamodel based toolbox for control structure selection"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Metacontrol 1.0.4 documentation</a> &#187;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/mtc.svg" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#what-metacontrol-is-capable-of-and-what-it-isn-t">What Metacontrol is capable of and what it isn’t</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#installing-from-binaries">Installing from binaries</a></li>
+<li><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Metacontrol: A metamodel based toolbox for control structure selection</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="overview/mtc.html"
+                        title="next chapter">Methodology Overview</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/intro.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -38,6 +90,23 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-metacontrol-is-capable-of-and-what-it-isn-t">
+<h2>What Metacontrol is capable of and what it isn’t<a class="headerlink" href="#what-metacontrol-is-capable-of-and-what-it-isn-t" title="Permalink to this headline">¶</a></h2>
+<p>The primary objective of the <em>Metacontrol</em> methodology is to facilitate the
+implementation of the Self-Optimizing Control (SOC) concept in industrial
+processes via software analysis.</p>
+<p>The SOC concept is used to guide a decision on how to design the control
+structure of a given process. Other decisions such as which type of
+controllers to use or how to tune them is a responsibility of classical
+control design whose concepts are not implemented (yet) in this software.</p>
+<p>The basic idea behind <em>Metacontrol</em> is to tell you <strong>what</strong> control
+structure you should implement, <strong>not how</strong> you should implement.</p>
+<p>Nonetheless, <em>Metacontrol</em> is a congregation of methodologies such as
+<a class="reference external" href="https://en.wikipedia.org/wiki/Surrogate_model">Surrogate modeling</a> via
+<a class="reference external" href="https://en.wikipedia.org/wiki/Kriging">Kriging metamodels</a>,
+<a class="reference external" href="http://www.ressources-actuarielles.net/EXT/ISFA/1226.nsf/9c8e3fd4d8874d60c1257052003eced6/e7dc33e4da12c5a9c12576d8002e442b/$FILE/Jones01.pdf">Black-box process optimization</a>
+and <a class="reference external" href="https://folk.ntnu.no/skoge/research/research-selfopt.html">SOC</a>.</p>
+</div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>Currently, there are two ways to install the software: via binaries or
@@ -52,7 +121,8 @@ source code.</p>
 <div class="section" id="installing-from-binaries">
 <h3>Installing from binaries<a class="headerlink" href="#installing-from-binaries" title="Permalink to this headline">¶</a></h3>
 <p>This is the most straightforward way to install <em>Metacontrol</em>. You just need to
-download the desired version from the repository <a class="reference external" href="https://github.com/feslima/metacontrol/releases">releases page</a>.</p>
+download and install the desired version from the repository
+<a class="reference external" href="https://github.com/feslima/metacontrol/releases">releases page</a>.</p>
 </div>
 <div class="section" id="installing-from-source">
 <h3>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline">¶</a></h3>
@@ -127,42 +197,6 @@ either change the current directory via the <code class="docutils literal notran
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Introduction</a><ul>
-<li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#installing-from-binaries">Installing from binaries</a></li>
-<li><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome!</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/intro.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -172,7 +206,10 @@ either change the current directory via the <code class="docutils literal notran
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="index.html" title="Welcome!"
+          <a href="overview/mtc.html" title="Methodology Overview"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Metacontrol: A metamodel based toolbox for control structure selection"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Metacontrol 1.0.4 documentation</a> &#187;</li> 
       </ul>
