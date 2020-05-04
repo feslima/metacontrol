@@ -14,8 +14,9 @@ structure of a given process. Other decisions such as which type of
 controllers to use or how to tune them is a responsibility of classical 
 control design whose concepts are not implemented (yet) in this software.
 
-The basic idea behind *Metacontrol* is to tell you **what** control 
-structure you should implement, **not how** you should implement.
+.. IMPORTANT::
+    The basic idea behind *Metacontrol* is to tell you **what** control 
+    structure you should implement, **not how** you should implement.
 
 Nonetheless, *Metacontrol* is a congregation of methodologies such as 
 `Surrogate modeling <https://en.wikipedia.org/wiki/Surrogate_model>`_ via
@@ -30,6 +31,7 @@ Currently, there are two ways to install the software: via binaries or
 source code.
 
 **Prerequisites**:
+
     #. Windows OS;
     #. `AspenTech Aspen Plus <https://www.aspentech.com/en/products/engineering/aspen-plus>`_ installed;
 
@@ -44,11 +46,13 @@ Installing from source
 ----------------------
 
 **Additional prerequisites**:
+
     * A conda installation from either `Anaconda <https://www.anaconda.com/>`_ or `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`_;
 
 **Steps**:
 
-#. Create the virtual environment: 
+#. Create the virtual environment.
+
     You will need to create a conda environment exclusively for 
     *Metacontrol* and install the `Python interpreter <https://www.python.org/>`_ 
     via the following conda prompt command::
@@ -60,29 +64,36 @@ Installing from source
     ``mtc`` will suffice), since you will need it activated whenever you run 
     the *Metacontrol* application.
 
-#. Then activate the environment via::
+#. Then activate the environment via:
 
-    conda activate your_env_name
+    ::
 
-#. Install the optimization package:
+        conda activate your_env_name
+
+#. Install the optimization package.
+
     Now you will need to install the `Python IpOpt optimization package <https://github.com/matthias-k/cyipopt>`_ 
     required. This step is crucial, so we recommend you follow the package 
     `installation instructions <https://github.com/matthias-k/cyipopt#from-source-on-windows>`_ 
     accordingly.
 
-#. Then you will need to install the base packages via the commands::
+#. Then you will need to install the base packages via the commands:
 
-    conda install -c conda-forge pywin32 pandas sklearn simplejson matplotlib scipy
-    
-    pip install py-expression-eval
+    .. code-block:: sh
 
-    conda install -c felipes21 pydace surropt pysoc
+        conda install -c conda-forge pywin32 pandas sklearn simplejson matplotlib scipy
+        
+        pip install py-expression-eval
 
-#. Download the source code: 
+        conda install -c felipes21 pydace surropt pysoc
+
+#. Download the *Metacontrol* source code.
+
     From the `repository <https://github.com/feslima/metacontrol>`_ 
     and unzip it to your folder of preference.
 
-#. Run the application: 
+#. Run the application:
+
     You will need to have a conda prompt with the environment you created in the 
     previous steps activated. Then you just type the command::
 

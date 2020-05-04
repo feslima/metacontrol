@@ -1,92 +1,165 @@
 
 
-<!doctype html>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; Metacontrol 1.0.4 documentation</title>
+  
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Introduction &#8212; Metacontrol 1.0.4 documentation</title>
-    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script src="_static/bizstyle.js"></script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Methodology Overview" href="overview/mtc.html" />
-    <link rel="prev" title="Metacontrol: A metamodel based toolbox for control structure selection" href="index.html" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <!--[if lt IE 9]>
-    <script src="_static/css3-mediaqueries.js"></script>
-    <![endif]-->
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="overview/mtc.html" title="Methodology Overview"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Metacontrol: A metamodel based toolbox for control structure selection"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Metacontrol 1.0.4 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/mtc.svg" alt="Logo"/>
-            </a></p>
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Introduction</a><ul>
-<li><a class="reference internal" href="#what-metacontrol-is-capable-of-and-what-it-isn-t">What Metacontrol is capable of and what it isn’t</a></li>
-<li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#installing-from-binaries">Installing from binaries</a></li>
-<li><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
+    <link rel="prev" title="Metacontrol: A metamodel based toolbox for self-optimizing control structure selection" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: white" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Metacontrol
+          
+
+          
+            
+            <img src="_static/mtc.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-metacontrol-is-capable-of-and-what-it-isn-t">What Metacontrol is capable of and what it isn’t</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installing-from-binaries">Installing from binaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="overview/mtc.html">Methodology Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="soc/concepts.html">Self-Optimizing Control main concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metamodels/surrogates.html">Surrogate modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization/infill.html">Optimization via Infill Criteria</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Metacontrol: A metamodel based toolbox for control structure selection</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="overview/mtc.html"
-                        title="next chapter">Methodology Overview</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/intro.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Metacontrol</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/intro.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
@@ -99,8 +172,11 @@ processes via software analysis.</p>
 structure of a given process. Other decisions such as which type of
 controllers to use or how to tune them is a responsibility of classical
 control design whose concepts are not implemented (yet) in this software.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>The basic idea behind <em>Metacontrol</em> is to tell you <strong>what</strong> control
 structure you should implement, <strong>not how</strong> you should implement.</p>
+</div>
 <p>Nonetheless, <em>Metacontrol</em> is a congregation of methodologies such as
 <a class="reference external" href="https://en.wikipedia.org/wiki/Surrogate_model">Surrogate modeling</a> via
 <a class="reference external" href="https://en.wikipedia.org/wiki/Kriging">Kriging metamodels</a>,
@@ -111,13 +187,13 @@ and <a class="reference external" href="https://folk.ntnu.no/skoge/research/rese
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>Currently, there are two ways to install the software: via binaries or
 source code.</p>
-<dl class="simple">
-<dt><strong>Prerequisites</strong>:</dt><dd><ol class="arabic simple">
+<p><strong>Prerequisites</strong>:</p>
+<blockquote>
+<div><ol class="arabic simple">
 <li><p>Windows OS;</p></li>
 <li><p><a class="reference external" href="https://www.aspentech.com/en/products/engineering/aspen-plus">AspenTech Aspen Plus</a> installed;</p></li>
 </ol>
-</dd>
-</dl>
+</div></blockquote>
 <div class="section" id="installing-from-binaries">
 <h3>Installing from binaries<a class="headerlink" href="#installing-from-binaries" title="Permalink to this headline">¶</a></h3>
 <p>This is the most straightforward way to install <em>Metacontrol</em>. You just need to
@@ -126,16 +202,17 @@ download and install the desired version from the repository
 </div>
 <div class="section" id="installing-from-source">
 <h3>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline">¶</a></h3>
-<dl class="simple">
-<dt><strong>Additional prerequisites</strong>:</dt><dd><ul class="simple">
+<p><strong>Additional prerequisites</strong>:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>A conda installation from either <a class="reference external" href="https://www.anaconda.com/">Anaconda</a> or <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>;</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <p><strong>Steps</strong>:</p>
 <ol class="arabic">
-<li><dl>
-<dt>Create the virtual environment:</dt><dd><p>You will need to create a conda environment exclusively for
+<li><p>Create the virtual environment.</p>
+<blockquote>
+<div><p>You will need to create a conda environment exclusively for
 <em>Metacontrol</em> and install the <a class="reference external" href="https://www.python.org/">Python interpreter</a>
 via the following conda prompt command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">your_env_name</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">python</span>
@@ -145,39 +222,43 @@ via the following conda prompt command:</p>
 We suggest to keep it simple to remember (simply calling <code class="docutils literal notranslate"><span class="pre">metacontrol</span></code> or
 <code class="docutils literal notranslate"><span class="pre">mtc</span></code> will suffice), since you will need it activated whenever you run
 the <em>Metacontrol</em> application.</p>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 <li><p>Then activate the environment via:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">your_env_name</span>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">your_env_name</span>
 </pre></div>
 </div>
+</div></blockquote>
 </li>
-<li><dl class="simple">
-<dt>Install the optimization package:</dt><dd><p>Now you will need to install the <a class="reference external" href="https://github.com/matthias-k/cyipopt">Python IpOpt optimization package</a>
+<li><p>Install the optimization package.</p>
+<blockquote>
+<div><p>Now you will need to install the <a class="reference external" href="https://github.com/matthias-k/cyipopt">Python IpOpt optimization package</a>
 required. This step is crucial, so we recommend you follow the package
 <a class="reference external" href="https://github.com/matthias-k/cyipopt#from-source-on-windows">installation instructions</a>
 accordingly.</p>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 <li><p>Then you will need to install the base packages via the commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pywin32</span> <span class="n">pandas</span> <span class="n">sklearn</span> <span class="n">simplejson</span> <span class="n">matplotlib</span> <span class="n">scipy</span>
+<blockquote>
+<div><div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge pywin32 pandas sklearn simplejson matplotlib scipy
 
-<span class="n">pip</span> <span class="n">install</span> <span class="n">py</span><span class="o">-</span><span class="n">expression</span><span class="o">-</span><span class="nb">eval</span>
+pip install py-expression-eval
 
-<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">felipes21</span> <span class="n">pydace</span> <span class="n">surropt</span> <span class="n">pysoc</span>
+conda install -c felipes21 pydace surropt pysoc
 </pre></div>
 </div>
+</div></blockquote>
 </li>
-<li><dl class="simple">
-<dt>Download the source code:</dt><dd><p>From the <a class="reference external" href="https://github.com/feslima/metacontrol">repository</a>
+<li><p>Download the <em>Metacontrol</em> source code.</p>
+<blockquote>
+<div><p>From the <a class="reference external" href="https://github.com/feslima/metacontrol">repository</a>
 and unzip it to your folder of preference.</p>
-</dd>
-</dl>
+</div></blockquote>
 </li>
-<li><dl>
-<dt>Run the application:</dt><dd><p>You will need to have a conda prompt with the environment you created in the
+<li><p>Run the application:</p>
+<blockquote>
+<div><p>You will need to have a conda prompt with the environment you created in the
 previous steps activated. Then you just type the command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
@@ -185,8 +266,7 @@ previous steps activated. Then you just type the command:</p>
 <p>The argument <code class="docutils literal notranslate"><span class="pre">path/to/</span></code> is just the path to folder you unzipped. Your can
 either change the current directory via the <code class="docutils literal notranslate"><span class="pre">cd</span></code> command and running
 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">mainwindow.py</span></code>, or type the full path as mentioned above.</p>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 </ol>
 </div>
@@ -194,29 +274,52 @@ either change the current directory via the <code class="docutils literal notran
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="overview/mtc.html" class="btn btn-neutral float-right" title="Methodology Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Metacontrol: A metamodel based toolbox for self-optimizing control structure selection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Felipe Lima &amp; Victor Alves
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="overview/mtc.html" title="Methodology Overview"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Metacontrol: A metamodel based toolbox for control structure selection"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Metacontrol 1.0.4 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Felipe Lima &amp; Victor Alves.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>
