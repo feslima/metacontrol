@@ -28,6 +28,7 @@ Documentation Contents
    soc/concepts
    metamodels/surrogates
    optimization/infill
+   examples/tutorials
 
 
 
