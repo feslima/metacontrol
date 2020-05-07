@@ -1,5 +1,53 @@
-********************
-Methodology Overview
-********************
+***********************************
+*Metacontrol*  Methodology Overview
+***********************************
 
-Placeholder text...
+The self-optimizing control structure selection methodology developed 
+by Skogestad (:cite:`skoge00`) has the following main steps:
+
+#.  Identify the relevant process variables: Manipulated 
+    variables, disturbances, and potential candidate controlled variables 
+    (process measurements), and perform a Degree of Freedom (DOF) analysis 
+    taking into account both steady and dynamic states of the process. 
+#.  Define optimal operation: Formulate the problem with objective 
+    function and constraints to be used in order to seek an optimal operating point.
+#.  (Mathematically) Model the (industrial) process. *Metacontrol* is currently compatible
+    with Aspen Plus.
+#.  Optimize the process model as formulated in step 2.
+#.  Implement the active constraints found in the previous step - 
+    "active constraint control" (:cite:`skoge00`)
+#.  Evaluate the loss resulting from a constant setpoint policy 
+    (:cite:`halvorsen03`) for each possible control configuration for the 
+    remaining (unconstrained) degrees of freedom. This is done in *Metacontrol* using, 
+    e.g., local (linear) methods (:cite:`halvorsen03,hori05,hori08,alstad09`),  
+    where a reduced-space (unconstrained) problem is required to obtain  
+    gradients with respect to candidate controlled variables and disturbances, 
+    and the Hessian of the objective function evaluated at the optimal 
+    point found in step 4. As stated before in the introduction, *Metacontrol* uses
+    Kriging predictors to evaluate gradient and hessian matrices. 
+    Note that the use of local methods requires the specification of disturbance 
+    magnitudes and measurement errors associated with each candidate controlled
+    variable of step 1.
+
+The basic structure of *Metacontrol* showing the two modes
+of operation is depicted in Figure below. Mode 1 is the 
+complete implementation of steps 1 through 6 of the SOC procedure, where a 
+first metamodel of the process is generated to evaluate the optimal operating 
+point with all degrees of freedom available, while mode 2 is a shortcut taken 
+when the optimal steady-state is known. In both cases, an extra metamodel is 
+produced as the reduced space model using the remaining unconstrained degrees 
+of freedom.
+
+
+
+.. figure:: ../images/metacontrol-workflow.svg
+   :align: center
+
+   Basic flowchart of the Metacontrol workflow.
+
+
+============
+Bibliography
+============
+.. bibliography:: ../mybibfile.bib
+ :style: plain

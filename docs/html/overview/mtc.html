@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Methodology Overview &mdash; Metacontrol 1.0.4 documentation</title>
+  <title>Metacontrol Methodology Overview &mdash; Metacontrol 1.0.4 documentation</title>
   
 
   
@@ -85,10 +85,14 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Methodology Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><em>Metacontrol</em>  Methodology Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bibliography">Bibliography</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../soc/concepts.html">Self-Optimizing Control main concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../metamodels/surrogates.html">Surrogate modeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../optimization/infill.html">Optimization via Infill Criteria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 </ul>
 
             
@@ -134,7 +138,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Methodology Overview</li>
+      <li><em>Metacontrol</em>  Methodology Overview</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -153,9 +157,67 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="methodology-overview">
-<h1>Methodology Overview<a class="headerlink" href="#methodology-overview" title="Permalink to this headline">¶</a></h1>
-<p>Placeholder text…</p>
+  <div class="section" id="metacontrol-methodology-overview">
+<h1><em>Metacontrol</em>  Methodology Overview<a class="headerlink" href="#metacontrol-methodology-overview" title="Permalink to this headline">¶</a></h1>
+<p>The self-optimizing control structure selection methodology developed
+by Skogestad (<a class="bibtex reference internal" href="#skoge00" id="id1">[5]</a>) has the following main steps:</p>
+<ol class="arabic simple">
+<li><p>Identify the relevant process variables: Manipulated
+variables, disturbances, and potential candidate controlled variables
+(process measurements), and perform a Degree of Freedom (DOF) analysis
+taking into account both steady and dynamic states of the process.</p></li>
+<li><p>Define optimal operation: Formulate the problem with objective
+function and constraints to be used in order to seek an optimal operating point.</p></li>
+<li><p>(Mathematically) Model the (industrial) process. <em>Metacontrol</em> is currently compatible
+with Aspen Plus.</p></li>
+<li><p>Optimize the process model as formulated in step 2.</p></li>
+<li><p>Implement the active constraints found in the previous step -
+“active constraint control” (<a class="bibtex reference internal" href="#skoge00" id="id2">[5]</a>)</p></li>
+<li><p>Evaluate the loss resulting from a constant setpoint policy
+(<a class="bibtex reference internal" href="#halvorsen03" id="id3">[2]</a>) for each possible control configuration for the
+remaining (unconstrained) degrees of freedom. This is done in <em>Metacontrol</em> using,
+e.g., local (linear) methods (<a class="bibtex reference internal" href="#halvorsen03" id="id4">[2]</a><a class="bibtex reference internal" href="#hori05" id="id5">[3]</a><a class="bibtex reference internal" href="#hori08" id="id6">[4]</a><a class="bibtex reference internal" href="#alstad09" id="id7">[1]</a>),
+where a reduced-space (unconstrained) problem is required to obtain
+gradients with respect to candidate controlled variables and disturbances,
+and the Hessian of the objective function evaluated at the optimal
+point found in step 4. As stated before in the introduction, <em>Metacontrol</em> uses
+Kriging predictors to evaluate gradient and hessian matrices.
+Note that the use of local methods requires the specification of disturbance
+magnitudes and measurement errors associated with each candidate controlled
+variable of step 1.</p></li>
+</ol>
+<p>The basic structure of <em>Metacontrol</em> showing the two modes
+of operation is depicted in Figure below. Mode 1 is the
+complete implementation of steps 1 through 6 of the SOC procedure, where a
+first metamodel of the process is generated to evaluate the optimal operating
+point with all degrees of freedom available, while mode 2 is a shortcut taken
+when the optimal steady-state is known. In both cases, an extra metamodel is
+produced as the reduced space model using the remaining unconstrained degrees
+of freedom.</p>
+<div class="figure align-center" id="id8">
+<img alt="../_images/metacontrol-workflow.svg" src="../_images/metacontrol-workflow.svg" /><p class="caption"><span class="caption-text">Basic flowchart of the Metacontrol workflow.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="bibliography">
+<h2>Bibliography<a class="headerlink" href="#bibliography" title="Permalink to this headline">¶</a></h2>
+<p id="bibtex-bibliography-overview/mtc-0"><dl class="citation">
+<dt class="bibtex label" id="alstad09"><span class="brackets"><a class="fn-backref" href="#id7">1</a></span></dt>
+<dd><p>Vidar Alstad, Sigurd Skogestad, and Eduardo S. Hori. Optimal measurement combinations as controlled variables. <em>Journal of Process Control</em>, 19(1):138 – 148, 2009. URL: <a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S0959152408000073">http://www.sciencedirect.com/science/article/pii/S0959152408000073</a>, <a class="reference external" href="https://doi.org/https://doi.org/10.1016/j.jprocont.2008.01.002">doi:https://doi.org/10.1016/j.jprocont.2008.01.002</a>.</p>
+</dd>
+<dt class="bibtex label" id="halvorsen03"><span class="brackets">2</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id4">2</a>)</span></dt>
+<dd><p>Ivar J. Halvorsen, Sigurd Skogestad, John C. Morud, and Vidar Alstad. Optimal selection of controlled variables. <em>Industrial &amp; Engineering Chemistry Research</em>, 42(14):3273–3284, 2003. URL: <a class="reference external" href="https://doi.org/10.1021/ie020833t">https://doi.org/10.1021/ie020833t</a>, <a class="reference external" href="https://arxiv.org/abs/https://doi.org/10.1021/ie020833t">arXiv:https://doi.org/10.1021/ie020833t</a>, <a class="reference external" href="https://doi.org/10.1021/ie020833t">doi:10.1021/ie020833t</a>.</p>
+</dd>
+<dt class="bibtex label" id="hori05"><span class="brackets"><a class="fn-backref" href="#id5">3</a></span></dt>
+<dd><p>Eduardo S. Hori, Sigurd Skogestad, and Vidar Alstad. Perfect steady-state indirect control. <em>Industrial &amp; Engineering Chemistry Research</em>, 44(4):863–867, 2005. URL: <a class="reference external" href="https://doi.org/10.1021/ie049736l">https://doi.org/10.1021/ie049736l</a>, <a class="reference external" href="https://arxiv.org/abs/https://doi.org/10.1021/ie049736l">arXiv:https://doi.org/10.1021/ie049736l</a>, <a class="reference external" href="https://doi.org/10.1021/ie049736l">doi:10.1021/ie049736l</a>.</p>
+</dd>
+<dt class="bibtex label" id="hori08"><span class="brackets"><a class="fn-backref" href="#id6">4</a></span></dt>
+<dd><p>Eduardo Shigueo Hori and Sigurd Skogestad. Selection of controlled variables: maximum gain rule and combination of measurements. <em>Industrial &amp; Engineering Chemistry Research</em>, 47(23):9465–9471, 2008. URL: <a class="reference external" href="https://doi.org/10.1021/ie0711978">https://doi.org/10.1021/ie0711978</a>, <a class="reference external" href="https://arxiv.org/abs/https://doi.org/10.1021/ie0711978">arXiv:https://doi.org/10.1021/ie0711978</a>, <a class="reference external" href="https://doi.org/10.1021/ie0711978">doi:10.1021/ie0711978</a>.</p>
+</dd>
+<dt class="bibtex label" id="skoge00"><span class="brackets">5</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>)</span></dt>
+<dd><p>Sigurd Skogestad. Plantwide control: the search for the self-optimizing control structure. <em>Journal of Process Control</em>, 10(5):487 – 507, 2000. URL: <a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S0959152400000238">http://www.sciencedirect.com/science/article/pii/S0959152400000238</a>, <a class="reference external" href="https://doi.org/https://doi.org/10.1016/S0959-1524(00)00023-8">doi:https://doi.org/10.1016/S0959-1524(00)00023-8</a>.</p>
+</dd>
+</dl>
+</p>
+</div>
 </div>
 
 

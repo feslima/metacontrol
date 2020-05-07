@@ -1,5 +1,5 @@
-*************************************
-Self-Optimizing Control main concepts
-*************************************
+**********************************************
+The Exact Local Method with Explicit Solution
+**********************************************
 
 Placeholder text...

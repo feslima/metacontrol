@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Methodology Overview" href="overview/mtc.html" />
+    <link rel="next" title="Metacontrol Methodology Overview" href="overview/mtc.html" />
     <link rel="prev" title="Metacontrol: A metamodel based toolbox for self-optimizing control structure selection" href="index.html" /> 
 </head>
 
@@ -85,18 +85,20 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#what-metacontrol-is-capable-of-and-what-it-isn-t">What Metacontrol is capable of and what it isn’t</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-metacontrol">What is Metacontrol ?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#installing-from-binaries">Installing from binaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-from-binaries-exe">Installing from binaries  (.exe)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="overview/mtc.html">Methodology Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/mtc.html#bibliography">Bibliography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="soc/concepts.html">Self-Optimizing Control main concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metamodels/surrogates.html">Surrogate modeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="optimization/infill.html">Optimization via Infill Criteria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/tutorials.html">Examples</a></li>
 </ul>
 
             
@@ -163,15 +165,51 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="what-metacontrol-is-capable-of-and-what-it-isn-t">
-<h2>What Metacontrol is capable of and what it isn’t<a class="headerlink" href="#what-metacontrol-is-capable-of-and-what-it-isn-t" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="what-is-metacontrol">
+<h2>What is Metacontrol ?<a class="headerlink" href="#what-is-metacontrol" title="Permalink to this headline">¶</a></h2>
 <p>The primary objective of the <em>Metacontrol</em> methodology is to facilitate the
 implementation of the Self-Optimizing Control (SOC) concept in industrial
-processes via software analysis.</p>
+processes via software analysis, in a comprehensive user interface.</p>
 <p>The SOC concept is used to guide a decision on how to design the control
-structure of a given process. Other decisions such as which type of
-controllers to use or how to tune them is a responsibility of classical
-control design whose concepts are not implemented (yet) in this software.</p>
+structure of a given process.</p>
+<p>By definition from the main author of the methodology, Dr. Sigurd Skogestad
+from NTNU:</p>
+<p>“<strong>Self-optimizing control is when one can achieve an acceptable loss with
+constant setpoint values for the controlled variables without the need to re-optimize
+when disturbances occur.</strong>”</p>
+<div class="figure align-center" id="id1">
+<img alt="_images/plot_soc.svg" src="_images/plot_soc.svg" /><p class="caption"><span class="caption-text">Self-Optimizing Control fundamental concept: The pursue of a control
+structure based on constant setpoint policy, capable of minimizing the loss to an acceptable
+magnitude, when compared with the reoptimized process every time that a disturbance occur (Real Time
+Optimization).</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>The self-optimizing control structure selection problem has a combinatorial nature: Generally in an industrial process,
+there are dozens (even thousands!) of variables, and a set of available degrees of freedom that can be consumed
+by a subset of the possible candidate controlled variables. There are mainly two ways to solve this problem:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>“Brute-force” Approach</strong>:</dt><dd><p>Each possible control structure is evaluated, one at a time.
+Depending on the number of the degrees of freedom and available measurements,
+that can take literally, <strong>forever</strong>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Local (linear) methods</strong>:</dt><dd><p>Based on quadratic approximation of the objective function using
+Taylor series expansions, Local methods were developed by Dr. Sigurd Skogestad and his
+collaborators to quickly “pre-screen” the most promising subsets of controlled variables.
+<em>Metacontrol</em> is based on these mathematical formulations, with a neat User Interface.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>In order to use the Local methods, it is necessary to obtain high-order data with respect to the
+process gradients and the objective function hessians. In order to do this, <em>Metacontrol</em> uses
+powerful machine learning formulations (Kriging Interpolators) to obtain such data in with
+robustness.</p>
+<p>Last but not least, other decisions such as which type of
+controllers to use or how to tune them is a responsibility of <em>classical
+control design</em>, whose concepts are not implemented (yet) in this software.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>The basic idea behind <em>Metacontrol</em> is to tell you <strong>what</strong> control
@@ -181,7 +219,14 @@ structure you should implement, <strong>not how</strong> you should implement.</
 <a class="reference external" href="https://en.wikipedia.org/wiki/Surrogate_model">Surrogate modeling</a> via
 <a class="reference external" href="https://en.wikipedia.org/wiki/Kriging">Kriging metamodels</a>,
 <a class="reference external" href="http://www.ressources-actuarielles.net/EXT/ISFA/1226.nsf/9c8e3fd4d8874d60c1257052003eced6/e7dc33e4da12c5a9c12576d8002e442b/$FILE/Jones01.pdf">Black-box process optimization</a>
-and <a class="reference external" href="https://folk.ntnu.no/skoge/research/research-selfopt.html">SOC</a>.</p>
+and <a class="reference external" href="https://folk.ntnu.no/skoge/research/research-selfopt.html">SOC</a>, In order to determine
+process optimal operating point, high-order data obtainment to use SOC mathematical formulations and
+consequently, generating SOC-based control structures.
+All of that within a comprehensive User Interface,
+allowing the control structure designer/engineer/scientist (hey, that’s you) to keep his/hers focus only on
+synthesizing the control structure, rather than wasting hours “jumping” between several software environments, such as: Process simulators (Aspen Plus) and
+numerical packages (MATLAB, Python, Microsoft Excel, etc.). This tool is made by Engineers that struggled with this (us),
+in order to try to solve such struggle for the scientific community.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
@@ -194,14 +239,19 @@ source code.</p>
 <li><p><a class="reference external" href="https://www.aspentech.com/en/products/engineering/aspen-plus">AspenTech Aspen Plus</a> installed;</p></li>
 </ol>
 </div></blockquote>
-<div class="section" id="installing-from-binaries">
-<h3>Installing from binaries<a class="headerlink" href="#installing-from-binaries" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="installing-from-binaries-exe">
+<h3>Installing from binaries  (.exe)<a class="headerlink" href="#installing-from-binaries-exe" title="Permalink to this headline">¶</a></h3>
 <p>This is the most straightforward way to install <em>Metacontrol</em>. You just need to
-download and install the desired version from the repository
+download and install the desired version (generally, our most recent and stable version) from the repository
 <a class="reference external" href="https://github.com/feslima/metacontrol/releases">releases page</a>.</p>
+<p>This is the recommended option for most engineers and scientists that just want to study SOC-Based Control Structure selection and are
+not interested in programming details.
+You will only install our software and will be good to go.</p>
 </div>
 <div class="section" id="installing-from-source">
 <h3>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline">¶</a></h3>
+<p><em>Metacontrol</em> as stated before, is fully open-source. Want to inspect or change our code?
+Just follow the steps below!</p>
 <p><strong>Additional prerequisites</strong>:</p>
 <blockquote>
 <div><ul class="simple">
@@ -281,7 +331,7 @@ either change the current directory via the <code class="docutils literal notran
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="overview/mtc.html" class="btn btn-neutral float-right" title="Methodology Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="overview/mtc.html" class="btn btn-neutral float-right" title="Metacontrol Methodology Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Metacontrol: A metamodel based toolbox for self-optimizing control structure selection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
