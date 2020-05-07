@@ -2,8 +2,8 @@
 *Metacontrol*  Methodology Overview
 ***********************************
 
-The self-optimizing control structure selection methodology developed 
-by Skogestad (:cite:`skoge00`) has the following main steps:
+The "top-down" part of the self-optimizing control structure selection 
+methodology developed  by Skogestad (:cite:`skoge00`) has the following main steps:
 
 #.  Identify the relevant process variables: Manipulated 
     variables, disturbances, and potential candidate controlled variables 

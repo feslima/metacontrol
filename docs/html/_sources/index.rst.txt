@@ -68,9 +68,7 @@ Documentation Contents
 
    intro
    overview/mtc
-   soc/concepts
-   metamodels/surrogates
-   optimization/infill
+   theory/theory_index
    examples/tutorials
 
 
