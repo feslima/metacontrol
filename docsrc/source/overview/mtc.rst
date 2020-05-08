@@ -29,6 +29,8 @@ methodology developed  by Skogestad (:cite:`skoge00`) has the following main ste
     magnitudes and measurement errors associated with each candidate controlled
     variable of step 1.
 
+
+
 The basic structure of *Metacontrol* showing the two modes
 of operation is depicted in Figure below. Mode 1 is the 
 complete implementation of steps 1 through 6 of the SOC procedure, where a 
@@ -44,6 +46,14 @@ of freedom.
    :align: center
 
    Basic flowchart of the Metacontrol workflow.
+
+
+The graphical user interface (GUI) of *Metacontrol* is a paradigm of the steps 
+that are needed
+to perform the SOC analysis using metamodels, proposed by :cite:`alves2018`. The user will simply navigate between easy-to-use sequential tabs,
+providing information for the problem that he wants to study, and the results will become 
+available in real-time. Over the next session, each tab of *Metacontrol* will be discussed in
+detail, in order to teach you how to use it!
 
 
 ============

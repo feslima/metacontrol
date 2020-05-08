@@ -68,8 +68,9 @@ Documentation Contents
 
    intro
    overview/mtc
-   theory/theory_index
+   gui/gui_index.rst
    examples/tutorials
+   theory/theory_index
 
 
 

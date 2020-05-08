@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The “Load Simulation” tab &mdash; Metacontrol 1.0.4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="The “Sampling” tab" href="sampling_tab.html" />
+    <link rel="prev" title="Metacontrol GUI Manual" href="gui_index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: white" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Metacontrol
+          
+
+          
+            
+            <img src="../_static/mtc.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gui_index.html">Metacontrol GUI Manual</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Load Simulation” tab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#load-simulation-file-panel">Load simulation file <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#providing-a-simulation-file">Providing a simulation file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#choosing-your-variables-and-associating-aliases-for-them">Choosing your variables, and associating aliases for them</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#selected-variables-aliases-panel">Selected variables aliases <em>panel</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#functions-definitions-panel">Functions definitions <em>panel</em></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sampling_tab.html">The “Sampling” tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metamodel_tab.html">The “Metamodel” tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_tab.html">The “Optimization” tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reduced_space_tab.html">The “Reduced Space” tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diff_data_tab.html">The “Differential Data” tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soc_tab.html">The “Self-Optimizing Control” tab</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Metacontrol</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="gui_index.html">Metacontrol GUI Manual</a> &raquo;</li>
+        
+      <li>The “Load Simulation” tab</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/gui/load_sim_tab.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-load-simulation-tab">
+<h1>The “Load Simulation” tab<a class="headerlink" href="#the-load-simulation-tab" title="Permalink to this headline">¶</a></h1>
+<p>This is <em>Metacontrol</em> initial tab, where you will be able to</p>
+<ul class="simple">
+<li><p>Supply an Aspen Plus simulation file;</p></li>
+<li><p>Create aliases for the Aspen Plus simulation variables, to ease the study;</p></li>
+<li><p>Select your relevant variables (Manipulated Variables, Controlled Variables and Auxiliary Variables);</p></li>
+<li><p>Inspect information about the simulation you provided;</p></li>
+<li><p>Create user-defined expressions for Objective functions, Constraints and CVs that are not natively calculated by the process simulator.</p></li>
+</ul>
+<div class="figure align-center" id="id1">
+<img alt="../_images/loadsimtab.png" src="../_images/loadsimtab.png" />
+<p class="caption"><span class="caption-text"><em>Metacontrol</em> “Load Simulation” tab.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>There are four main panels on this tab:</p>
+<ul class="simple">
+<li><p>Load simulation file <em>panel</em></p></li>
+<li><p>Selected variables aliases <em>panel</em></p></li>
+<li><p>Functions definitions <em>panel</em></p></li>
+<li><p>Simulation info <em>panel</em></p></li>
+</ul>
+<div class="section" id="load-simulation-file-panel">
+<h2>Load simulation file <em>panel</em><a class="headerlink" href="#load-simulation-file-panel" title="Permalink to this headline">¶</a></h2>
+<p>This is the panel that you will use to load the Aspen Plus simulation file.</p>
+<div class="figure align-center" id="id2">
+<img alt="../_images/loadsim_panel.png" src="../_images/loadsim_panel.png" />
+<p class="caption"><span class="caption-text"><em>Metacontrol</em> “Load Simulation file” panel.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="providing-a-simulation-file">
+<h3>Providing a simulation file<a class="headerlink" href="#providing-a-simulation-file" title="Permalink to this headline">¶</a></h3>
+<p>Clicking on “Open File”, a window will appear in your screen and you will
+be able to point to your Aspen Plus file location on your PC.</p>
+<div class="figure align-center" id="id3">
+<img alt="../_images/point_bkp.png" src="../_images/point_bkp.png" />
+<p class="caption"><span class="caption-text">Pointing to your Aspen Plus file Location.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The supported Aspen Plus file extension is .bkp (Aspen Plus backup file).
+Please, save your simulation with this format before using <em>Metacontrol</em>.</p>
+</div>
+</div>
+<div class="section" id="choosing-your-variables-and-associating-aliases-for-them">
+<h3>Choosing your variables, and associating aliases for them<a class="headerlink" href="#choosing-your-variables-and-associating-aliases-for-them" title="Permalink to this headline">¶</a></h3>
+<p>After pointing to your Aspen Plus simulation file location, the button “Load Variables”
+becomes active. After clicking on it, a screen to select simulation variables and adding aliases for
+them will appear. Just click on “Load Variable tree”, and the Aspen Plus engine will be loaded on background
+and all the variable tree will be loaded.</p>
+<div class="figure align-center" id="id4">
+<img alt="../_images/var_tree.png" src="../_images/var_tree.png" />
+<p class="caption"><span class="caption-text">Loading Variables from Aspen Plus simulation.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+<p>After clicking “Load Variable tree” button, you will see that the variables from the simulation are available
+for use. They are neatly organized between Input and Output variables, and organized for each block and stream
+that you have modelled in Aspen Plus. If you want a specific variable, simply navigate using the loaded tree, and select it.</p>
+<div class="figure align-center" id="id5">
+<img alt="../_images/var_tree_filling.png" src="../_images/var_tree_filling.png" />
+<p class="caption"><span class="caption-text">Selecting the loaded Variables from Aspen Plus simulation.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you hover you mouse pointer over a variable from the tree, <em>Metacontrol</em> will show the
+description of that variable.</p>
+<blockquote>
+<div><div class="figure align-center" id="id6">
+<img alt="../_images/hover_mouse_description.png" src="../_images/hover_mouse_description.png" />
+<p class="caption"><span class="caption-text">A quick reminder of what that variable actually is…</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+</div></blockquote>
+</div>
+<p>On the screen above you noticed a red form over the <em>alias</em> and <em>type</em> forms. This is intentional: <em>Metacontrol</em> is
+informing you that two variables are with the same aliases and also, that you did not classified the type of the variables that
+you entered. Giving proper (non-repeated) aliases and correctly classifying your variables will make the red warning disappear.</p>
+<div class="figure align-center" id="id7">
+<img alt="../_images/var_tree_filled.png" src="../_images/var_tree_filled.png" />
+<p class="caption"><span class="caption-text">Typing aliases for variables in <em>Metacontrol</em>.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="id8">
+<img alt="../_images/var_tree_class_input.png" src="../_images/var_tree_class_input.png" />
+<p class="caption"><span class="caption-text">classifying your variables in <em>Metacontrol</em> - Input Variables.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="id9">
+<img alt="../_images/var_tree_class_output.png" src="../_images/var_tree_class_output.png" />
+<p class="caption"><span class="caption-text">classifying your variables in <em>Metacontrol</em> - Output Variables.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To create aliases in <em>Metacontrol</em>, only alphanumeric characters are allowed.</p>
+</div>
+<p>If you forgot something from you model (a stream name, block, etc.), You can show the simulator GUI (Aspen Plus)
+by just checking the “Open Simulator GUI” checkbox on the upper right corner of the variable tree load window.</p>
+<div class="figure align-center" id="id10">
+<img alt="../_images/aspen_gui_invoke.png" src="../_images/aspen_gui_invoke.png" />
+<p class="caption"><span class="caption-text">Forgot something (We do all the time)? Just call Aspen Plus from <em>Metacontrol</em>, and have a quick reminder.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</div>
+<p>After selecting, naming and classifying all the variables that you need, just click “Ok”, and you will be back on the main-screen.</p>
+</div>
+</div>
+<div class="section" id="selected-variables-aliases-panel">
+<h2>Selected variables aliases <em>panel</em><a class="headerlink" href="#selected-variables-aliases-panel" title="Permalink to this headline">¶</a></h2>
+<p>After selecting the necessary variables, you will see that now on the main tab, this panel reports a list of all variables from your study.
+This was created to make it easier for you to remember the aliases of the variables that you created and which type of variable you gave to
+each one of them (CV candidate, MV, Auxiliary).</p>
+<div class="figure align-center" id="id11">
+<img alt="../_images/selected_variables_list.png" src="../_images/selected_variables_list.png" />
+<p class="caption"><span class="caption-text">At the “Load Simulation” tab, a list of all variables that you choose.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="functions-definitions-panel">
+<h2>Functions definitions <em>panel</em><a class="headerlink" href="#functions-definitions-panel" title="Permalink to this headline">¶</a></h2>
+<p>On this panel, you can create user-defined variables, using the variables that you previously choose from your Aspen Plus model.
+This is really convenient because it allows you to:</p>
+<ul class="simple">
+<li><p>Create the objective function that you will optimize in <em>Metacontrol</em></p></li>
+<li><p>Create constraints for your optimization problem</p></li>
+<li><p>Create CV Candidates that are not natively calculated by the process simulator (A temperature difference, a ratio,</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sampling_tab.html" class="btn btn-neutral float-right" title="The “Sampling” tab" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="gui_index.html" class="btn btn-neutral float-left" title="Metacontrol GUI Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Felipe Lima &amp; Victor Alves
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
