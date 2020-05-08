@@ -46,8 +46,13 @@ be able to point to your Aspen Plus file location on your PC.
    Pointing to your Aspen Plus file Location.
 
 .. IMPORTANT::
-    The supported Aspen Plus file extension is .bkp (Aspen Plus backup file).
-    Please, save your simulation with this format before using *Metacontrol*.
+   The supported Aspen Plus file extension is .bkp (Aspen Plus backup file).
+   Please, save your simulation with this format before using *Metacontrol*.
+
+.. ATTENTION::
+   **Make sure the file supplied is not your only copy!** We can not guarantee 
+   that any eventual use by the *Metacontrol* OLE/COM will not cause 
+   permanent modification, damage or corruption to your file.
 
 Choosing your variables, and associating aliases for them
 ----------------------------------------------------------
@@ -105,7 +110,7 @@ you entered. Giving proper (non-repeated) aliases and correctly classifying your
    classifying your variables in *Metacontrol* - Output Variables.
 
 .. IMPORTANT::
-    To create aliases in *Metacontrol*, only alphanumeric characters are allowed.
+    To create aliases in *Metacontrol*, only lower case alphanumeric characters are allowed.
 
 
 If you forgot something from you model (a stream name, block, etc.), You can show the simulator GUI (Aspen Plus)

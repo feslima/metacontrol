@@ -54,6 +54,7 @@ exclude_patterns = []
 #
 html_theme = 'sphinx_rtd_theme'
 html_logo = 'mtc.svg'
+html_favicon = 'mtc.ico'
 html_theme_options = {
     'style_nav_header_background': 'white'
 }
