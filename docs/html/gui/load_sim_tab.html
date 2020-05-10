@@ -96,7 +96,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#selected-variables-aliases-panel">Selected variables aliases <em>panel</em></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#functions-definitions-panel">Functions definitions <em>panel</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#functions-definitions-panel">Functions definitions <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#creating-a-user-defined-objective-function">Creating a User-Defined Objective function</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sampling_tab.html">The “Sampling” tab</a></li>
@@ -296,8 +299,104 @@ This is really convenient because it allows you to:</p>
 <ul class="simple">
 <li><p>Create the objective function that you will optimize in <em>Metacontrol</em></p></li>
 <li><p>Create constraints for your optimization problem</p></li>
-<li><p>Create CV Candidates that are not natively calculated by the process simulator (A temperature difference, a ratio,</p></li>
+<li><p>Create CV Candidates that are not natively calculated by the process simulator (A difference between variables, ratios, product, etc.)</p></li>
 </ul>
+<div class="figure align-center" id="id12">
+<img alt="../_images/function_def_panel.png" src="../_images/function_def_panel.png" />
+<p class="caption"><span class="caption-text">The functions definition panel.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+</div>
+<p>The Function definitions panel allow several math operations and functions:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Expression</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>+</cite></p></td>
+<td><p>Addition</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>-</cite></p></td>
+<td><p>Subtraction</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>*</cite></p></td>
+<td><p>Multiplication</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>/</cite></p></td>
+<td><p>Division</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>^</cite></p></td>
+<td><p>Potentiation</p></td>
+</tr>
+<tr class="row-odd"><td><p>PI</p></td>
+<td><p>PI constant</p></td>
+</tr>
+<tr class="row-even"><td><p>E</p></td>
+<td><p>Euler’s number</p></td>
+</tr>
+<tr class="row-odd"><td><p>sin(x)</p></td>
+<td><p>Sine function</p></td>
+</tr>
+<tr class="row-even"><td><p>cos(x)</p></td>
+<td><p>Cosine function</p></td>
+</tr>
+<tr class="row-odd"><td><p>tan(x)</p></td>
+<td><p>Tangent function</p></td>
+</tr>
+<tr class="row-even"><td><p>asin(x)</p></td>
+<td><p>Arcsine function</p></td>
+</tr>
+<tr class="row-odd"><td><p>acos(x)</p></td>
+<td><p>Arccosine function</p></td>
+</tr>
+<tr class="row-even"><td><p>atan(x)</p></td>
+<td><p>Arctangent function</p></td>
+</tr>
+<tr class="row-odd"><td><p>log(x)</p></td>
+<td><p>Natural Logarithm function</p></td>
+</tr>
+<tr class="row-even"><td><p>log(x,base)</p></td>
+<td><p>Logarithm function with specified base</p></td>
+</tr>
+<tr class="row-odd"><td><p>abs(x)</p></td>
+<td><p>Absolute value of a number</p></td>
+</tr>
+<tr class="row-even"><td><p>ceil(x)</p></td>
+<td><p>Round up to the closest integer</p></td>
+</tr>
+<tr class="row-odd"><td><p>floor(x)</p></td>
+<td><p>Round down to the closest integer</p></td>
+</tr>
+<tr class="row-even"><td><p>round(x)</p></td>
+<td><p>Round to the closest integer</p></td>
+</tr>
+<tr class="row-odd"><td><p>exp(x)</p></td>
+<td><p>Exponential function</p></td>
+</tr>
+</tbody>
+</table>
+<p>The functions definition panel also checks the spelling of your expressions. Missed a <em>minus</em> signal between two variables?
+Mistype the name of an alias? <em>Metacontrol</em> will indicate that to you, with a red color:</p>
+<div class="figure align-center" id="id13">
+<img alt="../_images/exp_invalid_alias.png" src="../_images/exp_invalid_alias.png" />
+<p class="caption"><span class="caption-text">An example of an alias mistype (missing a “t” from “fco2out” alias).</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="id14">
+<img alt="../_images/exp_invalid_math.png" src="../_images/exp_invalid_math.png" />
+<p class="caption"><span class="caption-text">An example of math mistype (Math operator missing between the two parts of the expression).</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+</div>
+<p>Correcting the spelling/operator errors, <em>Metacontrol</em> validates your expressions:</p>
+<div class="figure align-center" id="id15">
+<img alt="../_images/exp_valid.png" src="../_images/exp_valid.png" />
+<p class="caption"><span class="caption-text">Valid expression becomes green!</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="creating-a-user-defined-objective-function">
+<h3>Creating a User-Defined Objective function<a class="headerlink" href="#creating-a-user-defined-objective-function" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 </div>
 

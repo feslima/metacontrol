@@ -143,4 +143,84 @@ This is really convenient because it allows you to:
 
 * Create the objective function that you will optimize in *Metacontrol*
 * Create constraints for your optimization problem
-* Create CV Candidates that are not natively calculated by the process simulator (A temperature difference, a ratio,
+* Create CV Candidates that are not natively calculated by the process simulator (A difference between variables, ratios, product, etc.)
+
+.. figure:: ../images/function_def_panel.png
+   :align: center
+
+   The functions definition panel.
+
+The Function definitions panel allow several math operations and functions:
+
+
+
++-------------+----------------------------------------+
+| Expression  | Definition                             |
++=============+========================================+
+| `+`         | Addition                               |
++-------------+----------------------------------------+
+| `-`         | Subtraction                            |
++-------------+----------------------------------------+
+| `*`         | Multiplication                         |
++-------------+----------------------------------------+
+| `/`         | Division                               |
++-------------+----------------------------------------+
+| `^`         | Potentiation                           |
++-------------+----------------------------------------+
+| PI          | PI constant                            |
++-------------+----------------------------------------+
+| E           | Euler's number                         |
++-------------+----------------------------------------+
+| sin(x)      | Sine function                          |
++-------------+----------------------------------------+
+| cos(x)      | Cosine function                        |
++-------------+----------------------------------------+
+| tan(x)      | Tangent function                       |
++-------------+----------------------------------------+
+| asin(x)     | Arcsine function                       |
++-------------+----------------------------------------+
+| acos(x)     | Arccosine function                     |
++-------------+----------------------------------------+
+| atan(x)     | Arctangent function                    |
++-------------+----------------------------------------+
+| log(x)      | Natural Logarithm function             |
++-------------+----------------------------------------+
+| log(x,base) | Logarithm function with specified base |
++-------------+----------------------------------------+
+| abs(x)      | Absolute value of a number             |
++-------------+----------------------------------------+
+| ceil(x)     | Round up to the closest integer        |
++-------------+----------------------------------------+
+| floor(x)    | Round down to the closest integer      |
++-------------+----------------------------------------+
+| round(x)    | Round to the closest integer           |
++-------------+----------------------------------------+
+| exp(x)      | Exponential function                   |
++-------------+----------------------------------------+
+
+
+The functions definition panel also checks the spelling of your expressions. Missed a *minus* signal between two variables?
+Mistype the name of an alias? *Metacontrol* will indicate that to you, with a red color:
+
+.. figure:: ../images/exp_invalid_alias.png
+   :align: center
+
+   An example of an alias mistype (missing a "t" from "fco2out" alias).
+
+.. figure:: ../images/exp_invalid_math.png
+   :align: center
+
+   An example of math mistype (Math operator missing between the two parts of the expression).
+
+Correcting the spelling/operator errors, *Metacontrol* validates your expressions:
+
+.. figure:: ../images/exp_valid.png
+   :align: center
+   
+
+   Valid expression becomes green!
+
+
+
+Creating a User-Defined Objective function
+-------------------------------------------
