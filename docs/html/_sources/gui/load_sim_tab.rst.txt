@@ -224,3 +224,103 @@ Correcting the spelling/operator errors, *Metacontrol* validates your expression
 
 Creating a User-Defined Objective function
 -------------------------------------------
+
+1. Click "Add Expression":
+
+.. figure:: ../images/add_exp.png
+   :align: center
+
+2. Create your desired expression for the Objective function (and name it) to be optimized by *Metacontrol*
+later on your study:
+
+.. figure:: ../images/add_fobj.png
+   :align: center
+
+3. Classify it as an Objective Function using the dropdown list:
+
+.. figure:: ../images/class_fobj.png
+   :align: center
+
+
+Creating a User-Defined CV Candidate
+-------------------------------------
+1. Click "Add Expression":
+
+.. figure:: ../images/add_exp.png
+   :align: center
+
+2. Create your desired expression for the CV candidate, based on model measurements that you 
+associated aliases with:
+
+.. figure:: ../images/add_cv.png
+   :align: center
+
+3. Classify it as an CV candidate using the dropdown list:
+
+.. figure:: ../images/class_cv.png
+   :align: center
+
+
+Creating a Constraint function
+-------------------------------
+
+It is very common to have process constraints in the processes that you
+want to study in a plantwide (Self-Optimizing) Perspective. *Metacontrol* supports the
+creation of constraints that are added to the optimization problem solved using metamodels.
+The constraints are always written in the form:
+
+.. math:: 
+    g(x) \leq 0
+
+And you should provide the constraint with such syntax to *Metacontrol*. For instance, the
+following product purity CO2 constraint in a compression and purification plant:
+
+.. math:: 
+    x_{CO2} \geq 0.96
+
+Must be provided as:
+
+.. math:: 
+    0.96 - x_{CO2} \leq 0
+
+Within *Metacontrol*, you should simply type:
+
+.. figure:: ../images/constraint1type.png
+   :align: center
+
+You can also create constraints that are expressions. For example:
+
+.. figure:: ../images/constraint2type.png
+   :align: center
+
+which is:
+
+.. math:: 
+    fco2out/fco2in \geq 0.9
+
+If you have an interval, simply break it into two constraints (A lower bound and an upper bound constraint).
+
+
+
+Simulation info *panel*
+=======================
+
+This panel serves as a "At a glance" simulation data info panel: After you load your Aspen Plus simulation,
+You can inspect the following information:
+
+* Number and name of components
+* Thermodynamic Package used in your model
+* Number and name of blocks used
+* Number and name of streams in your flowsheet
+* Chemical Reactions modelled
+* If there are any sensitivity analysis, optimizations, calculators and/or Design Specifications Within your model.
+
+.. ATTENTION::
+   You might want to **disable** any **sensitivity analysis** and **optimization blocks** that exist inside
+   your simulation. Note that *Metacontrol* is going to perform a DOE (Design of Experiments)
+   using your model in order to create a kriging interpolator and later optimize it. If you keep a sensitivity analysis
+   turned on, for instance, the results of the DOE will be superseded by the sensitivity analysis. In addition, if you have an optimization block
+   active: Aspen Plus will try to optimize at each run. **We certainly do not want this**.
+
+   The following image shows an example of the Simulation info *panel* after you load a simulation:
+   

@@ -27,6 +27,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -98,8 +99,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#selected-variables-aliases-panel">Selected variables aliases <em>panel</em></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#functions-definitions-panel">Functions definitions <em>panel</em></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#creating-a-user-defined-objective-function">Creating a User-Defined Objective function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creating-a-user-defined-cv-candidate">Creating a User-Defined CV Candidate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creating-a-constraint-function">Creating a Constraint function</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#simulation-info-panel">Simulation info <em>panel</em></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sampling_tab.html">The “Sampling” tab</a></li>
@@ -396,6 +400,93 @@ Mistype the name of an alias? <em>Metacontrol</em> will indicate that to you, wi
 </div>
 <div class="section" id="creating-a-user-defined-objective-function">
 <h3>Creating a User-Defined Objective function<a class="headerlink" href="#creating-a-user-defined-objective-function" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Click “Add Expression”:</p></li>
+</ol>
+<div class="figure align-center">
+<img alt="../_images/add_exp.png" src="../_images/add_exp.png" />
+</div>
+<p>2. Create your desired expression for the Objective function (and name it) to be optimized by <em>Metacontrol</em>
+later on your study:</p>
+<div class="figure align-center">
+<img alt="../_images/add_fobj.png" src="../_images/add_fobj.png" />
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Classify it as an Objective Function using the dropdown list:</p></li>
+</ol>
+<div class="figure align-center">
+<img alt="../_images/class_fobj.png" src="../_images/class_fobj.png" />
+</div>
+</div>
+<div class="section" id="creating-a-user-defined-cv-candidate">
+<h3>Creating a User-Defined CV Candidate<a class="headerlink" href="#creating-a-user-defined-cv-candidate" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Click “Add Expression”:</p></li>
+</ol>
+<div class="figure align-center">
+<img alt="../_images/add_exp.png" src="../_images/add_exp.png" />
+</div>
+<p>2. Create your desired expression for the CV candidate, based on model measurements that you
+associated aliases with:</p>
+<div class="figure align-center">
+<img alt="../_images/add_cv.png" src="../_images/add_cv.png" />
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Classify it as an CV candidate using the dropdown list:</p></li>
+</ol>
+<div class="figure align-center">
+<img alt="../_images/class_cv.png" src="../_images/class_cv.png" />
+</div>
+</div>
+<div class="section" id="creating-a-constraint-function">
+<h3>Creating a Constraint function<a class="headerlink" href="#creating-a-constraint-function" title="Permalink to this headline">¶</a></h3>
+<p>It is very common to have process constraints in the processes that you
+want to study in a plantwide (Self-Optimizing) Perspective. <em>Metacontrol</em> supports the
+creation of constraints that are added to the optimization problem solved using metamodels.
+The constraints are always written in the form:</p>
+<div class="math notranslate nohighlight">
+\[g(x) \leq 0\]</div>
+<p>And you should provide the constraint with such syntax to <em>Metacontrol</em>. For instance, the
+following product purity CO2 constraint in a compression and purification plant:</p>
+<div class="math notranslate nohighlight">
+\[x_{CO2} \geq 0.96\]</div>
+<p>Must be provided as:</p>
+<div class="math notranslate nohighlight">
+\[0.96 - x_{CO2} \leq 0\]</div>
+<p>Within <em>Metacontrol</em>, you should simply type:</p>
+<div class="figure align-center">
+<img alt="../_images/constraint1type.png" src="../_images/constraint1type.png" />
+</div>
+<p>You can also create constraints that are expressions. For example:</p>
+<div class="figure align-center">
+<img alt="../_images/constraint2type.png" src="../_images/constraint2type.png" />
+</div>
+<p>which is:</p>
+<div class="math notranslate nohighlight">
+\[fco2out/fco2in \geq 0.9\]</div>
+<p>If you have an interval, simply break it into two constraints (A lower bound and an upper bound constraint).</p>
+</div>
+</div>
+<div class="section" id="simulation-info-panel">
+<h2>Simulation info <em>panel</em><a class="headerlink" href="#simulation-info-panel" title="Permalink to this headline">¶</a></h2>
+<p>This panel serves as a “At a glance” simulation data info panel: After you load your Aspen Plus simulation,
+You can inspect the following information:</p>
+<ul class="simple">
+<li><p>Number and name of components</p></li>
+<li><p>Thermodynamic Package used in your model</p></li>
+<li><p>Number and name of blocks used</p></li>
+<li><p>Number and name of streams in your flowsheet</p></li>
+<li><p>Chemical Reactions modelled</p></li>
+<li><p>If there are any sensitivity analysis, optimizations, calculators and/or Design Specifications Within your model.</p></li>
+</ul>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>You might want to <strong>disable</strong> any <strong>sensitivity analysis</strong> and <strong>optimization blocks</strong> that exist inside
+your simulation. Note that <em>Metacontrol</em> is going to perform a DOE (Design of Experiments)
+using your model in order to create a kriging interpolator and later optimize it. If you keep a sensitivity analysis
+turned on, for instance, the results of the DOE will be superseded by the sensitivity analysis. In addition, if you have an optimization block
+active: Aspen Plus will try to optimize at each run. <strong>We certainly do not want this</strong>.</p>
+<p>The following image shows an example of the Simulation info <em>panel</em> after you load a simulation:</p>
 </div>
 </div>
 </div>
