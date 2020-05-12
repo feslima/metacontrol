@@ -298,7 +298,8 @@ which is:
 .. math:: 
     fco2out/fco2in \geq 0.9
 
-If you have an interval, simply break it into two constraints (A lower bound and an upper bound constraint).
+If you have an constraint interval, simply break it into two constraints 
+(A lower bound and an upper bound constraint).
 
 
 
@@ -322,5 +323,10 @@ You can inspect the following information:
    turned on, for instance, the results of the DOE will be superseded by the sensitivity analysis. In addition, if you have an optimization block
    active: Aspen Plus will try to optimize at each run. **We certainly do not want this**.
 
-   The following image shows an example of the Simulation info *panel* after you load a simulation:
    
+The following image shows an example of the Simulation info *panel* after you load a simulation:
+
+.. figure:: ../images/sim_info_panel.png
+   :align: center
+
+   Simulation info panel showing information regarding the Aspen Plus model provided.
