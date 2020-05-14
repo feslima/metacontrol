@@ -27,6 +27,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -91,7 +92,31 @@
 <li class="toctree-l1 current"><a class="reference internal" href="gui_index.html">Metacontrol GUI Manual</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="load_sim_tab.html">The “Load Simulation” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sampling_tab.html">The “Sampling” tab</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Metamodel” tab</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Metamodel” tab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hyperparameters-theta-definition-panel">Hyperparameters (theta) definition <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#changing-the-bounds-and-estimate-for-the-hyperparameters">Changing the bounds and estimate for the hyperparameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#regression-and-correlation-kernel-model-selection-panel">Regression and Correlation (Kernel) model selection <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#selecting-the-regression-and-correlation-models">Selecting the regression and correlation models</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#type-of-validation-panel">Type of validation <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#performing-a-hold-out-validation">Performing a <em>hold-out</em> Validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#performing-a-k-out-validation">Performing a <em>k-out</em> Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#variable-selection-panel">Variable selection <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#selecting-a-variable-to-have-its-model-built">Selecting a variable to have its model built</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#results-generation-and-validation-panel">Results generation and validation <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#graphically-inspecting-your-results">Graphically inspecting your results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#validation-metrics-panel">Validation metrics <em>panel</em></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="optimization_tab.html">The “Optimization” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reduced_space_tab.html">The “Reduced Space” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff_data_tab.html">The “Differential Data” tab</a></li>
@@ -168,7 +193,186 @@
             
   <div class="section" id="the-metamodel-tab">
 <h1>The “Metamodel” tab<a class="headerlink" href="#the-metamodel-tab" title="Permalink to this headline">¶</a></h1>
-<p>Placeholder text…</p>
+<p>At this tab you will use the Design of Experiments (DOE) generated previously to
+generate kriging metamodels of the initial Sampling. The main idea here is to inspect if
+the initial sampling providing is capable of predicting the basic form of the functions that you
+chose/created on the first step (Objective Function, CV candidates and constraints). If the kriging generated
+by the initial sampling is good enough, you are able to optimize it and refine it on the next step.
+On this tab you will be able to:</p>
+<ul class="simple">
+<li><p>Define the lower and upper bounds for the hyperparameters that will be adjusted to give the
+best kriging prediction</p></li>
+<li><p>Define the regression and correlation (kernel) model for your kriging interpolator</p></li>
+<li><p>Define which variables will have their model built</p></li>
+<li><p>Inspect several validation metrics in order to conclude if your model is a good representation</p></li>
+<li><p>Perform k-fold or hold-out validation. On the latter, you will be able to also inspect graphically
+your model.</p></li>
+</ul>
+<p>Here is an overview of this tab:</p>
+<div class="figure align-center" id="id1">
+<img alt="../_images/metamodel_main.png" src="../_images/metamodel_main.png" />
+<p class="caption"><span class="caption-text"><em>Metacontrol</em> “Metamodel” tab.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>There are six main panels on this tab:</p>
+<ul class="simple">
+<li><p>Hyperparameters (theta) definition <em>panel</em></p></li>
+<li><p>Regression and Correlation (Kernel) model selection <em>panel</em></p></li>
+<li><p>Type of validation <em>panel</em></p></li>
+<li><p>Variable selection <em>panel</em></p></li>
+<li><p>Results generation and validation <em>panel</em></p></li>
+<li><p>Validation metrics <em>panel</em></p></li>
+</ul>
+<div class="section" id="hyperparameters-theta-definition-panel">
+<h2>Hyperparameters (theta) definition <em>panel</em><a class="headerlink" href="#hyperparameters-theta-definition-panel" title="Permalink to this headline">¶</a></h2>
+<p>This is the panel that you will define the upper and lower bounds of
+the Hyperparameters (theta). There is one hyperparameter for each MV. The disturbances are
+only included at the “Reduced space” step, since we seek to use the first metamodel to optimize the
+base case.</p>
+<div class="figure align-center" id="id2">
+<img alt="../_images/hyperparameter_main.png" src="../_images/hyperparameter_main.png" />
+<p class="caption"><span class="caption-text">Hyperparameters (theta) definition <em>panel</em>. Note that the aliases that you chose for each MV
+are used all over you <em>Metacontrol</em> case study, including here.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Generally, you do not need to change from the
+defaults values used in <em>Metacontrol</em>, since internally <em>PyDACE</em> does a pretty good job in optimizing the
+Hyperparameters to maximize the likelihood. We recommend to change the bounds or even the
+estimate only if you are not satisfied with the prediction produced. For the mathematical aspects and a deeper
+explanation on how the hyperparameters (and kriging itself) works, check our “Theoretical Backgrounds” Section.</p>
+</div>
+<div class="section" id="changing-the-bounds-and-estimate-for-the-hyperparameters">
+<h3>Changing the bounds and estimate for the hyperparameters<a class="headerlink" href="#changing-the-bounds-and-estimate-for-the-hyperparameters" title="Permalink to this headline">¶</a></h3>
+<p>Simply double click on the upper/lower bound/estimate that you want to
+change and type it. Easy.</p>
+<div class="figure align-center" id="id3">
+<img alt="../_images/hyperparameter_change.png" src="../_images/hyperparameter_change.png" />
+<p class="caption"><span class="caption-text">Changing bounds and estimates.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="regression-and-correlation-kernel-model-selection-panel">
+<h2>Regression and Correlation (Kernel) model selection <em>panel</em><a class="headerlink" href="#regression-and-correlation-kernel-model-selection-panel" title="Permalink to this headline">¶</a></h2>
+<p>This panel is used to configure which regression and correlation (kernel) model
+will be used in your kriging interpolator.</p>
+<div class="figure align-center" id="id4">
+<img alt="../_images/reg_corr_panel_main.png" src="../_images/reg_corr_panel_main.png" />
+<p class="caption"><span class="caption-text">Regression and Correlation (Kernel) model selection <em>panel</em>.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="selecting-the-regression-and-correlation-models">
+<h3>Selecting the regression and correlation models<a class="headerlink" href="#selecting-the-regression-and-correlation-models" title="Permalink to this headline">¶</a></h3>
+<p>Just use the dropdown list to select the regression and correlation
+models.</p>
+<div class="figure align-center" id="id5">
+<img alt="../_images/reg_corr_panel_select.png" src="../_images/reg_corr_panel_select.png" />
+<p class="caption"><span class="caption-text">For instance, selecting your regression model.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Currently, <em>Metacontrol</em> gives you the <em>constant</em>, <em>linear</em> and <em>quadratic</em> options for
+the regression model, and the <em>exponential</em> for the kernel. On future releases, different kernels
+will be added.</p>
+</div>
+</div>
+</div>
+<div class="section" id="type-of-validation-panel">
+<h2>Type of validation <em>panel</em><a class="headerlink" href="#type-of-validation-panel" title="Permalink to this headline">¶</a></h2>
+<p>This panel will give you the possibility to opt between <em>hold-out</em> (leave-out) or <em>k-fold</em> types of validation.
+The number of folds and the percentage of DOE data separated for the training set in the case of <em>hold-out</em> validation
+can also be configured.</p>
+<div class="figure align-center" id="id6">
+<img alt="../_images/val_type_main.png" src="../_images/val_type_main.png" />
+<p class="caption"><span class="caption-text">Type of validation <em>panel</em>.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="performing-a-hold-out-validation">
+<h3>Performing a <em>hold-out</em> Validation<a class="headerlink" href="#performing-a-hold-out-validation" title="Permalink to this headline">¶</a></h3>
+<p>Select the radio button for <em>hold-out</em> validation and define using the slider the percentage of the initial sampling
+that is going to be used to build your model. The remaining will be used for test purposes.</p>
+<div class="figure align-center" id="id7">
+<img alt="../_images/val_holdout.png" src="../_images/val_holdout.png" />
+<p class="caption"><span class="caption-text">Configuring <em>hold-out</em> validation.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<p>The <em>Metacontrol</em> default is to leave 75% of the DOE data for construction and the remaining for
+validation purposes.</p>
+</div>
+<div class="section" id="performing-a-k-out-validation">
+<h3>Performing a <em>k-out</em> Validation<a class="headerlink" href="#performing-a-k-out-validation" title="Permalink to this headline">¶</a></h3>
+<p>Select the radio button for <em>k-fold</em> validation and define the number of folds to be considered using the slider.</p>
+<div class="figure align-center" id="id8">
+<img alt="../_images/val_kfold.png" src="../_images/val_kfold.png" />
+<p class="caption"><span class="caption-text">Configuring <em>hold-out</em> validation.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>For a theoretical background on <em>hold-out</em> and <em>k-fold</em> validation, refer to our papers and our theoretical
+background section.</p>
+</div>
+</div>
+</div>
+<div class="section" id="variable-selection-panel">
+<h2>Variable selection <em>panel</em><a class="headerlink" href="#variable-selection-panel" title="Permalink to this headline">¶</a></h2>
+<p>On this panel you can choose which variables will have their model built. <em>Metacontrol</em> gives you this feature
+in order to give you the chance to inspect groups of variables, for instance.</p>
+<div class="section" id="selecting-a-variable-to-have-its-model-built">
+<h3>Selecting a variable to have its model built<a class="headerlink" href="#selecting-a-variable-to-have-its-model-built" title="Permalink to this headline">¶</a></h3>
+<p>Simply check the box for each Variable (Objective Function, CV candidate, constraint function) That you want to
+inspect its kriging response:</p>
+<div class="figure align-center" id="id9">
+<img alt="../_images/metamodel_check_variable.png" src="../_images/metamodel_check_variable.png" />
+<p class="caption"><span class="caption-text">Selecting Variables.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="results-generation-and-validation-panel">
+<h2>Results generation and validation <em>panel</em><a class="headerlink" href="#results-generation-and-validation-panel" title="Permalink to this headline">¶</a></h2>
+<p>After configuring the hyperparameters bounds/estimates, choosing your kernel and regression models, selecting which variables
+do you want to have kriging responses generated and the type of validation, you can use this panel to generate your kriging responses.</p>
+<p>If you choose <em>k-fold</em> validation, you will see that the Validation metrics <em>panel</em> is now with several metrics to evaluate your kriging model.</p>
+<p>If you choose <em>hold-out</em> validation, you will see that, in addition to the results of the Validation metrics <em>panel</em>, the button “View graphical results”
+is available.</p>
+<div class="section" id="graphically-inspecting-your-results">
+<h3>Graphically inspecting your results<a class="headerlink" href="#graphically-inspecting-your-results" title="Permalink to this headline">¶</a></h3>
+<p>The classic predicted data <em>versus</em> validation data validation plots are available in <em>Metacontrol</em>, if you opted for <em>hold-out</em> validation. Simply click on
+“View graphical results” button, and a screen with a plot for each variable that had its kriging response built will appear:</p>
+<div class="figure align-center" id="id10">
+<img alt="../_images/metamodel_graph_results.png" src="../_images/metamodel_graph_results.png" />
+<p class="caption"><span class="caption-text">Graphically inspecting your kriging metamodels fitness against validation data.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</div>
+<p>Taking a closer look to the “Validation Results” windows with the plots you can see a panel at the bottom with several buttons.
+They allow you to:</p>
+<ul class="simple">
+<li><p>Reset the original view, if you change it</p></li>
+<li><p>Pan axes with left mouse, zoom with right</p></li>
+<li><p>Zoom to rectangle</p></li>
+<li><p>Configure subplots</p></li>
+<li><p>Edit axis, curve and image parameters</p></li>
+<li><p>Save the figure to use it elewhere.</p></li>
+</ul>
+<div class="figure align-center" id="id11">
+<img alt="../_images/graph_close.png" src="../_images/graph_close.png" />
+<p class="caption"><span class="caption-text">Thanks to <em>matplotlib</em> package used in <em>Metacontrol</em>, you are able to perform several inspect operations and save your plot.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="validation-metrics-panel">
+<h2>Validation metrics <em>panel</em><a class="headerlink" href="#validation-metrics-panel" title="Permalink to this headline">¶</a></h2>
+<p>This panel is completed after you generate your kriging metamodel. It allows you to see several metrics
+in order to assure the robustness of you kriging response.</p>
+<div class="figure align-center" id="id12">
+<img alt="../_images/val_metric_main.png" src="../_images/val_metric_main.png" />
+<p class="caption"><span class="caption-text">Validation metrics <em>panel</em>.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+</div>
+<p>The metrics are:</p>
+<ul class="simple">
+<li><p>OMSE = Overall Mean-squared Error</p></li>
+<li><p>ORMSE = Overall Root Mean-squared Error</p></li>
+<li><p>OMAE = Overall Mean Absolute Error</p></li>
+<li><p>OR2  = R² value</p></li>
+<li><p>OEV = Overall expected Variance</p></li>
+<li><p>Sample Mean</p></li>
+<li><p>Sample Standard deviation</p></li>
+</ul>
+</div>
 </div>
 
 
