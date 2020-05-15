@@ -1,8 +1,10 @@
 import pandas as pd
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QThread,
                           pyqtSignal)
-from PyQt5.QtGui import QFont, QDoubleValidator, QIntValidator, QBrush, QPalette
-from PyQt5.QtWidgets import QApplication, QHeaderView, QMessageBox, QWidget
+from PyQt5.QtGui import (QBrush, QDoubleValidator, QFont, QIntValidator,
+                         QPalette)
+from PyQt5.QtWidgets import (
+    QApplication, QHeaderView, QLineEdit, QMessageBox, QWidget)
 from surropt.core.options.nlp import DockerNLPOptions
 from win32com.client import Dispatch
 
@@ -103,29 +105,12 @@ class OptimizationTab(QWidget):
         std_val.setRange(0.0, 1.0, 2)
         std_val.setNotation(QDoubleValidator.StandardNotation)
 
-        sci_val = QDoubleValidator()
-        pen_val = QDoubleValidator()
-        pen_val.setRange(0.0, 10000.0, 4)
+        self.sci_val = QDoubleValidator()
+        self.pen_val = QDoubleValidator()
+        self.pen_val.setRange(0.0, 10000.0, 4)
 
-        maxfun_val = QIntValidator()
-        maxfun_val.setRange(0, 10000)
-
-        factor1_le.setValidator(std_val)
-        factor2_le.setValidator(std_val)
-        tol_contract_le.setValidator(sci_val)
-        con_tol_le.setValidator(sci_val)
-        penalty_le.setValidator(pen_val)
-        tol1_le.setValidator(sci_val)
-        tol2_le.setValidator(sci_val)
-        maxfunevals_le.setValidator(maxfun_val)
-
-        self.ui.ipoptLocalDualFeasLineEdit.setValidator(sci_val)
-        self.ui.ipoptLocalConTolLineEdit.setValidator(sci_val)
-        self.ui.ipoptLocalMaxIterLineEdit.setValidator(maxfun_val)
-
-        self.ui.ipoptServerDualFeasLineEdit.setValidator(sci_val)
-        self.ui.ipoptServerConTolLineEdit.setValidator(sci_val)
-        self.ui.ipoptServerMaxIterLineEdit.setValidator(maxfun_val)
+        self.maxfun_val = QIntValidator()
+        self.maxfun_val.setRange(0, 10000)
 
         # --------------------------- Signals/Slots ---------------------------
         self.ui.startOptPushButton.clicked.connect(self.on_start_pressed)
@@ -137,26 +122,26 @@ class OptimizationTab(QWidget):
         )
 
         # whenever any of the opt parameters changes update the underlying obj
-        factor1_le.textChanged.connect(self.set_opt_params)
-        factor2_le.textChanged.connect(self.set_opt_params)
-        tol_contract_le.textChanged.connect(self.set_opt_params)
-        con_tol_le.textChanged.connect(self.set_opt_params)
-        penalty_le.textChanged.connect(self.set_opt_params)
-        tol1_le.textChanged.connect(self.set_opt_params)
-        tol2_le.textChanged.connect(self.set_opt_params)
-        maxfunevals_le.textChanged.connect(self.set_opt_params)
+        factor1_le.editingFinished.connect(self.set_opt_params)
+        factor2_le.editingFinished.connect(self.set_opt_params)
+        tol_contract_le.editingFinished.connect(self.set_opt_params)
+        con_tol_le.editingFinished.connect(self.set_opt_params)
+        penalty_le.editingFinished.connect(self.set_opt_params)
+        tol1_le.editingFinished.connect(self.set_opt_params)
+        tol2_le.editingFinished.connect(self.set_opt_params)
+        maxfunevals_le.editingFinished.connect(self.set_opt_params)
         regrpoly_cb.currentIndexChanged.connect(self.set_opt_params)
-        self.ui.ipoptLocalDualFeasLineEdit.textChanged.connect(
+        self.ui.ipoptLocalDualFeasLineEdit.editingFinished.connect(
             self.set_opt_params)
-        self.ui.ipoptLocalMaxIterLineEdit.textChanged.connect(
+        self.ui.ipoptLocalMaxIterLineEdit.editingFinished.connect(
             self.set_opt_params)
-        self.ui.ipoptLocalConTolLineEdit.textChanged.connect(
+        self.ui.ipoptLocalConTolLineEdit.editingFinished.connect(
             self.set_opt_params)
-        self.ui.ipoptServerDualFeasLineEdit.textChanged.connect(
+        self.ui.ipoptServerDualFeasLineEdit.editingFinished.connect(
             self.set_opt_params)
-        self.ui.ipoptServerMaxIterLineEdit.textChanged.connect(
+        self.ui.ipoptServerMaxIterLineEdit.editingFinished.connect(
             self.set_opt_params)
-        self.ui.ipoptServerConTolLineEdit.textChanged.connect(
+        self.ui.ipoptServerConTolLineEdit.editingFinished.connect(
             self.set_opt_params)
 
         # control panel related stuff
@@ -316,45 +301,57 @@ class OptimizationTab(QWidget):
 
         opt_params['nlp_params'] = solver_params
 
-        self.application_database.optimization_parameters = opt_params
-
-    def _set_value(self, editor, opt_param_key, val_type='float', min_val=0.0,
-                   max_val=1.0):
+    def _set_value(self, editor: QLineEdit, opt_param_key, val_type='float',
+                   min_val=0.0, max_val=1.0):
+        opt_params = self.application_database.optimization_parameters
         try:
             if val_type == 'float':
                 value = float(editor.text())
             else:
                 value = int(editor.text())
         except ValueError:
-            pass
+            # text is invalid, resort to value in storage
+            editor.setText(str(opt_params[opt_param_key]))
+
         else:
-            opt_params = self.application_database.optimization_parameters
             opt_params[opt_param_key] = value
             if not (min_val < value < max_val):
                 color = 'red'
+                tooltip_msg = ("Parameter outside valid range "
+                               "({0} < value < {1})")
+                tooltip_msg = tooltip_msg.format(min_val, max_val)
             else:
                 color = 'white'
+                tooltip_msg = ""
 
+            editor.setToolTip(tooltip_msg)
             editor.setStyleSheet("background: " + color)
 
     def _set_nlp_param(self, editor, nlp_param_key, val_type='float',
                        min_val=0.0, max_val=1.0):
+        opt_params = self.application_database.optimization_parameters
+        solver_params = opt_params['nlp_params']
         try:
             if val_type == 'float':
                 value = float(editor.text())
             else:
                 value = int(editor.text())
         except ValueError:
-            pass
+            # text is invalid, resort to value in storage
+            editor.setText(str(solver_params[nlp_param_key]))
+
         else:
-            opt_params = self.application_database.optimization_parameters
-            solver_params = opt_params['nlp_params']
             solver_params[nlp_param_key] = value
             if not (min_val < value < max_val):
                 color = 'red'
+                tooltip_msg = ("Parameter outside valid range "
+                               "({0} < value < {1})")
+                tooltip_msg = tooltip_msg.format(min_val, max_val)
             else:
                 color = 'white'
+                tooltip_msg = ""
 
+            editor.setToolTip(tooltip_msg)
             editor.setStyleSheet("background: " + color)
 
     def on_start_pressed(self):

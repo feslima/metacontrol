@@ -15,7 +15,7 @@ from surropt.core.options.nlp import DockerNLPOptions, IpOptOptions
 from gui.models.data_storage import DataStorage
 from gui.models.sim_connections import AspenConnection
 
-import ptvsd
+# import ptvsd
 
 
 def lhs(n_samples: int, lb: list, ub: list, n_iter: int, inc_vertices: bool) \
@@ -294,7 +294,7 @@ class CaballeroWorker(QObject):
             self.asp_obj.close_connection()
 
     def start_optimization(self):
-        ptvsd.debug_this_thread()
+        # ptvsd.debug_this_thread()
         params = self.params
 
         # unzip parameter data

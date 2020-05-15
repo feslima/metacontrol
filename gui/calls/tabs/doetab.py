@@ -6,6 +6,7 @@ from PyQt5.QtGui import QBrush, QFont, QPalette
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QHeaderView,
                              QTableView, QTableWidgetItem, QWidget)
 
+from gui.calls.base import DoubleEditorDelegate
 from gui.calls.dialogs.csveditor import CsvEditorDialog
 from gui.calls.dialogs.samplingassistant import (InputBoundsModel,
                                                  SamplingAssistantDialog)
@@ -205,6 +206,12 @@ class DoeTab(QWidget):
 
         bounds_table.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
+
+        self._lb_delegate = DoubleEditorDelegate()
+        self._ub_delegate = DoubleEditorDelegate()
+
+        bounds_table.setItemDelegateForColumn(1, self._lb_delegate)
+        bounds_table.setItemDelegateForColumn(2, self._ub_delegate)
 
         results_table = DoeResultsView(parent=self.ui.groupBox_4)
         results_model = DoeResultsModel(self.application_database,
