@@ -94,7 +94,20 @@
 <li class="toctree-l2"><a class="reference internal" href="load_sim_tab.html">The “Load Simulation” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sampling_tab.html">The “Sampling” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="metamodel_tab.html">The “Metamodel” tab</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Optimization” tab</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Optimization” tab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adaptive-sampling-setup-panel">Adaptive sampling setup <em>panel</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nlp-solvers-options-panel">NLP solvers options <em>panel</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#perform-optimization-panel">Perform optimization <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#performing-an-optimization-run">Performing an optimization run</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#control-panel">Control <em>panel</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#results-panel">Results <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#interpreting-constraints-results">Interpreting constraints results</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="reduced_space_tab.html">The “Reduced Space” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff_data_tab.html">The “Differential Data” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soc_tab.html">The “Self-Optimizing Control” tab</a></li>
@@ -170,7 +183,117 @@
             
   <div class="section" id="the-optimization-tab">
 <h1>The “Optimization” tab<a class="headerlink" href="#the-optimization-tab" title="Permalink to this headline">¶</a></h1>
-<p>Placeholder text…</p>
+<p>This tab allows you to optimize the metamodel objective function, subject to the
+constraints that you have created (also metamodels). In addition, the bounds of the Manipulated Variables (MVs)
+that you defined at the “Sampling” tab are automatically incorporated to the optimization problem as box constraints.</p>
+<p>You can also:</p>
+<ul class="simple">
+<li><p>Modify the NLP (IpOpt) solver parameters</p></li>
+<li><p>Modifiy the infill criteria algorithm parameters, implemented in <em>Metacontrol</em> to refine your
+kriging response</p></li>
+<li><p>Inspect each iteration of the infill criteria algorithm in real time</p></li>
+<li><p>At the end of the run, see your results in a concise panel.</p></li>
+</ul>
+<p>Here is an overview of this tab:</p>
+<div class="figure align-center" id="id1">
+<img alt="../_images/otm_main.png" src="../_images/otm_main.png" />
+<p class="caption"><span class="caption-text"><em>Metacontrol</em> “Optimization” tab.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>There are five main panels on this tab:</p>
+<ul class="simple">
+<li><p>Adaptive sampling setup <em>panel</em></p></li>
+<li><p>NLP solvers options <em>panel</em></p></li>
+<li><p>Perform optimization <em>panel</em></p></li>
+<li><p>Control <em>panel</em></p></li>
+<li><p>Results <em>panel</em></p></li>
+</ul>
+<div class="section" id="adaptive-sampling-setup-panel">
+<h2>Adaptive sampling setup <em>panel</em><a class="headerlink" href="#adaptive-sampling-setup-panel" title="Permalink to this headline">¶</a></h2>
+<p>On this panel you will setup the main parameters for the Adaptive Sampling (infill criteria) algorithm.</p>
+<div class="figure align-center" id="id2">
+<img alt="../_images/adaptive_sampling.png" src="../_images/adaptive_sampling.png" />
+<p class="caption"><span class="caption-text">Configuring adaptive sampling algorithm.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p>You can setup values for:</p>
+<ul class="simple">
+<li><p><em>First</em> and <em>Second</em> contraction factors</p></li>
+<li><p><em>Maximum</em> contraction tolerance</p></li>
+<li><p>Feasibility constraint tolerance</p></li>
+<li><p>Penalty factor for the objective function</p></li>
+<li><p>Refinement tolerance</p></li>
+<li><p>Termination tolerance</p></li>
+<li><p>Maximum function evaluations</p></li>
+<li><p>The kriging regression model used in the adaptive sampling algorithm</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>For a explanation on how each parameters affects the optimization run, refer to our theoretical
+backgrounds section.</p>
+</div>
+</div>
+<div class="section" id="nlp-solvers-options-panel">
+<h2>NLP solvers options <em>panel</em><a class="headerlink" href="#nlp-solvers-options-panel" title="Permalink to this headline">¶</a></h2>
+<p>You can select the NLP solver and configuring its parameters at this section. Currently, we support IpOpt inside
+<em>Metacontrol</em> natively.</p>
+<div class="figure align-center" id="id3">
+<img alt="../_images/nlp_solvers.png" src="../_images/nlp_solvers.png" />
+<p class="caption"><span class="caption-text">Configuring NLP Solvers Parameters.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="perform-optimization-panel">
+<h2>Perform optimization <em>panel</em><a class="headerlink" href="#perform-optimization-panel" title="Permalink to this headline">¶</a></h2>
+<p>At this panel you can start your optimization run, or abort it at any moment.</p>
+<div class="figure align-center" id="id4">
+<img alt="../_images/perform_optimization.png" src="../_images/perform_optimization.png" />
+<p class="caption"><span class="caption-text">Start/abort optimization run.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="performing-an-optimization-run">
+<h3>Performing an optimization run<a class="headerlink" href="#performing-an-optimization-run" title="Permalink to this headline">¶</a></h3>
+<p>After configuring the adpative sampling and NLP parameters, you can click on “Start” under the
+“Perform optimization” <em>panel</em> in order to begin the metamodel optimization. You can see at the Control
+panel the iterations in real time, and each step performed by the algorithm.</p>
+</div>
+</div>
+<div class="section" id="control-panel">
+<h2>Control <em>panel</em><a class="headerlink" href="#control-panel" title="Permalink to this headline">¶</a></h2>
+<p>This is how the control <em>panel</em> looks like during an optimization run in <em>Metacontrol</em></p>
+<div class="figure align-center" id="id5">
+<img alt="../_images/opt_control_panel.png" src="../_images/opt_control_panel.png" />
+<p class="caption"><span class="caption-text">Control <em>panel</em> output.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+<p>The control panel shows the operations performed by the adaptive sampling algorithm, the decision variables values (MVs) at each
+iteration, the actual and predicted objective function values, and the largest infeasiblity (constraint) violation for that iteration.
+At the end of the optimization run, <em>Metacontrol</em> will inform you how many points are within the trust-region.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To understand how the algorithm works, refer to our theoretical backgrounds section.</p>
+</div>
+</div>
+<div class="section" id="results-panel">
+<h2>Results <em>panel</em><a class="headerlink" href="#results-panel" title="Permalink to this headline">¶</a></h2>
+<p>The results <em>panel</em> gives a summary of the results of your optimization problem, such as</p>
+<ul class="simple">
+<li><p>Final decision variables values</p></li>
+<li><p>Constraint expressions values</p></li>
+<li><p>Objective function value</p></li>
+</ul>
+<div class="figure align-center" id="id6">
+<img alt="../_images/opt_results.png" src="../_images/opt_results.png" />
+<p class="caption"><span class="caption-text">Results <em>panel</em> , a summary of your optimization run.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="interpreting-constraints-results">
+<h3>Interpreting constraints results<a class="headerlink" href="#interpreting-constraints-results" title="Permalink to this headline">¶</a></h3>
+<p>As stated before at the previous section, the constraints are written in <em>Metacontrol</em> in the form:</p>
+<div class="math notranslate nohighlight">
+\[g(x) \leq 0\]</div>
+<p>Therefore, if a constraint has, after the optimization run, a negative value, it indicates that this constraint
+is <strong>inactive</strong>. On the other hand, constraints values equals 0 indicate that for the problem created, this constraint
+is active. This information is important because Active-Constraint Control is a mandatory step in Self-Optimizing control
+methodology.</p>
+<p>In the example above, all nonlinear constraints were inactive. Three decision variables (MVs), on the other hand, were active
+at their lower bounds (<em>mcct</em>, <em>f1t</em> and <em>f2t</em>).</p>
+</div>
+</div>
 </div>
 
 
