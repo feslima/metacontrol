@@ -1,7 +1,7 @@
 import pandas as pd
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QThread,
                           pyqtSignal)
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QDoubleValidator, QIntValidator, QBrush, QPalette
 from PyQt5.QtWidgets import QApplication, QHeaderView, QMessageBox, QWidget
 from surropt.core.options.nlp import DockerNLPOptions
 from win32com.client import Dispatch
@@ -94,16 +94,49 @@ class OptimizationTab(QWidget):
         # disable abort button (for now, while surropt api does not implement)
         self.ui.abortOptPushButton.setEnabled(False)
 
+        # apply validators
+        factor1_le, factor2_le, tol_contract_le, con_tol_le, penalty_le, \
+            tol1_le, tol2_le, maxfunevals_le, \
+            regrpoly_cb = self._get_lineedit_handles()
+
+        std_val = QDoubleValidator()
+        std_val.setRange(0.0, 1.0, 2)
+        std_val.setNotation(QDoubleValidator.StandardNotation)
+
+        sci_val = QDoubleValidator()
+        pen_val = QDoubleValidator()
+        pen_val.setRange(0.0, 10000.0, 4)
+
+        maxfun_val = QIntValidator()
+        maxfun_val.setRange(0, 10000)
+
+        factor1_le.setValidator(std_val)
+        factor2_le.setValidator(std_val)
+        tol_contract_le.setValidator(sci_val)
+        con_tol_le.setValidator(sci_val)
+        penalty_le.setValidator(pen_val)
+        tol1_le.setValidator(sci_val)
+        tol2_le.setValidator(sci_val)
+        maxfunevals_le.setValidator(maxfun_val)
+
+        self.ui.ipoptLocalDualFeasLineEdit.setValidator(sci_val)
+        self.ui.ipoptLocalConTolLineEdit.setValidator(sci_val)
+        self.ui.ipoptLocalMaxIterLineEdit.setValidator(maxfun_val)
+
+        self.ui.ipoptServerDualFeasLineEdit.setValidator(sci_val)
+        self.ui.ipoptServerConTolLineEdit.setValidator(sci_val)
+        self.ui.ipoptServerMaxIterLineEdit.setValidator(maxfun_val)
+
         # --------------------------- Signals/Slots ---------------------------
         self.ui.startOptPushButton.clicked.connect(self.on_start_pressed)
         self.ui.ipoptTestConnectionPushButton.clicked.connect(
             self.on_ipopt_test_connection_pressed)
 
-        # whenever any of the opt parameters changes update the underlying obj
-        factor1_le, factor2_le, tol_contract_le, con_tol_le, penalty_le, \
-            tol1_le, tol2_le, maxfunevals_le, \
-            regrpoly_cb = self._get_lineedit_handles()
+        self.application_database.optimization_parameters_changed.connect(
+            self.load_opt_params
+        )
 
+        # whenever any of the opt parameters changes update the underlying obj
         factor1_le.textChanged.connect(self.set_opt_params)
         factor2_le.textChanged.connect(self.set_opt_params)
         tol_contract_le.textChanged.connect(self.set_opt_params)
@@ -133,10 +166,13 @@ class OptimizationTab(QWidget):
         self.optimization_failed.connect(self.on_optimization_failed)
         # ---------------------------------------------------------------------
 
+    def _set_default(self):
+        self.ui.firstFactorLineEdit.setText(1.0)
+
     def _get_lineedit_handles(self):
         factor1_le = self.ui.firstFactorLineEdit
         factor2_le = self.ui.secondFactorLineEdit
-        tol_contract_le = self.ui.secondFactorLineEdit
+        tol_contract_le = self.ui.tolContractLineEdit
         con_tol_le = self.ui.conTolLineEdit
         penalty_le = self.ui.penaltyFactorLineEdit
         tol1_le = self.ui.tol1LineEdit
@@ -212,28 +248,36 @@ class OptimizationTab(QWidget):
         solver_params = opt_params['nlp_params']
 
         if le_name == factor1_le.objectName():
-            opt_params['first_factor'] = float(factor1_le.text())
+            self._set_value(factor1_le, 'first_factor',
+                            min_val=0.0, max_val=1.0)
 
         elif le_name == factor2_le.objectName():
-            opt_params['second_factor'] = float(factor2_le.text())
+            self._set_value(factor2_le, 'second_factor',
+                            min_val=0.0, max_val=1.0)
 
         elif le_name == tol_contract_le.objectName():
-            opt_params['tol_contract'] = float(tol_contract_le.text())
+            self._set_value(tol_contract_le, 'tol_contract',
+                            min_val=0.0, max_val=1.0)
 
         elif le_name == con_tol_le.objectName():
-            opt_params['con_tol'] = float(con_tol_le.text())
+            self._set_value(con_tol_le, 'con_tol',
+                            min_val=0.0, max_val=1.0)
 
         elif le_name == penalty_le.objectName():
-            opt_params['penalty'] = float(penalty_le.text())
+            self._set_value(penalty_le, 'penalty',
+                            min_val=0.0, max_val=10000.0)
 
         elif le_name == tol1_le.objectName():
-            opt_params['tol1'] = float(tol1_le.text())
+            self._set_value(tol1_le, 'tol1',
+                            min_val=0.0, max_val=1.0)
 
         elif le_name == tol2_le.objectName():
-            opt_params['tol2'] = float(tol2_le.text())
+            self._set_value(tol2_le, 'tol2',
+                            min_val=0.0, max_val=1.0)
 
         elif le_name == maxfunevals_le.objectName():
-            opt_params['maxfunevals'] = float(maxfunevals_le.text())
+            self._set_value(maxfunevals_le, 'maxfunevals', val_type='int',
+                            min_val=0, max_val=10000)
 
         elif le_name == regrpoly_cb.objectName():
             if regrpoly_cb.currentIndex() == 0:
@@ -264,13 +308,54 @@ class OptimizationTab(QWidget):
         else:
             raise IndexError('Tab object not found.')
 
-        solver_params['tol'] = float(ipopt_tol_le.text())
-        solver_params['max_iter'] = int(ipopt_max_iter_le.text())
-        solver_params['con_tol'] = float(ipopt_con_tol_le.text())
+        self._set_nlp_param(ipopt_tol_le, 'tol', min_val=0.0, max_val=1.0)
+        self._set_nlp_param(ipopt_max_iter_le, 'max_iter', val_type='int',
+                            min_val=0, max_val=10000)
+        self._set_nlp_param(ipopt_con_tol_le, 'con_tol',
+                            min_val=0.0, max_val=1.0)
 
         opt_params['nlp_params'] = solver_params
 
         self.application_database.optimization_parameters = opt_params
+
+    def _set_value(self, editor, opt_param_key, val_type='float', min_val=0.0,
+                   max_val=1.0):
+        try:
+            if val_type == 'float':
+                value = float(editor.text())
+            else:
+                value = int(editor.text())
+        except ValueError:
+            pass
+        else:
+            opt_params = self.application_database.optimization_parameters
+            opt_params[opt_param_key] = value
+            if not (min_val < value < max_val):
+                color = 'red'
+            else:
+                color = 'white'
+
+            editor.setStyleSheet("background: " + color)
+
+    def _set_nlp_param(self, editor, nlp_param_key, val_type='float',
+                       min_val=0.0, max_val=1.0):
+        try:
+            if val_type == 'float':
+                value = float(editor.text())
+            else:
+                value = int(editor.text())
+        except ValueError:
+            pass
+        else:
+            opt_params = self.application_database.optimization_parameters
+            solver_params = opt_params['nlp_params']
+            solver_params[nlp_param_key] = value
+            if not (min_val < value < max_val):
+                color = 'red'
+            else:
+                color = 'white'
+
+            editor.setStyleSheet("background: " + color)
 
     def on_start_pressed(self):
         # get caballero parameters from storage
