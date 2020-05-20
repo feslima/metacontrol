@@ -61,6 +61,9 @@ Sampling Assistant *panel*
 This panel defines how are you going to supply the DOE data to metacontrol: Using your simulation file (recommended) or
 loading an *.CSV file (this is a auxiliary feature). For the first case, you are going to use the Sample Assistant from *Metacontrol*:
 
+
+.. _sampling_assistant:
+
 Using the Sampling Assistant to sample data from Aspen Plus
 ------------------------------------------------------------
 
@@ -117,7 +120,8 @@ The "Sample Data" button now is available. Push it to start running your cases.
 
 At each case, *Metacontrol*
 communicates with the Aspen Plus Engine, and collects the results automatically and in real time. You can literally see the
-sampling process in front of you, with the "Sampler Display" panel being updated as the cases run.
+sampling process in front of you, with the "Sampler Display" panel being updated as the cases run. Note that there is a progress bar
+to show you the overall process.
 
 .. figure:: ../images/sampling_running.png
    :align: center

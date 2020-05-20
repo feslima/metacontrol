@@ -88,7 +88,7 @@ panel the iterations in real time, and each step performed by the algorithm.
 Control *panel*
 ================
 
-This is how the control *panel* looks like during an optimization run in *Metacontrol*
+This is how the control *panel* looks like during an optimization run in *Metacontrol*:
 
 
 .. figure:: ../images/opt_control_panel.png
@@ -96,7 +96,7 @@ This is how the control *panel* looks like during an optimization run in *Metaco
 
    Control *panel* output.
 
-The control panel shows the operations performed by the adaptive sampling algorithm, the decision variables values (MVs) at each
+The control panel shows (being updated in real time) the operations performed by the adaptive sampling algorithm, the decision variables values (MVs) at each
 iteration, the actual and predicted objective function values, and the largest infeasiblity (constraint) violation for that iteration.
 At the end of the optimization run, *Metacontrol* will inform you how many points are within the trust-region.
 
