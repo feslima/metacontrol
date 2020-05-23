@@ -20,12 +20,33 @@ Our papers
 -----------
 Please, cite the related papers:
 
-1.  `Metamodel-Based Numerical Techniques for Self-Optimizing Control <https://pubs.acs.org/doi/10.1021/acs.iecr.8b04337>`_;
+#. `Metamodel-Based Numerical Techniques for Self-Optimizing Control <https://pubs.acs.org/doi/10.1021/acs.iecr.8b04337>`_;
+   
+   **BibTeX Entry:**
 
-2.  Metacontrol Article
+   .. code-block:: none
+
+      @article{alves2018metamodel,
+         title={Metamodel-Based Numerical Techniques for Self-Optimizing Control},
+         author={Alves, Victor MC and Lima, Felipe S and Silva, Sidinei K and Araujo, Antonio CB},
+         journal={Industrial \& Engineering Chemistry Research},
+         volume={57},
+         number={49},
+         pages={16817--16840},
+         year={2018},
+         publisher={ACS Publications}
+         }
+
+#. Metacontrol Article
+
+   **BibTeX Entry:**
+
+   .. code-block:: none
+
+      Entry goes here when the paper review is accepted
 
 
-And put a star on `GitHub! <https://github.com/feslima/metacontrol>`_
+And become a watcher/stargazer on `GitHub <https://github.com/feslima/metacontrol>`_ to receive updates!
 
 
 Features
@@ -64,7 +85,7 @@ State-of-the-art Self-Optimizing Control techniques
 Standing on the shoulders of giants, *Metacontrol* uses the most recent formulations in the SOC area available that are capable of
 quickly pre-screening the most promising candidate controlled variables from a given universe of possible combinations. This includes
 the exact local Method with explicit solution from :cite:`alstad09` and even branch-and-bound 
-algorithms by :cite:`kariwala2009` under the hood.
+algorithms :cite:`kariwala2009` under the hood.
 
 
 Documentation Contents
