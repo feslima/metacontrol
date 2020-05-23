@@ -102,12 +102,12 @@ you entered. Giving proper (non-repeated) aliases and correctly classifying your
 .. figure:: ../images/var_tree_class_input.png
    :align: center
 
-   classifying your variables in *Metacontrol* - Input Variables.
+   Classifying your variables in *Metacontrol* - Input Variables.
 
 .. figure:: ../images/var_tree_class_output.png
    :align: center
 
-   classifying your variables in *Metacontrol* - Output Variables.
+   Classifying your variables in *Metacontrol* - Output Variables.
 
 .. IMPORTANT::
     To create aliases in *Metacontrol*, only lower case alphanumeric characters are allowed.
@@ -265,7 +265,7 @@ Creating a Constraint function
 -------------------------------
 
 It is very common to have process constraints in the processes that you
-want to study in a plantwide (Self-Optimizing) Perspective. *Metacontrol* supports the
+want to study in a plantwide (Self-Optimizing) perspective. *Metacontrol* supports the
 creation of constraints that are added to the optimization problem solved using metamodels.
 The constraints are always written in the form:
 
@@ -307,13 +307,13 @@ Simulation info *panel*
 =======================
 
 This panel serves as a "At a glance" simulation data info panel: After you load your Aspen Plus simulation,
-You can inspect the following information:
+it is possible to inspect the following information:
 
 * Number and name of components
 * Thermodynamic Package used in your model
 * Number and name of blocks used
 * Number and name of streams in your flowsheet
-* Chemical Reactions modelled
+* Chemical Reactions modeled
 * If there are any sensitivity analysis, optimizations, calculators and/or Design Specifications Within your model.
 
 .. ATTENTION::

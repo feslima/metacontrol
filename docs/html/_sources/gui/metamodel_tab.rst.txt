@@ -1,9 +1,11 @@
-**************************************************
+.. _metamodel_tab:
+
+===================
 The "Metamodel" tab
-**************************************************
+===================
 
 At this tab you will use the Design of Experiments (DOE) generated previously to
-generate kriging metamodels of the initial Sampling. The main idea here is to inspect if
+generate kriging metamodels of the initial sampling. The main idea here is to inspect if
 the initial sampling providing is capable of predicting the basic form of the functions that you
 chose/created on the first step (Objective Function, CV candidates and constraints). If the kriging generated 
 by the initial sampling is good enough, you are able to optimize it and refine it on the next step.
@@ -12,7 +14,7 @@ On this tab you will be able to:
 * Define the lower and upper bounds for the hyperparameters that will be adjusted to give the
   best kriging prediction
 * Define the regression and correlation (kernel) model for your kriging interpolator
-* Define which variables will have their model built
+* Define which variables will have their kriging metamodel built
 * Inspect several validation metrics in order to conclude if your model is a good representation
 * Perform k-fold or hold-out validation. On the latter, you will be able to also inspect graphically
   your model.
@@ -193,6 +195,7 @@ They allow you to:
    :align: center
 
    Thanks to *matplotlib* package used in *Metacontrol*, you are able to perform several inspect operations and save your plot.
+
 
 
 

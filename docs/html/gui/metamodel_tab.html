@@ -126,6 +126,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../zbibliography.html">Bibliography</a></li>
 </ul>
 
             
@@ -193,9 +194,9 @@
            <div itemprop="articleBody">
             
   <div class="section" id="the-metamodel-tab">
-<h1>The “Metamodel” tab<a class="headerlink" href="#the-metamodel-tab" title="Permalink to this headline">¶</a></h1>
+<span id="metamodel-tab"></span><h1>The “Metamodel” tab<a class="headerlink" href="#the-metamodel-tab" title="Permalink to this headline">¶</a></h1>
 <p>At this tab you will use the Design of Experiments (DOE) generated previously to
-generate kriging metamodels of the initial Sampling. The main idea here is to inspect if
+generate kriging metamodels of the initial sampling. The main idea here is to inspect if
 the initial sampling providing is capable of predicting the basic form of the functions that you
 chose/created on the first step (Objective Function, CV candidates and constraints). If the kriging generated
 by the initial sampling is good enough, you are able to optimize it and refine it on the next step.
@@ -204,7 +205,7 @@ On this tab you will be able to:</p>
 <li><p>Define the lower and upper bounds for the hyperparameters that will be adjusted to give the
 best kriging prediction</p></li>
 <li><p>Define the regression and correlation (kernel) model for your kriging interpolator</p></li>
-<li><p>Define which variables will have their model built</p></li>
+<li><p>Define which variables will have their kriging metamodel built</p></li>
 <li><p>Inspect several validation metrics in order to conclude if your model is a good representation</p></li>
 <li><p>Perform k-fold or hold-out validation. On the latter, you will be able to also inspect graphically
 your model.</p></li>

@@ -74,7 +74,7 @@ consequently, generating SOC-based control structures.
 All of that within a comprehensive User Interface,
 allowing the control structure designer/engineer/scientist (hey, that's you) to keep his/hers focus only on
 synthesizing the control structure, rather than wasting hours "jumping" between several software environments, such as: Process simulators (Aspen Plus) and
-numerical packages (MATLAB, Python, Microsoft Excel, etc.). This tool is made by Engineers that struggled with this (us),
+numerical packages (MATLAB, Python, Microsoft Excel, etc.). This tool is made by engineers that struggled with this (us),
 in order to try to solve such struggle for the scientific community.
 
 Installation

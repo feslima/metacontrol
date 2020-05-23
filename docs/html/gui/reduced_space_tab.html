@@ -95,13 +95,26 @@
 <li class="toctree-l2"><a class="reference internal" href="sampling_tab.html">The “Sampling” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="metamodel_tab.html">The “Metamodel” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="optimization_tab.html">The “Optimization” tab</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Reduced Space” tab</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Reduced Space” tab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#variable-activity-panel">Variable activity <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#informing-to-metaconrol-active-candidates-and-active-decision-variables-mvs">Informing to <em>Metaconrol</em> active candidates and active decision variables (MVs)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#range-of-reduced-space-variables-panel">Range of Reduced-space Variables <em>panel</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-source-panel">Data Source <em>panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sampling-the-reduced-space-problem-with-your-aspen-plus-simulation-file">Sampling the reduced-space problem with your Aspen Plus simulation file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#reduced-space-sampled-data-panel">Reduced Space sampled Data <em>panel</em></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="diff_data_tab.html">The “Differential Data” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soc_tab.html">The “Self-Optimizing Control” tab</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../zbibliography.html">Bibliography</a></li>
 </ul>
 
             
@@ -170,7 +183,157 @@
             
   <div class="section" id="the-reduced-space-tab">
 <h1>The “Reduced Space” tab<a class="headerlink" href="#the-reduced-space-tab" title="Permalink to this headline">¶</a></h1>
-<p>Placeholder text…</p>
+<p>At this tab you will define your Reduced-Space problem:</p>
+<ul class="simple">
+<li><p>Generate the reduced space problem DOE data, in order to
+generate a kriging metamodel around the nominal optimal operating point found in the previous step.
+The idea here is to generate a metamodel with points sampled around a small deviation from the optimal point,
+to generate the gradients with respect to the plant measurements, to the disturbances, and the hessians, with
+robustness, as proved by (<a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id1">[2]</a>).</p></li>
+<li><p>Additionally, you will inform <em>Metacontrol</em> which constraints are active, and what are the remaining degrees of freedom that
+are going to be used at the Reduced Space problem sampling, at the “Variable activity” <em>panel</em>.</p></li>
+<li><p>Inform the bounds of the Manipulated variables and disturbances around the optimal point.</p></li>
+</ul>
+<p>Here is an overview of this tab:</p>
+<div class="figure align-center" id="id3">
+<img alt="../_images/reduced_space_main.png" src="../_images/reduced_space_main.png" />
+<p class="caption"><span class="caption-text"><em>Metacontrol</em> “Optimization” tab.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<p>There are four main panels at this tab:</p>
+<ul class="simple">
+<li><p>Variable activity <em>panel</em></p></li>
+<li><p>Range of Reduced-space Variables <em>panel</em></p></li>
+<li><p>Data source <em>panel</em></p></li>
+<li><p>Reduced Space sampled Data <em>panel</em></p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>At this point, you <strong>must</strong> go back to the process simulator (Aspen Plus), and implement the active constraints
+that were found by the optimizaiton step.</p>
+<ol class="arabic">
+<li><p>Save a copy of your initial .bkp file.</p></li>
+<li><p>In your copied simulation file, implement your active constraints:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>If they are input specifications, just fix their values at the respective block or stream where the variable is located.</p></li>
+<li><p>If they are output variables, implement Design Specifications, consuming the necessary degrees of freedom.</p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Save and close your Reduced-Space problem aspen plus file.</p></li>
+<li><p>Go back to <em>Metacontrol</em>.</p></li>
+</ol>
+</div>
+<div class="section" id="variable-activity-panel">
+<h2>Variable activity <em>panel</em><a class="headerlink" href="#variable-activity-panel" title="Permalink to this headline">¶</a></h2>
+<p>At this panel, you will inform to <em>Metacontrol</em> the reduced-space remaining degrees of freedom (e.g.: The variables
+that were not used to close feedback loops in case of nonlinear constraints becoming active, or the the decision variables
+that did not reached an upper/lower bound at the optmization run). <em>Metacontrol</em> automatically understands that the variables that you
+did not check, were active decision variables or were used as MVs for a desing specification loop. On the right panel, you should indicate
+if any CV candidate that you created (which eventually can be a constraint) were active. You should mark these variables, since you must control them
+(Active-Constraint Control <a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[8]</a>), before using the mathematical formulations that are implemented within <em>Metacontrol</em>.</p>
+<div class="section" id="informing-to-metaconrol-active-candidates-and-active-decision-variables-mvs">
+<h3>Informing to <em>Metaconrol</em> active candidates and active decision variables (MVs)<a class="headerlink" href="#informing-to-metaconrol-active-candidates-and-active-decision-variables-mvs" title="Permalink to this headline">¶</a></h3>
+<p>At example in the figure below, <em>mcct</em>, <em>f1t</em> and <em>f2t</em> were nominally active at the optimal point. These are the Manipulated Variables of this
+example. The remaining variable corresponds to <em>mccp</em>. Therefore, at the left side of the “Variable activity” <em>panel</em>, only the
+remaining degree of freedom must be checked (<em>mccp</em>):</p>
+<div class="figure align-center" id="id4">
+<img alt="../_images/reduced_space_var_act_left_side.png" src="../_images/reduced_space_var_act_left_side.png" />
+<p class="caption"><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+<p>On the other hand, the variables <em>mcctout</em>, <em>f1out</em> and <em>f2out</em> are the decision variables (MVs) also listed as CV candidates, in order to analyze
+if keeping them constant, there will be self-optimizing control structures using them. Since the decision variables were active, they must be eliminated from the
+list of potential candidates, since the SOC methodology considers that active-constraint control is a mandatory step of the methodology. Therefore, you must mark them as active:</p>
+<div class="figure align-center" id="id5">
+<img alt="../_images/reduced_space_var_act_right_side.png" src="../_images/reduced_space_var_act_right_side.png" />
+<p class="caption"><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><strong>In a nutshell</strong>, this panel serves for you to inform to <em>Metacontrol</em> what are the <em>unconstrained</em> degrees of freedom of the
+reduced-space problem, and also to inform the <em>active</em> candidate controlled variables (constraints, MVs listed as candidates, etc.).
+With this information, <em>Metacontrol</em> will automatically consider only the <em>unconstrained</em> degrees of freedom summed with the disturbances as input variables
+on the sampling, and also will not consider the active variables when
+generating the high-order data (gradients and hessians). Since you are providing a modified simulation file with the active variables implemented (MVs and or constraints/CVs), they do not
+need to be in the analysis, since they are already being controlled.</p>
+</div>
+</div>
+</div>
+<div class="section" id="range-of-reduced-space-variables-panel">
+<h2>Range of Reduced-space Variables <em>panel</em><a class="headerlink" href="#range-of-reduced-space-variables-panel" title="Permalink to this headline">¶</a></h2>
+<p>On this panel, you will inform the lower and upper bound of the unconstrained degrees of freedom and
+disturbances to be used in the sampling process, in order to generate the reduced-space kriging metamodel:</p>
+<div class="figure align-center" id="id6">
+<img alt="../_images/reduced_space_range.png" src="../_images/reduced_space_range.png" />
+<p class="caption"><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>As showed by our previous publications, the bounds for the second (reduced-space) kriging metamodel must be a around a small margin of the
+optimal operating point. You can consider this a tunable parameter. Generally, +-0.5% of the optimal operating point will generate robust prediction
+of the high-order data on the next step (gradients and hessians). However, feel free to tight or loose this value if you want to try to improve your reduced-space
+kriging metamodel.</p>
+</div>
+</div>
+<div class="section" id="data-source-panel">
+<h2>Data Source <em>panel</em><a class="headerlink" href="#data-source-panel" title="Permalink to this headline">¶</a></h2>
+<p>On this panel you will:</p>
+<ul class="simple">
+<li><p>Point to the Aspen Plus simulation file of the reduced-space problem, if you opt to sample
+using the process simulator.</p></li>
+<li><p>Use the sampling assistant, if you opt to sample using the process simulator.</p></li>
+<li><p>Point to the .csv file if you opt to import an already sampled DOE of the reduced space problem.</p></li>
+</ul>
+<div class="section" id="sampling-the-reduced-space-problem-with-your-aspen-plus-simulation-file">
+<h3>Sampling the reduced-space problem with your Aspen Plus simulation file<a class="headerlink" href="#sampling-the-reduced-space-problem-with-your-aspen-plus-simulation-file" title="Permalink to this headline">¶</a></h3>
+<p>Under the Data Source <em>panel</em>, point to the Aspen Plus reduced-space problem file location:</p>
+<div class="figure align-center" id="id7">
+<img alt="../_images/reduced_space_dialogbox_sim_file.png" src="../_images/reduced_space_dialogbox_sim_file.png" />
+<p class="caption"><span class="caption-text">Pointing to the reduced-space problem simulation file.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<p>After this, you can open the Sampling Assistant:</p>
+<div class="figure align-center" id="id8">
+<img alt="../_images/reduced_space_open_sampling_assistant.png" src="../_images/reduced_space_open_sampling_assistant.png" />
+<p class="caption"><span class="caption-text">Opening the sampling assistant.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
+<p>You will notice that the Sampling Assistant window corresponds exactly to the same
+from the step 2 (<a class="reference internal" href="sampling_tab.html#sampling-assistant"><span class="std std-ref">Using the Sampling Assistant to sample data from Aspen Plus</span></a>). Therefore, the procedure is exactly the same.</p>
+<div class="figure align-center" id="id9">
+<img alt="../_images/reduced_space_sampling_assistant.png" src="../_images/reduced_space_sampling_assistant.png" />
+<p class="caption"><span class="caption-text">The sampling assistant, the same from the sampling tab.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</div>
+<p>You will define the number of cases to be sampled:</p>
+<div class="figure align-center" id="id10">
+<img alt="../_images/reduced_cases_config.png" src="../_images/reduced_cases_config.png" />
+<p class="caption"><span class="caption-text">Configuring the number of cases to be sampled.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</div>
+<p>And click on “Sample Data”. You can at any time, abort this operation (“Abort” button).
+When the sampling is finished, you can click on “Done” and proceed to the next step (Differential
+data).</p>
+<div class="figure align-center" id="id11">
+<img alt="../_images/reduced_space_sampling_running.png" src="../_images/reduced_space_sampling_running.png" />
+<p class="caption"><span class="caption-text">Sampling Assistant running cases for the reduced space problem.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="id12">
+<img alt="../_images/reduced_space_sampling_finished.png" src="../_images/reduced_space_sampling_finished.png" />
+<p class="caption"><span class="caption-text">Sampling completed, just click on “Done” to go back to “Reduced Space” tab.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="reduced-space-sampled-data-panel">
+<h2>Reduced Space sampled Data <em>panel</em><a class="headerlink" href="#reduced-space-sampled-data-panel" title="Permalink to this headline">¶</a></h2>
+<p>After sampling you data, if you go back to the Reduced Space Tab, you will notice that
+this panel will be completed:</p>
+<div class="figure align-center" id="id13">
+<img alt="../_images/reduced_space_sampled_data.png" src="../_images/reduced_space_sampled_data.png" />
+<p class="caption"><span class="caption-text">Reduced Space sampled Data <em>panel</em>.</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
+</div>
+<p>After everything, your Reduced Space tab will be completed:</p>
+<div class="figure align-center" id="id14">
+<img alt="../_images/reduced_space_completed.png" src="../_images/reduced_space_completed.png" />
+<p class="caption"><span class="caption-text">Reduced space tab completed. You are able to go to the next tab (Differential data).</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+</div>
+</div>
 </div>
 
 

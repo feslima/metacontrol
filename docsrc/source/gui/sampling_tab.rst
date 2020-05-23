@@ -2,14 +2,14 @@
 The "Sampling" tab
 **************************************************
 
-At this tab you will use the simulation provided on the last step to
+At this tab you will use the simulation provided on the previous step to
 perform a Design of Experiments (DOE). You will be able to:
 
 * Define the lower and upper bounds for your manipulated variables, that will
   be used as the limits of the sampling and as box constraints of the optimization 
   problem
 * Define the number of sampled cases
-* Inspect the results of the sampling, for each variable that you selected on the last
+* Inspect the results of the sampling, for each variable that you selected on the previous
   step
 * Check convergence status of each case
 
@@ -59,7 +59,10 @@ Sampling Assistant *panel*
 ==========================
 
 This panel defines how are you going to supply the DOE data to metacontrol: Using your simulation file (recommended) or
-loading an *.CSV file (this is a auxiliary feature). For the first case, you are going to use the Sample Assistant from *Metacontrol*:
+loading an *.CSV file (this is an auxiliary feature). For the first case, you are going to use the Sample Assistant from *Metacontrol*:
+
+
+.. _sampling_assistant:
 
 Using the Sampling Assistant to sample data from Aspen Plus
 ------------------------------------------------------------
@@ -117,7 +120,8 @@ The "Sample Data" button now is available. Push it to start running your cases.
 
 At each case, *Metacontrol*
 communicates with the Aspen Plus Engine, and collects the results automatically and in real time. You can literally see the
-sampling process in front of you, with the "Sampler Display" panel being updated as the cases run.
+sampling process in front of you, with the "Sampler Display" panel being updated as the cases run. Note that there is a progress bar
+to show you the overall process.
 
 .. figure:: ../images/sampling_running.png
    :align: center

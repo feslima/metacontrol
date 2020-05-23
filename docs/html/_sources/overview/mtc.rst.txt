@@ -56,8 +56,3 @@ available in real-time. Over the next session, each tab of *Metacontrol* will be
 detail, in order to teach you how to use it!
 
 
-============
-Bibliography
-============
-.. bibliography:: ../mybibfile.bib
- :style: plain
