@@ -89,7 +89,7 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/z_mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="gui_index.html">Metacontrol GUI Manual</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="load_sim_tab.html">The “Load Simulation” tab</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">The “Sampling” tab</a><ul>
@@ -113,6 +113,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
 </ul>
 
             
@@ -181,14 +182,14 @@
             
   <div class="section" id="the-sampling-tab">
 <h1>The “Sampling” tab<a class="headerlink" href="#the-sampling-tab" title="Permalink to this headline">¶</a></h1>
-<p>At this tab you will use the simulation provided on the last step to
+<p>At this tab you will use the simulation provided on the previous step to
 perform a Design of Experiments (DOE). You will be able to:</p>
 <ul class="simple">
 <li><p>Define the lower and upper bounds for your manipulated variables, that will
 be used as the limits of the sampling and as box constraints of the optimization
 problem</p></li>
 <li><p>Define the number of sampled cases</p></li>
-<li><p>Inspect the results of the sampling, for each variable that you selected on the last
+<li><p>Inspect the results of the sampling, for each variable that you selected on the previous
 step</p></li>
 <li><p>Check convergence status of each case</p></li>
 </ul>
@@ -228,7 +229,7 @@ field, and type it:</p>
 <div class="section" id="sampling-assistant-panel">
 <h2>Sampling Assistant <em>panel</em><a class="headerlink" href="#sampling-assistant-panel" title="Permalink to this headline">¶</a></h2>
 <p>This panel defines how are you going to supply the DOE data to metacontrol: Using your simulation file (recommended) or
-loading an <em>.CSV file (this is a auxiliary feature). For the first case, you are going to use the Sample Assistant from *Metacontrol</em>:</p>
+loading an <em>.CSV file (this is an auxiliary feature). For the first case, you are going to use the Sample Assistant from *Metacontrol</em>:</p>
 <div class="section" id="using-the-sampling-assistant-to-sample-data-from-aspen-plus">
 <span id="sampling-assistant"></span><h3>Using the Sampling Assistant to sample data from Aspen Plus<a class="headerlink" href="#using-the-sampling-assistant-to-sample-data-from-aspen-plus" title="Permalink to this headline">¶</a></h3>
 <p>Click on “Open Sampling Assistant”:</p>

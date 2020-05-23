@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Metacontrol Methodology Overview &mdash; Metacontrol 1.0.4 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/mtc.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Metacontrol GUI Manual" href="../gui/gui_index.html" />
+    <link rel="prev" title="Introduction" href="../intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: white" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Metacontrol
+          
+
+          
+            
+            <img src="../_static/mtc.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><em>Metacontrol</em>  Methodology Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Metacontrol</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><em>Metacontrol</em>  Methodology Overview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/overview/z_mtc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="metacontrol-methodology-overview">
+<h1><em>Metacontrol</em>  Methodology Overview<a class="headerlink" href="#metacontrol-methodology-overview" title="Permalink to this headline">¶</a></h1>
+<p>The “top-down” part of the self-optimizing control structure selection
+methodology developed  by Skogestad (<a class="bibtex reference internal" href="../bibliography.html#skoge00" id="id1">[7]</a>) has the following main steps:</p>
+<ol class="arabic simple">
+<li><p>Identify the relevant process variables: Manipulated
+variables, disturbances, and potential candidate controlled variables
+(process measurements), and perform a Degree of Freedom (DOF) analysis
+taking into account both steady and dynamic states of the process.</p></li>
+<li><p>Define optimal operation: Formulate the problem with objective
+function and constraints to be used in order to seek an optimal operating point.</p></li>
+<li><p>(Mathematically) Model the (industrial) process. <em>Metacontrol</em> is currently compatible
+with Aspen Plus.</p></li>
+<li><p>Optimize the process model as formulated in step 2.</p></li>
+<li><p>Implement the active constraints found in the previous step -
+“active constraint control” (<a class="bibtex reference internal" href="../bibliography.html#skoge00" id="id2">[7]</a>)</p></li>
+<li><p>Evaluate the loss resulting from a constant setpoint policy
+(<a class="bibtex reference internal" href="../bibliography.html#halvorsen03" id="id3">[3]</a>) for each possible control configuration for the
+remaining (unconstrained) degrees of freedom. This is done in <em>Metacontrol</em> using,
+e.g., local (linear) methods (<a class="bibtex reference internal" href="../bibliography.html#halvorsen03" id="id4">[3]</a><a class="bibtex reference internal" href="../bibliography.html#hori05" id="id5">[4]</a><a class="bibtex reference internal" href="../bibliography.html#hori08" id="id6">[5]</a><a class="bibtex reference internal" href="../bibliography.html#alstad09" id="id7">[1]</a>),
+where a reduced-space (unconstrained) problem is required to obtain
+gradients with respect to candidate controlled variables and disturbances,
+and the Hessian of the objective function evaluated at the optimal
+point found in step 4. As stated before in the introduction, <em>Metacontrol</em> uses
+Kriging predictors to evaluate gradient and hessian matrices.
+Note that the use of local methods requires the specification of disturbance
+magnitudes and measurement errors associated with each candidate controlled
+variable of step 1.</p></li>
+</ol>
+<p>The basic structure of <em>Metacontrol</em> showing the two modes
+of operation is depicted in Figure below. Mode 1 is the
+complete implementation of steps 1 through 6 of the SOC procedure, where a
+first metamodel of the process is generated to evaluate the optimal operating
+point with all degrees of freedom available, while mode 2 is a shortcut taken
+when the optimal steady-state is known. In both cases, an extra metamodel is
+produced as the reduced space model using the remaining unconstrained degrees
+of freedom.</p>
+<div class="figure align-center" id="id9">
+<img alt="../_images/metacontrol-workflow.svg" src="../_images/metacontrol-workflow.svg" /><p class="caption"><span class="caption-text">Basic flowchart of the Metacontrol workflow.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</div>
+<p>The graphical user interface (GUI) of <em>Metacontrol</em> is a paradigm of the steps
+that are needed
+to perform the SOC analysis using metamodels, proposed by <a class="bibtex reference internal" href="../bibliography.html#alves2018" id="id8">[2]</a>. The user will simply navigate between easy-to-use sequential tabs,
+providing information for the problem that he wants to study, and the results will become
+available in real-time. Over the next session, each tab of <em>Metacontrol</em> will be discussed in
+detail, in order to teach you how to use it!</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../gui/gui_index.html" class="btn btn-neutral float-right" title="Metacontrol GUI Manual" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Felipe Lima &amp; Victor Alves
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

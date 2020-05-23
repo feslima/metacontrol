@@ -10,7 +10,7 @@ At this tab you will define your Reduced-Space problem:
   to generate the gradients with respect to the plant measurements, to the disturbances, and the hessians, with
   robustness, as proved by (:cite:`alves2018`).
 
-* Addtionally, you will inform *Metacontrol* which constraints are active, and what are the remaining degrees of freedom that
+* Additionally, you will inform *Metacontrol* which constraints are active, and what are the remaining degrees of freedom that
   are going to be used at the Reduced Space problem sampling, at the "Variable activity" *panel*.
 
 * Inform the bounds of the Manipulated variables and disturbances around the optimal point.

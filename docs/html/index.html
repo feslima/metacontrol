@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gui/gui_index.html">Metacontrol GUI Manual</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theory/theory_index.html">Theoretical Backgrounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zbibliography.html">Bibliography</a></li>
 </ul>
 
             
@@ -164,44 +165,49 @@ Control (SOC) technique can be achieved.</p>
 </div>
 <div class="section" id="how-to-cite-us">
 <h1>How to cite us<a class="headerlink" href="#how-to-cite-us" title="Permalink to this headline">¶</a></h1>
-<p>Please, cite the related paper:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>place BibTeX entry here
-</pre></div>
+<div class="section" id="our-papers">
+<span id="id1"></span><h2>Our papers<a class="headerlink" href="#our-papers" title="Permalink to this headline">¶</a></h2>
+<p>Please, cite the related papers:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://pubs.acs.org/doi/10.1021/acs.iecr.8b04337">Metamodel-Based Numerical Techniques for Self-Optimizing Control</a>;</p></li>
+<li><p>Metacontrol Article</p></li>
+</ol>
+<p>And put a star on <a class="reference external" href="https://github.com/feslima/metacontrol">GitHub!</a></p>
 </div>
-<p>And put a star on GitHub (Star GITHUB HERE)</p>
 </div>
 <div class="section" id="features">
 <h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
 </div>
 <div class="section" id="open-source">
 <h1>Open-Source<a class="headerlink" href="#open-source" title="Permalink to this headline">¶</a></h1>
-<p><em>Metacontrol</em> is <em>open-source</em>, under the MIT license. We believe that open code just makes
-scientific development more clear and generally better. Want to inspect our code? Maybe change it for your
+<p><em>Metacontrol</em> is <strong>open-source</strong>, under the <strong>GPL v3.0</strong> license. We believe that open code just makes
+scientific development clearer and generally better. Want to inspect our code? Maybe change it for your
 specific desire? Have a suggestion? Go for it. Share with us!</p>
 </div>
 <div class="section" id="built-in-python">
 <h1>Built in Python<a class="headerlink" href="#built-in-python" title="Permalink to this headline">¶</a></h1>
 <p>The scientific world and data scientists are moving in a accelerated pace to Python programming language. <em>Metacontrol</em> was built from scratch using it. Using state-of-the-art packages
-such as <em>Numpy</em>, <em>Scipy</em>, <em>pyQT</em> and many others, a concise and standalone software is available. You will not need any other
+such as <a class="reference external" href="https://numpy.org/">Numpy</a>, <a class="reference external" href="https://www.scipy.org/">Scipy</a>, <a class="reference external" href="https://www.riverbankcomputing.com/software/pyqt/">pyQT</a>, <a class="reference external" href="https://pandas.pydata.org/">pandas</a> and many others, a concise and standalone software is available. You will <strong>not</strong> need any other
 software, apart from the process simulators (obviously), to run our application.</p>
 </div>
 <div class="section" id="support-for-optimization-using-metamodels">
 <h1>Support for Optimization using metamodels<a class="headerlink" href="#support-for-optimization-using-metamodels" title="Permalink to this headline">¶</a></h1>
 <p>One crucial step of Self-Optimizing Control methodology is to optimize a process model.
-We use the the famous <em>IpOpt</em> Optimization package in order to do it. Therefore, you can also use <em>Metacontrol</em>
-to optimize processes that you modelled in Aspen Plus.</p>
+We use the the famous <a class="reference external" href="https://github.com/coin-or/Ipopt">IpOpt</a> Optimization package (using a <a class="reference external" href="https://github.com/matthias-k/cyipopt">Python Interface</a>) in order to do it. Therefore, you can also use <em>Metacontrol</em>
+to optimize processes that you modeled in Aspen Plus.</p>
 </div>
 <div class="section" id="usage-of-kriging-metamodels">
 <h1>Usage of Kriging metamodels<a class="headerlink" href="#usage-of-kriging-metamodels" title="Permalink to this headline">¶</a></h1>
 <p>Kriging interpolators are widely used in the scientific community for prediction, optimization and data obtainment.
-We use it to for optimization and high-order obtainment purposes. It is proven to generate robust precitions and results.
-For further details, check our papers.</p>
+We use it to for optimization and high-order data obtainment purposes. It is proven to generate robust precitions and results.
+For further details, check <a class="reference internal" href="#our-papers"><span class="std std-ref">Our papers</span></a>.</p>
 </div>
 <div class="section" id="state-of-the-art-self-optimizing-control-techniques">
 <h1>State-of-the-art Self-Optimizing Control techniques<a class="headerlink" href="#state-of-the-art-self-optimizing-control-techniques" title="Permalink to this headline">¶</a></h1>
 <p>Standing on the shoulders of giants, <em>Metacontrol</em> uses the most recent formulations in the SOC area available that are capable of
 quickly pre-screening the most promising candidate controlled variables from a given universe of possible combinations. This includes
-the exact local Method with explicit solution from Alstad et al. (2009) and even branch-and-bound algorithms by Cao et al. (2009) under the hood.</p>
+the exact local Method with explicit solution from <a class="bibtex reference internal" href="zbibliography.html#alstad09" id="id2">[1]</a> and even branch-and-bound
+algorithms by <a class="bibtex reference internal" href="zbibliography.html#kariwala2009" id="id3">[6]</a> under the hood.</p>
 </div>
 <div class="section" id="documentation-contents">
 <h1>Documentation Contents<a class="headerlink" href="#documentation-contents" title="Permalink to this headline">¶</a></h1>
@@ -212,10 +218,7 @@ the exact local Method with explicit solution from Alstad et al. (2009) and even
 <li class="toctree-l2"><a class="reference internal" href="intro.html#installation">Installation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="overview/mtc.html#bibliography">Bibliography</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gui/gui_index.html">Metacontrol GUI Manual</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="gui/load_sim_tab.html">The “Load Simulation” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gui/sampling_tab.html">The “Sampling” tab</a></li>
@@ -238,6 +241,7 @@ the exact local Method with explicit solution from Alstad et al. (2009) and even
 <li class="toctree-l2"><a class="reference internal" href="theory/soc.html">The Exact Local Method with Explicit Solution</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="zbibliography.html">Bibliography</a></li>
 </ul>
 </div>
 </div>

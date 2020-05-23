@@ -2,14 +2,14 @@
 The "Sampling" tab
 **************************************************
 
-At this tab you will use the simulation provided on the last step to
+At this tab you will use the simulation provided on the previous step to
 perform a Design of Experiments (DOE). You will be able to:
 
 * Define the lower and upper bounds for your manipulated variables, that will
   be used as the limits of the sampling and as box constraints of the optimization 
   problem
 * Define the number of sampled cases
-* Inspect the results of the sampling, for each variable that you selected on the last
+* Inspect the results of the sampling, for each variable that you selected on the previous
   step
 * Check convergence status of each case
 
@@ -59,7 +59,7 @@ Sampling Assistant *panel*
 ==========================
 
 This panel defines how are you going to supply the DOE data to metacontrol: Using your simulation file (recommended) or
-loading an *.CSV file (this is a auxiliary feature). For the first case, you are going to use the Sample Assistant from *Metacontrol*:
+loading an *.CSV file (this is an auxiliary feature). For the first case, you are going to use the Sample Assistant from *Metacontrol*:
 
 
 .. _sampling_assistant:

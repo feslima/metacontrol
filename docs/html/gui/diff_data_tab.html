@@ -96,12 +96,22 @@
 <li class="toctree-l2"><a class="reference internal" href="metamodel_tab.html">The “Metamodel” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="optimization_tab.html">The “Optimization” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reduced_space_tab.html">The “Reduced Space” tab</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Differential Data” tab</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The “Differential Data” tab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reduced-space-metamodel-training-panel">Reduced space metamodel training <em>Panel</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configuring-your-kriging-metamodel">Configuring your kriging metamodel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#acessing-performance-of-your-reduced-space-metamodel">Acessing performance of your reduced-space metamodel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#gradient-and-hessian-estimation-panel">Gradient and Hessian estimation <em>Panel</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gradient-results-panel-and-hessian-results-panel">Gradient results <em>panel</em> and Hessian results <em>panel</em></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="soc_tab.html">The “Self-Optimizing Control” tab</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../zbibliography.html">Bibliography</a></li>
 </ul>
 
             
@@ -170,7 +180,103 @@
             
   <div class="section" id="the-differential-data-tab">
 <h1>The “Differential Data” tab<a class="headerlink" href="#the-differential-data-tab" title="Permalink to this headline">¶</a></h1>
-<p>Placeholder text…</p>
+<p>At this tab you will extract the high-order data (Gradients and Hessians)
+that are necessary in order to calculate the self-optimizing control structures using
+the exact local method from <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id1">[1]</a>.</p>
+<p>The high-order data is calculated with
+analytical expressions derived by <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[7]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id3">[2]</a>, using the kriging
+metamodel built for the reduced space problem.</p>
+<p>The aforementioned procedure is encapsulated in this tab. You will be able to:</p>
+<ul class="simple">
+<li><p>Generate the gradients and hessians, and inspect them.</p></li>
+<li><p>Remove any CV candidate from the list of candidates if you want.</p></li>
+</ul>
+<p>Here is an overview of this tab, before you start using it:</p>
+<div class="figure align-center" id="id5">
+<img alt="../_images/diff_data_main.png" src="../_images/diff_data_main.png" />
+<p class="caption"><span class="caption-text">Differential Data tab.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+<p>There are four main panels on this tab</p>
+<ul class="simple">
+<li><p>Reduced space metamodel training <em>Panel</em></p></li>
+<li><p>Gradient and Hessian estimation <em>Panel</em></p></li>
+<li><p>Gradient results <em>panel</em> and Hessian results <em>panel</em></p></li>
+</ul>
+<div class="section" id="reduced-space-metamodel-training-panel">
+<h2>Reduced space metamodel training <em>Panel</em><a class="headerlink" href="#reduced-space-metamodel-training-panel" title="Permalink to this headline">¶</a></h2>
+<p>Under this panel, you are able to click on “Open training dialog” in order to
+configure your reduced-space kriging metamodel.</p>
+<div class="section" id="configuring-your-kriging-metamodel">
+<h3>Configuring your kriging metamodel<a class="headerlink" href="#configuring-your-kriging-metamodel" title="Permalink to this headline">¶</a></h3>
+<p>Click on “Open training dialog”:</p>
+<div class="figure align-center" id="id6">
+<img alt="../_images/diff_data_training_dialog.png" src="../_images/diff_data_training_dialog.png" />
+<p class="caption"><span class="caption-text">Opening the kriging training dialog window.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+<p>You will notice that the window that appears to you is exactly the same from
+<a class="reference internal" href="metamodel_tab.html#metamodel-tab"><span class="std std-ref">The “Metamodel” tab</span></a>. Therefore the process of configuring your reduced-space
+kriging metamodel is essentially the same.</p>
+<div class="figure align-center" id="id7">
+<img alt="../_images/diff_data_training_dialog_window.png" src="../_images/diff_data_training_dialog_window.png" />
+<p class="caption"><span class="caption-text">Training dialog window.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>At the training dialog window, you will notice that only the Candidates that
+were not active constraints are considered now. This happens because <em>Metacontrol</em>
+automatically removes the variables that are nominally active (MVs and CVs) based on the
+previous tab (Reduced Space tab). In addition, you can remove any of the remaining CVs, if you
+want. Just <em>de-select</em> the box of the variable you want to remove:</p>
+<div class="figure align-center" id="id8">
+<img alt="../_images/diff_data_remove_cvs.png" src="../_images/diff_data_remove_cvs.png" />
+<p class="caption"><span class="caption-text">Removing one variable from the CV candidates list (<em>fco2out</em> in this example).</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<p>After configuring the hyperparameters estimates, choosing which CVs will be taken into acount in your
+metamodel, you can click on “Generate metamodel” in order to inspect the validation metrics of your metamodel.</p>
+</div>
+<div class="section" id="acessing-performance-of-your-reduced-space-metamodel">
+<h3>Acessing performance of your reduced-space metamodel<a class="headerlink" href="#acessing-performance-of-your-reduced-space-metamodel" title="Permalink to this headline">¶</a></h3>
+<p>For the reduced-space metamodel, one additional metric has been added in order to help you to evaluate the
+robustness of the metamodel generated. It corresponds to the objective function of the maximum likelihood estimation
+from the work of <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[7]</a>. Values under 1e-5 will give robust estimation of the gradients and hessians. (Check <a class="reference internal" href="../index.html#our-papers"><span class="std std-ref">Our papers</span></a>
+and the <a class="reference internal" href="../theory/theory_index.html#theory-tab"><span class="std std-ref">Theoretical Backgrounds</span></a> section where we give some examples and discuss the theoretical background in detail)</p>
+<div class="figure align-center" id="id9">
+<img alt="../_images/diff_data_dace_function.png" src="../_images/diff_data_dace_function.png" />
+<p class="caption"><span class="caption-text">Evaluating reduced space kriging metamodel estimation capabilities. Highlighted in blue,
+the value of the optimized objective function value, that results in the optimal hyperparameters estimation.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="gradient-and-hessian-estimation-panel">
+<h2>Gradient and Hessian estimation <em>Panel</em><a class="headerlink" href="#gradient-and-hessian-estimation-panel" title="Permalink to this headline">¶</a></h2>
+<p>After configuring the kriging metamodel options under the training
+dialog window, you can click on “Estimate Gradient and Hessian”, to generate the
+high-order data.</p>
+<div class="figure align-center" id="id10">
+<img alt="../_images/diff_data_high_order_data_gen.png" src="../_images/diff_data_high_order_data_gen.png" />
+<p class="caption"><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="gradient-results-panel-and-hessian-results-panel">
+<h2>Gradient results <em>panel</em> and Hessian results <em>panel</em><a class="headerlink" href="#gradient-results-panel-and-hessian-results-panel" title="Permalink to this headline">¶</a></h2>
+<p>After performing the previous step, you will notice that the panels for Gradients and Hessians are now
+completed:</p>
+<div class="figure align-center" id="id11">
+<img alt="../_images/diff_data_completed.png" src="../_images/diff_data_completed.png" />
+<p class="caption"><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</div>
+<p>If you take a closer look, you will notice that the matrices are in a Dataframe format, making them easy to ready
+and to understand each element of the matrices generated. Note that the elements are indexed using the aliases that you
+created. For example, the gain between the unconstrained degree of freedom (<em>mccp</em>) and one CV candidate (<em>co2rrcv</em>) is easily
+read:</p>
+<div class="figure align-center" id="id12">
+<img alt="../_images/diff_data_reading_gains.png" src="../_images/diff_data_reading_gains.png" />
+<p class="caption"><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+</div>
+<p>The same is true for every element of the gradients and hessians calculated.</p>
+<p>After the procedure here described, you can go to the last tab: Self-Optimizing Control.</p>
+</div>
 </div>
 
 
