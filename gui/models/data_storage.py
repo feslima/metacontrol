@@ -86,6 +86,7 @@ class DataStorage(QObject):
     }
     _EXPR_ALIAS_TYPES = {
         'cv': 'Candidate (CV)',
+        'aux': 'Auxiliary',
         'cst': 'Constraint function',
         'obj': 'Objective function (J)'
     }
@@ -1491,7 +1492,8 @@ class DataStorage(QObject):
         # get expressions validity
         expr_df = self.expression_table_data
         expr_valid_check = expr_df['Expression'].apply(
-            lambda x: is_expression_valid(x, aliases['Alias'].tolist())
+            lambda x: is_expression_valid(x, aliases['Alias'].tolist() + expr_df['Alias'].tolist()
+            )
         )
 
         is_name_not_duplicated = pd.concat(
@@ -1643,6 +1645,10 @@ class DataStorage(QObject):
                 var_list = expr_to_parse.variables()
                 expr_row_values[expr['Alias']] = expr_to_parse.evaluate(
                     row_val_dict)
+
+                row_val_dict.update(
+                    {expr['Alias']: expr_row_values[expr['Alias']]}
+                )
 
             # append values to expr_df
             expr_df = expr_df.append(expr_row_values, ignore_index=True)
