@@ -442,6 +442,7 @@ class CaballeroWorker(QObject):
             expr_to_parse = parser.parse(expr['Expression'])
             var_list = expr_to_parse.variables()
             expr_values[expr['Alias']] = expr_to_parse.evaluate(results)
+            results.update(expr_values)
 
         # separate constraints values
         con_aliases = expr_data.loc[
