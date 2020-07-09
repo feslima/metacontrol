@@ -188,7 +188,7 @@ metamodel, this error is assumed to be a probabilistic function of <span class="
 in other words, this error is assumed to be <strong>not</strong> independent and identically
 distributed. The specific probabilistic function is represented by a Gaussian
 distribution with mean (<span class="math notranslate nohighlight">\(\mu\)</span>) zero and variance <span class="math notranslate nohighlight">\(\sigma^2\)</span>.</p>
-<p>As from <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id1">[15]</a>, a <em>Kriging</em> metamodel <span class="math notranslate nohighlight">\(\hat{y}(x)\)</span>, of a
+<p>As from <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id1">[16]</a>, a <em>Kriging</em> metamodel <span class="math notranslate nohighlight">\(\hat{y}(x)\)</span>, of a
 rigorous model <span class="math notranslate nohighlight">\(y(x)\)</span> of <span class="math notranslate nohighlight">\(q\)</span> dimensions, is comprised
 of two parts: a polynomial regression (<span class="math notranslate nohighlight">\(\mathcal{F}\)</span>) and departure
 function (<span class="math notranslate nohighlight">\(z\)</span>) of stochastic nature:</p>
@@ -216,7 +216,7 @@ model. In <em>Metacontrol</em>, the correlation model used is described by <a cl
 p_{l} \in[0,2]\right)\]</div>
 <p>The hyperparameters <span class="math notranslate nohighlight">\(\theta\)</span> are degrees of freedom available for
 optimization purposes, seeking the improvement of the metamodel fitness. In
-<a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[15]</a>, the optimal set of hyperparameters <span class="math notranslate nohighlight">\(\theta^*\)</span> corresponds
+<a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[16]</a>, the optimal set of hyperparameters <span class="math notranslate nohighlight">\(\theta^*\)</span> corresponds
 to the maximum likelihood estimation. Assuming a Gaussian process, the optimal
 values of the hyperparameters are the ones that minimize <a class="reference internal" href="#equation-kr5">(19)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr5">
@@ -224,9 +224,9 @@ values of the hyperparameters are the ones that minimize <a class="reference int
 \sigma^{2}\right\}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(|R|\)</span> is the determinant of the correlation matrix. The internal
 optimizer used in <em>DACE</em> toolbox corresponds to a modified version of
-the <em>Hooke &amp; Jeeves</em> method, as showed by <a class="bibtex reference internal" href="../zbibliography.html#dacereport" id="id3">[14]</a>.</p>
+the <em>Hooke &amp; Jeeves</em> method, as showed by <a class="bibtex reference internal" href="../zbibliography.html#dacereport" id="id3">[15]</a>.</p>
 <p>As stated before, high-order data obtainment it is an obligatory step in the
-proposed methodology implemented in mtc. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[15]</a>
+proposed methodology implemented in mtc. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[16]</a>
 also derived expressions for Jacobian (<span class="math notranslate nohighlight">\(\hat{y}^{\prime}(x)\)</span>)
 evaluation of a <em>Kriging</em> prediction, given in <a class="reference internal" href="#equation-kr6">(20)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr6">

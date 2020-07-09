@@ -37,7 +37,7 @@ Please, cite the related papers:
          publisher={ACS Publications}
          }
 
-#. Metacontrol Article
+#. `Metacontrol: A Python based application for self-optimizing control using metamodels <https://www.sciencedirect.com/science/article/abs/pii/S0098135420303355>`_;
 
    **BibTeX Entry:**
 
