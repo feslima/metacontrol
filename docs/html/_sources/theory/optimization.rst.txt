@@ -2,4 +2,4 @@
 Optimization via Infill Criteria using Surrogates
 **************************************************
 
-Placeholder text...
+Placeholder text... :eq:`optproblem`
