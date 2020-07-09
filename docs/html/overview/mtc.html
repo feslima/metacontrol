@@ -161,7 +161,7 @@
   <div class="section" id="metacontrol-methodology-overview">
 <h1><em>Metacontrol</em>  Methodology Overview<a class="headerlink" href="#metacontrol-methodology-overview" title="Permalink to this headline">¶</a></h1>
 <p>The “top-down” part of the self-optimizing control structure selection
-methodology developed  by Skogestad (<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id1">[9]</a>) has the following main steps:</p>
+methodology developed  by Skogestad (<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id1">[17]</a>) has the following main steps:</p>
 <ol class="arabic simple">
 <li><p>Identify the relevant process variables: Manipulated
 variables, disturbances, and potential candidate controlled variables
@@ -173,11 +173,11 @@ function and constraints to be used in order to seek an optimal operating point.
 with Aspen Plus.</p></li>
 <li><p>Optimize the process model as formulated in step 2.</p></li>
 <li><p>Implement the active constraints found in the previous step -
-“active constraint control” (<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[9]</a>)</p></li>
+“active constraint control” (<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[17]</a>)</p></li>
 <li><p>Evaluate the loss resulting from a constant setpoint policy
-(<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id3">[3]</a>) for each possible control configuration for the
+(<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id3">[7]</a>) for each possible control configuration for the
 remaining (unconstrained) degrees of freedom. This is done in <em>Metacontrol</em> using,
-e.g., local (linear) methods (<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id4">[3]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id5">[4]</a><a class="bibtex reference internal" href="../zbibliography.html#hori08" id="id6">[5]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id7">[1]</a>),
+e.g., local (linear) methods (<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id4">[7]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id5">[9]</a><a class="bibtex reference internal" href="../zbibliography.html#hori08" id="id6">[10]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id7">[2]</a>),
 where a reduced-space (unconstrained) problem is required to obtain
 gradients with respect to candidate controlled variables and disturbances,
 and the Hessian of the objective function evaluated at the optimal
@@ -196,11 +196,11 @@ when the optimal steady-state is known. In both cases, an extra metamodel is
 produced as the reduced space model using the remaining unconstrained degrees
 of freedom.</p>
 <div class="figure align-center" id="id9">
-<img alt="../_images/metacontrol-workflow.svg" src="../_images/metacontrol-workflow.svg" /><p class="caption"><span class="caption-text">Basic flowchart of the Metacontrol workflow.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+<img alt="../_images/metacontrol-workflow.svg" src="../_images/metacontrol-workflow.svg" /><p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Basic flowchart of the Metacontrol workflow.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </div>
 <p>The graphical user interface (GUI) of <em>Metacontrol</em> is a paradigm of the steps
 that are needed
-to perform the SOC analysis using metamodels, proposed by <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id8">[2]</a>. The user will simply navigate between easy-to-use sequential tabs,
+to perform the SOC analysis using metamodels, proposed by <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id8">[3]</a>. The user will simply navigate between easy-to-use sequential tabs,
 providing information for the problem that he wants to study, and the results will become
 available in real-time. Over the next session, each tab of <em>Metacontrol</em> will be discussed in
 detail, in order to teach you how to use it!</p>

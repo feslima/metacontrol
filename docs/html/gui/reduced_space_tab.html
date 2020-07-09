@@ -189,7 +189,7 @@
 generate a kriging metamodel around the nominal optimal operating point found in the previous step.
 The idea here is to generate a metamodel with points sampled around a small deviation from the optimal point,
 to generate the gradients with respect to the plant measurements, to the disturbances, and the hessians, with
-robustness, as proved by (<a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id1">[2]</a>).</p></li>
+robustness, as proved by (<a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id1">[3]</a>).</p></li>
 <li><p>Additionally, you will inform <em>Metacontrol</em> which constraints are active, and what are the remaining degrees of freedom that
 are going to be used at the Reduced Space problem sampling, at the “Variable activity” <em>panel</em>.</p></li>
 <li><p>Inform the bounds of the Manipulated variables and disturbances around the optimal point.</p></li>
@@ -197,7 +197,7 @@ are going to be used at the Reduced Space problem sampling, at the “Variable a
 <p>Here is an overview of this tab:</p>
 <div class="figure align-center" id="id3">
 <img alt="../_images/reduced_space_main.png" src="../_images/reduced_space_main.png" />
-<p class="caption"><span class="caption-text"><em>Metacontrol</em> “Optimization” tab.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 48 </span><span class="caption-text"><em>Metacontrol</em> “Optimization” tab.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 <p>There are four main panels at this tab:</p>
 <ul class="simple">
@@ -231,7 +231,7 @@ that were not used to close feedback loops in case of nonlinear constraints beco
 that did not reached an upper/lower bound at the optmization run). <em>Metacontrol</em> automatically understands that the variables that you
 did not check, were active decision variables or were used as MVs for a desing specification loop. On the right panel, you should indicate
 if any CV candidate that you created (which eventually can be a constraint) were active. You should mark these variables, since you must control them
-(Active-Constraint Control <a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[9]</a>), before using the mathematical formulations that are implemented within <em>Metacontrol</em>.</p>
+(Active-Constraint Control <a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[17]</a>), before using the mathematical formulations that are implemented within <em>Metacontrol</em>.</p>
 <div class="section" id="informing-to-metaconrol-active-candidates-and-active-decision-variables-mvs">
 <h3>Informing to <em>Metaconrol</em> active candidates and active decision variables (MVs)<a class="headerlink" href="#informing-to-metaconrol-active-candidates-and-active-decision-variables-mvs" title="Permalink to this headline">¶</a></h3>
 <p>At example in the figure below, <em>mcct</em>, <em>f1t</em> and <em>f2t</em> were nominally active at the optimal point. These are the Manipulated Variables of this
@@ -239,14 +239,14 @@ example. The remaining variable corresponds to <em>mccp</em>. Therefore, at the 
 remaining degree of freedom must be checked (<em>mccp</em>):</p>
 <div class="figure align-center" id="id4">
 <img alt="../_images/reduced_space_var_act_left_side.png" src="../_images/reduced_space_var_act_left_side.png" />
-<p class="caption"><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 49 </span><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
 <p>On the other hand, the variables <em>mcctout</em>, <em>f1out</em> and <em>f2out</em> are the decision variables (MVs) also listed as CV candidates, in order to analyze
 if keeping them constant, there will be self-optimizing control structures using them. Since the decision variables were active, they must be eliminated from the
 list of potential candidates, since the SOC methodology considers that active-constraint control is a mandatory step of the methodology. Therefore, you must mark them as active:</p>
 <div class="figure align-center" id="id5">
 <img alt="../_images/reduced_space_var_act_right_side.png" src="../_images/reduced_space_var_act_right_side.png" />
-<p class="caption"><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 50 </span><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -265,7 +265,7 @@ need to be in the analysis, since they are already being controlled.</p>
 disturbances to be used in the sampling process, in order to generate the reduced-space kriging metamodel:</p>
 <div class="figure align-center" id="id6">
 <img alt="../_images/reduced_space_range.png" src="../_images/reduced_space_range.png" />
-<p class="caption"><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 51 </span><span class="caption-text">Selecting unconstrained degree(s) of freedom.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -289,34 +289,34 @@ using the process simulator.</p></li>
 <p>Under the Data Source <em>panel</em>, point to the Aspen Plus reduced-space problem file location:</p>
 <div class="figure align-center" id="id7">
 <img alt="../_images/reduced_space_dialogbox_sim_file.png" src="../_images/reduced_space_dialogbox_sim_file.png" />
-<p class="caption"><span class="caption-text">Pointing to the reduced-space problem simulation file.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 52 </span><span class="caption-text">Pointing to the reduced-space problem simulation file.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 <p>After this, you can open the Sampling Assistant:</p>
 <div class="figure align-center" id="id8">
 <img alt="../_images/reduced_space_open_sampling_assistant.png" src="../_images/reduced_space_open_sampling_assistant.png" />
-<p class="caption"><span class="caption-text">Opening the sampling assistant.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 53 </span><span class="caption-text">Opening the sampling assistant.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </div>
 <p>You will notice that the Sampling Assistant window corresponds exactly to the same
 from the step 2 (<a class="reference internal" href="sampling_tab.html#sampling-assistant"><span class="std std-ref">Using the Sampling Assistant to sample data from Aspen Plus</span></a>). Therefore, the procedure is exactly the same.</p>
 <div class="figure align-center" id="id9">
 <img alt="../_images/reduced_space_sampling_assistant.png" src="../_images/reduced_space_sampling_assistant.png" />
-<p class="caption"><span class="caption-text">The sampling assistant, the same from the sampling tab.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 54 </span><span class="caption-text">The sampling assistant, the same from the sampling tab.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </div>
 <p>You will define the number of cases to be sampled:</p>
 <div class="figure align-center" id="id10">
 <img alt="../_images/reduced_cases_config.png" src="../_images/reduced_cases_config.png" />
-<p class="caption"><span class="caption-text">Configuring the number of cases to be sampled.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 55 </span><span class="caption-text">Configuring the number of cases to be sampled.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </div>
 <p>And click on “Sample Data”. You can at any time, abort this operation (“Abort” button).
 When the sampling is finished, you can click on “Done” and proceed to the next step (Differential
 data).</p>
 <div class="figure align-center" id="id11">
 <img alt="../_images/reduced_space_sampling_running.png" src="../_images/reduced_space_sampling_running.png" />
-<p class="caption"><span class="caption-text">Sampling Assistant running cases for the reduced space problem.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 56 </span><span class="caption-text">Sampling Assistant running cases for the reduced space problem.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="id12">
 <img alt="../_images/reduced_space_sampling_finished.png" src="../_images/reduced_space_sampling_finished.png" />
-<p class="caption"><span class="caption-text">Sampling completed, just click on “Done” to go back to “Reduced Space” tab.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 57 </span><span class="caption-text">Sampling completed, just click on “Done” to go back to “Reduced Space” tab.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 </div>
@@ -326,12 +326,12 @@ data).</p>
 this panel will be completed:</p>
 <div class="figure align-center" id="id13">
 <img alt="../_images/reduced_space_sampled_data.png" src="../_images/reduced_space_sampled_data.png" />
-<p class="caption"><span class="caption-text">Reduced Space sampled Data <em>panel</em>.</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 58 </span><span class="caption-text">Reduced Space sampled Data <em>panel</em>.</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
 </div>
 <p>After everything, your Reduced Space tab will be completed:</p>
 <div class="figure align-center" id="id14">
 <img alt="../_images/reduced_space_completed.png" src="../_images/reduced_space_completed.png" />
-<p class="caption"><span class="caption-text">Reduced space tab completed. You are able to go to the next tab (Differential data).</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 59 </span><span class="caption-text">Reduced space tab completed. You are able to go to the next tab (Differential data).</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 </div>

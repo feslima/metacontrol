@@ -7,6 +7,6 @@ Theoretical Backgrounds
 .. toctree::
    :maxdepth: 2
 
+   soc
    surrogates
    optimization
-   soc

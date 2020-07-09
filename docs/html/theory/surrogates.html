@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Optimization via Infill Criteria using Surrogates" href="optimization.html" />
-    <link rel="prev" title="Theoretical Backgrounds" href="theory_index.html" /> 
+    <link rel="prev" title="The Exact Local Method with Explicit Solution" href="soc.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,9 +93,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="theory_index.html">Theoretical Backgrounds</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="soc.html">The Exact Local Method with Explicit Solution</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Surrogate modeling - Kriging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="optimization.html">Optimization via Infill Criteria using Surrogates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="soc.html">The Exact Local Method with Explicit Solution</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../zbibliography.html">Bibliography</a></li>
@@ -178,9 +178,9 @@ regression to complex neural networks. However, the surrogate methodology
 currently implemented in <em>Metacontrol</em> is the <em>Kriging</em>.</p>
 <p>The simplest form to represent a real world process (<span class="math notranslate nohighlight">\(y\)</span>) through a
 metamodel (<span class="math notranslate nohighlight">\(\hat{y}\)</span>) and its error (<span class="math notranslate nohighlight">\(\varepsilon\)</span>) is done
-through <a class="reference internal" href="#equation-surreq">(1)</a>.</p>
+through <a class="reference internal" href="#equation-surreq">(15)</a>.</p>
 <div class="math notranslate nohighlight" id="equation-surreq">
-<span class="eqno">(1)<a class="headerlink" href="#equation-surreq" title="Permalink to this equation">¶</a></span>\[y(x) = \hat{y}(x) + \varepsilon\]</div>
+<span class="eqno">(15)<a class="headerlink" href="#equation-surreq" title="Permalink to this equation">¶</a></span>\[y(x) = \hat{y}(x) + \varepsilon\]</div>
 <p>The error (<span class="math notranslate nohighlight">\(\varepsilon\)</span>) is associated with the unmodeled effects of
 the inputs (<span class="math notranslate nohighlight">\(x\)</span>) and random noise (i.e. it cannot be explained in detail
 but cannot be ignored as well.). When using the <em>Kriging</em> methodology as
@@ -188,7 +188,7 @@ metamodel, this error is assumed to be a probabilistic function of <span class="
 in other words, this error is assumed to be <strong>not</strong> independent and identically
 distributed. The specific probabilistic function is represented by a Gaussian
 distribution with mean (<span class="math notranslate nohighlight">\(\mu\)</span>) zero and variance <span class="math notranslate nohighlight">\(\sigma^2\)</span>.</p>
-<p>As from <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id1">[10]</a>, a <em>Kriging</em> metamodel <span class="math notranslate nohighlight">\(\hat{y}(x)\)</span>, of a
+<p>As from <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id1">[15]</a>, a <em>Kriging</em> metamodel <span class="math notranslate nohighlight">\(\hat{y}(x)\)</span>, of a
 rigorous model <span class="math notranslate nohighlight">\(y(x)\)</span> of <span class="math notranslate nohighlight">\(q\)</span> dimensions, is comprised
 of two parts: a polynomial regression (<span class="math notranslate nohighlight">\(\mathcal{F}\)</span>) and departure
 function (<span class="math notranslate nohighlight">\(z\)</span>) of stochastic nature:</p>
@@ -197,46 +197,46 @@ function (<span class="math notranslate nohighlight">\(z\)</span>) of stochastic
 \quad l=1, \ldots, q\]</div>
 <p>The regression model, considered as a linear combination of (<span class="math notranslate nohighlight">\(t\)</span>)
 functions (<span class="math notranslate nohighlight">\(f_{j}: \mathbb{R}^{n} \rightarrow \mathbb{R}\)</span>), as defined
-in <a class="reference internal" href="#equation-kr2">(2)</a>.</p>
+in <a class="reference internal" href="#equation-kr2">(16)</a>.</p>
 <div class="math notranslate nohighlight" id="equation-kr2">
-<span class="eqno">(2)<a class="headerlink" href="#equation-kr2" title="Permalink to this equation">¶</a></span>\[    \mathcal{F}\left(\beta_{:, l}, x\right) \equiv f(x)^{T} \beta_{:, l}\]</div>
+<span class="eqno">(16)<a class="headerlink" href="#equation-kr2" title="Permalink to this equation">¶</a></span>\[    \mathcal{F}\left(\beta_{:, l}, x\right) \equiv f(x)^{T} \beta_{:, l}\]</div>
 <p>The most common choices for <span class="math notranslate nohighlight">\(f(x)\)</span> are polynomials with orders ranging
 from zero (constant) to two (quadratic). It is assumed that <span class="math notranslate nohighlight">\(z\)</span> has
 mean zero, and the covariance between to given points, arbitrarily named
-<span class="math notranslate nohighlight">\(w\)</span> and <span class="math notranslate nohighlight">\(x\)</span> for instance, is defined by <a class="reference internal" href="#equation-kr3">(3)</a>:</p>
+<span class="math notranslate nohighlight">\(w\)</span> and <span class="math notranslate nohighlight">\(x\)</span> for instance, is defined by <a class="reference internal" href="#equation-kr3">(17)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr3">
-<span class="eqno">(3)<a class="headerlink" href="#equation-kr3" title="Permalink to this equation">¶</a></span>\[\operatorname{Cov}\left[z_{l}(w), z_{l}(x)\right]=\sigma_{l}^{2}
+<span class="eqno">(17)<a class="headerlink" href="#equation-kr3" title="Permalink to this equation">¶</a></span>\[\operatorname{Cov}\left[z_{l}(w), z_{l}(x)\right]=\sigma_{l}^{2}
 \mathcal{R}\left(\theta_{l}, w, x\right), \quad l=1, \ldots, q\]</div>
 <p>With <span class="math notranslate nohighlight">\(\sigma_{l}^{2}\)</span> being the process variance for the <em>lth</em> response
 component, and <span class="math notranslate nohighlight">\(\mathcal{R}(\theta, w, x)\)</span> defined as the correlation
-model. In <em>Metacontrol</em>, the correlation model used is described by <a class="reference internal" href="#equation-kr4">(4)</a>.</p>
+model. In <em>Metacontrol</em>, the correlation model used is described by <a class="reference internal" href="#equation-kr4">(18)</a>.</p>
 <div class="math notranslate nohighlight" id="equation-kr4">
-<span class="eqno">(4)<a class="headerlink" href="#equation-kr4" title="Permalink to this equation">¶</a></span>\[\mathcal{R}\left(\theta_{l}, w, x\right)=\exp \left(-\sum_{i=1}^{m}
+<span class="eqno">(18)<a class="headerlink" href="#equation-kr4" title="Permalink to this equation">¶</a></span>\[\mathcal{R}\left(\theta_{l}, w, x\right)=\exp \left(-\sum_{i=1}^{m}
 \theta_{l}\left(w-x_{i}\right)^{p}\right), \quad\left(\theta_{l} \geq 0,
 p_{l} \in[0,2]\right)\]</div>
 <p>The hyperparameters <span class="math notranslate nohighlight">\(\theta\)</span> are degrees of freedom available for
 optimization purposes, seeking the improvement of the metamodel fitness. In
-<a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[10]</a>, the optimal set of hyperparameters <span class="math notranslate nohighlight">\(\theta^*\)</span> corresponds
+<a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[15]</a>, the optimal set of hyperparameters <span class="math notranslate nohighlight">\(\theta^*\)</span> corresponds
 to the maximum likelihood estimation. Assuming a Gaussian process, the optimal
-values of the hyperparameters are the ones that minimize <a class="reference internal" href="#equation-kr5">(5)</a>:</p>
+values of the hyperparameters are the ones that minimize <a class="reference internal" href="#equation-kr5">(19)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr5">
-<span class="eqno">(5)<a class="headerlink" href="#equation-kr5" title="Permalink to this equation">¶</a></span>\[\min _{\theta}\left\{\psi(\theta) \equiv|R|^{\frac{1}{m}}
+<span class="eqno">(19)<a class="headerlink" href="#equation-kr5" title="Permalink to this equation">¶</a></span>\[\min _{\theta}\left\{\psi(\theta) \equiv|R|^{\frac{1}{m}}
 \sigma^{2}\right\}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(|R|\)</span> is the determinant of the correlation matrix. The internal
 optimizer used in <em>DACE</em> toolbox corresponds to a modified version of
-the <em>Hooke &amp; Jeeves</em> method, as showed by <a class="bibtex reference internal" href="../zbibliography.html#dacereport" id="id3">[9]</a>.</p>
+the <em>Hooke &amp; Jeeves</em> method, as showed by <a class="bibtex reference internal" href="../zbibliography.html#dacereport" id="id3">[14]</a>.</p>
 <p>As stated before, high-order data obtainment it is an obligatory step in the
-proposed methodology implemented in mtc. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[10]</a>
+proposed methodology implemented in mtc. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[15]</a>
 also derived expressions for Jacobian (<span class="math notranslate nohighlight">\(\hat{y}^{\prime}(x)\)</span>)
-evaluation of a <em>Kriging</em> prediction, given in <a class="reference internal" href="#equation-kr6">(6)</a>:</p>
+evaluation of a <em>Kriging</em> prediction, given in <a class="reference internal" href="#equation-kr6">(20)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr6">
-<span class="eqno">(6)<a class="headerlink" href="#equation-kr6" title="Permalink to this equation">¶</a></span>\[    \hat{y}^{\prime}(x)=J_{f}(x)^{T} \beta^{*}+J_{r}(x)^{T} \gamma^{*}\]</div>
-<p>The expression for Hessian evaluation was derived by <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id5">[2]</a>
+<span class="eqno">(20)<a class="headerlink" href="#equation-kr6" title="Permalink to this equation">¶</a></span>\[    \hat{y}^{\prime}(x)=J_{f}(x)^{T} \beta^{*}+J_{r}(x)^{T} \gamma^{*}\]</div>
+<p>The expression for Hessian evaluation was derived by <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id5">[3]</a>
 (full demonstration in appendix A of their work), and it is depicted in
-<a class="reference internal" href="#equation-kr7">(7)</a>:</p>
+<a class="reference internal" href="#equation-kr7">(21)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr7">
-<span class="eqno">(7)<a class="headerlink" href="#equation-kr7" title="Permalink to this equation">¶</a></span>\[    \hat{y}^{\prime \prime}(x)=H_{f}(x) \beta^{*}+H_{r}(x) \gamma^{*}\]</div>
-<p>Equations <a class="reference internal" href="#equation-kr6">(6)</a> and <a class="reference internal" href="#equation-kr7">(7)</a> are one of the staples of the <em>Metacontrol</em> .</p>
+<span class="eqno">(21)<a class="headerlink" href="#equation-kr7" title="Permalink to this equation">¶</a></span>\[    \hat{y}^{\prime \prime}(x)=H_{f}(x) \beta^{*}+H_{r}(x) \gamma^{*}\]</div>
+<p>Equations <a class="reference internal" href="#equation-kr6">(20)</a> and <a class="reference internal" href="#equation-kr7">(21)</a> are one of the staples of the <em>Metacontrol</em> .</p>
 </div>
 
 
@@ -250,7 +250,7 @@ evaluation of a <em>Kriging</em> prediction, given in <a class="reference intern
         <a href="optimization.html" class="btn btn-neutral float-right" title="Optimization via Infill Criteria using Surrogates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="theory_index.html" class="btn btn-neutral float-left" title="Theoretical Backgrounds" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="soc.html" class="btn btn-neutral float-left" title="The Exact Local Method with Explicit Solution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

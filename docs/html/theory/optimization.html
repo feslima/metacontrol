@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="The Exact Local Method with Explicit Solution" href="soc.html" />
+    <link rel="next" title="Bibliography" href="../zbibliography.html" />
     <link rel="prev" title="Surrogate modeling - Kriging" href="surrogates.html" /> 
 </head>
 
@@ -93,9 +93,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="theory_index.html">Theoretical Backgrounds</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="soc.html">The Exact Local Method with Explicit Solution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="surrogates.html">Surrogate modeling - Kriging</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Optimization via Infill Criteria using Surrogates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="soc.html">The Exact Local Method with Explicit Solution</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../zbibliography.html">Bibliography</a></li>
@@ -167,7 +167,95 @@
             
   <div class="section" id="optimization-via-infill-criteria-using-surrogates">
 <h1>Optimization via Infill Criteria using Surrogates<a class="headerlink" href="#optimization-via-infill-criteria-using-surrogates" title="Permalink to this headline">¶</a></h1>
-<p>Placeholder text… <a class="reference internal" href="soc.html#equation-optproblem">(1)</a></p>
+<p>When dealing with a non linear problem (NLP), such as in <a class="reference internal" href="soc.html#equation-optproblem">(1)</a>,
+typically it is resorted to classical solvers (e.g. SQP, trust-region-dogleg,
+genetic algorithms, simulated annealing, etc.) to obtain its solution,
+depending on the nature of the NLP (e.g. presence of discontinuities, whether
+or not the function is differentiable, etc.).</p>
+<p>There is a entire field of study dedicated to find these NLP solutions with
+<em>Kriging</em> surrogates. In the works of
+<a class="bibtex reference internal" href="../zbibliography.html#jones2001" id="id1">[12]</a><a class="bibtex reference internal" href="../zbibliography.html#sasena2002" id="id2">[18]</a><a class="bibtex reference internal" href="../zbibliography.html#forrester2008" id="id3">[7]</a><a class="bibtex reference internal" href="../zbibliography.html#alexandrov2000" id="id4">[1]</a>, there are entire
+discussions and frameworks on how to solve non linear problems and
+comparisons of several metrics involved in the optimization process with
+metamodels.</p>
+<p>The premise of performing a optimization using surrogates is that the model
+to be optimized is too time consuming or computationally expensive to be
+solved with classical solvers. To circumvent this, the following steps are
+proposed:</p>
+<ol class="arabic simple">
+<li><p>Build an approximation model with <em>Kriging</em> surrogates using a
+limited number of initial samples. This approximation is a “generalistic”
+enough representation of the real model;</p></li>
+<li><p>Perform an optimization of the approximation model using classical NLP
+solvers and an infill criteria. The surrogate model reduces the
+“search area” needed by the solver;</p></li>
+<li><p>Compare the surrogate optimum found in step 2 with the
+result from original model. In other words: feed the results from the
+<em>Kriging</em> metamodel optimum into the original model and see if they are
+close enough;</p></li>
+<li><p>If the optimum from the metamodel is close enough (based on a
+chosen metric) to the original model, then this may be the true optimum.
+Otherwise, update the <em>Kriging</em> model by introducing the value found and
+return to step 2;</p></li>
+</ol>
+<p>This process is basically “filling holes” (hence the name <em>infill</em>)
+in our <em>Kriging</em> metamodel until original model optimum is found. To illustrate
+this in the simplest way, suppose a complex process that we need to optimize
+that is represented by the following function:</p>
+<div class="math notranslate nohighlight">
+\[f(x) = -\cos(x) - e^{\frac{x}{20}} + 5\]</div>
+<p>Assuming that we only have three initial points sampled from this model
+function, we build our <em>Kriging</em> model. As can be seen in <a class="reference internal" href="#infill-init"><span class="std std-numref">Fig. 76</span></a>.</p>
+<div class="figure align-center" id="infill-init">
+<img alt="../_images/infill_init.svg" src="../_images/infill_init.svg" /><p class="caption"><span class="caption-number">Fig. 76 </span><span class="caption-text">Initial plot of the example function. The solid blue line represents the
+function behavior. The orange dashed line is the <em>Kriging</em> metamodel of
+the three sampled points (red circles) available.</span><a class="headerlink" href="#infill-init" title="Permalink to this image">¶</a></p>
+</div>
+<p>When applying an optimization solver on the <em>Kriging</em> model, we get a new
+optimal value for <span class="math notranslate nohighlight">\(x\)</span> near 7.8 (3.47 for <span class="math notranslate nohighlight">\(f(x)\)</span>) in the
+sample and rebuild the <em>Kriging</em> metamodel. The result is shown
+<a class="reference internal" href="#infill-1"><span class="std std-numref">Fig. 77</span></a>. We keep repeating this procedure until we get the result
+in <a class="reference internal" href="#infill-2"><span class="std std-numref">Fig. 78</span></a>.</p>
+<div class="figure align-center" id="infill-1">
+<img alt="../_images/infill_1.svg" src="../_images/infill_1.svg" /><p class="caption"><span class="caption-number">Fig. 77 </span><span class="caption-text">The <em>Kriging</em> model after one update.</span><a class="headerlink" href="#infill-1" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="infill-2">
+<img alt="../_images/infill_2.svg" src="../_images/infill_2.svg" /><p class="caption"><span class="caption-number">Fig. 78 </span><span class="caption-text">The <em>Kriging</em> model after four updates. Notice how the <em>Kriging</em> model
+adjusts to the true function near the optimal point.</span><a class="headerlink" href="#infill-2" title="Permalink to this image">¶</a></p>
+</div>
+<p>This is the entire process animated in <a class="reference internal" href="#infill-animated"><span class="std std-numref">Fig. 79</span></a>:</p>
+<div class="figure align-center" id="infill-animated">
+<img alt="../_images/animation_infill.gif" src="../_images/animation_infill.gif" />
+<p class="caption"><span class="caption-number">Fig. 79 </span><span class="caption-text">The main steps of the infill criteria procedure as an example.</span><a class="headerlink" href="#infill-animated" title="Permalink to this image">¶</a></p>
+</div>
+<p>This example is a trivial one because the problem involves a single input
+variable and infill criteria is the own <em>Kriging</em> prediction of the model. As
+discussed in <a class="bibtex reference internal" href="../zbibliography.html#jones2001" id="id5">[12]</a>, this criteria has its pitfalls if used
+without other precautions.</p>
+<p><a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id6">[4]</a> presented an algorithm, based on the “method 2”
+in the work of <a class="bibtex reference internal" href="../zbibliography.html#jones2001" id="id7">[12]</a>, referred as a gradient matching
+technique where the gradient of the surrogate is forced to match with
+the true function gradient, this is done through trust-region approach to
+ensure local convergence which was proven in the work of
+<a class="bibtex reference internal" href="../zbibliography.html#alexandrov2000" id="id8">[1]</a>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The basic idea of this approach is:</p>
+<ol class="arabic simple">
+<li><p>Minimize the NLP problem metamodel.</p></li>
+<li><p>Consult the original function at the minimum found in the metamodel.</p></li>
+<li><p>Update the sample matrix used to build the surrogate.</p></li>
+<li><p>Repeat this until a convergence criteria is met.</p></li>
+</ol>
+</div>
+<p>The flowchart depicting the whole procedure is defined in
+<a class="reference internal" href="#caballeroflowchart"><span class="std std-numref">Fig. 80</span></a>. For detailed explanation of each step of the
+proposed algorithm, one must refer to <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id9">[4]</a> and
+<a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id10">[3]</a>.</p>
+<div class="figure align-center" id="caballeroflowchart">
+<img alt="../_images/caballero_flowchart_final.svg" src="../_images/caballero_flowchart_final.svg" /><p class="caption"><span class="caption-number">Fig. 80 </span><span class="caption-text">Flowchart of <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id11">[4]</a> algorithm, translated to Python and
+implemented within <em>Metacontrol</em>.</span><a class="headerlink" href="#caballeroflowchart" title="Permalink to this image">¶</a></p>
+</div>
 </div>
 
 
@@ -178,7 +266,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="soc.html" class="btn btn-neutral float-right" title="The Exact Local Method with Explicit Solution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../zbibliography.html" class="btn btn-neutral float-right" title="Bibliography" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="surrogates.html" class="btn btn-neutral float-left" title="Surrogate modeling - Kriging" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
