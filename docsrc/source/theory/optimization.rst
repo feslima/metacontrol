@@ -21,7 +21,7 @@ solved with classical solvers. To circumvent this, the following steps are
 proposed: 
 
 #. Build an approximation model with *Kriging* surrogates using a 
-   limited number of initial samples. This approximation is a "generalistic" 
+   limited number of initial samples. This approximation is a "generalist" 
    enough representation of the real model;
 
 #. Perform an optimization of the approximation model using classical NLP
