@@ -43,7 +43,18 @@ Please, cite the related papers:
 
    .. code-block:: none
 
-      Entry goes here when the paper review is accepted
+      @article{lima2020metacontrol,
+         title={Metacontrol: A Python based application for self-optimizing control using metamodels},
+         author={Lima, Felipe Souza and Alves, Victor Manuel Cunha and de Araujo, Antonio Carlos Brandao},
+         journal={Computers \& Chemical Engineering},
+         volume = {140},
+         pages = {106979},
+         year = {2020},
+         issn = {0098-1354},
+         doi = {https://doi.org/10.1016/j.compchemeng.2020.106979},
+         url = {http://www.sciencedirect.com/science/article/pii/S0098135420303355},
+         publisher={Elsevier}
+         }
 
 
 And become a watcher/stargazer on `GitHub <https://github.com/feslima/metacontrol>`_ to receive updates!
