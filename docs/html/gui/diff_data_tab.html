@@ -182,9 +182,9 @@
 <h1>The “Differential Data” tab<a class="headerlink" href="#the-differential-data-tab" title="Permalink to this headline">¶</a></h1>
 <p>At this tab you will extract the high-order data (Gradients and Hessians)
 that are necessary in order to calculate the self-optimizing control structures using
-the exact local method from <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id1">[1]</a>.</p>
+the exact local method from <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id1">[2]</a>.</p>
 <p>The high-order data is calculated with
-analytical expressions derived by <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[7]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id3">[2]</a>, using the kriging
+analytical expressions derived by <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[16]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id3">[3]</a>, using the kriging
 metamodel built for the reduced space problem.</p>
 <p>The aforementioned procedure is encapsulated in this tab. You will be able to:</p>
 <ul class="simple">
@@ -194,7 +194,7 @@ metamodel built for the reduced space problem.</p>
 <p>Here is an overview of this tab, before you start using it:</p>
 <div class="figure align-center" id="id5">
 <img alt="../_images/diff_data_main.png" src="../_images/diff_data_main.png" />
-<p class="caption"><span class="caption-text">Differential Data tab.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 60 </span><span class="caption-text">Differential Data tab.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </div>
 <p>There are four main panels on this tab</p>
 <ul class="simple">
@@ -211,14 +211,14 @@ configure your reduced-space kriging metamodel.</p>
 <p>Click on “Open training dialog”:</p>
 <div class="figure align-center" id="id6">
 <img alt="../_images/diff_data_training_dialog.png" src="../_images/diff_data_training_dialog.png" />
-<p class="caption"><span class="caption-text">Opening the kriging training dialog window.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 61 </span><span class="caption-text">Opening the kriging training dialog window.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </div>
 <p>You will notice that the window that appears to you is exactly the same from
 <a class="reference internal" href="metamodel_tab.html#metamodel-tab"><span class="std std-ref">The “Metamodel” tab</span></a>. Therefore the process of configuring your reduced-space
 kriging metamodel is essentially the same.</p>
 <div class="figure align-center" id="id7">
 <img alt="../_images/diff_data_training_dialog_window.png" src="../_images/diff_data_training_dialog_window.png" />
-<p class="caption"><span class="caption-text">Training dialog window.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 62 </span><span class="caption-text">Training dialog window.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -229,7 +229,7 @@ previous tab (Reduced Space tab). In addition, you can remove any of the remaini
 want. Just <em>de-select</em> the box of the variable you want to remove:</p>
 <div class="figure align-center" id="id8">
 <img alt="../_images/diff_data_remove_cvs.png" src="../_images/diff_data_remove_cvs.png" />
-<p class="caption"><span class="caption-text">Removing one variable from the CV candidates list (<em>fco2out</em> in this example).</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 63 </span><span class="caption-text">Removing one variable from the CV candidates list (<em>fco2out</em> in this example).</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <p>After configuring the hyperparameters estimates, choosing which CVs will be taken into acount in your
@@ -239,11 +239,11 @@ metamodel, you can click on “Generate metamodel” in order to inspect the val
 <h3>Acessing performance of your reduced-space metamodel<a class="headerlink" href="#acessing-performance-of-your-reduced-space-metamodel" title="Permalink to this headline">¶</a></h3>
 <p>For the reduced-space metamodel, one additional metric has been added in order to help you to evaluate the
 robustness of the metamodel generated. It corresponds to the objective function of the maximum likelihood estimation
-from the work of <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[7]</a>. Values under 1e-5 will give robust estimation of the gradients and hessians. (Check <a class="reference internal" href="../index.html#our-papers"><span class="std std-ref">Our papers</span></a>
+from the work of <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[16]</a>. Values under 1e-5 will give robust estimation of the gradients and hessians. (Check <a class="reference internal" href="../index.html#our-papers"><span class="std std-ref">Our papers</span></a>
 and the <a class="reference internal" href="../theory/theory_index.html#theory-tab"><span class="std std-ref">Theoretical Backgrounds</span></a> section where we give some examples and discuss the theoretical background in detail)</p>
 <div class="figure align-center" id="id9">
 <img alt="../_images/diff_data_dace_function.png" src="../_images/diff_data_dace_function.png" />
-<p class="caption"><span class="caption-text">Evaluating reduced space kriging metamodel estimation capabilities. Highlighted in blue,
+<p class="caption"><span class="caption-number">Fig. 64 </span><span class="caption-text">Evaluating reduced space kriging metamodel estimation capabilities. Highlighted in blue,
 the value of the optimized objective function value, that results in the optimal hyperparameters estimation.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </div>
 </div>
@@ -255,7 +255,7 @@ dialog window, you can click on “Estimate Gradient and Hessian”, to generate
 high-order data.</p>
 <div class="figure align-center" id="id10">
 <img alt="../_images/diff_data_high_order_data_gen.png" src="../_images/diff_data_high_order_data_gen.png" />
-<p class="caption"><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 65 </span><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="gradient-results-panel-and-hessian-results-panel">
@@ -264,7 +264,7 @@ high-order data.</p>
 completed:</p>
 <div class="figure align-center" id="id11">
 <img alt="../_images/diff_data_completed.png" src="../_images/diff_data_completed.png" />
-<p class="caption"><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 66 </span><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
 </div>
 <p>If you take a closer look, you will notice that the matrices are in a Dataframe format, making them easy to ready
 and to understand each element of the matrices generated. Note that the elements are indexed using the aliases that you
@@ -272,7 +272,7 @@ created. For example, the gain between the unconstrained degree of freedom (<em>
 read:</p>
 <div class="figure align-center" id="id12">
 <img alt="../_images/diff_data_reading_gains.png" src="../_images/diff_data_reading_gains.png" />
-<p class="caption"><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 67 </span><span class="caption-text">Generating high-order data.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </div>
 <p>The same is true for every element of the gradients and hessians calculated.</p>
 <p>After the procedure here described, you can go to the last tab: Self-Optimizing Control.</p>

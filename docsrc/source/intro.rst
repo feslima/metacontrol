@@ -12,7 +12,6 @@ processes via software analysis, in a comprehensive user interface.
 The SOC concept is used to guide a decision on how to design the control 
 structure of a given process. 
 
-
 By definition from the main author of the methodology, Dr. Sigurd Skogestad
 from NTNU:
 
@@ -27,7 +26,6 @@ when disturbances occur.**"
    structure based on constant setpoint policy, capable of minimizing the loss to an acceptable
    magnitude, when compared with the reoptimized process every time that a disturbance occur (Real Time
    Optimization).
-
 
 The self-optimizing control structure selection problem has a combinatorial nature: Generally in an industrial process,
 there are dozens (even thousands!) of variables, and a set of available degrees of freedom that can be consumed
@@ -44,21 +42,14 @@ by a subset of the possible candidate controlled variables. There are mainly two
     collaborators to quickly "pre-screen" the most promising subsets of controlled variables. 
     *Metacontrol* is based on these mathematical formulations, with a neat User Interface.
 
-
-
-
 In order to use the Local methods, it is necessary to obtain high-order data with respect to the
 process gradients and the objective function hessians. In order to do this, *Metacontrol* uses
 powerful machine learning formulations (Kriging Interpolators) to obtain such data in with
 robustness.
 
-
-
 Last but not least, other decisions such as which type of 
 controllers to use or how to tune them is a responsibility of *classical 
 control design*, whose concepts are not implemented (yet) in this software.
-
-
 
 .. IMPORTANT::
     The basic idea behind *Metacontrol* is to tell you **what** control 
@@ -98,8 +89,6 @@ download and install the desired version (generally, our most recent and stable 
 This is the recommended option for most engineers and scientists that just want to study SOC-Based Control Structure selection and are
 not interested in programming details.
 You will only install our software and will be good to go.
-
-
 
 Installing from source
 ----------------------
