@@ -167,10 +167,209 @@
             
   <div class="section" id="n-butane-production-unit">
 <h1>n-Butane Production Unit<a class="headerlink" href="#n-butane-production-unit" title="Permalink to this headline">¶</a></h1>
-<div class="figure align-center" id="id1">
-<img alt="../_images/c4isoflowsheet.svg" src="../_images/c4isoflowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 75 </span><span class="caption-text">Flowsheet of the C4 isomerization process.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<div class="figure align-center" id="c4processflowsheet">
+<img alt="../_images/c4isoflowsheet.svg" src="../_images/c4isoflowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 75 </span><span class="caption-text">Flowsheet of the C4 isomerization process.</span><a class="headerlink" href="#c4processflowsheet" title="Permalink to this image">¶</a></p>
 </div>
-<p>Placeholder text…</p>
+<p>This case-study presented consists in a <span class="math notranslate nohighlight">\(C_{4}\)</span> isomerization
+process, that aims to convert <em>n</em>-butane(<span class="math notranslate nohighlight">\(n-C_{4}\)</span>) into isobutane
+(<span class="math notranslate nohighlight">\(i-C_{4}\)</span>). The latter can be used as an octane-enhancing
+gasoline blending agent, and also it is an precursor for isobutyl
+alcohol production <a class="bibtex reference internal" href="../zbibliography.html#jagtap12" id="id1">[15]</a>. The process
+described in this case-study it is based on the work of
+<a class="bibtex reference internal" href="../zbibliography.html#jagtap12" id="id2">[15]</a>: Base operating conditions and optimal
+operating ones. The idea of this case study is to depict to reader the
+second mode of operation that can be used in , described in when the
+optimal operating point it is known. This was implemented within because
+there is a plethora of papers and discussions over the several years
+that addresses the optimization of several processes
+(<a class="bibtex reference internal" href="../zbibliography.html#jagtap12" id="id3">[15]</a><a class="bibtex reference internal" href="../zbibliography.html#jagtap13" id="id4">[16]</a><a class="bibtex reference internal" href="../zbibliography.html#araujo07" id="id5">[8]</a><a class="bibtex reference internal" href="../zbibliography.html#araujo08" id="id6">[4]</a><a class="bibtex reference internal" href="../zbibliography.html#gera13" id="id7">[10]</a><a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id8">[20]</a><a class="bibtex reference internal" href="../zbibliography.html#skoge04" id="id9">[26]</a>,
+just to name a few), and when one is dealing witheconomic plantwide control
+specially, there are several results that can be anticipated regarding
+active constraints.</p>
+<p>Thus, it is understood that there is a relevant number of experienced
+researchers that have interest in using the the local methods derived by
+<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id10">[11]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id11">[2]</a> in order to find
+self-optimizing variables (or linear combinations of measurements), but
+already know constraints that must be controlled on their particular
+applications, specially when this task can be done in a comprehensive
+software environment, which is the case for <em>Metacontrol</em>. In such cases,
+there is no need to used mode 1 from <em>Metacontrol</em>, and the user can simply
+build a metamodel of the reduced-space problem, merely providing the
+simulation file of the process with the active constraints already
+implemented, and sample the process using the unconstrained degrees of
+freedom, in order to generate the necessary high-order data, to finally
+obtain the most promising CV candidates.</p>
+<p>The process flowsheet can be found on <a class="reference internal" href="#c4processflowsheet"><span class="std std-numref">Fig. 75</span></a>. The
+process was already optimized by <a class="bibtex reference internal" href="../zbibliography.html#jagtap12" id="id12">[15]</a> as stated before.
+Therefore, it was used the previously found optimal point from the
+aforementioned work, and it is described in <a class="reference internal" href="#c4optpoint"><span class="std std-numref">Table 1</span></a>.
+For this process, <a class="bibtex reference internal" href="../zbibliography.html#jagtap12" id="id13">[15]</a> kept the composition of <em>n</em>-butane on
+the bottoms of the purge column constant, and the other variables that
+are fixed were active constraints of the optimization problem: Either
+anticipated or calculated, except regarding the cooler temperature, that
+was alleged to have little impact on the objective function, and it was
+kept constant. Therefore, the aforementioned fixed composition will be
+considered as an unconstrained degree of freedom, differently from
+<a class="bibtex reference internal" href="../zbibliography.html#jagtap12" id="id14">[15]</a>, and the reason is to evaluate if there is another
+variable that is easier to control than a composition that can be used
+in the control structure.</p>
+<table class="docutils align-center" id="c4optpoint">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">C4 Isomerization process optimization summary.</span><a class="headerlink" href="#c4optpoint" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 83%" />
+<col style="width: 4%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Equation</p></th>
+<th class="head"><p>Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Objective Function [<span class="math notranslate nohighlight">\(\$/h\)</span>]</p></td>
+<td><p><span class="math notranslate nohighlight">\(J = - 9.83 \times Q_{furnace} - 4.83\times(Q^{reboiler}_{DIB-C}+Q^{reboiler}_{PURGE-C})   - 0.16\times (Q^{condenser}_{DIB-C} + Q^{condenser}_{PURGE-C}) - 32.5\times   F_{C_4} + 42\times F_{i-C_4} + 22\times F_{i-C_5}\)</span></p></td>
+<td><p>Profit</p></td>
+</tr>
+<tr class="row-odd"><td><p>Reactor Temperature Specification</p></td>
+<td><p><span class="math notranslate nohighlight">\(T_{\mathrm{reactor}}=200^{\circ} \mathrm{C}\)</span></p></td>
+<td><p>Active</p></td>
+</tr>
+<tr class="row-even"><td><p>DIB-C Boilup Constraint</p></td>
+<td><p><span class="math notranslate nohighlight">\(0 \leq V_{1} \leq 1.3\)</span></p></td>
+<td><p>Base case</p></td>
+</tr>
+<tr class="row-odd"><td><p>PURGE-C Boilup Constraint</p></td>
+<td><p><span class="math notranslate nohighlight">\(0 \leq V_{2} \leq 1.5\)</span></p></td>
+<td><p>Base case</p></td>
+</tr>
+<tr class="row-even"><td><p>Furnace Constraint</p></td>
+<td><p><span class="math notranslate nohighlight">\(0 \leq Q_{\text {furnace }} \leq 1.3\)</span></p></td>
+<td><p>Base case</p></td>
+</tr>
+<tr class="row-odd"><td><p>Reactor Pressure Specification</p></td>
+<td><p><span class="math notranslate nohighlight">\($P_{\mathrm{reactor}}=45\)</span></p></td>
+<td><p>Active</p></td>
+</tr>
+<tr class="row-even"><td><p>Cooling Specification</p></td>
+<td><p><span class="math notranslate nohighlight">\(T_{\mathrm{cooler}}=53^{\circ} \mathrm{C}\)</span></p></td>
+<td><p>Fixed</p></td>
+</tr>
+</tbody>
+</table>
+<p>In <a class="reference internal" href="#c4mainscreen"><span class="std std-numref">Fig. 76</span></a>, it can be seen that the only expression built
+for this problem was the economic objective function, due to the fact
+that the problem is already unconstrained (the active constraints are
+already known). Similarly to the first and second case studies, the user
+must identify the process disturbances, CV candidates and degrees of freedom
+(<a class="reference internal" href="#c4variables"><span class="std std-numref">Fig. 77</span></a>).</p>
+<div class="figure align-center" id="c4mainscreen">
+<img alt="../_images/c4mainscreen.PNG" src="../_images/c4mainscreen.PNG" />
+<p class="caption"><span class="caption-number">Fig. 76 </span><span class="caption-text">C4 Isomerization process - loading simulation. The cooling water
+price is positive due to signal convention inside the process simulator -
+heat removed from the system has a negative sign.</span><a class="headerlink" href="#c4mainscreen" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c4variables">
+<img alt="../_images/c4-loadvar.PNG" src="../_images/c4-loadvar.PNG" />
+<p class="caption"><span class="caption-number">Fig. 77 </span><span class="caption-text">C4 Isomerization process - loading variables.</span><a class="headerlink" href="#c4variables" title="Permalink to this image">¶</a></p>
+</div>
+<p>For the expected disturbances, the values come from <a class="bibtex reference internal" href="../zbibliography.html#jagtap12" id="id15">[15]</a>,
+and disturbances for the amounts of isobutane and textit{n}-butane in the
+feed were considered, with a range of <span class="math notranslate nohighlight">\(10\%\)</span> of the nominal values.
+However, instead of considering the compositions, the values of the
+individual component flow rates were used in the design of experiments.
+Regarding CV candidates, sensitive temperatures at the optimal operating
+point were inspected for both columns, and the most sensitive ones were
+considered as CV candidates. The full list of CV candidates can be seen
+in <a class="reference internal" href="#c4cvs"><span class="std std-numref">Table 2</span></a>.</p>
+<table class="docutils align-center" id="c4cvs">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">CV Candidates for <span class="math notranslate nohighlight">\(C_{4}\)</span> Isomerization process.</span><a class="headerlink" href="#c4cvs" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong> (alias used in
+<em>Metacontrol</em>)</p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>c1_t“x’</p></td>
+<td><p>1st column stage X temperature
+(stages 21-33)
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>c2_t“x’</p></td>
+<td><p>2nd column stage X temperature
+(stages 14-20)
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>x_ic4_b1</p></td>
+<td><p>1st column <span class="math notranslate nohighlight">\(i-C_{4}\)</span>
+bottoms composition</p></td>
+</tr>
+<tr class="row-odd"><td><p>x_ic5_d2</p></td>
+<td><p>2nd column <span class="math notranslate nohighlight">\(i-C_{5}\)</span>
+distillate composition</p></td>
+</tr>
+<tr class="row-even"><td><p>x_nc4_b2</p></td>
+<td><p>2nd column <span class="math notranslate nohighlight">\(n-C_{4}\)</span>
+bottoms composition</p></td>
+</tr>
+<tr class="row-odd"><td><p>c1_v</p></td>
+<td><p>1st column boilup rate
+<span class="math notranslate nohighlight">\((kmol/h)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>c2_v</p></td>
+<td><p>2st column boilup rate
+<span class="math notranslate nohighlight">\((kmol/h)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>c1_l</p></td>
+<td><p>1st column reflux rate
+<span class="math notranslate nohighlight">\((kmol/h)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>c1_l</p></td>
+<td><p>2nd column reflux rate
+<span class="math notranslate nohighlight">\((kmol/h)\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>50 points were sampled with an amplitude of <span class="math notranslate nohighlight">\(\pm0.5\%\)</span> around the optimal
+point (<a class="reference internal" href="#c4redspace"><span class="std std-numref">Fig. 78</span></a>), and the gradients and hessians could be
+extracted (<a class="reference internal" href="#c4grad"><span class="std std-numref">Fig. 79</span></a>). Lastly, Similarly as the previous cases, the
+implementation error for temperatures was considered as <span class="math notranslate nohighlight">\(0.5(°C)\)</span>,
+<span class="math notranslate nohighlight">\(10^{-3}\)</span> for flow rates and <span class="math notranslate nohighlight">\(10^{-6}\)</span> for compositions. All the
+aforementioned data was inserted inside <em>Metacontrol</em>, as can be seen in
+<a class="reference internal" href="#c4soc"><span class="std std-numref">Fig. 80</span></a>.</p>
+<div class="figure align-center" id="c4redspace">
+<img alt="../_images/c4redspace.PNG" src="../_images/c4redspace.PNG" />
+<p class="caption"><span class="caption-number">Fig. 78 </span><span class="caption-text">C4 Isomerization process - loading variables.</span><a class="headerlink" href="#c4redspace" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c4grad">
+<img alt="../_images/c4grads.PNG" src="../_images/c4grads.PNG" />
+<p class="caption"><span class="caption-number">Fig. 79 </span><span class="caption-text">C4 Isomerization process - High-order data obtainment.</span><a class="headerlink" href="#c4grad" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c4soc">
+<img alt="../_images/c4socinput.PNG" src="../_images/c4socinput.PNG" />
+<p class="caption"><span class="caption-number">Fig. 80 </span><span class="caption-text">C4 Isomerization process - Self-Optimizing Control input.</span><a class="headerlink" href="#c4soc" title="Permalink to this image">¶</a></p>
+</div>
+<p>For the sake of brevity only the single measurement policy was considered in
+this analysis. <a class="reference internal" href="#c4socresult"><span class="std std-numref">Fig. 81</span></a> shows that, not surprisingly, the
+control of sensitive temperatures and the composition of the pollutant
+(in this case, <span class="math notranslate nohighlight">\(i-C_{5}\)</span>), yielded the lowest losses. However, keeping
+temperatures and flow rates with constant setpoints instead of using
+compositions are also promising control structures, as can be seen in
+<a class="reference internal" href="#c4socresult2"><span class="std std-numref">Fig. 82</span></a></p>
+<div class="figure align-center" id="c4socresult">
+<img alt="../_images/c4-best-cvs.PNG" src="../_images/c4-best-cvs.PNG" />
+<p class="caption"><span class="caption-number">Fig. 81 </span><span class="caption-text">C4 Isomerization process - Single measurements policy: Best CV candidates.</span><a class="headerlink" href="#c4socresult" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c4socresult2">
+<img alt="../_images/c4-best-cvs-3.PNG" src="../_images/c4-best-cvs-3.PNG" />
+<p class="caption"><span class="caption-number">Fig. 82 </span><span class="caption-text">C4 Isomerization process - Single measurements policy: Best CV candidates
+not using compositions.</span><a class="headerlink" href="#c4socresult2" title="Permalink to this image">¶</a></p>
+</div>
 </div>
 
 
