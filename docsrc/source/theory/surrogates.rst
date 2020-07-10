@@ -105,4 +105,86 @@ The expression for Hessian evaluation was derived by :cite:`alves2018`
 
 	\hat{y}^{\prime \prime}(x)=H_{f}(x) \beta^{*}+H_{r}(x) \gamma^{*}
 
-Equations :eq:`kr6` and :eq:`kr7` are one of the staples of the *Metacontrol* .
+Equations :eq:`kr6` and :eq:`kr7` are one of the staples of the *Metacontrol*.
+
+How to tell if my surrogate is good or not?
+===========================================
+
+To fit our *Kriging* metamodel correctly, the most straightfoward way is to 
+analyze the values returned by :eq:`kr5` to determine if the likelihood 
+function is at its minimum or not. 
+
+Suppose a complex process that we need to substitute by a surrogate that is 
+represented by the following function:
+
+.. math::
+    :label: complex
+
+    f(x) = -\cos(x) - e^{\frac{x}{20}} + 5
+
+Due to some constraints (i.e. the model is too expensive or slow to compute), 
+we can only have a small amount of samples (red circles). For inspection
+purposes, we decide to spend some of our "budget" and sample three points 
+initially. Plotting this model we have:
+
+.. figure:: ../images/kriging_initial.svg
+    :name: krig_init
+    :align: center
+
+    Plot of function :eq:`complex`. The blue line is the true behavior of the
+    model.
+
+Plotting the equation :eq:`kr5`, we se that this initial sample of three points 
+gives use a monotonic behavior (you could say it's "plateuing") for the 
+likelihood function. Or in simpler terms, there is no clear discernible 
+minimum. This will, likely, result in a poor fit.
+
+.. figure:: ../images/likelihood_1.svg
+    :name: likelihood1
+    :align: center
+
+    Initial plot of the likelihood :eq:`kr5` as function of the hyperparameters 
+    :math:`\theta`.
+
+So what is the solution for this? We decide to spend a bit more of our budget 
+and add four more samples to the fit. Again, we plot the results iteractively to 
+demonstrate the effect:
+
+.. figure:: ../images/animation_theta_opt.gif
+    :name: theta_anim
+    :align: center
+
+    The effect of adding more samples to our surrogate.
+
+As we can see, the more we add to the initial sample, the better is to find a 
+minimum for :eq:`kr5`.
+
+.. CAUTION::
+    In this case, we used a simple function for demonstration purposes. When 
+    dealing with way more complex models, the "budget" we mentioned earlier 
+    is the computational effort of the *Kriging* metamodel, since it has a 
+    :math:`\mathcal{O}(n^3)` complexity, there is a trade-off between sample 
+    size and how satisfied we are with our surrogate.
+
+However, now you may question: "With higher dimensions models, we can't simply 
+plot this function and do this analysis. So what should I do?"
+
+The answer is simple. If you look closely at :numref:`theta_anim`, you may 
+notice that as :math:`\theta` increases, the likelihood reaches its plateau. 
+This behavior is due to that :math:`R` (or :eq:`kr4`) tends to become an 
+identity matrix with high values of :math:`\theta` (i.e. there is no 
+correlation). When this happens, :eq:`kr5` approximates to the variance 
+:math:`Var(y)` of the sample :math:`y`.
+
+Therefore a simple way to examine our quality-of-fit is to test the following 
+equation:
+
+.. math::
+    :label: psi_eval
+
+    \psi(\theta^*) < Var(y)
+
+.. IMPORTANT::
+    If :eq:`psi_eval` is true at the optimal :math:`\theta^*`, then, probably, 
+    the fit is good enough for our purposes. Otherwise, the model is, 
+    most likely, a poor fit.

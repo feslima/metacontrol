@@ -40,11 +40,7 @@ proposed:
 
 This process is basically "filling holes" (hence the name *infill*) 
 in our *Kriging* metamodel until original model optimum is found. To illustrate 
-this in the simplest way, suppose a complex process that we need to optimize 
-that is represented by the following function:
-
-.. math::
-    f(x) = -\cos(x) - e^{\frac{x}{20}} + 5
+this in the simplest way, we are going to use the same function :eq:`complex`.
 
 Assuming that we only have three initial points sampled from this model 
 function, we build our *Kriging* model. As can be seen in :numref:`infill_init`.
