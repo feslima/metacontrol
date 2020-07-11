@@ -87,7 +87,7 @@ optimizer used in *DACE* toolbox corresponds to a modified version of
 the *Hooke & Jeeves* method, as showed by :cite:`dacereport`.
 
 As stated before, high-order data obtainment it is an obligatory step in the 
-proposed methodology implemented in \mtc. Fortunately, :cite:`DACE` 
+proposed methodology implemented in *Metacontrol*. Fortunately, :cite:`DACE` 
 also derived expressions for Jacobian (:math:`\hat{y}^{\prime}(x)`) 
 evaluation of a *Kriging* prediction, given in :eq:`kr6`:
 

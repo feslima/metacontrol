@@ -93,7 +93,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cpu.html">Compression Purification Unit</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Propene/Propane Distillation Column</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Propene/Propane Distillation Column</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-simulations">Dynamic simulations</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="ic4.html">n-Butane Production Unit</a></li>
 </ul>
 </li>
@@ -168,9 +171,52 @@
   <div class="section" id="propene-propane-distillation-column">
 <h1>Propene/Propane Distillation Column<a class="headerlink" href="#propene-propane-distillation-column" title="Permalink to this headline">¶</a></h1>
 <div class="figure align-center" id="id1">
-<img alt="../_images/c3splitterflowsheet.svg" src="../_images/c3splitterflowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 74 </span><span class="caption-text">Flowsheet of the propene distillation column.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<img alt="../_images/c3splitterflowsheet.svg" src="../_images/c3splitterflowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 75 </span><span class="caption-text">Flowsheet of the propene distillation column.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 <p>Placeholder text…</p>
+<div class="section" id="dynamic-simulations">
+<h2>Dynamic simulations<a class="headerlink" href="#dynamic-simulations" title="Permalink to this headline">¶</a></h2>
+<p>The best control structure that uses a linear combination of 3 measurements
+is chosen to evaluate the dynamic performance of this more complex control
+configuration for the C3-Splitter case study, where</p>
+<div class="math notranslate nohighlight">
+\[Cv_1 = 0.00129t_{132} + 0.00126t_{133} + 0.00152vf\]</div>
+<div class="math notranslate nohighlight">
+\[Cv_2 = 0.69671t_{132} + 0.69489t_{133} + 0.17807vf\]</div>
+<p>The following plots clearly show that this choice is capable of dealing with
+disturbances in the composition of propene in the feed and total flow rate,
+while at the same time indirect controlling the primary variables. PI
+controllers tuned with the IMC rules and a process flowsheet depicting the
+control configuration in place is provided in <a class="reference internal" href="#c3controlflowsheet"><span class="std std-numref">Fig. 76</span></a>.</p>
+<div class="figure align-center" id="c3controlflowsheet">
+<img alt="../_images/c3splitter_control_structure.svg" src="../_images/c3splitter_control_structure.svg" /><p class="caption"><span class="caption-number">Fig. 76 </span><span class="caption-text">Control structure tested.</span><a class="headerlink" href="#c3controlflowsheet" title="Permalink to this image">¶</a></p>
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedplus5.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedplus5_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedplus5_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedplus5_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedplus5_01_00.png" src="../_images/c3feedplus5_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedminus5.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedminus5_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedminus5_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedminus5_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedminus5_01_00.png" src="../_images/c3feedminus5_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedcompplus25.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedcompplus25_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedcompplus25_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedcompplus25_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedcompplus25_01_00.png" src="../_images/c3feedcompplus25_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedcompminus25.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedcompminus25_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedcompminus25_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedcompminus25_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedcompminus25_01_00.png" src="../_images/c3feedcompminus25_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedvfracplus10.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedvfracplus10_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedvfracplus10_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedvfracplus10_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedvfracplus10_01_00.png" src="../_images/c3feedvfracplus10_01_00.png" />
+</div>
+</div>
 </div>
 
 

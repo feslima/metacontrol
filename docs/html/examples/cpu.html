@@ -92,7 +92,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Examples</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Compression Purification Unit</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Compression Purification Unit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-simulations">Dynamic simulations</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="c3splitter.html">Propene/Propane Distillation Column</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ic4.html">n-Butane Production Unit</a></li>
 </ul>
@@ -167,10 +170,46 @@
             
   <div class="section" id="compression-purification-unit">
 <h1>Compression Purification Unit<a class="headerlink" href="#compression-purification-unit" title="Permalink to this headline">¶</a></h1>
-<div class="figure align-center" id="id1">
-<img alt="../_images/CPU_Flowsheet.svg" src="../_images/CPU_Flowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 73 </span><span class="caption-text">Flowsheet of the CPU process.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<div class="figure align-center" id="id2">
+<img alt="../_images/CPU_Flowsheet.svg" src="../_images/CPU_Flowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 73 </span><span class="caption-text">Flowsheet of the CPU process.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p>Placeholder text…</p>
+<div class="section" id="dynamic-simulations">
+<h2>Dynamic simulations<a class="headerlink" href="#dynamic-simulations" title="Permalink to this headline">¶</a></h2>
+<p>The dynamic evaluation of the control structure using the S-8 Stream
+temperature as the unconstrained controlled variable was performed
+according to the Single Temperature Control (STC) of <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id1">[17]</a>.
+Note that this choice of controlled variable was a consequence of the
+systematic procedure embedded in <em>Metacontrol</em>, and not an heuristic-based
+decision. Control of the MCC discharge pressure, though incurring in the
+lowest economic loss, was not considered on the basis of large flow rate
+fluctuations that can eventually come from the boiler island to upset the
+CPU Process. The following plots show the result of dynamic simulations where
+it can be seen the robust performance of the proposed SOC-Based control
+configuration. It is worth mention that the constraint regarding stream
+S-8 lowest temperature due to <span class="math notranslate nohighlight">\(CO_{2}\)</span> freezing point was not violated.
+Simple PI controllers were used, with IMC tuning rules and a process
+flowsheet depicting the control configuration in place is provided in
+<a class="reference internal" href="#cpucontrolflowsheet"><span class="std std-numref">Fig. 74</span></a>.</p>
+<div class="figure align-center" id="cpucontrolflowsheet">
+<img alt="../_images/cpu_control_structure.svg" src="../_images/cpu_control_structure.svg" /><p class="caption"><span class="caption-number">Fig. 74 </span><span class="caption-text">Control structure tested.</span><a class="headerlink" href="#cpucontrolflowsheet" title="Permalink to this image">¶</a></p>
+</div>
+<p>(<a class="reference external" href="../images/pyplots/cpufeedplus5.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/cpufeedplus5_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/cpufeedplus5_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/cpufeedplus5_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/cpufeedplus5_01_00.png" src="../_images/cpufeedplus5_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/cpufeedminus5.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/cpufeedminus5_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/cpufeedminus5_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/cpufeedminus5_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/cpufeedminus5_01_00.png" src="../_images/cpufeedminus5_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/cpufeedcompplus25.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/cpufeedcompplus25_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/cpufeedcompplus25_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/cpufeedcompplus25_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/cpufeedcompplus25_01_00.png" src="../_images/cpufeedcompplus25_01_00.png" />
+</div>
+</div>
 </div>
 
 

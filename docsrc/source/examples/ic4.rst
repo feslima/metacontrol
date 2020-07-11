@@ -211,14 +211,14 @@ in :numref:`c4controllers`.
 
    Control structure tested.
 
-.. plot:: images/pyplots/feedplus10.py
+.. plot:: images/pyplots/c4feedplus10.py
    :align: center
 
-.. plot:: images/pyplots/feedminus10.py
+.. plot:: images/pyplots/c4feedminus10.py
    :align: center
 
-.. plot:: images/pyplots/feedcompplus5.py
+.. plot:: images/pyplots/c4feedcompplus5.py
    :align: center
    
-.. plot:: images/pyplots/feedcompminus5.py
+.. plot:: images/pyplots/c4feedcompminus5.py
    :align: center
