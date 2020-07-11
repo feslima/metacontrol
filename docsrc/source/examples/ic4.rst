@@ -16,7 +16,7 @@ alcohol production :cite:`jagtap12`. The process
 described in this case-study it is based on the work of
 :cite:`jagtap12`: Base operating conditions and optimal
 operating ones. The idea of this case study is to depict to reader the
-second mode of operation that can be used in , described in when the
+second mode of operation that can be used in *Metacontrol*, described in when the
 optimal operating point it is known. This was implemented within because
 there is a plethora of papers and discussions over the several years
 that addresses the optimization of several processes
@@ -193,3 +193,32 @@ compositions are also promising control structures, as can be seen in
 
    C4 Isomerization process - Single measurements policy: Best CV candidates 
    not using compositions.
+
+Dynamic simulations
+===================
+
+Using the best single measurement policy of :numref:`c4socresult`, the dynamic 
+evaluation of the :math:`C_{4}` isomerization process was performed to prove the 
+robustness of the SOC-based control structure. The controllers were tuned with 
+the IMC tuning rules and disturbances on the feed flow rate and n-butane feed 
+composition were made, with the results depicted in the next four figures. 
+A process flowsheet depicting the control configuration in place is depicted 
+in :numref:`c4controllers`.
+
+.. figure:: ../images/c4controllers.svg
+   :name: c4controllers
+   :align: center
+
+   Control structure tested.
+
+.. plot:: images/pyplots/feedplus10.py
+   :align: center
+
+.. plot:: images/pyplots/feedminus10.py
+   :align: center
+
+.. plot:: images/pyplots/feedcompplus5.py
+   :align: center
+   
+.. plot:: images/pyplots/feedcompminus5.py
+   :align: center

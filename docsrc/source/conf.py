@@ -16,8 +16,10 @@
 
 
 # -- Project information -----------------------------------------------------
-
 import sphinx_rtd_theme
+# import sys
+# import os
+# sys.path.append(os.path.abspath('sphinxext'))
 project = 'Metacontrol'
 copyright = '2020, Felipe Lima & Victor Alves'
 author = 'Felipe Lima & Victor Alves'
@@ -33,7 +35,8 @@ release = '1.0.4'
 # ones.
 extensions = [
     'sphinx_rtd_theme',
-    'sphinxcontrib.bibtex'
+    'sphinxcontrib.bibtex',
+    'matplotlib.sphinxext.plot_directive'
 ]
 
 #extensions = []
@@ -47,6 +50,8 @@ templates_path = ['_templates']
 exclude_patterns = []
 
 numfig = True
+
+plot_include_source = False
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -254,7 +254,7 @@ we can only have a small amount of samples (red circles). For inspection
 purposes, we decide to spend some of our “budget” and sample three points
 initially. Plotting this model we have:</p>
 <div class="figure align-center" id="krig-init">
-<img alt="../_images/kriging_initial.svg" src="../_images/kriging_initial.svg" /><p class="caption"><span class="caption-number">Fig. 83 </span><span class="caption-text">Plot of function <a class="reference internal" href="#equation-complex">(22)</a>. The blue line is the true behavior of the
+<img alt="../_images/kriging_initial.svg" src="../_images/kriging_initial.svg" /><p class="caption"><span class="caption-number">Fig. 84 </span><span class="caption-text">Plot of function <a class="reference internal" href="#equation-complex">(22)</a>. The blue line is the true behavior of the
 model.</span><a class="headerlink" href="#krig-init" title="Permalink to this image">¶</a></p>
 </div>
 <p>Plotting the equation <a class="reference internal" href="#equation-kr5">(19)</a>, we se that this initial sample of three points
@@ -262,7 +262,7 @@ gives use a monotonic behavior (you could say it’s “plateuing”) for the
 likelihood function. Or in simpler terms, there is no clear discernible
 minimum. This will, likely, result in a poor fit.</p>
 <div class="figure align-center" id="likelihood1">
-<img alt="../_images/likelihood_1.svg" src="../_images/likelihood_1.svg" /><p class="caption"><span class="caption-number">Fig. 84 </span><span class="caption-text">Initial plot of the likelihood <a class="reference internal" href="#equation-kr5">(19)</a> as function of the hyperparameters
+<img alt="../_images/likelihood_1.svg" src="../_images/likelihood_1.svg" /><p class="caption"><span class="caption-number">Fig. 85 </span><span class="caption-text">Initial plot of the likelihood <a class="reference internal" href="#equation-kr5">(19)</a> as function of the hyperparameters
 <span class="math notranslate nohighlight">\(\theta\)</span>.</span><a class="headerlink" href="#likelihood1" title="Permalink to this image">¶</a></p>
 </div>
 <p>So what is the solution for this? We decide to spend a bit more of our budget
@@ -270,7 +270,7 @@ and add four more samples to the fit. Again, we plot the results iteractively to
 demonstrate the effect:</p>
 <div class="figure align-center" id="theta-anim">
 <img alt="../_images/animation_theta_opt.gif" src="../_images/animation_theta_opt.gif" />
-<p class="caption"><span class="caption-number">Fig. 85 </span><span class="caption-text">The effect of adding more samples to our surrogate.</span><a class="headerlink" href="#theta-anim" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 86 </span><span class="caption-text">The effect of adding more samples to our surrogate.</span><a class="headerlink" href="#theta-anim" title="Permalink to this image">¶</a></p>
 </div>
 <p>As we can see, the more we add to the initial sample, the better is to find a
 minimum for <a class="reference internal" href="#equation-kr5">(19)</a>.</p>
@@ -284,7 +284,7 @@ size and how satisfied we are with our surrogate.</p>
 </div>
 <p>However, now you may question: “With higher dimensions models, we can’t simply
 plot this function and do this analysis. So what should I do?”</p>
-<p>The answer is simple. If you look closely at <a class="reference internal" href="#theta-anim"><span class="std std-numref">Fig. 85</span></a>, you may
+<p>The answer is simple. If you look closely at <a class="reference internal" href="#theta-anim"><span class="std std-numref">Fig. 86</span></a>, you may
 notice that as <span class="math notranslate nohighlight">\(\theta\)</span> increases, the likelihood reaches its plateau.
 This behavior is due to that <span class="math notranslate nohighlight">\(R\)</span> (or <a class="reference internal" href="#equation-kr4">(18)</a>) tends to become an
 identity matrix with high values of <span class="math notranslate nohighlight">\(\theta\)</span> (i.e. there is no

@@ -94,7 +94,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cpu.html">Compression Purification Unit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="c3splitter.html">Propene/Propane Distillation Column</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">n-Butane Production Unit</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">n-Butane Production Unit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-simulations">Dynamic simulations</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
@@ -178,7 +181,7 @@ alcohol production <a class="bibtex reference internal" href="../zbibliography.h
 described in this case-study it is based on the work of
 <a class="bibtex reference internal" href="../zbibliography.html#jagtap12" id="id2">[15]</a>: Base operating conditions and optimal
 operating ones. The idea of this case study is to depict to reader the
-second mode of operation that can be used in , described in when the
+second mode of operation that can be used in <em>Metacontrol</em>, described in when the
 optimal operating point it is known. This was implemented within because
 there is a plethora of papers and discussions over the several years
 that addresses the optimization of several processes
@@ -369,6 +372,35 @@ compositions are also promising control structures, as can be seen in
 <img alt="../_images/c4-best-cvs-3.PNG" src="../_images/c4-best-cvs-3.PNG" />
 <p class="caption"><span class="caption-number">Fig. 82 </span><span class="caption-text">C4 Isomerization process - Single measurements policy: Best CV candidates
 not using compositions.</span><a class="headerlink" href="#c4socresult2" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="dynamic-simulations">
+<h2>Dynamic simulations<a class="headerlink" href="#dynamic-simulations" title="Permalink to this headline">¶</a></h2>
+<p>Using the best single measurement policy of <a class="reference internal" href="#c4socresult"><span class="std std-numref">Fig. 81</span></a>, the dynamic
+evaluation of the <span class="math notranslate nohighlight">\(C_{4}\)</span> isomerization process was performed to prove the
+robustness of the SOC-based control structure. The controllers were tuned with
+the IMC tuning rules and disturbances on the feed flow rate and n-butane feed
+composition were made, with the results depicted in the next four figures.
+A process flowsheet depicting the control configuration in place is depicted
+in <a class="reference internal" href="#c4controllers"><span class="std std-numref">Fig. 83</span></a>.</p>
+<div class="figure align-center" id="c4controllers">
+<img alt="../_images/c4controllers.svg" src="../_images/c4controllers.svg" /><p class="caption"><span class="caption-number">Fig. 83 </span><span class="caption-text">Control structure tested.</span><a class="headerlink" href="#c4controllers" title="Permalink to this image">¶</a></p>
+</div>
+<p>(<a class="reference external" href="../images/pyplots/feedplus10.py">Source code</a>, <a class="reference external" href="../images/pyplots/feedplus10.png">png</a>, <a class="reference external" href="../images/pyplots/feedplus10.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/feedplus10.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/feedplus10.png" src="../_images/feedplus10.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/feedminus10.py">Source code</a>, <a class="reference external" href="../images/pyplots/feedminus10.png">png</a>, <a class="reference external" href="../images/pyplots/feedminus10.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/feedminus10.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/feedminus10.png" src="../_images/feedminus10.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/feedcompplus5.py">Source code</a>, <a class="reference external" href="../images/pyplots/feedcompplus5.png">png</a>, <a class="reference external" href="../images/pyplots/feedcompplus5.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/feedcompplus5.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/feedcompplus5.png" src="../_images/feedcompplus5.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/feedcompminus5.py">Source code</a>, <a class="reference external" href="../images/pyplots/feedcompminus5.png">png</a>, <a class="reference external" href="../images/pyplots/feedcompminus5.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/feedcompminus5.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/feedcompminus5.png" src="../_images/feedcompminus5.png" />
+</div>
 </div>
 </div>
 
