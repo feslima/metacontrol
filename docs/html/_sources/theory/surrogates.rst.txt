@@ -150,7 +150,7 @@ So what is the solution for this? We decide to spend a bit more of our budget
 and add four more samples to the fit. Again, we plot the results iteractively to 
 demonstrate the effect:
 
-.. figure:: ../images/animation_theta_opt.gif
+.. figure:: ../images/animation_theta_opt_t.gif
     :name: theta_anim
     :align: center
 

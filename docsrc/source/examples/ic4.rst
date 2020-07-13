@@ -1,6 +1,6 @@
-************************
-n-Butane Production Unit
-************************
+**************************************************************************
+Economic Self-Optimizing Control of a :math:`C_{4}` Isomerization process
+**************************************************************************
 
 .. figure:: ../images/c4isoflowsheet.svg
    :name: c4processflowsheet
@@ -205,7 +205,7 @@ composition were made, with the results depicted in the next four figures.
 A process flowsheet depicting the control configuration in place is depicted 
 in :numref:`c4controllers`.
 
-.. figure:: ../images/c4controllers.svg
+.. figure:: ../images/c4isoflowsheet_controllers.svg
    :name: c4controllers
    :align: center
 

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Compression Purification Unit &mdash; Metacontrol 1.0.4 documentation</title>
+  <title>Economic Self-Optimizing Control of a \(CO_{2}\) Compression and Purification Unit &mdash; Metacontrol 1.0.4 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Propene/Propane Distillation Column" href="c3splitter.html" />
-    <link rel="prev" title="Examples" href="tutorials.html" /> 
+    <link rel="next" title="Economic Self-Optimizing Control of a \(C_{4}\) Isomerization process" href="ic4.html" />
+    <link rel="prev" title="Indirect composition control of a Propene/Propane Distillation Column" href="c3splitter.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,12 +92,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Examples</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Compression Purification Unit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c3splitter.html">Indirect composition control of a Propene/Propane Distillation Column</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Economic Self-Optimizing Control of a <span class="math notranslate nohighlight">\(CO_{2}\)</span> Compression and Purification Unit</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#dynamic-simulations">Dynamic simulations</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="c3splitter.html">Propene/Propane Distillation Column</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ic4.html">n-Butane Production Unit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ic4.html">Economic Self-Optimizing Control of a <span class="math notranslate nohighlight">\(C_{4}\)</span> Isomerization process</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
@@ -149,7 +149,7 @@
         
           <li><a href="tutorials.html">Examples</a> &raquo;</li>
         
-      <li>Compression Purification Unit</li>
+      <li>Economic Self-Optimizing Control of a <span class="math notranslate nohighlight">\(CO_{2}\)</span> Compression and Purification Unit</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -168,19 +168,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="compression-purification-unit">
-<h1>Compression Purification Unit<a class="headerlink" href="#compression-purification-unit" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="economic-self-optimizing-control-of-a-co-2-compression-and-purification-unit">
+<h1>Economic Self-Optimizing Control of a <span class="math notranslate nohighlight">\(CO_{2}\)</span> Compression and Purification Unit<a class="headerlink" href="#economic-self-optimizing-control-of-a-co-2-compression-and-purification-unit" title="Permalink to this headline">¶</a></h1>
 <div class="figure align-center" id="cpuflowsheet">
-<img alt="../_images/CPU_Flowsheet.svg" src="../_images/CPU_Flowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 73 </span><span class="caption-text">Flowsheet of the CPU process.</span><a class="headerlink" href="#cpuflowsheet" title="Permalink to this image">¶</a></p>
+<img alt="../_images/CPU_Flowsheet.svg" src="../_images/CPU_Flowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 94 </span><span class="caption-text">Flowsheet of the CPU process.</span><a class="headerlink" href="#cpuflowsheet" title="Permalink to this image">¶</a></p>
 </div>
 <p>The process consists in a <span class="math notranslate nohighlight">\(CO_2\)</span> compression and purification unit
 (CPU) that uses phase separation to produce purified <span class="math notranslate nohighlight">\(CO_2\)</span> from
 oxy-fuel combustion. This process is one of several capable of reducing the
 greenhouse effects on climate change
-<a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id1">[18]</a> and it is based on the prototype proposed by the International
-Agency Greenhouse Gas (IEAGHG) R&amp;D program study <a class="bibtex reference internal" href="../zbibliography.html#dillon2005" id="id2">[9]</a>. The
-modeling of the process depicted in <a class="reference internal" href="#cpuflowsheet"><span class="std std-numref">Fig. 73</span></a> is inspired
-on the work of <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id3">[22]</a> and <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id4">[18]</a> and was implemented in
+<a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id1">[19]</a> and it is based on the prototype proposed by the International
+Agency Greenhouse Gas (IEAGHG) R&amp;D program study <a class="bibtex reference internal" href="../zbibliography.html#dillon2005" id="id2">[10]</a>. The
+modeling of the process depicted in <a class="reference internal" href="#cpuflowsheet"><span class="std std-numref">Fig. 94</span></a> is inspired
+on the work of <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id3">[24]</a> and <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id4">[19]</a> and was implemented in
 Aspen Plus. Flue gas is compressed by a three-stage after-cooled compressor
 (MCC) and then sent to the first multi-stream heat exchanger (E1) where it
 is cooled to <span class="math notranslate nohighlight">\(-24.51°C\)</span> before separation in separator F1, the bottom
@@ -192,45 +192,45 @@ F2 is discarded as vent. Both <span class="math notranslate nohighlight">\(CO_2\
 are reheated on the multi-stream heat exchangers, and the <span class="math notranslate nohighlight">\(CO_2\)</span>
 product streams are mixed and sent to storage.</p>
 <p>The objective is to reduce specific energy consumption by minimizing the
-cost function in eq. ref{eq:eq1} <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id5">[22]</a></p>
+cost function in <a class="reference internal" href="#equation-eq1">(2)</a> <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id5">[24]</a></p>
 <div class="math notranslate nohighlight" id="equation-eq1">
-<span class="eqno">(1)<a class="headerlink" href="#equation-eq1" title="Permalink to this equation">¶</a></span>\[J[kWh/{tCO_2}]=\frac{W_{\mathrm{MCC}}+W_{\mathrm{C}}}{F_{\mathrm{CO}_{2}}}\]</div>
+<span class="eqno">(2)<a class="headerlink" href="#equation-eq1" title="Permalink to this equation">¶</a></span>\[J[kWh/{tCO_2}]=\frac{W_{\mathrm{MCC}}+W_{\mathrm{C}}}{F_{\mathrm{CO}_{2}}}\]</div>
 <p>where <span class="math notranslate nohighlight">\(W_{\mathrm{MCC}}\)</span> and <span class="math notranslate nohighlight">\(W_{\mathrm{C}}\)</span> are the energy
 consumption of the compressors, and <span class="math notranslate nohighlight">\(F_{\mathrm{CO}_2}\)</span> is the
 <span class="math notranslate nohighlight">\(CO_2\)</span> feed flow rate.</p>
-<p>The constraints to the process are <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id6">[18]</a><a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id7">[22]</a><a class="bibtex reference internal" href="../zbibliography.html#dillon2005" id="id8">[9]</a>:</p>
+<p>The constraints to the process are <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id6">[19]</a><a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id7">[24]</a><a class="bibtex reference internal" href="../zbibliography.html#dillon2005" id="id8">[10]</a>:</p>
 <ol class="arabic simple">
 <li><p>C-1: <span class="math notranslate nohighlight">\(CO_2\)</span> recovery rate <span class="math notranslate nohighlight">\(\geq 90 \%\)</span></p></li>
 <li><p>C-2: <span class="math notranslate nohighlight">\(CO_2\)</span> purity on product stream  <span class="math notranslate nohighlight">\(\geq 96 \%\)</span></p></li>
 <li><p>C-3: Temperature of F2 bottom stream <span class="math notranslate nohighlight">\(&gt;-56.6°C\)</span></p></li>
 </ol>
-<p>C-1 is an environmental requirement <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id9">[22]</a> to guarantee reduced
+<p>C-1 is an environmental requirement <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id9">[24]</a> to guarantee reduced
 <span class="math notranslate nohighlight">\(CO_2\)</span> atmospheric emissions
-citep{TOFTEGAARD2010581, BUHRE2005283},  C-2 is a product specification used
-to prevent excessive energy consumption <a class="bibtex reference internal" href="../zbibliography.html#posch2012254" id="id10">[26]</a>, and C-3 is there
+<a class="bibtex reference internal" href="../zbibliography.html#toftegaard2010581" id="id10">[34]</a><a class="bibtex reference internal" href="../zbibliography.html#buhre2005283" id="id11">[5]</a>, C-2 is a product specification used
+to prevent excessive energy consumption <a class="bibtex reference internal" href="../zbibliography.html#posch2012254" id="id12">[29]</a>, and C-3 is there
 to avoid <span class="math notranslate nohighlight">\(CO_2\)</span> solidification in the pipeline since that bound
 corresponds to the <span class="math notranslate nohighlight">\(CO_2\)</span> three-phase freezing point
-citep{POSCH2012254, KOOHESTANIAN2017570}.</p>
-<p>The main disturbances to the process are <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id11">[22]</a>:</p>
+<a class="bibtex reference internal" href="../zbibliography.html#posch2012254" id="id13">[29]</a><a class="bibtex reference internal" href="../zbibliography.html#koohestanian2017570" id="id14">[23]</a>.</p>
+<p>The main disturbances to the process are <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id15">[24]</a>:</p>
 <ol class="arabic simple">
 <li><p>D-1: Flue gas flow rate</p></li>
 <li><p>D-2: <span class="math notranslate nohighlight">\(CO_2\)</span> concentration in the flue gas</p></li>
 </ol>
 <p>D-1 and D-2 are the result of the oxy-fuel combustion boiler island
-<a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id12">[22]</a>, given the variations on the boiler operation. The amplitude
+<a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id16">[24]</a>, given the variations on the boiler operation. The amplitude
 of variation was taken to <span class="math notranslate nohighlight">\(\pm 5 \%\)</span> of the base-case in both disturbances
-<a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id13">[22]</a><a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id14">[18]</a>.</p>
-<p>There are four steady-state degrees of freedom <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id15">[22]</a><a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id16">[18]</a></p>
+<a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id17">[24]</a><a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id18">[19]</a>.</p>
+<p>There are four steady-state degrees of freedom <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id19">[24]</a><a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id20">[19]</a></p>
 <ol class="arabic simple">
 <li><p>MCC outlet pressure (bar)</p></li>
 <li><p>MCC outlet temperature <span class="math notranslate nohighlight">\((°C)\)</span></p></li>
 <li><p>F1 temperature <span class="math notranslate nohighlight">\((°C)\)</span></p></li>
 <li><p>F2 temperature <span class="math notranslate nohighlight">\((°C)\)</span></p></li>
 </ol>
-<p><a class="reference internal" href="#cpuvars"><span class="std std-numref">Table 1</span></a> lists the candidate controlled variables considered for this
+<p><a class="reference internal" href="#cpuvars"><span class="std std-numref">Table 4</span></a> lists the candidate controlled variables considered for this
 case.</p>
 <table class="docutils align-center" id="cpuvars">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Candidate controlled variables for <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process.</span><a class="headerlink" href="#cpuvars" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-number">Table 4 </span><span class="caption-text">Candidate controlled variables for <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process.</span><a class="headerlink" href="#cpuvars" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 48%" />
 <col style="width: 52%" />
@@ -274,22 +274,22 @@ one at a time, is definitely a tedious task especially if the procedure is not
 automated. That is exactly when <em>Metacontrol</em> is most needed.</p>
 <p>The first step is to populate <em>Metacontrol</em> with the necessary process
 variables from the model in Aspen Plus using the COM interface.
-<a class="reference internal" href="#mainscreen"><span class="std std-numref">Fig. 74</span></a>-<a class="reference internal" href="#loadvar"><span class="std std-numref">Fig. 75</span></a> illustrate the process of loading a
+<a class="reference internal" href="#mainscreen"><span class="std std-numref">Fig. 95</span></a>-<a class="reference internal" href="#loadvar"><span class="std std-numref">Fig. 96</span></a> illustrate the process of loading a
 *.bkp Aspen Plus file, selecting the relevant variables, and creating aliases.
 Note that the *.bkp file must be compatible with the Aspen Plus version being
-used. The main window of <a class="reference internal" href="#mainscreen"><span class="std std-numref">Fig. 74</span></a> displays relevant
+used. The main window of <a class="reference internal" href="#mainscreen"><span class="std std-numref">Fig. 95</span></a> displays relevant
 information on the simulation in Aspen Plus such as block and stream names,
 flowsheet options (optimizations, sensitivities, calculators), the selected
 chemical species, and the thermodynamic package used.</p>
 <div class="figure align-center" id="mainscreen">
 <img alt="../_images/mainscreen.PNG" src="../_images/mainscreen.PNG" />
-<p class="caption"><span class="caption-number">Fig. 74 </span><span class="caption-text"><em>Metacontrol</em> main screen with the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU
+<p class="caption"><span class="caption-number">Fig. 95 </span><span class="caption-text"><em>Metacontrol</em> main screen with the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU
 process simulation file loaded. Note the vast display of information
 of the simulation from Aspen Plus.</span><a class="headerlink" href="#mainscreen" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="loadvar">
 <img alt="../_images/loadvar.PNG" src="../_images/loadvar.PNG" />
-<p class="caption"><span class="caption-number">Fig. 75 </span><span class="caption-text">Loading variables for the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process from
+<p class="caption"><span class="caption-number">Fig. 96 </span><span class="caption-text">Loading variables for the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process from
 Aspen Plus simulation and creating aliases. At the top right corner of this
 screen  the user is able to select the option to reveal the GUI from Aspen
 Plus. This features allows for the inspection of the flowsheet in the process
@@ -297,95 +297,95 @@ simulator to check for any stream or block name. Hovering the mouse over
 a COM variable on the GUI brings its description.</span><a class="headerlink" href="#loadvar" title="Permalink to this image">¶</a></p>
 </div>
 <p>After selecting the relevant variables and define their types in the window of
-<a class="reference internal" href="#loadvar"><span class="std std-numref">Fig. 75</span></a> the user can go back to the main screen where
+<a class="reference internal" href="#loadvar"><span class="std std-numref">Fig. 96</span></a> the user can go back to the main screen where
 expressions can be created for the objective function, candidate controlled
 variables and constraints using the variables from the process simulator.
-<a class="reference internal" href="#mainscreen"><span class="std std-numref">Fig. 74</span></a> also shows the construction of such expressions for
+<a class="reference internal" href="#mainscreen"><span class="std std-numref">Fig. 95</span></a> also shows the construction of such expressions for
 the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process using the auxiliary variables selected in
-<a class="reference internal" href="#loadvar"><span class="std std-numref">Fig. 75</span></a>.</p>
+<a class="reference internal" href="#loadvar"><span class="std std-numref">Fig. 96</span></a>.</p>
 <p>The user can then generate the design of experiments (DOE) to build the
 <em>Kriging</em> responses of the objective function, candidate controlled
-variables, and process constraints (<a class="reference internal" href="#lhs1"><span class="std std-numref">Fig. 76</span></a>-<a class="reference internal" href="#lhs3"><span class="std std-numref">Fig. 78</span></a>).
+variables, and process constraints (<a class="reference internal" href="#lhs1"><span class="std std-numref">Fig. 97</span></a>-<a class="reference internal" href="#lhs3"><span class="std std-numref">Fig. 99</span></a>).
 The ranges for each decision variable for the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process
-were taken from <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id17">[18]</a>, which are automatically included as additional
+were taken from <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id21">[19]</a>, which are automatically included as additional
 constraints to the problem formulation.</p>
 <div class="figure align-center" id="lhs1">
 <img alt="../_images/lhs_1.PNG" src="../_images/lhs_1.PNG" />
-<p class="caption"><span class="caption-number">Fig. 76 </span><span class="caption-text">Metacontrol sampling panel. The user can perform the sampling using the
+<p class="caption"><span class="caption-number">Fig. 97 </span><span class="caption-text">Metacontrol sampling panel. The user can perform the sampling using the
 process simulator or importing a *.csv file.</span><a class="headerlink" href="#lhs1" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="lhs2">
 <img alt="../_images/lhs_2.PNG" src="../_images/lhs_2.PNG" />
-<p class="caption"><span class="caption-number">Fig. 77 </span><span class="caption-text"><em>Metacontrol</em> sampling assistant. The limits for the
+<p class="caption"><span class="caption-number">Fig. 98 </span><span class="caption-text"><em>Metacontrol</em> sampling assistant. The limits for the
 decision variables used in the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process are the
-same used in <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id18">[18]</a> and <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id19">[22]</a></span><a class="headerlink" href="#lhs2" title="Permalink to this image">¶</a></p>
+same used in <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id22">[19]</a> and <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id23">[24]</a></span><a class="headerlink" href="#lhs2" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="lhs3">
 <img alt="../_images/lhs_3.PNG" src="../_images/lhs_3.PNG" />
-<p class="caption"><span class="caption-number">Fig. 78 </span><span class="caption-text"><em>Metacontrol</em> Latin Hypercube Sampling settings. 80
+<p class="caption"><span class="caption-number">Fig. 99 </span><span class="caption-text"><em>Metacontrol</em> Latin Hypercube Sampling settings. 80
 samples were generated and 5 iterations were performed to
 maximize the minimum distance between the points (<em>maxmin</em>
 criterion). The user can also choose to add the vertices to the design.</span><a class="headerlink" href="#lhs3" title="Permalink to this image">¶</a></p>
 </div>
 <p>After setting up the LHS, <em>Metacontrol</em> automatically runs each case in
 Aspen Plus via COM interface, communicating the results in the window showed in
-<a class="reference internal" href="#lhs4"><span class="std std-numref">Fig. 79</span></a>. After running all cases the user can then inspect the
+<a class="reference internal" href="#lhs4"><span class="std std-numref">Fig. 100</span></a>. After running all cases the user can then inspect the
 results of the design of experiments in a tabular form as depicted in
-<a class="reference internal" href="#lhs5"><span class="std std-numref">Fig. 80</span></a>.</p>
+<a class="reference internal" href="#lhs5"><span class="std std-numref">Fig. 101</span></a>.</p>
 <div class="figure align-center" id="lhs4">
 <img alt="../_images/lhs_4.PNG" src="../_images/lhs_4.PNG" />
-<p class="caption"><span class="caption-number">Fig. 79 </span><span class="caption-text"><em>Metacontrol</em> Sampling for the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process.</span><a class="headerlink" href="#lhs4" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 100 </span><span class="caption-text"><em>Metacontrol</em> Sampling for the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process.</span><a class="headerlink" href="#lhs4" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="lhs5">
 <img alt="../_images/lhs_5.PNG" src="../_images/lhs_5.PNG" />
-<p class="caption"><span class="caption-number">Fig. 80 </span><span class="caption-text">Sampling results where the user can inspect convergence status
+<p class="caption"><span class="caption-number">Fig. 101 </span><span class="caption-text">Sampling results where the user can inspect convergence status
 and the values of the selected variables for each case.</span><a class="headerlink" href="#lhs5" title="Permalink to this image">¶</a></p>
 </div>
 <p>Now the <em>Kriging</em> metamodel can be built. In the “Metamodel”
-Panel (<a class="reference internal" href="#krigingresults"><span class="std std-numref">Fig. 81</span></a>) the user can select the response
+Panel (<a class="reference internal" href="#krigingresults"><span class="std std-numref">Fig. 102</span></a>) the user can select the response
 variables, define (initial) values for the bounds of the <em>Kriging</em>
 hyperparameters (<span class="math notranslate nohighlight">\(\theta\)</span>), choose regression and correlation models, and
 define the type of validation to be conducted. After hitting the button
 “Generate Metamodel”, the <em>Kriging</em> metamodel is generated, and if
 <em>Hold-out</em> is chosen as the validation mode it is possible to view the
 fitting results of each generated <em>Kriging</em> interpolator, as showed in
-<a class="reference internal" href="#plotkr"><span class="std std-numref">Fig. 82</span></a>. Moreover, good-of-fitness can be assessed by the
+<a class="reference internal" href="#plotkr"><span class="std std-numref">Fig. 103</span></a>. Moreover, good-of-fitness can be assessed by the
 available metrics Mean squared error (MSE), Root mean squared error (RMSE),
 Mean absolute error (MAE), Rtextsuperscript{2} linear coefficient,     Explained
 variance (EV), the Sample mean and also its standard deviation. It is important
 to point out that this first metamodel generation is performed only to allow
 for a quick view of the initial sampling, i.e., to check if the initial
-sampling is acceptable to be refined by the algorithm of <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id20">[5]</a>
+sampling is acceptable to be refined by the algorithm of <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id24">[6]</a>
 implemented in <em>Metacontrol</em>.</p>
 <div class="figure align-center" id="krigingresults">
 <img alt="../_images/krigingresults.PNG" src="../_images/krigingresults.PNG" />
-<p class="caption"><span class="caption-number">Fig. 81 </span><span class="caption-text">Kriging configuration and validation metric results.</span><a class="headerlink" href="#krigingresults" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 102 </span><span class="caption-text">Kriging configuration and validation metric results.</span><a class="headerlink" href="#krigingresults" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="plotkr">
 <img alt="../_images/graphical_results.PNG" src="../_images/graphical_results.PNG" />
-<p class="caption"><span class="caption-number">Fig. 82 </span><span class="caption-text">Graphical validation for each metamodel.</span><a class="headerlink" href="#plotkr" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 103 </span><span class="caption-text">Graphical validation for each metamodel.</span><a class="headerlink" href="#plotkr" title="Permalink to this image">¶</a></p>
 </div>
 <p>The next step happens at the “Optimization” tab
-(<a class="reference internal" href="#caballeroscreen"><span class="std std-numref">Fig. 83</span></a>) where advanced parameters of the algorithm
-of <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id21">[5]</a> and of the NLP solver can be tuned to improve the
+(<a class="reference internal" href="#caballeroscreen"><span class="std std-numref">Fig. 104</span></a>) where advanced parameters of the algorithm
+of <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id25">[6]</a> and of the NLP solver can be tuned to improve the
 optimization of the <em>Kriging</em> interpolator. The
 final result of the refinement algorithm can be seen in the “Results”
-panel of <a class="reference internal" href="#caballeroscreen"><span class="std std-numref">Fig. 83</span></a> where the optimal values of the
+panel of <a class="reference internal" href="#caballeroscreen"><span class="std std-numref">Fig. 104</span></a> where the optimal values of the
 decision variables, constraint expressions, and the objective function are
 displayed. In addition, a log of the operations of contraction and movement of
 the hyperspace as the optimization progresses is showed.</p>
 <div class="figure align-center" id="caballeroscreen">
 <img alt="../_images/caballeroscreen.PNG" src="../_images/caballeroscreen.PNG" />
-<p class="caption"><span class="caption-number">Fig. 83 </span><span class="caption-text">Refinement algorithm configuration and results screen.</span><a class="headerlink" href="#caballeroscreen" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 104 </span><span class="caption-text">Refinement algorithm configuration and results screen.</span><a class="headerlink" href="#caballeroscreen" title="Permalink to this image">¶</a></p>
 </div>
-<p><a class="reference internal" href="#optcomparison1"><span class="std std-numref">Table 2</span></a> and <a class="reference internal" href="#optcomparison2"><span class="std std-numref">Table 3</span></a> shows the results
+<p><a class="reference internal" href="#optcomparison1"><span class="std std-numref">Table 5</span></a> and <a class="reference internal" href="#optcomparison2"><span class="std std-numref">Table 6</span></a> shows the results
 of the optimization conducted at different conditions. Note there is almost no
 difference between the results of <em>Metacontrol</em> using the algorithm of
-<a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id22">[5]</a> and Aspen Plus using the SQP algorithm, whereas for the
+<a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id26">[6]</a> and Aspen Plus using the SQP algorithm, whereas for the
 optimization of the initial <em>Kriging</em> metamodel without refinement there
-is some discrepancy, as expected <a class="bibtex reference internal" href="../zbibliography.html#forrester2008" id="id23">[10]</a><a class="bibtex reference internal" href="../zbibliography.html#jones2001" id="id24">[19]</a><a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id25">[5]</a>.</p>
+is some discrepancy, as expected <a class="bibtex reference internal" href="../zbibliography.html#forrester2008" id="id27">[11]</a><a class="bibtex reference internal" href="../zbibliography.html#jones2001" id="id28">[20]</a><a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id29">[6]</a>.</p>
 <table class="colwidths-auto docutils align-center" id="optcomparison1">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Results of the optimization of the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process in Aspen Plus and <em>Metacontrol</em> for the decision variables and objective function.</span><a class="headerlink" href="#optcomparison1" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-number">Table 5 </span><span class="caption-text">Results of the optimization of the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process in Aspen Plus and <em>Metacontrol</em> for the decision variables and objective function.</span><a class="headerlink" href="#optcomparison1" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"></th>
 <th class="head"><p>Objective function J (<span class="math notranslate nohighlight">\(\frac{kW}{CO_2}\)</span>)</p></th>
@@ -420,17 +420,17 @@ is some discrepancy, as expected <a class="bibtex reference internal" href="../z
 </tbody>
 </table>
 <table class="colwidths-auto docutils align-center" id="optcomparison2">
-<caption><span class="caption-number">Table 3 </span><span class="caption-text">Results of the optimization of the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process in Aspen Plus and <em>Metacontrol</em> for the process constraints.</span><a class="headerlink" href="#optcomparison2" title="Permalink to this table">¶</a></caption>
-<tbody>
-<tr class="row-odd"><td rowspan="2"><blockquote>
-<div><p>Aspen Plus</p>
-</div></blockquote>
-</td>
-<td><p>Stream S8 temperature (<span class="math notranslate nohighlight">\(°C\)</span>)</p></td>
-<td><p><span class="math notranslate nohighlight">\(CO_2\)</span> molar fraction</p></td>
-<td><p><span class="math notranslate nohighlight">\(CO_2\)</span> recovery rate</p></td>
+<caption><span class="caption-number">Table 6 </span><span class="caption-text">Results of the optimization of the <span class="math notranslate nohighlight">\(CO_2\)</span> CPU process in Aspen Plus and <em>Metacontrol</em> for the process constraints.</span><a class="headerlink" href="#optcomparison2" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Stream S8 temperature (<span class="math notranslate nohighlight">\(°C\)</span>)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(CO_2\)</span> molar fraction</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(CO_2\)</span> recovery rate</p></th>
 </tr>
-<tr class="row-even"><td><p>-55.8201</p></td>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Aspen Plus</p></td>
+<td><p>-55.8201</p></td>
 <td><p>0.9674</p></td>
 <td><p>0.9658</p></td>
 </tr>
@@ -460,7 +460,7 @@ The latter might be considered when convergence is hard to achieve due to extra
 process simulator or when the user feels more comfortable of running each
 case one at a time. In this case study, the *.csv import feature was showcased
 to illustrate its usage to the reader.</p>
-<p>At the “Reduced space” tab (<a class="reference internal" href="#variableactivity"><span class="std std-numref">Fig. 84</span></a>), on the
+<p>At the “Reduced space” tab (<a class="reference internal" href="#variableactivity"><span class="std std-numref">Fig. 105</span></a>), on the
 “Variable activity” panel, the constraints that were active at the
 optimal solution must be marked together with the remaining independent variables not
 used to implement the active constraints in the process simulator (<em>i.e.</em>, the unconstrained
@@ -471,46 +471,46 @@ the process simulator via <em>Metacontrol</em>, the range of the remaining
 decision variables and disturbances must also be defined. It goes without
 saying that this range should be as small as possible (around <span class="math notranslate nohighlight">\(\pm 0.5\%\)</span> of
 the nominal optimum) to produce a surrogate model accurate enough at the optimal
-region in order to guarantee robust gradients and Hessians <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id26">[3]</a>.</p>
+region in order to guarantee robust gradients and Hessians <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id30">[3]</a>.</p>
 <div class="figure align-center" id="variableactivity">
 <img alt="../_images/variableactivity.PNG" src="../_images/variableactivity.PNG" />
-<p class="caption"><span class="caption-number">Fig. 84 </span><span class="caption-text">“Reduced space” tab to define the reduced space model
+<p class="caption"><span class="caption-number">Fig. 105 </span><span class="caption-text">“Reduced space” tab to define the reduced space model
 requirements.</span><a class="headerlink" href="#variableactivity" title="Permalink to this image">¶</a></p>
 </div>
 <p>A *.csv file containing the results of a sensitivity analysis conducted in the
 process simulator under active constraint control was loaded in
-<em>Metacontrol</em>, as illustrated in <a class="reference internal" href="#csvassociate"><span class="std std-numref">Fig. 85</span></a>. Note that the
+<em>Metacontrol</em>, as illustrated in <a class="reference internal" href="#csvassociate"><span class="std std-numref">Fig. 106</span></a>. Note that the
 denominations of the variables in the *.csv file must be associated to the respective
 variables in <em>Metacontrol</em>.</p>
 <div class="figure align-center" id="csvassociate">
 <img alt="../_images/csvassociate.PNG" src="../_images/csvassociate.PNG" />
-<p class="caption"><span class="caption-number">Fig. 85 </span><span class="caption-text">Associating each alias created in <em>Metacontrol</em> to each
+<p class="caption"><span class="caption-number">Fig. 106 </span><span class="caption-text">Associating each alias created in <em>Metacontrol</em> to each
 column of the *.csv data.</span><a class="headerlink" href="#csvassociate" title="Permalink to this image">¶</a></p>
 </div>
 <p>Now that the data is available, the reduced space <em>Kriging</em> metamodel
 can be generated. Under the panel “Reduced space metamodel training”
 on the “Differential data” tab (black rectangle in
-<a class="reference internal" href="#gradresults"><span class="std std-numref">Fig. 87</span></a>), hitting the button “Open training dialog”
+<a class="reference internal" href="#gradresults"><span class="std std-numref">Fig. 108</span></a>), hitting the button “Open training dialog”
 allows for the tuning of the <em>Kriging</em> parameters and metamodel
-construction (<a class="reference internal" href="#krigingredspace"><span class="std std-numref">Fig. 86</span></a>).</p>
+construction (<a class="reference internal" href="#krigingredspace"><span class="std std-numref">Fig. 107</span></a>).</p>
 <div class="figure align-center" id="krigingredspace">
 <img alt="../_images/krigingredspace.PNG" src="../_images/krigingredspace.PNG" />
-<p class="caption"><span class="caption-number">Fig. 86 </span><span class="caption-text">Generating the reduced space metamodel for the <span class="math notranslate nohighlight">\(CO_2\)</span>
+<p class="caption"><span class="caption-number">Fig. 107 </span><span class="caption-text">Generating the reduced space metamodel for the <span class="math notranslate nohighlight">\(CO_2\)</span>
 CPU process.</span><a class="headerlink" href="#krigingredspace" title="Permalink to this image">¶</a></p>
 </div>
-<p>Heading back to the previous screen (<a class="reference internal" href="#gradresults"><span class="std std-numref">Fig. 87</span></a>),
+<p>Heading back to the previous screen (<a class="reference internal" href="#gradresults"><span class="std std-numref">Fig. 108</span></a>),
 gradients and Hessians necessary to carry on the Self-Optimizing control
 analysis can be computed  via analytical expressions of the these derivatives
-as developed by <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id27">[24]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id28">[3]</a>. For this case, the gradients
+as developed by <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id31">[26]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id32">[3]</a>. For this case, the gradients
 calculated in <em>Metacontrol</em> agree with those provided by Aspen Plus
-under the Equation Oriented mode, as shown in <a class="reference internal" href="#gradcomparison"><span class="std std-numref">Table 4</span></a>
+under the Equation Oriented mode, as shown in <a class="reference internal" href="#gradcomparison"><span class="std std-numref">Table 7</span></a>
 (note the mean-squared errors are very small).</p>
 <div class="figure align-center" id="gradresults">
 <img alt="../_images/gradresults.PNG" src="../_images/gradresults.PNG" />
-<p class="caption"><span class="caption-number">Fig. 87 </span><span class="caption-text">Computation of derivatives in <em>Metacontrol.</em></span><a class="headerlink" href="#gradresults" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 108 </span><span class="caption-text">Computation of derivatives in <em>Metacontrol.</em></span><a class="headerlink" href="#gradresults" title="Permalink to this image">¶</a></p>
 </div>
 <table class="colwidths-auto docutils align-center" id="gradcomparison">
-<caption><span class="caption-number">Table 4 </span><span class="caption-text">Comparison between Aspen Plus and <em>Metacontrol</em> gradient results.</span><a class="headerlink" href="#gradcomparison" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-number">Table 7 </span><span class="caption-text">Comparison between Aspen Plus and <em>Metacontrol</em> gradient results.</span><a class="headerlink" href="#gradcomparison" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(G^{y}\)</span></p></th>
@@ -534,7 +534,7 @@ under the Equation Oriented mode, as shown in <a class="reference internal" href
 </table>
 <p>As a requirement of the procedure, the magnitude of disturbances and measurement
 errors can be specified in the “Self-Optimizing Control” tab (
-<a class="reference internal" href="#socinput"><span class="std std-numref">Fig. 88</span></a>). For the <span class="math notranslate nohighlight">\(CO_{2}\)</span> inlet composition this magnitude was <span class="math notranslate nohighlight">\(0.05\)</span>
+<a class="reference internal" href="#socinput"><span class="std std-numref">Fig. 109</span></a>). For the <span class="math notranslate nohighlight">\(CO_{2}\)</span> inlet composition this magnitude was <span class="math notranslate nohighlight">\(0.05\)</span>
 and for the flue gas flow rate it was considered <span class="math notranslate nohighlight">\(5\%\)</span> of the nominal optimum value. The
 measurement errors were set to <span class="math notranslate nohighlight">\(0.5°C\)</span> for temperatures, <span class="math notranslate nohighlight">\(0.01\)</span> for pressures
 and flow rates, and <span class="math notranslate nohighlight">\(0.001\)</span> for ratios (<span class="math notranslate nohighlight">\(CO_{2}\)</span> recovery rate and product purity).
@@ -544,31 +544,31 @@ clicking on the “Generate results” button a dialog window shows the results
 of the self-optimizing control calculations.</p>
 <div class="figure align-center" id="socinput">
 <img alt="../_images/soc_input.PNG" src="../_images/soc_input.PNG" />
-<p class="caption"><span class="caption-number">Fig. 88 </span><span class="caption-text">Defining parameters for self-optimizing computations.</span><a class="headerlink" href="#socinput" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 109 </span><span class="caption-text">Defining parameters for self-optimizing computations.</span><a class="headerlink" href="#socinput" title="Permalink to this image">¶</a></p>
 </div>
-<p><a class="reference internal" href="#socresultss1"><span class="std std-numref">Fig. 89</span></a> and <a class="reference internal" href="#socresultss2"><span class="std std-numref">Fig. 90</span></a> detail the results for the
+<p><a class="reference internal" href="#socresultss1"><span class="std std-numref">Fig. 110</span></a> and <a class="reference internal" href="#socresultss2"><span class="std std-numref">Fig. 111</span></a> detail the results for the
 single measurement policy (subset size 1) and for the configuration using a
 linear combinations of 2 measurements (subset size 2), respectively. Also
 depicted are the <span class="math notranslate nohighlight">\(H\)</span> matrix and the optimal sensitivity matrix <span class="math notranslate nohighlight">\(F\)</span> for each
 subset.</p>
 <div class="figure align-center" id="socresultss1">
 <img alt="../_images/soc_result_ss1.PNG" src="../_images/soc_result_ss1.PNG" />
-<p class="caption"><span class="caption-number">Fig. 89 </span><span class="caption-text">Best selected controlled variables for the single measurement policy.</span><a class="headerlink" href="#socresultss1" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 110 </span><span class="caption-text">Best selected controlled variables for the single measurement policy.</span><a class="headerlink" href="#socresultss1" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="socresultss2">
 <img alt="../_images/soc_result_ss2.PNG" src="../_images/soc_result_ss2.PNG" />
-<p class="caption"><span class="caption-number">Fig. 90 </span><span class="caption-text">Best selected controlled variables for linear combinations of 2
+<p class="caption"><span class="caption-number">Fig. 111 </span><span class="caption-text">Best selected controlled variables for linear combinations of 2
 measurements.</span><a class="headerlink" href="#socresultss2" title="Permalink to this image">¶</a></p>
 </div>
-<p><a class="reference internal" href="#bestcvscpu1"><span class="std std-numref">Table 5</span></a> is a summary of the results for the single
+<p><a class="reference internal" href="#bestcvscpu1"><span class="std std-numref">Table 8</span></a> is a summary of the results for the single
 measurement policy showing that controlling the multi-stage compressor (MCC)
 outlet pressure at its nominal optimal value leads to (near) optimal operation,
 despite of disturbances and measurement errors. This result compares to the
-previous findings of <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id29">[22]</a>, where similar control structures were proposed.
+previous findings of <a class="bibtex reference internal" href="../zbibliography.html#liu2019" id="id33">[24]</a>, where similar control structures were proposed.
 However, they heuristically assumed  control  of  process constraints in contrast
 to the SOC  procedure used in <em>Metacontrol</em>.</p>
 <table class="colwidths-auto docutils align-center" id="bestcvscpu1">
-<caption><span class="caption-number">Table 5 </span><span class="caption-text">Best Self-Optimizing Control variables found by <em>Metacontrol</em> for the single measurement policy.</span><a class="headerlink" href="#bestcvscpu1" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-number">Table 8 </span><span class="caption-text">Best Self-Optimizing Control variables found by <em>Metacontrol</em> for the single measurement policy.</span><a class="headerlink" href="#bestcvscpu1" title="Permalink to this table">¶</a></caption>
 <tbody>
 <tr class="row-odd"><td><p>Candidate controlled</p></td>
 <td><p>Worst-Case</p></td>
@@ -604,7 +604,7 @@ to the SOC  procedure used in <em>Metacontrol</em>.</p>
 <h2>Dynamic simulations<a class="headerlink" href="#dynamic-simulations" title="Permalink to this headline">¶</a></h2>
 <p>The dynamic evaluation of the control structure using the S-8 Stream
 temperature as the unconstrained controlled variable was performed
-according to the Single Temperature Control (STC) of <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id30">[18]</a>.
+according to the Single Temperature Control (STC) of <a class="bibtex reference internal" href="../zbibliography.html#jin2015" id="id34">[19]</a>.
 Note that this choice of controlled variable was a consequence of the
 systematic procedure embedded in <em>Metacontrol</em>, and not an heuristic-based
 decision. Control of the MCC discharge pressure, though incurring in the
@@ -616,9 +616,9 @@ configuration. It is worth mention that the constraint regarding stream
 S-8 lowest temperature due to <span class="math notranslate nohighlight">\(CO_{2}\)</span> freezing point was not violated.
 Simple PI controllers were used, with IMC tuning rules and a process
 flowsheet depicting the control configuration in place is provided in
-<a class="reference internal" href="#cpucontrolflowsheet"><span class="std std-numref">Fig. 91</span></a>.</p>
+<a class="reference internal" href="#cpucontrolflowsheet"><span class="std std-numref">Fig. 112</span></a>.</p>
 <div class="figure align-center" id="cpucontrolflowsheet">
-<img alt="../_images/cpu_control_structure.svg" src="../_images/cpu_control_structure.svg" /><p class="caption"><span class="caption-number">Fig. 91 </span><span class="caption-text">Control structure tested.</span><a class="headerlink" href="#cpucontrolflowsheet" title="Permalink to this image">¶</a></p>
+<img alt="../_images/CPU_Flowsheet_control_structure.svg" src="../_images/CPU_Flowsheet_control_structure.svg" /><p class="caption"><span class="caption-number">Fig. 112 </span><span class="caption-text">Control structure tested.</span><a class="headerlink" href="#cpucontrolflowsheet" title="Permalink to this image">¶</a></p>
 </div>
 <p>(<a class="reference external" href="../images/pyplots/cpufeedplus5.py">Source code</a>)</p>
 <p>(<a class="reference external" href="../images/pyplots/cpufeedplus5_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/cpufeedplus5_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/cpufeedplus5_01_00.pdf">pdf</a>)</p>
@@ -646,10 +646,10 @@ flowsheet depicting the control configuration in place is provided in
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="c3splitter.html" class="btn btn-neutral float-right" title="Propene/Propane Distillation Column" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="ic4.html" class="btn btn-neutral float-right" title="Economic Self-Optimizing Control of a \(C_{4}\) Isomerization process" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorials.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="c3splitter.html" class="btn btn-neutral float-left" title="Indirect composition control of a Propene/Propane Distillation Column" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

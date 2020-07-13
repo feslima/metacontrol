@@ -1,6 +1,6 @@
-*****************************
-Compression Purification Unit
-*****************************
+***************************************************************************************
+Economic Self-Optimizing Control of a :math:`CO_{2}` Compression and Purification Unit
+***************************************************************************************
 
 .. figure:: ../images/CPU_Flowsheet.svg
 	:name: cpuflowsheet
@@ -28,7 +28,7 @@ are reheated on the multi-stream heat exchangers, and the :math:`CO_2`
 product streams are mixed and sent to storage.
 
 The objective is to reduce specific energy consumption by minimizing the 
-cost function in eq. \ref{eq:eq1} :cite:`Liu2019`
+cost function in :eq:`eq1` :cite:`Liu2019`
 
 .. math::
 	:label: eq1
@@ -47,11 +47,11 @@ The constraints to the process are :cite:`JIN2015,Liu2019,dillon2005`:
 
 C-1 is an environmental requirement :cite:`Liu2019` to guarantee reduced 
 :math:`CO_2` atmospheric emissions 
-\citep{TOFTEGAARD2010581, BUHRE2005283},  C-2 is a product specification used 
+:cite:`TOFTEGAARD2010581,BUHRE2005283`, C-2 is a product specification used 
 to prevent excessive energy consumption :cite:`POSCH2012254`, and C-3 is there 
 to avoid :math:`CO_2` solidification in the pipeline since that bound 
 corresponds to the :math:`CO_2` three-phase freezing point 
-\citep{POSCH2012254, KOOHESTANIAN2017570}.
+:cite:`POSCH2012254,KOOHESTANIAN2017570`.
 	
 The main disturbances to the process are :cite:`Liu2019`:
 
@@ -265,7 +265,7 @@ is some discrepancy, as expected :cite:`forrester2008,jones2001,caballero2008`.
 
 	+-------------------+------------------------------------+-----------------------------+----------------------------+
 	|                   | Stream S8 temperature (:math:`°C`) | :math:`CO_2` molar fraction | :math:`CO_2` recovery rate |
-	+===================+------------------------------------+-----------------------------+----------------------------+
+	+===================+====================================+=============================+============================+
 	| Aspen Plus        | -55.8201                           | 0.9674                      | 0.9658                     |
 	+-------------------+------------------------------------+-----------------------------+----------------------------+
 	| *Metacontrol*     | -55.4859                           | 0.9666                      | 0.9671                     |
@@ -452,7 +452,7 @@ Simple PI controllers were used, with IMC tuning rules and a process
 flowsheet depicting the control configuration in place is provided in 
 :numref:`cpucontrolflowsheet`.
 
-.. figure:: ../images/cpu_control_structure.svg
+.. figure:: ../images/CPU_Flowsheet_control_structure.svg
 	:name: cpucontrolflowsheet
 	:align: center
 

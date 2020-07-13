@@ -75,7 +75,7 @@ in :numref:`infill_2`.
 
 This is the entire process animated in :numref:`infill_animated`:
 
-.. figure:: ../images/animation_infill.gif
+.. figure:: ../images/animation_infill_t.gif
     :name: infill_animated
     :align: center
 

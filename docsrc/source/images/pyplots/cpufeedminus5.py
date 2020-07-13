@@ -43,6 +43,7 @@ def plot_graph(DIST: str, DATFOLDER: str, DATFILES: list,
                title_label: list, width: float, height: float):
 
     fig, axs = plt.subplots(rows, cols)
+    fig.patch.set_visible(False)
     fig.set_size_inches(width, height)
 
     for i, filename in enumerate(DATFILES):
