@@ -177,7 +177,7 @@ attain maximum profits or keep expenses at minimum while still obeying these
 specifications.</p>
 <p>One way to achieve this is through the application of plantwide control
 methodologies. In particular, Self-Optimizing Control (SOC)
-<a class="bibtex reference internal" href="../zbibliography.html#morari1980" id="id1">[17]</a><a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[19]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id3">[2]</a>, is a practical way to design a control
+<a class="bibtex reference internal" href="../zbibliography.html#morari1980" id="id1">[26]</a><a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[29]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id3">[2]</a>, is a practical way to design a control
 structure of a process following a criterion (for instance: economic,
 environmental or performance) considering a constant set-point policy
 <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id4">[3]</a>. The SOC methodology is advantageous in this scenario
@@ -187,8 +187,8 @@ disturbance occurs.</p>
 needed to understand the main concepts and expressions that translate the
 ideas behind the SOC methodology. If the reader needs a more detailed
 explanation can be found in
-<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id5">[19]</a><a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id6">[8]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id7">[10]</a><a class="bibtex reference internal" href="../zbibliography.html#hori07" id="id8">[9]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id9">[2]</a><a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id10">[3]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala08" id="id11">[14]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id12">[13]</a><a class="bibtex reference internal" href="../zbibliography.html#umar12" id="id13">[22]</a>.</p>
-<p>From <a class="bibtex reference internal" href="../zbibliography.html#skoge04" id="id14">[20]</a>:</p>
+<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id5">[29]</a><a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id6">[12]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id7">[14]</a><a class="bibtex reference internal" href="../zbibliography.html#hori07" id="id8">[13]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id9">[2]</a><a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id10">[3]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala08" id="id11">[21]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id12">[20]</a><a class="bibtex reference internal" href="../zbibliography.html#umar12" id="id13">[32]</a>.</p>
+<p>From <a class="bibtex reference internal" href="../zbibliography.html#skoge04" id="id14">[30]</a>:</p>
 <blockquote>
 <div><p>“Self-optimizing control is when one can achieve an acceptable loss with
 constant setpoint values for the controlled variables without the need to
@@ -196,12 +196,12 @@ reoptimize when disturbances occur.”</p>
 </div></blockquote>
 <p>It is assumed the process objective function, assumed scalar, is influenced by
 its steady-state operation. Therefore, the optimization problem described in
-<a class="reference internal" href="#equation-optproblem">(1)</a> is formed, with <span class="math notranslate nohighlight">\(J\)</span> being the cost function,
+<a class="reference internal" href="#equation-optproblem">(3)</a> is formed, with <span class="math notranslate nohighlight">\(J\)</span> being the cost function,
 <span class="math notranslate nohighlight">\(u_{0}\)</span> being the degrees of freedom available, <span class="math notranslate nohighlight">\(x\)</span> and
 <span class="math notranslate nohighlight">\(d\)</span> representing the states and the disturbances of the system,
 respectively.</p>
 <div class="math notranslate nohighlight" id="equation-optproblem">
-<span class="eqno">(1)<a class="headerlink" href="#equation-optproblem" title="Permalink to this equation">¶</a></span>\[\begin{split}\begin{aligned}
+<span class="eqno">(3)<a class="headerlink" href="#equation-optproblem" title="Permalink to this equation">¶</a></span>\[\begin{split}\begin{aligned}
     &amp; \underset{u_{0}}{\text{minimize}}
     &amp; &amp; J_{0}\left(x, u_{0}, d\right) \\
     &amp; \text{subject to}
@@ -214,11 +214,11 @@ in the model. Using NLP solvers, the objective function can be optimized
 considering the expected disturbances and implementation errors.</p>
 <p>Since the whole technology considers near-optimal operation, as a result of
 keeping constant setpoints (differently from RTO, for instance), there will
-always exist a (positive) loss, given by <a class="reference internal" href="#equation-generalloss">(2)</a>:</p>
+always exist a (positive) loss, given by <a class="reference internal" href="#equation-generalloss">(4)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-generalloss">
-<span class="eqno">(2)<a class="headerlink" href="#equation-generalloss" title="Permalink to this equation">¶</a></span>\[    L=J_{0}(d, n)-J_{opt}(d)\]</div>
+<span class="eqno">(4)<a class="headerlink" href="#equation-generalloss" title="Permalink to this equation">¶</a></span>\[    L=J_{0}(d, n)-J_{opt}(d)\]</div>
 <p><em>Metacontrol</em> focus on the first four steps of the SOC technology, named by
-<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id15">[19]</a> as “top-down” analysis. In these steps, the variable
+<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id15">[29]</a> as “top-down” analysis. In these steps, the variable
 selection seeking the usage of the steady-state degrees of freedom
 is the main problem to be addressed with the systematic procedure proposed. It
 is possible to search for a SOC structure basically using two methods:</p>
@@ -243,9 +243,9 @@ an automated framework using local approximations motivated the creation
 of <em>Metacontrol</em> itself. However, the current version of the software only
 implements the second method.</p>
 <p>Therefore, a linear model with respect to the plant measurements (<span class="math notranslate nohighlight">\(y\)</span>)
-can be represented as <a class="reference internal" href="#equation-linear1">(3)</a>.</p>
+can be represented as <a class="reference internal" href="#equation-linear1">(5)</a>.</p>
 <div class="math notranslate nohighlight" id="equation-linear1">
-<span class="eqno">(3)<a class="headerlink" href="#equation-linear1" title="Permalink to this equation">¶</a></span>\[    \Delta y=G^{y} \Delta u+G_{d}^{y} \Delta d\]</div>
+<span class="eqno">(5)<a class="headerlink" href="#equation-linear1" title="Permalink to this equation">¶</a></span>\[    \Delta y=G^{y} \Delta u+G_{d}^{y} \Delta d\]</div>
 <p>with:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{l}
@@ -256,9 +256,9 @@ can be represented as <a class="reference internal" href="#equation-linear1">(3)
 <p>Where <span class="math notranslate nohighlight">\(u\)</span> are the manipulated variables (MV), <span class="math notranslate nohighlight">\(G^{y}\)</span> and
 <span class="math notranslate nohighlight">\(G^{y}_{d}\)</span> are the gain matrices with respect to the measurements
 and disturbances, respectively. Regarding the candidate variables (CV),
-linearization will give <a class="reference internal" href="#equation-cvlinear">(4)</a>:</p>
+linearization will give <a class="reference internal" href="#equation-cvlinear">(6)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-cvlinear">
-<span class="eqno">(4)<a class="headerlink" href="#equation-cvlinear" title="Permalink to this equation">¶</a></span>\[    \Delta c=H \Delta y=G \Delta u+G_{d} \Delta d\]</div>
+<span class="eqno">(6)<a class="headerlink" href="#equation-cvlinear" title="Permalink to this equation">¶</a></span>\[    \Delta c=H \Delta y=G \Delta u+G_{d} \Delta d\]</div>
 <p>With</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{l}
@@ -266,9 +266,9 @@ linearization will give <a class="reference internal" href="#equation-cvlinear">
     {G_{d}=H G_{d}^{y}}
 \end{array}\end{split}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(H\)</span> is a linear combination matrix of the CVs.</p>
-<p>Linearizing the loss function <a class="reference internal" href="#equation-generalloss">(2)</a> results in <a class="reference internal" href="#equation-linearloss">(5)</a>:</p>
+<p>Linearizing the loss function <a class="reference internal" href="#equation-generalloss">(4)</a> results in <a class="reference internal" href="#equation-linearloss">(7)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-linearloss">
-<span class="eqno">(5)<a class="headerlink" href="#equation-linearloss" title="Permalink to this equation">¶</a></span>\[\begin{split}\begin{aligned}
+<span class="eqno">(7)<a class="headerlink" href="#equation-linearloss" title="Permalink to this equation">¶</a></span>\[\begin{split}\begin{aligned}
             L &amp;=J(u, d)-J_{o p t}(d)=\frac{1}{2}\|z\|_{2}^{2} \\
             z=&amp; J_{u u}^{\frac{1}{2}}\left(u-u_{o p t}\right)=J_{u u}^{\frac{1}{2}} G^{-1}\left(c-c_{o p t}\right)
     \end{aligned}\end{split}\]</div>
@@ -277,34 +277,34 @@ manipulated variables <span class="math notranslate nohighlight">\(\left(\frac{\
 and <span class="math notranslate nohighlight">\(J_{ud}\)</span> being the Hessian of cost function with respect to the
 disturbance variables
 <span class="math notranslate nohighlight">\(\left(\frac{\partial^{2} J}{\partial u\partial d}\right)\)</span>.</p>
-<p>Later <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id16">[8]</a>, developing the exact local method, showed that
-the loss function can be rewritten as in <a class="reference internal" href="#equation-lossexact">(6)</a></p>
+<p>Later <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id16">[12]</a>, developing the exact local method, showed that
+the loss function can be rewritten as in <a class="reference internal" href="#equation-lossexact">(8)</a></p>
 <div class="math notranslate nohighlight" id="equation-lossexact">
-<span class="eqno">(6)<a class="headerlink" href="#equation-lossexact" title="Permalink to this equation">¶</a></span>\[    z=J_{u u}^{\frac{1}{2}}\left[\left(J_{u u}^{-1} J_{u d}-G^{-1} G_{d}\right) \Delta d+G^{-1} n\right]\]</div>
+<span class="eqno">(8)<a class="headerlink" href="#equation-lossexact" title="Permalink to this equation">¶</a></span>\[    z=J_{u u}^{\frac{1}{2}}\left[\left(J_{u u}^{-1} J_{u d}-G^{-1} G_{d}\right) \Delta d+G^{-1} n\right]\]</div>
 <p>If one assumes that <span class="math notranslate nohighlight">\(W_d\)</span> is a (diagonal) magnitude matrix that
 considers the disturbances and <span class="math notranslate nohighlight">\(W_{n}^y\)</span> the magnitude matrix that
 takes into account the measurement error, and considering that both are
-2-norm-bounded (<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id17">[8]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id18">[2]</a> contains a discussion
-and justification for using 2-norm), <a class="reference internal" href="#equation-2norm1">(7)</a> to <a class="reference internal" href="#equation-2norm3">(9)</a> can be
+2-norm-bounded (<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id17">[12]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id18">[2]</a> contains a discussion
+and justification for using 2-norm), <a class="reference internal" href="#equation-2norm1">(9)</a> to <a class="reference internal" href="#equation-2norm3">(11)</a> can be
 defined to scale the system:</p>
 <div class="math notranslate nohighlight" id="equation-2norm1">
-<span class="eqno">(7)<a class="headerlink" href="#equation-2norm1" title="Permalink to this equation">¶</a></span>\[    d-d^{*}=W_{d} d^{\prime}\]</div>
+<span class="eqno">(9)<a class="headerlink" href="#equation-2norm1" title="Permalink to this equation">¶</a></span>\[    d-d^{*}=W_{d} d^{\prime}\]</div>
 <div class="math notranslate nohighlight" id="equation-2norm2">
-<span class="eqno">(8)<a class="headerlink" href="#equation-2norm2" title="Permalink to this equation">¶</a></span>\[    n=H W_{n}^{y} n^{y^{\prime}}=W_{n} n^{y^{\prime}}\]</div>
+<span class="eqno">(10)<a class="headerlink" href="#equation-2norm2" title="Permalink to this equation">¶</a></span>\[    n=H W_{n}^{y} n^{y^{\prime}}=W_{n} n^{y^{\prime}}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(n^{y^{\prime}}\)</span> being the implementation error with respect to the
 measurements</p>
 <div class="math notranslate nohighlight" id="equation-2norm3">
-<span class="eqno">(9)<a class="headerlink" href="#equation-2norm3" title="Permalink to this equation">¶</a></span>\[\begin{split}    \left\|\left(\begin{array}{l}
+<span class="eqno">(11)<a class="headerlink" href="#equation-2norm3" title="Permalink to this equation">¶</a></span>\[\begin{split}    \left\|\left(\begin{array}{l}
             {d^{\prime}} \\
             {n^{y^{\prime}}}
 \end{array}\right)\right\|_{2} \leq 1\end{split}\]</div>
-<p>The loss function from <a class="reference internal" href="#equation-linearloss">(5)</a> can be also written in a more
+<p>The loss function from <a class="reference internal" href="#equation-linearloss">(7)</a> can be also written in a more
 appropriate way considering the definition of <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id19">[2]</a> of the
 uncertainty variables regarding the contribution of the disturbances and
-measurement error on the incurred loss, <a class="reference internal" href="#equation-linearm">(10)</a> and considering
-the scaled system from <a class="reference internal" href="#equation-2norm1">(7)</a> to <a class="reference internal" href="#equation-2norm3">(9)</a></p>
+measurement error on the incurred loss, <a class="reference internal" href="#equation-linearm">(12)</a> and considering
+the scaled system from <a class="reference internal" href="#equation-2norm1">(9)</a> to <a class="reference internal" href="#equation-2norm3">(11)</a></p>
 <div class="math notranslate nohighlight" id="equation-linearm">
-<span class="eqno">(10)<a class="headerlink" href="#equation-linearm" title="Permalink to this equation">¶</a></span>\[    M \triangleq\left[M_{d} \quad M_{n}^{y}\right]\]</div>
+<span class="eqno">(12)<a class="headerlink" href="#equation-linearm" title="Permalink to this equation">¶</a></span>\[    M \triangleq\left[M_{d} \quad M_{n}^{y}\right]\]</div>
 <p>where:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
@@ -315,34 +315,34 @@ the scaled system from <a class="reference internal" href="#equation-2norm1">(7)
 the disturbances.</p>
 <p>Finally, if one uses all the definitions described so far, the worst-case loss
 for the effect of the disturbances and measurement error is given by
-<a class="reference internal" href="#equation-lossm">(11)</a>:</p>
+<a class="reference internal" href="#equation-lossm">(13)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-lossm">
-<span class="eqno">(11)<a class="headerlink" href="#equation-lossm" title="Permalink to this equation">¶</a></span>\[\begin{split}    L_{worst-case} = \max _{\left\|\left(\begin{array}{l}
+<span class="eqno">(13)<a class="headerlink" href="#equation-lossm" title="Permalink to this equation">¶</a></span>\[\begin{split}    L_{worst-case} = \max _{\left\|\left(\begin{array}{l}
             {d^{\prime}} \\
             {n^{y^{\prime}}}
             \end{array}\right)\right\|_{2} \leq 1}=\frac{\bar{\sigma}(M)^{2}}{2}\end{split}\]</div>
-<p><a class="reference internal" href="#equation-lossm">(11)</a> shows that in order to minimize the worst-case loss, it is
-necessary to minimize <span class="math notranslate nohighlight">\(\bar{\sigma}(M)\)</span>, <a class="reference internal" href="#equation-argminh">(12)</a>:</p>
+<p><a class="reference internal" href="#equation-lossm">(13)</a> shows that in order to minimize the worst-case loss, it is
+necessary to minimize <span class="math notranslate nohighlight">\(\bar{\sigma}(M)\)</span>, <a class="reference internal" href="#equation-argminh">(14)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-argminh">
-<span class="eqno">(12)<a class="headerlink" href="#equation-argminh" title="Permalink to this equation">¶</a></span>\[    H=\arg \min _{H} \bar{\sigma}(M)\]</div>
+<span class="eqno">(14)<a class="headerlink" href="#equation-argminh" title="Permalink to this equation">¶</a></span>\[    H=\arg \min _{H} \bar{\sigma}(M)\]</div>
 <p>This optimization problem was initially solved using a numerical search, as
-proposed by <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id20">[8]</a>. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id21">[2]</a>
+proposed by <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id20">[12]</a>. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id21">[2]</a>
 derived an explicit solution that gives the optimal linear combination of
 measurements coefficient matrix (H) that minimize the worst-case loss that
 exists due to the effect of the disturbances and measurement errors, in
-<a class="reference internal" href="#equation-hexact">(13)</a>:</p>
+<a class="reference internal" href="#equation-hexact">(15)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-hexact">
-<span class="eqno">(13)<a class="headerlink" href="#equation-hexact" title="Permalink to this equation">¶</a></span>\[    H^{T}=\left(\tilde{F} \tilde{F}^{T}\right)^{-1} G^{y}\left(G^{y T}\left(\tilde{F} \tilde{F}^{T}\right)^{-1} G^{y}\right)^{-1} J_{u u}^{1 / 2}\]</div>
+<span class="eqno">(15)<a class="headerlink" href="#equation-hexact" title="Permalink to this equation">¶</a></span>\[    H^{T}=\left(\tilde{F} \tilde{F}^{T}\right)^{-1} G^{y}\left(G^{y T}\left(\tilde{F} \tilde{F}^{T}\right)^{-1} G^{y}\right)^{-1} J_{u u}^{1 / 2}\]</div>
 <p>where</p>
 <div class="math notranslate nohighlight">
 \[\tilde{F}=\left[F W_{d} W_{n}^{y}\right]\]</div>
 <p>Assuming that <span class="math notranslate nohighlight">\(\tilde{F} \tilde{F}^{T}\)</span> is full rank.</p>
-<p><a class="reference internal" href="#equation-hexact">(13)</a> has three interesting properties proved by <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id22">[2]</a>:</p>
+<p><a class="reference internal" href="#equation-hexact">(15)</a> has three interesting properties proved by <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id22">[2]</a>:</p>
 <ol class="arabic simple">
 <li><p>It applies to any number of measurements (<span class="math notranslate nohighlight">\(n_{y}\)</span>).</p></li>
 <li><p>The solution for <span class="math notranslate nohighlight">\(H\)</span> was proved to minimize not only the
 worst-case, but also the average-case loss. Therefore, if one uses
-<a class="reference internal" href="#equation-hexact">(13)</a> seeking the determination of a control structure that
+<a class="reference internal" href="#equation-hexact">(15)</a> seeking the determination of a control structure that
 minimizes the loss at the worst-case scenario, he is also minimizing the
 loss for the average-case scenario. This was called as a “super-optimality”
 by <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id23">[2]</a>.</p></li>
@@ -353,13 +353,13 @@ disturbances and the measurement errors, simultaneously.</p></li>
 and average case losses using a single evaluation, and will also consider the
 combined effect of the disturbances and measurement errors of the problem.
 Therefore, this solution it is the default one used in <em>Metacontrol</em>.</p>
-<p>Since <a class="reference internal" href="#equation-hexact">(13)</a> also minimizes the worst-case loss, its evaluation
+<p>Since <a class="reference internal" href="#equation-hexact">(15)</a> also minimizes the worst-case loss, its evaluation
 was also considered inside <em>Metacontrol</em>: the user can inspect the expected
 average-case loss for each control structure that can exist in the
 combinatorial problem. The expression for the average-case loss is a result of
-the work of <a class="bibtex reference internal" href="../zbibliography.html#kariwala08" id="id24">[14]</a> and is described in <a class="reference internal" href="#equation-avgloss">(14)</a>:</p>
+the work of <a class="bibtex reference internal" href="../zbibliography.html#kariwala08" id="id24">[21]</a> and is described in <a class="reference internal" href="#equation-avgloss">(16)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-avgloss">
-<span class="eqno">(14)<a class="headerlink" href="#equation-avgloss" title="Permalink to this equation">¶</a></span>\[    L_{\text {average}}=\frac{1}{6\left(n_{y}+n_{d}\right)}\left\|J_{u u}^{\frac{1}{2}}\left(H G^{y}\right)^{-1} H \widetilde{F}\right\|_{F}^{2}\]</div>
+<span class="eqno">(16)<a class="headerlink" href="#equation-avgloss" title="Permalink to this equation">¶</a></span>\[    L_{\text {average}}=\frac{1}{6\left(n_{y}+n_{d}\right)}\left\|J_{u u}^{\frac{1}{2}}\left(H G^{y}\right)^{-1} H \widetilde{F}\right\|_{F}^{2}\]</div>
 <p>Lastly, it was necessary to implement within <em>Metacontrol</em> a branch-and-bound
 algorithm capable of quickly searching the best control structures for each
 possible subset of a given process, using the incurred loss as metric. This was
@@ -376,18 +376,18 @@ measurements both increases. Without a search method that is capable of
 quickly discarding undesired solutions, the usability of <em>Metacontrol</em> would be
 seriously compromised. Luckily, there are several implementations of
 branch-and-bound algorithms tailored for SOC studies purposes, such as
-in <a class="bibtex reference internal" href="../zbibliography.html#cao05" id="id26">[6]</a><a class="bibtex reference internal" href="../zbibliography.html#cao08" id="id27">[5]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id28">[13]</a>.</p>
-<p>From the aforementioned works, <a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id29">[13]</a> it is of particular
+in <a class="bibtex reference internal" href="../zbibliography.html#cao05" id="id26">[7]</a><a class="bibtex reference internal" href="../zbibliography.html#cao08" id="id27">[6]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id28">[20]</a>.</p>
+<p>From the aforementioned works, <a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id29">[20]</a> it is of particular
 interest: the monotonic criterion implemented consists of the exact local
-method from <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id30">[8]</a> and derived explicitly by
+method from <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id30">[12]</a> and derived explicitly by
 <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id31">[2]</a>, which is used as the default methodology to pre-screen
 the most promising self-optimizing CV candidates in <em>Metacontrol</em>. Therefore,
-the usage of the proposed branch-and-bound algorithm by <a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id32">[13]</a> it
+the usage of the proposed branch-and-bound algorithm by <a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id32">[20]</a> it
 is not only convenient, making the software more effective, but also keeps the
 “calculation engine” from <em>Metacontrol</em> using the same criterion. It would not
 make any sense, for instance, using a branch-and-bound algorithm that outputs the
 index of the most promising CVs using the maximum singular value rule from
-<a class="bibtex reference internal" href="../zbibliography.html#skogebook" id="id33">[21]</a> and use the CV index sequence from this algorithm
+<a class="bibtex reference internal" href="../zbibliography.html#skogebook" id="id33">[31]</a> and use the CV index sequence from this algorithm
 to evaluate the worst-case loss. Fundamentally speaking, the orders of
 “best” control structures would not be the same, simply because the search
 method would be using an different criterion from the linear method

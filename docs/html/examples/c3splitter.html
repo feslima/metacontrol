@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Propene/Propane Distillation Column &mdash; Metacontrol 1.0.4 documentation</title>
+  <title>Indirect composition control of a Propene/Propane Distillation Column &mdash; Metacontrol 1.0.4 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="n-Butane Production Unit" href="ic4.html" />
-    <link rel="prev" title="Compression Purification Unit" href="cpu.html" /> 
+    <link rel="next" title="Economic Self-Optimizing Control of a \(CO_{2}\) Compression and Purification Unit" href="cpu.html" />
+    <link rel="prev" title="Examples" href="tutorials.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,9 +92,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="cpu.html">Compression Purification Unit</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Propene/Propane Distillation Column</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ic4.html">n-Butane Production Unit</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Indirect composition control of a Propene/Propane Distillation Column</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-simulations">Dynamic simulations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpu.html">Economic Self-Optimizing Control of a <span class="math notranslate nohighlight">\(CO_{2}\)</span> Compression and Purification Unit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ic4.html">Economic Self-Optimizing Control of a <span class="math notranslate nohighlight">\(C_{4}\)</span> Isomerization process</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
@@ -146,7 +149,7 @@
         
           <li><a href="tutorials.html">Examples</a> &raquo;</li>
         
-      <li>Propene/Propane Distillation Column</li>
+      <li>Indirect composition control of a Propene/Propane Distillation Column</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -165,12 +168,349 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="propene-propane-distillation-column">
-<h1>Propene/Propane Distillation Column<a class="headerlink" href="#propene-propane-distillation-column" title="Permalink to this headline">¶</a></h1>
-<div class="figure align-center" id="id1">
-<img alt="../_images/c3splitterflowsheet.svg" src="../_images/c3splitterflowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 74 </span><span class="caption-text">Flowsheet of the propene distillation column.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+  <div class="section" id="indirect-composition-control-of-a-propene-propane-distillation-column">
+<h1>Indirect composition control of a Propene/Propane Distillation Column<a class="headerlink" href="#indirect-composition-control-of-a-propene-propane-distillation-column" title="Permalink to this headline">¶</a></h1>
+<p>The system depicted in <a class="reference internal" href="#c3splitterflowsheet"><span class="std std-numref">Fig. 73</span></a> consists of
+the separation of propene from a binary mixture with propane in a 146
+stage distillation column. <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id1">[3]</a> showed that the
+best set of self-optimizing controlled variables as single measurements
+for this system are the composition of propene in the distillate and
+bottom products at their respective optimum nominal values. However,
+because direct control of composition is known to be difficult due to
+unreliability and slow dynamics of online analyzers, it may be better to
+use indirect control which is when control of primary variables can be
+achieved by selecting secondary variables such that the setpoint error
+is minimized. <em>Metacontrol</em> can also handle indirect control
+formulations since they are simply a special case of the exact local
+method <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id2">[13]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id3">[15]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id4">[2]</a>.</p>
+<div class="figure align-center" id="c3splitterflowsheet">
+<img alt="../_images/c3splitterflowsheet.svg" src="../_images/c3splitterflowsheet.svg" /><p class="caption"><span class="caption-number">Fig. 73 </span><span class="caption-text">Flowsheet of the propene distillation column.</span><a class="headerlink" href="#c3splitterflowsheet" title="Permalink to this image">¶</a></p>
 </div>
-<p>Placeholder text…</p>
+<p>The objective is to minimize the relative steady-state deviation in <a class="reference internal" href="#equation-c3-j">(1)</a> <a class="bibtex reference internal" href="../zbibliography.html#hori08" id="id5">[16]</a>.</p>
+<div class="math notranslate nohighlight" id="equation-c3-j">
+<span class="eqno">(1)<a class="headerlink" href="#equation-c3-j" title="Permalink to this equation">¶</a></span>\[J = \left(\frac{x_{\text{top }}^{\mathrm{propene}}
+    -x_{\text{top,setpoint}}^{\mathrm{propene}}}
+    {x_{\text{top,setpoint}}^{\mathrm{propene}}}\right)^{2}
+    +\left(\frac{x_{\text{bottom}}^{\mathrm{propene}}
+    -x_{\text{bottom,setpoint}}^{\mathrm{propene}}}{x_{\text{bottom,setpoint}}
+    ^{\mathrm{propene}}}\right)^{2}
+    \label{eq:indirectindex}\]</div>
+<p>where <span class="math notranslate nohighlight">\(x_{\text{top,setpoint}}^{\mathrm{propene}} = 0.995\)</span> and
+<span class="math notranslate nohighlight">\(x_{\text{bottom,setpoint}}^{\mathrm{propene}} = 0.05\)</span>
+<a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id6">[3]</a>, subject to</p>
+<ul class="simple">
+<li><p>C-1: Reboiler duty <span class="math notranslate nohighlight">\(\leq 80 GJ/h\)</span></p></li>
+</ul>
+<p>using the reflux ratio and the distillate to feed ratio as available
+degrees of freedom.</p>
+<p>The main process disturbances are <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id7">[3]</a>:</p>
+<ul class="simple">
+<li><p>D-1: Feed propylene flowrate</p></li>
+<li><p>D-2: Feed propane flowrate</p></li>
+<li><p>D-3: Feed vapor fraction (<span class="math notranslate nohighlight">\(\phi\)</span>)</p></li>
+</ul>
+<p>A typical temperature profile for the C3 splitter is shown in <a class="reference internal" href="#c3-temperature-profile"><span class="std std-numref">Fig. 74</span></a>
+, and since temperature is easy to measure,
+some particular stage temperatures along the column were chosen as
+candidate controlled variables based on the slope criterion of
+<a class="bibtex reference internal" href="../zbibliography.html#luyben2006" id="id8">[27]</a>. It is then expected that temperatures
+close to the top are poor choices of measurements vis-a-vis the ones
+close to the bottom (considering a top-down stage numbering). Moreover,
+some flows and flow ratios were also considered as candidates (see <a class="reference internal" href="#tablecvs"><span class="std std-numref">Table 2</span></a>).</p>
+<div class="figure align-center" id="c3-temperature-profile">
+<img alt="../_images/c3-temperature-profile.svg" src="../_images/c3-temperature-profile.svg" /><p class="caption"><span class="caption-number">Fig. 74 </span><span class="caption-text">Temperature profile.</span><a class="headerlink" href="#c3-temperature-profile" title="Permalink to this image">¶</a></p>
+</div>
+<table class="docutils align-center" id="tablecvs">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Candidate controlled variables for the C3 splitter problem.</span><a class="headerlink" href="#tablecvs" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong> (alias used in
+<em>Metacontrol</em>)</p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bf</p></td>
+<td><p>Bottoms to feed ratio</p></td>
+</tr>
+<tr class="row-odd"><td><p>vf</p></td>
+<td><p>Boilup to feed ratio</p></td>
+</tr>
+<tr class="row-even"><td><p>lf</p></td>
+<td><p>Reflux to feed ratio</p></td>
+</tr>
+<tr class="row-odd"><td><p>rrcv</p></td>
+<td><p>Reflux ratio</p></td>
+</tr>
+<tr class="row-even"><td><p>dfcv</p></td>
+<td><p>Distilalte to feed ratio</p></td>
+</tr>
+<tr class="row-odd"><td><p>l</p></td>
+<td><p>Reflux rate <span class="math notranslate nohighlight">\((kmol/h)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>v</p></td>
+<td><p>Boliup rate <span class="math notranslate nohighlight">\((kmol/h)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>t8</p></td>
+<td><p>Stage 8 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>t9</p></td>
+<td><p>Stage 9 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>t10</p></td>
+<td><p>Stage 10 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>t11</p></td>
+<td><p>Stage 11 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>t12</p></td>
+<td><p>Stage 12 temperature
+4<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>t129</p></td>
+<td><p>Stage 129 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>t130</p></td>
+<td><p>Stage 130 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>t131</p></td>
+<td><p>Stage 131 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>t132</p></td>
+<td><p>Stage 132 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>t133</p></td>
+<td><p>Stage 133 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>t134</p></td>
+<td><p>Stage 134 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>t135</p></td>
+<td><p>Stage 135 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>t136</p></td>
+<td><p>Stage 136 temperature
+<span class="math notranslate nohighlight">\((°C)\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>With 20 candidate controlled variables and 2 degrees of freedom there are <span class="math notranslate nohighlight">\(\binom{20!}{2!} = \frac{20!}{2!\times(20-2)!} = 190\)</span>
+possible control configurations of single measurements, and again evaluation of all of these one at the time is a very tedious task.
+<a class="reference internal" href="#c3splitterload"><span class="std std-numref">Fig. 75</span></a> and <a class="reference internal" href="#c3splitterloadvar"><span class="std std-numref">Fig. 76</span></a> shows the problem setup in <em>Metacontrol</em>.</p>
+<div class="figure align-center" id="c3splitterload">
+<img alt="../_images/c3splitter_load.PNG" src="../_images/c3splitter_load.PNG" />
+<p class="caption"><span class="caption-number">Fig. 75 </span><span class="caption-text">Problem setup for the C3 splitter column process.</span><a class="headerlink" href="#c3splitterload" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3splitterloadvar">
+<img alt="../_images/c3splitter-load-variables.PNG" src="../_images/c3splitter-load-variables.PNG" />
+<p class="caption"><span class="caption-number">Fig. 76 </span><span class="caption-text">Aspen Plus variable load for the C3 splitter column process.</span><a class="headerlink" href="#c3splitterloadvar" title="Permalink to this image">¶</a></p>
+</div>
+<p>A total of 60 initial points were sampled and refined by the algorithm of <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id9">[6]</a> in <em>Metacontrol</em> to find the optimal nominal
+operating point. Using a K-fold validation, it was observed that the
+quadratic regression polynomial (poly2) yielded the most accurate Kriging
+metamodel. This is indeed a valuable feature
+of <em>Metacontrol</em> for it systematically informs which regression model provides
+the most promising results. (<a class="reference internal" href="#c3splitterpoly0"><span class="std std-numref">Fig. 77</span></a>- <a class="reference internal" href="#c3splitterpoly2"><span class="std std-numref">Fig. 79</span></a>.)</p>
+<div class="figure align-center" id="c3splitterpoly0">
+<img alt="../_images/c3splitterpoly0.PNG" src="../_images/c3splitterpoly0.PNG" />
+<p class="caption"><span class="caption-number">Fig. 77 </span><span class="caption-text">K-fold validation metric for constant (poly0) regression model.</span><a class="headerlink" href="#c3splitterpoly0" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3splitterpoly1">
+<img alt="../_images/c3splitterpoly1.PNG" src="../_images/c3splitterpoly1.PNG" />
+<p class="caption"><span class="caption-number">Fig. 78 </span><span class="caption-text">K-fold validation metric for linear (poly1) regression model.</span><a class="headerlink" href="#c3splitterpoly1" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3splitterpoly2">
+<img alt="../_images/c3splitterpoly2.PNG" src="../_images/c3splitterpoly2.PNG" />
+<p class="caption"><span class="caption-number">Fig. 79 </span><span class="caption-text">K-fold validation metric for linear (poly2) regression model.</span><a class="headerlink" href="#c3splitterpoly2" title="Permalink to this image">¶</a></p>
+</div>
+<p><a class="reference internal" href="#c3splitteropt"><span class="std std-numref">Fig. 80</span></a> reports the results of the optimization in
+<em>Metacontrol</em>. As there are no active constraints, two unconstrained
+degrees of freedom are left for self-optimizing control purposes.
+<a class="reference internal" href="#tableopt"><span class="std std-numref">Table 3</span></a> shows that the optimization conducted in
+Aspen Plus matches the one in <em>Metacontrol</em>.</p>
+<div class="figure align-center" id="c3splitteropt">
+<img alt="../_images/c3splitter_caballero.PNG" src="../_images/c3splitter_caballero.PNG" />
+<p class="caption"><span class="caption-number">Fig. 80 </span><span class="caption-text">Refinement algorithm log output.</span><a class="headerlink" href="#c3splitteropt" title="Permalink to this image">¶</a></p>
+</div>
+<table class="docutils align-center" id="tableopt">
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">Results of the optimization of the C3 splitter process in Aspen Plus and Metacontrol for the decision variables and objective function.</span><a class="headerlink" href="#tableopt" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 36%" />
+<col style="width: 17%" />
+<col style="width: 31%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td></td>
+<td><p>Objective function</p></td>
+<td><p>Reflux Ratio</p></td>
+<td><p>Distallate to feed ratio</p></td>
+</tr>
+<tr class="row-even"><td><p>Aspen Plus</p></td>
+<td><p><span class="math notranslate nohighlight">\(7.47 \times 10^{-15}\)</span></p></td>
+<td><p>13.5246</p></td>
+<td><p>0.6349</p></td>
+</tr>
+<tr class="row-odd"><td><p>Metacontrol</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.92 \times 10^{-10}\)</span></p></td>
+<td><p>13.5159</p></td>
+<td><p>0.6349</p></td>
+</tr>
+</tbody>
+</table>
+<p>With no active constraints to be implemented in the process simulator, the
+reduced space Kriging metamodel was built using the same .bkp file of
+the optimization step (<a class="reference internal" href="#c3-reduced-space"><span class="std std-numref">Fig. 81</span></a> and
+<a class="reference internal" href="#c3-point-file"><span class="std std-numref">Fig. 82</span></a>). Here the reduced space
+sampling was done within <em>Metacontrol</em>, reducing the need to navigate between
+applications.</p>
+<div class="figure align-center" id="c3-reduced-space">
+<img alt="../_images/c3splitter-reduced-space.PNG" src="../_images/c3splitter-reduced-space.PNG" />
+<p class="caption"><span class="caption-number">Fig. 81 </span><span class="caption-text">Reduced space problem sampling using a .*bkp file.</span><a class="headerlink" href="#c3-reduced-space" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3-point-file">
+<img alt="../_images/c3splitter-point-file.PNG" src="../_images/c3splitter-point-file.PNG" />
+<p class="caption"><span class="caption-number">Fig. 82 </span><span class="caption-text">Pointing to the .*bkp file location.</span><a class="headerlink" href="#c3-point-file" title="Permalink to this image">¶</a></p>
+</div>
+<p>Hitting the “Open sampling assistant”
+button (1) in <a class="reference internal" href="#c3splitterredspacefile"><span class="std std-numref">Fig. 83</span></a> opens the window (2) where
+the parameters of the sampling method can be set (3) and the data generated (4).
+The sampling can also be controlled (5), and the user can abort the process at any
+moment (6), or export the results as a .csv file (7).</p>
+<div class="figure align-center" id="c3splitterredspacefile">
+<img alt="../_images/c3splitter-redspace-sampling.PNG" src="../_images/c3splitter-redspace-sampling.PNG" />
+<p class="caption"><span class="caption-number">Fig. 83 </span><span class="caption-text">Sampling assistant for the reduced space metamodel construction.</span><a class="headerlink" href="#c3splitterredspacefile" title="Permalink to this image">¶</a></p>
+</div>
+<p>Gradients and Hessians for the self-optimizing control formulas are generated at the
+“Differential Data” tab of Figure <a class="reference internal" href="#c3splittergrad"><span class="std std-numref">Fig. 84</span></a>. Similarly to
+the first case study, the gradients computed by <em>Metacontrol</em> were
+compared against the ones generated by the process simulator (<a class="reference internal" href="#c3splitter-table-grads"><span class="std std-numref">Fig. 85</span></a>).
+Not surprisingly they were virtually identical,
+which is an evidence of the robustness of the previously proposed methodology
+of <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id10">[3]</a> that is implemented in <em>Metacontrol</em>.</p>
+<div class="figure align-center" id="c3splittergrad">
+<img alt="../_images/c3splitter-gradients.PNG" src="../_images/c3splitter-gradients.PNG" />
+<p class="caption"><span class="caption-number">Fig. 84 </span><span class="caption-text">Computation of derivatives in <em>Metacontrol</em>.</span><a class="headerlink" href="#c3splittergrad" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3splitter-table-grads">
+<img alt="../_images/c3splitter_table_grads.svg" src="../_images/c3splitter_table_grads.svg" /><p class="caption"><span class="caption-number">Fig. 85 </span><span class="caption-text">Comparison between Aspen Plus and <em>Metacontrol</em> gradient results.</span><a class="headerlink" href="#c3splitter-table-grads" title="Permalink to this image">¶</a></p>
+</div>
+<p>The magnitude of disturbances in this case were <span class="math notranslate nohighlight">\(10\%\)</span> for
+each component feed flow rate and <span class="math notranslate nohighlight">\(10\%\)</span> for the feed vapor fraction. The
+measurement errors were <span class="math notranslate nohighlight">\(0.001\)</span> for flow rates and flow ratios, and <span class="math notranslate nohighlight">\(0.5°C\)</span>
+for temperatures, a value that can realistically represent thermocouples and RTD
+sensor accuracies typically encountered in industry. Moreover, all 190 possible
+candidate controlled variables for the single measurement policy were considered.
+For linear combinations of measurements as candidate controlled variables, the
+50 best subsets for each size were evaluated. This information was carefully
+specified in the “Self-Optimizing Control” tab of <a class="reference internal" href="#c3splittersocinput"><span class="std std-numref">Fig. 86</span></a>.</p>
+<div class="figure align-center" id="c3splittersocinput">
+<img alt="../_images/c3splittersocinput.PNG" src="../_images/c3splittersocinput.PNG" />
+<p class="caption"><span class="caption-number">Fig. 86 </span><span class="caption-text">Defining parameters for self-optimizing computations.</span><a class="headerlink" href="#c3splittersocinput" title="Permalink to this image">¶</a></p>
+</div>
+<p>The results for the single measurement policy (<a class="reference internal" href="#c3cvgood"><span class="std std-numref">Fig. 87</span></a>)
+show that selecting sensitive temperatures and flow rates
+or flow ratios yields configurations capable of indirect controlling both
+distillate and bottom compositions with small incurred losses, while choosing
+less sensitive temperatures results in large setpoint deviations
+(<a class="reference internal" href="#c3cvtempbad"><span class="std std-numref">Fig. 88</span></a>) with substantial losses <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id11">[3]</a><a class="bibtex reference internal" href="../zbibliography.html#hori07" id="id12">[14]</a>.
+This result is also an instance of the slope criterion of <a class="bibtex reference internal" href="../zbibliography.html#luyben2006" id="id13">[27]</a>
+as a good starting assumption for deciding which variables should be controlled.
+The main difference is that the mathematical framework of Self-Optimizing Control
+incorporates these heuristics in a neat, systematic way.</p>
+<div class="figure align-center" id="c3cvgood">
+<img alt="../_images/c3splitter-good-cvs-size-2.PNG" src="../_images/c3splitter-good-cvs-size-2.PNG" />
+<p class="caption"><span class="caption-number">Fig. 87 </span><span class="caption-text">Best sets of controlled variables for the single measurement policy
+showing small losses when selecting sensitive temperatures and flow rates
+or flow ratios.</span><a class="headerlink" href="#c3cvgood" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3cvtempbad">
+<img alt="../_images/c3splitter-bad-cvs-size-2-ts.PNG" src="../_images/c3splitter-bad-cvs-size-2-ts.PNG" />
+<p class="caption"><span class="caption-number">Fig. 88 </span><span class="caption-text">Worst sets of controlled variables for the single measurement policy
+showing larger losses when selecting less sensitive temperatures. This is
+the same <a class="reference internal" href="#c3cvgood"><span class="std std-numref">Fig. 87</span></a> sorted by worst-case losses in
+descending order.</span><a class="headerlink" href="#c3cvtempbad" title="Permalink to this image">¶</a></p>
+</div>
+<p><a class="reference internal" href="#c3ss3"><span class="std std-numref">Fig. 89</span></a>-<a class="reference internal" href="#c3ssall"><span class="std std-numref">Fig. 92</span></a> show the results when linearly
+combining measurements for subsets of sizes 3, 6, 9, and 20 (using all
+measurements). Intuitively, the larger the number of measurements, the smaller
+the losses and the more complex the configurations with many measurements to
+combine, which shows a clear compromise between accepting greater losses and
+making the control scheme more tractable.</p>
+<div class="figure align-center" id="c3ss3">
+<img alt="../_images/c3splitter-good-cvs-size-3.PNG" src="../_images/c3splitter-good-cvs-size-3.PNG" />
+<p class="caption"><span class="caption-number">Fig. 89 </span><span class="caption-text">Best sets of linear combinations of 3 measurements.</span><a class="headerlink" href="#c3ss3" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3ss6">
+<img alt="../_images/c3splitter-good-cvs-size-6.PNG" src="../_images/c3splitter-good-cvs-size-6.PNG" />
+<p class="caption"><span class="caption-number">Fig. 90 </span><span class="caption-text">Best sets of linear combinations of 6 measurements.</span><a class="headerlink" href="#c3ss6" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3ss9">
+<img alt="../_images/c3splitter-good-cvs-size-9.PNG" src="../_images/c3splitter-good-cvs-size-9.PNG" />
+<p class="caption"><span class="caption-number">Fig. 91 </span><span class="caption-text">Best sets of linear combinations of 9 measurements.</span><a class="headerlink" href="#c3ss9" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="c3ssall">
+<img alt="../_images/c3splitter-good-cvs-size-all.PNG" src="../_images/c3splitter-good-cvs-size-all.PNG" />
+<p class="caption"><span class="caption-number">Fig. 92 </span><span class="caption-text">Best sets of linear combinations of all measurements.</span><a class="headerlink" href="#c3ssall" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="dynamic-simulations">
+<h2>Dynamic simulations<a class="headerlink" href="#dynamic-simulations" title="Permalink to this headline">¶</a></h2>
+<p>The best control structure that uses a linear combination of 3 measurements
+is chosen to evaluate the dynamic performance of this more complex control
+configuration for the C3-Splitter case study, where</p>
+<div class="math notranslate nohighlight">
+\[Cv_1 = 0.00129t_{132} + 0.00126t_{133} + 0.00152vf\]</div>
+<div class="math notranslate nohighlight">
+\[Cv_2 = 0.69671t_{132} + 0.69489t_{133} + 0.17807vf\]</div>
+<p>The following plots clearly show that this choice is capable of dealing with
+disturbances in the composition of propene in the feed and total flow rate,
+while at the same time indirect controlling the primary variables. PI
+controllers tuned with the IMC rules and a process flowsheet depicting the
+control configuration in place is provided in <a class="reference internal" href="#c3controlflowsheet"><span class="std std-numref">Fig. 93</span></a>.</p>
+<div class="figure align-center" id="c3controlflowsheet">
+<img alt="../_images/c3splitter_control_structure.svg" src="../_images/c3splitter_control_structure.svg" /><p class="caption"><span class="caption-number">Fig. 93 </span><span class="caption-text">Control structure tested.</span><a class="headerlink" href="#c3controlflowsheet" title="Permalink to this image">¶</a></p>
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedplus5.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedplus5_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedplus5_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedplus5_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedplus5_01_00.png" src="../_images/c3feedplus5_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedminus5.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedminus5_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedminus5_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedminus5_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedminus5_01_00.png" src="../_images/c3feedminus5_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedcompplus25.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedcompplus25_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedcompplus25_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedcompplus25_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedcompplus25_01_00.png" src="../_images/c3feedcompplus25_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedcompminus25.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedcompminus25_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedcompminus25_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedcompminus25_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedcompminus25_01_00.png" src="../_images/c3feedcompminus25_01_00.png" />
+</div>
+<p>(<a class="reference external" href="../images/pyplots/c3feedvfracplus10.py">Source code</a>)</p>
+<p>(<a class="reference external" href="../images/pyplots/c3feedvfracplus10_01_00.png">png</a>, <a class="reference external" href="../images/pyplots/c3feedvfracplus10_01_00.hires.png">hires.png</a>, <a class="reference external" href="../images/pyplots/c3feedvfracplus10_01_00.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="../_images/c3feedvfracplus10_01_00.png" src="../_images/c3feedvfracplus10_01_00.png" />
+</div>
+<p>teste</p>
+</div>
 </div>
 
 
@@ -181,10 +521,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ic4.html" class="btn btn-neutral float-right" title="n-Butane Production Unit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="cpu.html" class="btn btn-neutral float-right" title="Economic Self-Optimizing Control of a \(CO_{2}\) Compression and Purification Unit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="cpu.html" class="btn btn-neutral float-left" title="Compression Purification Unit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

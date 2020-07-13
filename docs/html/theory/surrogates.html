@@ -181,9 +181,9 @@ regression to complex neural networks. However, the surrogate methodology
 currently implemented in <em>Metacontrol</em> is the <em>Kriging</em>.</p>
 <p>The simplest form to represent a real world process (<span class="math notranslate nohighlight">\(y\)</span>) through a
 metamodel (<span class="math notranslate nohighlight">\(\hat{y}\)</span>) and its error (<span class="math notranslate nohighlight">\(\varepsilon\)</span>) is done
-through <a class="reference internal" href="#equation-surreq">(15)</a>.</p>
+through <a class="reference internal" href="#equation-surreq">(17)</a>.</p>
 <div class="math notranslate nohighlight" id="equation-surreq">
-<span class="eqno">(15)<a class="headerlink" href="#equation-surreq" title="Permalink to this equation">¶</a></span>\[y(x) = \hat{y}(x) + \varepsilon\]</div>
+<span class="eqno">(17)<a class="headerlink" href="#equation-surreq" title="Permalink to this equation">¶</a></span>\[y(x) = \hat{y}(x) + \varepsilon\]</div>
 <p>The error (<span class="math notranslate nohighlight">\(\varepsilon\)</span>) is associated with the unmodeled effects of
 the inputs (<span class="math notranslate nohighlight">\(x\)</span>) and random noise (i.e. it cannot be explained in detail
 but cannot be ignored as well.). When using the <em>Kriging</em> methodology as
@@ -191,7 +191,7 @@ metamodel, this error is assumed to be a probabilistic function of <span class="
 in other words, this error is assumed to be <strong>not</strong> independent and identically
 distributed. The specific probabilistic function is represented by a Gaussian
 distribution with mean (<span class="math notranslate nohighlight">\(\mu\)</span>) zero and variance <span class="math notranslate nohighlight">\(\sigma^2\)</span>.</p>
-<p>As from <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id1">[16]</a>, a <em>Kriging</em> metamodel <span class="math notranslate nohighlight">\(\hat{y}(x)\)</span>, of a
+<p>As from <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id1">[24]</a>, a <em>Kriging</em> metamodel <span class="math notranslate nohighlight">\(\hat{y}(x)\)</span>, of a
 rigorous model <span class="math notranslate nohighlight">\(y(x)\)</span> of <span class="math notranslate nohighlight">\(q\)</span> dimensions, is comprised
 of two parts: a polynomial regression (<span class="math notranslate nohighlight">\(\mathcal{F}\)</span>) and departure
 function (<span class="math notranslate nohighlight">\(z\)</span>) of stochastic nature:</p>
@@ -200,80 +200,80 @@ function (<span class="math notranslate nohighlight">\(z\)</span>) of stochastic
 \quad l=1, \ldots, q\]</div>
 <p>The regression model, considered as a linear combination of (<span class="math notranslate nohighlight">\(t\)</span>)
 functions (<span class="math notranslate nohighlight">\(f_{j}: \mathbb{R}^{n} \rightarrow \mathbb{R}\)</span>), as defined
-in <a class="reference internal" href="#equation-kr2">(16)</a>.</p>
+in <a class="reference internal" href="#equation-kr2">(18)</a>.</p>
 <div class="math notranslate nohighlight" id="equation-kr2">
-<span class="eqno">(16)<a class="headerlink" href="#equation-kr2" title="Permalink to this equation">¶</a></span>\[    \mathcal{F}\left(\beta_{:, l}, x\right) \equiv f(x)^{T} \beta_{:, l}\]</div>
+<span class="eqno">(18)<a class="headerlink" href="#equation-kr2" title="Permalink to this equation">¶</a></span>\[    \mathcal{F}\left(\beta_{:, l}, x\right) \equiv f(x)^{T} \beta_{:, l}\]</div>
 <p>The most common choices for <span class="math notranslate nohighlight">\(f(x)\)</span> are polynomials with orders ranging
 from zero (constant) to two (quadratic). It is assumed that <span class="math notranslate nohighlight">\(z\)</span> has
 mean zero, and the covariance between to given points, arbitrarily named
-<span class="math notranslate nohighlight">\(w\)</span> and <span class="math notranslate nohighlight">\(x\)</span> for instance, is defined by <a class="reference internal" href="#equation-kr3">(17)</a>:</p>
+<span class="math notranslate nohighlight">\(w\)</span> and <span class="math notranslate nohighlight">\(x\)</span> for instance, is defined by <a class="reference internal" href="#equation-kr3">(19)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr3">
-<span class="eqno">(17)<a class="headerlink" href="#equation-kr3" title="Permalink to this equation">¶</a></span>\[\operatorname{Cov}\left[z_{l}(w), z_{l}(x)\right]=\sigma_{l}^{2}
+<span class="eqno">(19)<a class="headerlink" href="#equation-kr3" title="Permalink to this equation">¶</a></span>\[\operatorname{Cov}\left[z_{l}(w), z_{l}(x)\right]=\sigma_{l}^{2}
 \mathcal{R}\left(\theta_{l}, w, x\right), \quad l=1, \ldots, q\]</div>
 <p>With <span class="math notranslate nohighlight">\(\sigma_{l}^{2}\)</span> being the process variance for the <em>lth</em> response
 component, and <span class="math notranslate nohighlight">\(\mathcal{R}(\theta, w, x)\)</span> defined as the correlation
-model. In <em>Metacontrol</em>, the correlation model used is described by <a class="reference internal" href="#equation-kr4">(18)</a>.</p>
+model. In <em>Metacontrol</em>, the correlation model used is described by <a class="reference internal" href="#equation-kr4">(20)</a>.</p>
 <div class="math notranslate nohighlight" id="equation-kr4">
-<span class="eqno">(18)<a class="headerlink" href="#equation-kr4" title="Permalink to this equation">¶</a></span>\[\mathcal{R}\left(\theta_{l}, w, x\right)=\exp \left(-\sum_{i=1}^{m}
+<span class="eqno">(20)<a class="headerlink" href="#equation-kr4" title="Permalink to this equation">¶</a></span>\[\mathcal{R}\left(\theta_{l}, w, x\right)=\exp \left(-\sum_{i=1}^{m}
 \theta_{l}\left(w-x_{i}\right)^{p}\right), \quad\left(\theta_{l} \geq 0,
 p_{l} \in[0,2]\right)\]</div>
 <p>The hyperparameters <span class="math notranslate nohighlight">\(\theta\)</span> are degrees of freedom available for
 optimization purposes, seeking the improvement of the metamodel fitness. In
-<a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[16]</a>, the optimal set of hyperparameters <span class="math notranslate nohighlight">\(\theta^*\)</span> corresponds
+<a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[24]</a>, the optimal set of hyperparameters <span class="math notranslate nohighlight">\(\theta^*\)</span> corresponds
 to the maximum likelihood estimation. Assuming a Gaussian process, the optimal
-values of the hyperparameters are the ones that minimize <a class="reference internal" href="#equation-kr5">(19)</a>:</p>
+values of the hyperparameters are the ones that minimize <a class="reference internal" href="#equation-kr5">(21)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr5">
-<span class="eqno">(19)<a class="headerlink" href="#equation-kr5" title="Permalink to this equation">¶</a></span>\[\min _{\theta}\left\{\psi(\theta) \equiv|R|^{\frac{1}{m}}
+<span class="eqno">(21)<a class="headerlink" href="#equation-kr5" title="Permalink to this equation">¶</a></span>\[\min _{\theta}\left\{\psi(\theta) \equiv|R|^{\frac{1}{m}}
 \sigma^{2}\right\}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(|R|\)</span> is the determinant of the correlation matrix. The internal
 optimizer used in <em>DACE</em> toolbox corresponds to a modified version of
-the <em>Hooke &amp; Jeeves</em> method, as showed by <a class="bibtex reference internal" href="../zbibliography.html#dacereport" id="id3">[15]</a>.</p>
+the <em>Hooke &amp; Jeeves</em> method, as showed by <a class="bibtex reference internal" href="../zbibliography.html#dacereport" id="id3">[23]</a>.</p>
 <p>As stated before, high-order data obtainment it is an obligatory step in the
-proposed methodology implemented in mtc. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[16]</a>
+proposed methodology implemented in <em>Metacontrol</em>. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[24]</a>
 also derived expressions for Jacobian (<span class="math notranslate nohighlight">\(\hat{y}^{\prime}(x)\)</span>)
-evaluation of a <em>Kriging</em> prediction, given in <a class="reference internal" href="#equation-kr6">(20)</a>:</p>
+evaluation of a <em>Kriging</em> prediction, given in <a class="reference internal" href="#equation-kr6">(22)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr6">
-<span class="eqno">(20)<a class="headerlink" href="#equation-kr6" title="Permalink to this equation">¶</a></span>\[    \hat{y}^{\prime}(x)=J_{f}(x)^{T} \beta^{*}+J_{r}(x)^{T} \gamma^{*}\]</div>
+<span class="eqno">(22)<a class="headerlink" href="#equation-kr6" title="Permalink to this equation">¶</a></span>\[    \hat{y}^{\prime}(x)=J_{f}(x)^{T} \beta^{*}+J_{r}(x)^{T} \gamma^{*}\]</div>
 <p>The expression for Hessian evaluation was derived by <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id5">[3]</a>
 (full demonstration in appendix A of their work), and it is depicted in
-<a class="reference internal" href="#equation-kr7">(21)</a>:</p>
+<a class="reference internal" href="#equation-kr7">(23)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr7">
-<span class="eqno">(21)<a class="headerlink" href="#equation-kr7" title="Permalink to this equation">¶</a></span>\[    \hat{y}^{\prime \prime}(x)=H_{f}(x) \beta^{*}+H_{r}(x) \gamma^{*}\]</div>
-<p>Equations <a class="reference internal" href="#equation-kr6">(20)</a> and <a class="reference internal" href="#equation-kr7">(21)</a> are one of the staples of the <em>Metacontrol</em>.</p>
+<span class="eqno">(23)<a class="headerlink" href="#equation-kr7" title="Permalink to this equation">¶</a></span>\[    \hat{y}^{\prime \prime}(x)=H_{f}(x) \beta^{*}+H_{r}(x) \gamma^{*}\]</div>
+<p>Equations <a class="reference internal" href="#equation-kr6">(22)</a> and <a class="reference internal" href="#equation-kr7">(23)</a> are one of the staples of the <em>Metacontrol</em>.</p>
 <div class="section" id="how-to-tell-if-my-surrogate-is-good-or-not">
 <h2>How to tell if my surrogate is good or not?<a class="headerlink" href="#how-to-tell-if-my-surrogate-is-good-or-not" title="Permalink to this headline">¶</a></h2>
 <p>To fit our <em>Kriging</em> metamodel correctly, the most straightfoward way is to
-analyze the values returned by <a class="reference internal" href="#equation-kr5">(19)</a> to determine if the likelihood
+analyze the values returned by <a class="reference internal" href="#equation-kr5">(21)</a> to determine if the likelihood
 function is at its minimum or not.</p>
 <p>Suppose a complex process that we need to substitute by a surrogate that is
 represented by the following function:</p>
 <div class="math notranslate nohighlight" id="equation-complex">
-<span class="eqno">(22)<a class="headerlink" href="#equation-complex" title="Permalink to this equation">¶</a></span>\[f(x) = -\cos(x) - e^{\frac{x}{20}} + 5\]</div>
+<span class="eqno">(24)<a class="headerlink" href="#equation-complex" title="Permalink to this equation">¶</a></span>\[f(x) = -\cos(x) - e^{\frac{x}{20}} + 5\]</div>
 <p>Due to some constraints (i.e. the model is too expensive or slow to compute),
 we can only have a small amount of samples (red circles). For inspection
 purposes, we decide to spend some of our “budget” and sample three points
 initially. Plotting this model we have:</p>
 <div class="figure align-center" id="krig-init">
-<img alt="../_images/kriging_initial.svg" src="../_images/kriging_initial.svg" /><p class="caption"><span class="caption-number">Fig. 76 </span><span class="caption-text">Plot of function <a class="reference internal" href="#equation-complex">(22)</a>. The blue line is the true behavior of the
+<img alt="../_images/kriging_initial.svg" src="../_images/kriging_initial.svg" /><p class="caption"><span class="caption-number">Fig. 122 </span><span class="caption-text">Plot of function <a class="reference internal" href="#equation-complex">(24)</a>. The blue line is the true behavior of the
 model.</span><a class="headerlink" href="#krig-init" title="Permalink to this image">¶</a></p>
 </div>
-<p>Plotting the equation <a class="reference internal" href="#equation-kr5">(19)</a>, we se that this initial sample of three points
+<p>Plotting the equation <a class="reference internal" href="#equation-kr5">(21)</a>, we se that this initial sample of three points
 gives use a monotonic behavior (you could say it’s “plateuing”) for the
 likelihood function. Or in simpler terms, there is no clear discernible
 minimum. This will, likely, result in a poor fit.</p>
 <div class="figure align-center" id="likelihood1">
-<img alt="../_images/likelihood_1.svg" src="../_images/likelihood_1.svg" /><p class="caption"><span class="caption-number">Fig. 77 </span><span class="caption-text">Initial plot of the likelihood <a class="reference internal" href="#equation-kr5">(19)</a> as function of the hyperparameters
+<img alt="../_images/likelihood_1.svg" src="../_images/likelihood_1.svg" /><p class="caption"><span class="caption-number">Fig. 123 </span><span class="caption-text">Initial plot of the likelihood <a class="reference internal" href="#equation-kr5">(21)</a> as function of the hyperparameters
 <span class="math notranslate nohighlight">\(\theta\)</span>.</span><a class="headerlink" href="#likelihood1" title="Permalink to this image">¶</a></p>
 </div>
 <p>So what is the solution for this? We decide to spend a bit more of our budget
 and add four more samples to the fit. Again, we plot the results iteractively to
 demonstrate the effect:</p>
 <div class="figure align-center" id="theta-anim">
-<img alt="../_images/animation_theta_opt.gif" src="../_images/animation_theta_opt.gif" />
-<p class="caption"><span class="caption-number">Fig. 78 </span><span class="caption-text">The effect of adding more samples to our surrogate.</span><a class="headerlink" href="#theta-anim" title="Permalink to this image">¶</a></p>
+<img alt="../_images/animation_theta_opt_t.gif" src="../_images/animation_theta_opt_t.gif" />
+<p class="caption"><span class="caption-number">Fig. 124 </span><span class="caption-text">The effect of adding more samples to our surrogate.</span><a class="headerlink" href="#theta-anim" title="Permalink to this image">¶</a></p>
 </div>
 <p>As we can see, the more we add to the initial sample, the better is to find a
-minimum for <a class="reference internal" href="#equation-kr5">(19)</a>.</p>
+minimum for <a class="reference internal" href="#equation-kr5">(21)</a>.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>In this case, we used a simple function for demonstration purposes. When
@@ -284,19 +284,19 @@ size and how satisfied we are with our surrogate.</p>
 </div>
 <p>However, now you may question: “With higher dimensions models, we can’t simply
 plot this function and do this analysis. So what should I do?”</p>
-<p>The answer is simple. If you look closely at <a class="reference internal" href="#theta-anim"><span class="std std-numref">Fig. 78</span></a>, you may
+<p>The answer is simple. If you look closely at <a class="reference internal" href="#theta-anim"><span class="std std-numref">Fig. 124</span></a>, you may
 notice that as <span class="math notranslate nohighlight">\(\theta\)</span> increases, the likelihood reaches its plateau.
-This behavior is due to that <span class="math notranslate nohighlight">\(R\)</span> (or <a class="reference internal" href="#equation-kr4">(18)</a>) tends to become an
+This behavior is due to that <span class="math notranslate nohighlight">\(R\)</span> (or <a class="reference internal" href="#equation-kr4">(20)</a>) tends to become an
 identity matrix with high values of <span class="math notranslate nohighlight">\(\theta\)</span> (i.e. there is no
-correlation). When this happens, <a class="reference internal" href="#equation-kr5">(19)</a> approximates to the variance
+correlation). When this happens, <a class="reference internal" href="#equation-kr5">(21)</a> approximates to the variance
 <span class="math notranslate nohighlight">\(Var(y)\)</span> of the sample <span class="math notranslate nohighlight">\(y\)</span>.</p>
 <p>Therefore a simple way to examine our quality-of-fit is to test the following
 equation:</p>
 <div class="math notranslate nohighlight" id="equation-psi-eval">
-<span class="eqno">(23)<a class="headerlink" href="#equation-psi-eval" title="Permalink to this equation">¶</a></span>\[\psi(\theta^*) &lt; Var(y)\]</div>
+<span class="eqno">(25)<a class="headerlink" href="#equation-psi-eval" title="Permalink to this equation">¶</a></span>\[\psi(\theta^*) &lt; Var(y)\]</div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>If <a class="reference internal" href="#equation-psi-eval">(23)</a> is true at the optimal <span class="math notranslate nohighlight">\(\theta^*\)</span>, then, probably,
+<p>If <a class="reference internal" href="#equation-psi-eval">(25)</a> is true at the optimal <span class="math notranslate nohighlight">\(\theta^*\)</span>, then, probably,
 the fit is good enough for our purposes. Otherwise, the model is,
 most likely, a poor fit.</p>
 </div>
