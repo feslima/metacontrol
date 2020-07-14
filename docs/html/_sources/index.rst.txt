@@ -109,7 +109,7 @@ to optimize processes that you modeled in Aspen Plus.
 Usage of Kriging metamodels
 ============================
 Kriging interpolators are widely used in the scientific community for prediction, optimization and data obtainment.
-We use it to for optimization and high-order data obtainment purposes. It is proven to generate robust precitions and results.
+We use it for optimization and high-order data obtainment purposes. It is proven to generate robust precitions and results.
 For further details, check :ref:`our_papers`.
 
 
