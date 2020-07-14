@@ -202,28 +202,28 @@ return to step 2;</p></li>
 in our <em>Kriging</em> metamodel until original model optimum is found. To illustrate
 this in the simplest way, we are going to use the same function <a class="reference internal" href="surrogates.html#equation-complex">(24)</a>.</p>
 <p>Assuming that we only have three initial points sampled from this model
-function, we build our <em>Kriging</em> model. As can be seen in <a class="reference internal" href="#infill-init"><span class="std std-numref">Fig. 130</span></a>.</p>
+function, we build our <em>Kriging</em> model. As can be seen in <a class="reference internal" href="#infill-init"><span class="std std-numref">Fig. 126</span></a>.</p>
 <div class="figure align-center" id="infill-init">
-<img alt="../_images/infill_init.svg" src="../_images/infill_init.svg" /><p class="caption"><span class="caption-number">Fig. 130 </span><span class="caption-text">Initial plot of the example function. The solid blue line represents the
+<img alt="../_images/infill_init.svg" src="../_images/infill_init.svg" /><p class="caption"><span class="caption-number">Fig. 126 </span><span class="caption-text">Initial plot of the example function. The solid blue line represents the
 function behavior. The orange dashed line is the <em>Kriging</em> metamodel of
 the three sampled points (red circles) available.</span><a class="headerlink" href="#infill-init" title="Permalink to this image">¶</a></p>
 </div>
 <p>When applying an optimization solver on the <em>Kriging</em> model, we get a new
 optimal value for <span class="math notranslate nohighlight">\(x\)</span> near 7.8 (3.47 for <span class="math notranslate nohighlight">\(f(x)\)</span>) in the
 sample and rebuild the <em>Kriging</em> metamodel. The result is shown
-<a class="reference internal" href="#infill-1"><span class="std std-numref">Fig. 131</span></a>. We keep repeating this procedure until we get the result
-in <a class="reference internal" href="#infill-2"><span class="std std-numref">Fig. 132</span></a>.</p>
+<a class="reference internal" href="#infill-1"><span class="std std-numref">Fig. 127</span></a>. We keep repeating this procedure until we get the result
+in <a class="reference internal" href="#infill-2"><span class="std std-numref">Fig. 128</span></a>.</p>
 <div class="figure align-center" id="infill-1">
-<img alt="../_images/infill_1.svg" src="../_images/infill_1.svg" /><p class="caption"><span class="caption-number">Fig. 131 </span><span class="caption-text">The <em>Kriging</em> model after one update.</span><a class="headerlink" href="#infill-1" title="Permalink to this image">¶</a></p>
+<img alt="../_images/infill_1.svg" src="../_images/infill_1.svg" /><p class="caption"><span class="caption-number">Fig. 127 </span><span class="caption-text">The <em>Kriging</em> model after one update.</span><a class="headerlink" href="#infill-1" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="infill-2">
-<img alt="../_images/infill_2.svg" src="../_images/infill_2.svg" /><p class="caption"><span class="caption-number">Fig. 132 </span><span class="caption-text">The <em>Kriging</em> model after four updates. Notice how the <em>Kriging</em> model
+<img alt="../_images/infill_2.svg" src="../_images/infill_2.svg" /><p class="caption"><span class="caption-number">Fig. 128 </span><span class="caption-text">The <em>Kriging</em> model after four updates. Notice how the <em>Kriging</em> model
 adjusts to the true function near the optimal point.</span><a class="headerlink" href="#infill-2" title="Permalink to this image">¶</a></p>
 </div>
-<p>This is the entire process animated in <a class="reference internal" href="#infill-animated"><span class="std std-numref">Fig. 133</span></a>:</p>
+<p>This is the entire process animated in <a class="reference internal" href="#infill-animated"><span class="std std-numref">Fig. 129</span></a>:</p>
 <div class="figure align-center" id="infill-animated">
 <img alt="../_images/animation_infill_t.gif" src="../_images/animation_infill_t.gif" />
-<p class="caption"><span class="caption-number">Fig. 133 </span><span class="caption-text">The main steps of the infill criteria procedure as an example.</span><a class="headerlink" href="#infill-animated" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 129 </span><span class="caption-text">The main steps of the infill criteria procedure as an example.</span><a class="headerlink" href="#infill-animated" title="Permalink to this image">¶</a></p>
 </div>
 <p>This example is a trivial one because the problem involves a single input
 variable and infill criteria is the own <em>Kriging</em> prediction of the model. As
@@ -246,11 +246,11 @@ ensure local convergence which was proven in the work of
 </ol>
 </div>
 <p>The flowchart depicting the whole procedure is defined in
-<a class="reference internal" href="#caballeroflowchart"><span class="std std-numref">Fig. 134</span></a>. For detailed explanation of each step of the
+<a class="reference internal" href="#caballeroflowchart"><span class="std std-numref">Fig. 130</span></a>. For detailed explanation of each step of the
 proposed algorithm, one must refer to <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id9">[6]</a> and
 <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id10">[3]</a>.</p>
 <div class="figure align-center" id="caballeroflowchart">
-<img alt="../_images/caballero_flowchart_final.svg" src="../_images/caballero_flowchart_final.svg" /><p class="caption"><span class="caption-number">Fig. 134 </span><span class="caption-text">Flowchart of <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id11">[6]</a> algorithm, translated to Python and
+<img alt="../_images/caballero_flowchart_final.svg" src="../_images/caballero_flowchart_final.svg" /><p class="caption"><span class="caption-number">Fig. 130 </span><span class="caption-text">Flowchart of <a class="bibtex reference internal" href="../zbibliography.html#caballero2008" id="id11">[6]</a> algorithm, translated to Python and
 implemented within <em>Metacontrol</em>.</span><a class="headerlink" href="#caballeroflowchart" title="Permalink to this image">¶</a></p>
 </div>
 </div>

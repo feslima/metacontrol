@@ -14,20 +14,33 @@ Control (SOC) technique can be achieved.
    
    *  - .. figure:: /images/feature_aspen.png
            :scale: 45%
+           :align: center
+
+           ..
 
            Use the process models that you created in Aspen Plus.
 
       - .. figure:: /images/feature_kriging.png
            :scale: 45%
+           :align: center
+
+           ..
 
            Generate Kriging surrogate models of your processes.
+
    *  - .. figure:: /images/feature_opt.png
            :scale: 45%
+           :align: center
+
+           ..
 
            Optimize your kriging surrogate models.
 
       - .. figure:: /images/feature_soc.png
            :scale: 45%
+           :align: center
+
+           ..
 
            Generate the best self-optimizing control 
            structures.
