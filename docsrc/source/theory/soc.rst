@@ -71,7 +71,7 @@ is the main problem to be addressed with the systematic procedure proposed. It
 is possible to search for a SOC structure basically using two methods:
 
 #. Brute-force approach:
-    Manually testing each CV candidate, reoptimizing the process for 
+    Manually testing each possible control structure, reoptimizing the process for 
     different disturbances' scenarios, and choosing the structure that yields 
     the lowest (worst-case or average-case) loss;
 
@@ -253,7 +253,7 @@ and average case losses using a single evaluation, and will also consider the
 combined effect of the disturbances and measurement errors of the problem. 
 Therefore, this solution it is the default one used in *Metacontrol*.
 
-Since :eq:`Hexact` also minimizes the worst-case loss, its evaluation 
+Since :eq:`Hexact` also minimizes the average-case loss, its evaluation 
 was also considered inside *Metacontrol*: the user can inspect the expected 
 average-case loss for each control structure that can exist in the 
 combinatorial problem. The expression for the average-case loss is a result of 

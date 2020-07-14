@@ -90,7 +90,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="gui_index.html">Metacontrol GUI Manual</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="gui_index.html"><em>Metacontrol</em> GUI Manual</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="load_sim_tab.html">The “Load Simulation” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sampling_tab.html">The “Sampling” tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="metamodel_tab.html">The “Metamodel” tab</a></li>
@@ -160,7 +160,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="gui_index.html">Metacontrol GUI Manual</a> &raquo;</li>
+          <li><a href="gui_index.html"><em>Metacontrol</em> GUI Manual</a> &raquo;</li>
         
       <li>The “Reduced Space” tab</li>
     
@@ -209,7 +209,7 @@ are going to be used at the Reduced Space problem sampling, at the “Variable a
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>At this point, you <strong>must</strong> go back to the process simulator (Aspen Plus), and implement the active constraints
-that were found by the optimizaiton step.</p>
+that were found by the optimization step.</p>
 <ol class="arabic">
 <li><p>Save a copy of your initial .bkp file.</p></li>
 <li><p>In your copied simulation file, implement your active constraints:</p>
@@ -231,7 +231,7 @@ that were not used to close feedback loops in case of nonlinear constraints beco
 that did not reached an upper/lower bound at the optmization run). <em>Metacontrol</em> automatically understands that the variables that you
 did not check, were active decision variables or were used as MVs for a desing specification loop. On the right panel, you should indicate
 if any CV candidate that you created (which eventually can be a constraint) were active. You should mark these variables, since you must control them
-(Active-Constraint Control <a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[29]</a>), before using the mathematical formulations that are implemented within <em>Metacontrol</em>.</p>
+(Active-Constraint Control <a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[31]</a>), before using the mathematical formulations that are implemented within <em>Metacontrol</em>.</p>
 <div class="section" id="informing-to-metaconrol-active-candidates-and-active-decision-variables-mvs">
 <h3>Informing to <em>Metaconrol</em> active candidates and active decision variables (MVs)<a class="headerlink" href="#informing-to-metaconrol-active-candidates-and-active-decision-variables-mvs" title="Permalink to this headline">¶</a></h3>
 <p>At example in the figure below, <em>mcct</em>, <em>f1t</em> and <em>f2t</em> were nominally active at the optimal point. These are the Manipulated Variables of this
@@ -269,7 +269,7 @@ disturbances to be used in the sampling process, in order to generate the reduce
 </div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>As showed by our previous publications, the bounds for the second (reduced-space) kriging metamodel must be a around a small margin of the
+<p>As showed on our previous publications, the bounds for the second (reduced-space) kriging metamodel must be a around a small margin of the
 optimal operating point. You can consider this a tunable parameter. Generally, +-0.5% of the optimal operating point will generate robust prediction
 of the high-order data on the next step (gradients and hessians). However, feel free to tight or loose this value if you want to try to improve your reduced-space
 kriging metamodel.</p>

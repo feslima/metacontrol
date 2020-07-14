@@ -90,7 +90,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html"><em>Metacontrol</em> GUI Manual</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="theory_index.html">Theoretical Backgrounds</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="soc.html">The Exact Local Method with Explicit Solution</a></li>
@@ -191,7 +191,7 @@ metamodel, this error is assumed to be a probabilistic function of <span class="
 in other words, this error is assumed to be <strong>not</strong> independent and identically
 distributed. The specific probabilistic function is represented by a Gaussian
 distribution with mean (<span class="math notranslate nohighlight">\(\mu\)</span>) zero and variance <span class="math notranslate nohighlight">\(\sigma^2\)</span>.</p>
-<p>As from <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id1">[24]</a>, a <em>Kriging</em> metamodel <span class="math notranslate nohighlight">\(\hat{y}(x)\)</span>, of a
+<p>As from <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id1">[26]</a>, a <em>Kriging</em> metamodel <span class="math notranslate nohighlight">\(\hat{y}(x)\)</span>, of a
 rigorous model <span class="math notranslate nohighlight">\(y(x)\)</span> of <span class="math notranslate nohighlight">\(q\)</span> dimensions, is comprised
 of two parts: a polynomial regression (<span class="math notranslate nohighlight">\(\mathcal{F}\)</span>) and departure
 function (<span class="math notranslate nohighlight">\(z\)</span>) of stochastic nature:</p>
@@ -219,7 +219,7 @@ model. In <em>Metacontrol</em>, the correlation model used is described by <a cl
 p_{l} \in[0,2]\right)\]</div>
 <p>The hyperparameters <span class="math notranslate nohighlight">\(\theta\)</span> are degrees of freedom available for
 optimization purposes, seeking the improvement of the metamodel fitness. In
-<a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[24]</a>, the optimal set of hyperparameters <span class="math notranslate nohighlight">\(\theta^*\)</span> corresponds
+<a class="bibtex reference internal" href="../zbibliography.html#dace" id="id2">[26]</a>, the optimal set of hyperparameters <span class="math notranslate nohighlight">\(\theta^*\)</span> corresponds
 to the maximum likelihood estimation. Assuming a Gaussian process, the optimal
 values of the hyperparameters are the ones that minimize <a class="reference internal" href="#equation-kr5">(21)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr5">
@@ -227,9 +227,9 @@ values of the hyperparameters are the ones that minimize <a class="reference int
 \sigma^{2}\right\}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(|R|\)</span> is the determinant of the correlation matrix. The internal
 optimizer used in <em>DACE</em> toolbox corresponds to a modified version of
-the <em>Hooke &amp; Jeeves</em> method, as showed by <a class="bibtex reference internal" href="../zbibliography.html#dacereport" id="id3">[23]</a>.</p>
+the <em>Hooke &amp; Jeeves</em> method, as showed by <a class="bibtex reference internal" href="../zbibliography.html#dacereport" id="id3">[25]</a>.</p>
 <p>As stated before, high-order data obtainment it is an obligatory step in the
-proposed methodology implemented in <em>Metacontrol</em>. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[24]</a>
+proposed methodology implemented in <em>Metacontrol</em>. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#dace" id="id4">[26]</a>
 also derived expressions for Jacobian (<span class="math notranslate nohighlight">\(\hat{y}^{\prime}(x)\)</span>)
 evaluation of a <em>Kriging</em> prediction, given in <a class="reference internal" href="#equation-kr6">(22)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-kr6">
@@ -254,7 +254,7 @@ we can only have a small amount of samples (red circles). For inspection
 purposes, we decide to spend some of our “budget” and sample three points
 initially. Plotting this model we have:</p>
 <div class="figure align-center" id="krig-init">
-<img alt="../_images/kriging_initial.svg" src="../_images/kriging_initial.svg" /><p class="caption"><span class="caption-number">Fig. 122 </span><span class="caption-text">Plot of function <a class="reference internal" href="#equation-complex">(24)</a>. The blue line is the true behavior of the
+<img alt="../_images/kriging_initial.svg" src="../_images/kriging_initial.svg" /><p class="caption"><span class="caption-number">Fig. 123 </span><span class="caption-text">Plot of function <a class="reference internal" href="#equation-complex">(24)</a>. The blue line is the true behavior of the
 model.</span><a class="headerlink" href="#krig-init" title="Permalink to this image">¶</a></p>
 </div>
 <p>Plotting the equation <a class="reference internal" href="#equation-kr5">(21)</a>, we se that this initial sample of three points
@@ -262,7 +262,7 @@ gives use a monotonic behavior (you could say it’s “plateuing”) for the
 likelihood function. Or in simpler terms, there is no clear discernible
 minimum. This will, likely, result in a poor fit.</p>
 <div class="figure align-center" id="likelihood1">
-<img alt="../_images/likelihood_1.svg" src="../_images/likelihood_1.svg" /><p class="caption"><span class="caption-number">Fig. 123 </span><span class="caption-text">Initial plot of the likelihood <a class="reference internal" href="#equation-kr5">(21)</a> as function of the hyperparameters
+<img alt="../_images/likelihood_1.svg" src="../_images/likelihood_1.svg" /><p class="caption"><span class="caption-number">Fig. 124 </span><span class="caption-text">Initial plot of the likelihood <a class="reference internal" href="#equation-kr5">(21)</a> as function of the hyperparameters
 <span class="math notranslate nohighlight">\(\theta\)</span>.</span><a class="headerlink" href="#likelihood1" title="Permalink to this image">¶</a></p>
 </div>
 <p>So what is the solution for this? We decide to spend a bit more of our budget
@@ -270,7 +270,7 @@ and add four more samples to the fit. Again, we plot the results iteractively to
 demonstrate the effect:</p>
 <div class="figure align-center" id="theta-anim">
 <img alt="../_images/animation_theta_opt_t.gif" src="../_images/animation_theta_opt_t.gif" />
-<p class="caption"><span class="caption-number">Fig. 124 </span><span class="caption-text">The effect of adding more samples to our surrogate.</span><a class="headerlink" href="#theta-anim" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 125 </span><span class="caption-text">The effect of adding more samples to our surrogate.</span><a class="headerlink" href="#theta-anim" title="Permalink to this image">¶</a></p>
 </div>
 <p>As we can see, the more we add to the initial sample, the better is to find a
 minimum for <a class="reference internal" href="#equation-kr5">(21)</a>.</p>
@@ -284,7 +284,7 @@ size and how satisfied we are with our surrogate.</p>
 </div>
 <p>However, now you may question: “With higher dimensions models, we can’t simply
 plot this function and do this analysis. So what should I do?”</p>
-<p>The answer is simple. If you look closely at <a class="reference internal" href="#theta-anim"><span class="std std-numref">Fig. 124</span></a>, you may
+<p>The answer is simple. If you look closely at <a class="reference internal" href="#theta-anim"><span class="std std-numref">Fig. 125</span></a>, you may
 notice that as <span class="math notranslate nohighlight">\(\theta\)</span> increases, the likelihood reaches its plateau.
 This behavior is due to that <span class="math notranslate nohighlight">\(R\)</span> (or <a class="reference internal" href="#equation-kr4">(20)</a>) tends to become an
 identity matrix with high values of <span class="math notranslate nohighlight">\(\theta\)</span> (i.e. there is no

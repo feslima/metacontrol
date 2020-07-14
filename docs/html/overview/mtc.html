@@ -90,7 +90,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#"><em>Metacontrol</em>  Methodology Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html"><em>Metacontrol</em> GUI Manual</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory_index.html">Theoretical Backgrounds</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../zbibliography.html">Bibliography</a></li>
@@ -161,7 +161,7 @@
   <div class="section" id="metacontrol-methodology-overview">
 <h1><em>Metacontrol</em>  Methodology Overview<a class="headerlink" href="#metacontrol-methodology-overview" title="Permalink to this headline">¶</a></h1>
 <p>The “top-down” part of the self-optimizing control structure selection
-methodology developed  by Skogestad (<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id1">[29]</a>) has the following main steps:</p>
+methodology developed  by Skogestad (<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id1">[31]</a>) has the following main steps:</p>
 <ol class="arabic simple">
 <li><p>Identify the relevant process variables: Manipulated
 variables, disturbances, and potential candidate controlled variables
@@ -173,11 +173,11 @@ function and constraints to be used in order to seek an optimal operating point.
 with Aspen Plus.</p></li>
 <li><p>Optimize the process model as formulated in step 2.</p></li>
 <li><p>Implement the active constraints found in the previous step -
-“active constraint control” (<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[29]</a>)</p></li>
+“active constraint control” (<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[31]</a>)</p></li>
 <li><p>Evaluate the loss resulting from a constant setpoint policy
-(<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id3">[12]</a>) for each possible control configuration for the
+(<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id3">[13]</a>) for each possible control configuration for the
 remaining (unconstrained) degrees of freedom. This is done in <em>Metacontrol</em> using,
-e.g., local (linear) methods (<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id4">[12]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id5">[14]</a><a class="bibtex reference internal" href="../zbibliography.html#hori08" id="id6">[15]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id7">[2]</a>),
+e.g., local (linear) methods (<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id4">[13]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id5">[15]</a><a class="bibtex reference internal" href="../zbibliography.html#hori08" id="id6">[16]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id7">[2]</a>),
 where a reduced-space (unconstrained) problem is required to obtain
 gradients with respect to candidate controlled variables and disturbances,
 and the Hessian of the objective function evaluated at the optimal

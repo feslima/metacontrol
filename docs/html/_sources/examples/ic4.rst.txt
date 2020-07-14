@@ -21,7 +21,7 @@ optimal operating point it is known. This was implemented within because
 there is a plethora of papers and discussions over the several years
 that addresses the optimization of several processes
 (:cite:`jagtap12,jagtap13,araujo07,araujo08,gera13,Liu2019,skoge04`, 
-just to name a few), and when one is dealing witheconomic plantwide control 
+just to name a few), and when one is dealing with economic plantwide control 
 specially, there are several results that can be anticipated regarding 
 active constraints.
 
@@ -71,7 +71,7 @@ in the control structure.
    +-----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+
    | Furnace Constraint                | :math:`0 \leq Q_{\text {furnace }} \leq 1.3`                                                                                                                                                                                      | Base case |
    +-----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+
-   | Reactor Pressure Specification    | :math:`$P_{\mathrm{reactor}}=45`                                                                                                                                                                                                  | Active    |
+   | Reactor Pressure Specification    | :math:`P_{\mathrm{reactor}}=45`                                                                                                                                                                                                   | Active    |
    +-----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+
    | Cooling Specification             | :math:`T_{\mathrm{cooler}}=53^{\circ} \mathrm{C}`                                                                                                                                                                                 | Fixed     |
    +-----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+

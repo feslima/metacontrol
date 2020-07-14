@@ -10,6 +10,42 @@ Metacontrol is a Python based software which assembles several methodologies
 into a single bundle so that a fast implementation of the Self-Optimizing 
 Control (SOC) technique can be achieved.
 
+.. list-table:: 
+   
+   *  - .. figure:: /images/feature_aspen.png
+           :scale: 45%
+           :align: center
+
+           ..
+
+           Use the process models that you created in Aspen Plus.
+
+      - .. figure:: /images/feature_kriging.png
+           :scale: 45%
+           :align: center
+
+           ..
+
+           Generate Kriging surrogate models of your processes.
+
+   *  - .. figure:: /images/feature_opt.png
+           :scale: 45%
+           :align: center
+
+           ..
+
+           Optimize your kriging surrogate models.
+
+      - .. figure:: /images/feature_soc.png
+           :scale: 45%
+           :align: center
+
+           ..
+
+           Generate the best self-optimizing control 
+           structures.
+
+
 How to cite us
 ==============
 
@@ -86,7 +122,7 @@ to optimize processes that you modeled in Aspen Plus.
 Usage of Kriging metamodels
 ============================
 Kriging interpolators are widely used in the scientific community for prediction, optimization and data obtainment.
-We use it to for optimization and high-order data obtainment purposes. It is proven to generate robust precitions and results.
+We use it for optimization and high-order data obtainment purposes. It is proven to generate robust precitions and results.
 For further details, check :ref:`our_papers`.
 
 
@@ -113,10 +149,24 @@ Documentation Contents
    zbibliography
 
 
+Contact
+========
 
-Indices and tables
-==================
+.. figure:: /images/felipe_profile.jpg
+   :align: center
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   ..
+
+   | Felipe Lima, Msc. 
+   | Federal University of Campina Grande
+   | email: felipe.lima@eq.ufcg.edu.br 
+
+ 
+.. figure:: /images/victor_profile.jpg
+   :align: center
+
+   ..
+
+   | Victor Alves, Msc. 
+   | Federal University of Campina Grande
+   | email: victor.alves@eq.ufcg.edu.br

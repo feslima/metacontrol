@@ -200,7 +200,7 @@ define the type of validation to be conducted. After hitting the button
 fitting results of each generated *Kriging* interpolator, as showed in 
 :numref:`plotkr`. Moreover, good-of-fitness can be assessed by the 
 available metrics Mean squared error (MSE), Root mean squared error (RMSE), 
-Mean absolute error (MAE), R\textsuperscript{2} linear coefficient,	Explained 
+Mean absolute error (MAE), :math:`R^{2}` linear coefficient, Explained 
 variance (EV), the Sample mean and also its standard deviation. It is important 
 to point out that this first metamodel generation is performed only to allow 
 for a quick view of the initial sampling, i.e., to check if the initial 
