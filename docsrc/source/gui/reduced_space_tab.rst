@@ -32,7 +32,7 @@ There are four main panels at this tab:
 
 .. IMPORTANT::
     At this point, you **must** go back to the process simulator (Aspen Plus), and implement the active constraints 
-    that were found by the optimizaiton step.
+    that were found by the optimization step.
 
 
 
@@ -104,7 +104,7 @@ disturbances to be used in the sampling process, in order to generate the reduce
    Selecting unconstrained degree(s) of freedom.
 
 .. IMPORTANT::
-  As showed by our previous publications, the bounds for the second (reduced-space) kriging metamodel must be a around a small margin of the
+  As showed on our previous publications, the bounds for the second (reduced-space) kriging metamodel must be a around a small margin of the
   optimal operating point. You can consider this a tunable parameter. Generally, +-0.5% of the optimal operating point will generate robust prediction
   of the high-order data on the next step (gradients and hessians). However, feel free to tight or loose this value if you want to try to improve your reduced-space
   kriging metamodel.

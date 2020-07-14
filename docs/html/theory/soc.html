@@ -90,7 +90,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/mtc.html"><em>Metacontrol</em>  Methodology Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html">Metacontrol GUI Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui/gui_index.html"><em>Metacontrol</em> GUI Manual</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/tutorials.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="theory_index.html">Theoretical Backgrounds</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">The Exact Local Method with Explicit Solution</a></li>
@@ -177,7 +177,7 @@ attain maximum profits or keep expenses at minimum while still obeying these
 specifications.</p>
 <p>One way to achieve this is through the application of plantwide control
 methodologies. In particular, Self-Optimizing Control (SOC)
-<a class="bibtex reference internal" href="../zbibliography.html#morari1980" id="id1">[26]</a><a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[29]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id3">[2]</a>, is a practical way to design a control
+<a class="bibtex reference internal" href="../zbibliography.html#morari1980" id="id1">[28]</a><a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id2">[31]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id3">[2]</a>, is a practical way to design a control
 structure of a process following a criterion (for instance: economic,
 environmental or performance) considering a constant set-point policy
 <a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id4">[3]</a>. The SOC methodology is advantageous in this scenario
@@ -187,8 +187,8 @@ disturbance occurs.</p>
 needed to understand the main concepts and expressions that translate the
 ideas behind the SOC methodology. If the reader needs a more detailed
 explanation can be found in
-<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id5">[29]</a><a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id6">[12]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id7">[14]</a><a class="bibtex reference internal" href="../zbibliography.html#hori07" id="id8">[13]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id9">[2]</a><a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id10">[3]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala08" id="id11">[21]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id12">[20]</a><a class="bibtex reference internal" href="../zbibliography.html#umar12" id="id13">[32]</a>.</p>
-<p>From <a class="bibtex reference internal" href="../zbibliography.html#skoge04" id="id14">[30]</a>:</p>
+<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id5">[31]</a><a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id6">[13]</a><a class="bibtex reference internal" href="../zbibliography.html#hori05" id="id7">[15]</a><a class="bibtex reference internal" href="../zbibliography.html#hori07" id="id8">[14]</a><a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id9">[2]</a><a class="bibtex reference internal" href="../zbibliography.html#alves2018" id="id10">[3]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala08" id="id11">[22]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id12">[21]</a><a class="bibtex reference internal" href="../zbibliography.html#umar12" id="id13">[35]</a>.</p>
+<p>From <a class="bibtex reference internal" href="../zbibliography.html#skoge04" id="id14">[32]</a>:</p>
 <blockquote>
 <div><p>“Self-optimizing control is when one can achieve an acceptable loss with
 constant setpoint values for the controlled variables without the need to
@@ -218,13 +218,13 @@ always exist a (positive) loss, given by <a class="reference internal" href="#eq
 <div class="math notranslate nohighlight" id="equation-generalloss">
 <span class="eqno">(4)<a class="headerlink" href="#equation-generalloss" title="Permalink to this equation">¶</a></span>\[    L=J_{0}(d, n)-J_{opt}(d)\]</div>
 <p><em>Metacontrol</em> focus on the first four steps of the SOC technology, named by
-<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id15">[29]</a> as “top-down” analysis. In these steps, the variable
+<a class="bibtex reference internal" href="../zbibliography.html#skoge00" id="id15">[31]</a> as “top-down” analysis. In these steps, the variable
 selection seeking the usage of the steady-state degrees of freedom
 is the main problem to be addressed with the systematic procedure proposed. It
 is possible to search for a SOC structure basically using two methods:</p>
 <ol class="arabic simple">
 <li><dl class="simple">
-<dt>Brute-force approach:</dt><dd><p>Manually testing each CV candidate, reoptimizing the process for
+<dt>Brute-force approach:</dt><dd><p>Manually testing each possible control structure, reoptimizing the process for
 different disturbances’ scenarios, and choosing the structure that yields
 the lowest (worst-case or average-case) loss;</p>
 </dd>
@@ -277,14 +277,14 @@ manipulated variables <span class="math notranslate nohighlight">\(\left(\frac{\
 and <span class="math notranslate nohighlight">\(J_{ud}\)</span> being the Hessian of cost function with respect to the
 disturbance variables
 <span class="math notranslate nohighlight">\(\left(\frac{\partial^{2} J}{\partial u\partial d}\right)\)</span>.</p>
-<p>Later <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id16">[12]</a>, developing the exact local method, showed that
+<p>Later <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id16">[13]</a>, developing the exact local method, showed that
 the loss function can be rewritten as in <a class="reference internal" href="#equation-lossexact">(8)</a></p>
 <div class="math notranslate nohighlight" id="equation-lossexact">
 <span class="eqno">(8)<a class="headerlink" href="#equation-lossexact" title="Permalink to this equation">¶</a></span>\[    z=J_{u u}^{\frac{1}{2}}\left[\left(J_{u u}^{-1} J_{u d}-G^{-1} G_{d}\right) \Delta d+G^{-1} n\right]\]</div>
 <p>If one assumes that <span class="math notranslate nohighlight">\(W_d\)</span> is a (diagonal) magnitude matrix that
 considers the disturbances and <span class="math notranslate nohighlight">\(W_{n}^y\)</span> the magnitude matrix that
 takes into account the measurement error, and considering that both are
-2-norm-bounded (<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id17">[12]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id18">[2]</a> contains a discussion
+2-norm-bounded (<a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id17">[13]</a> and <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id18">[2]</a> contains a discussion
 and justification for using 2-norm), <a class="reference internal" href="#equation-2norm1">(9)</a> to <a class="reference internal" href="#equation-2norm3">(11)</a> can be
 defined to scale the system:</p>
 <div class="math notranslate nohighlight" id="equation-2norm1">
@@ -326,7 +326,7 @@ necessary to minimize <span class="math notranslate nohighlight">\(\bar{\sigma}(
 <div class="math notranslate nohighlight" id="equation-argminh">
 <span class="eqno">(14)<a class="headerlink" href="#equation-argminh" title="Permalink to this equation">¶</a></span>\[    H=\arg \min _{H} \bar{\sigma}(M)\]</div>
 <p>This optimization problem was initially solved using a numerical search, as
-proposed by <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id20">[12]</a>. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id21">[2]</a>
+proposed by <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id20">[13]</a>. Fortunately, <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id21">[2]</a>
 derived an explicit solution that gives the optimal linear combination of
 measurements coefficient matrix (H) that minimize the worst-case loss that
 exists due to the effect of the disturbances and measurement errors, in
@@ -353,11 +353,11 @@ disturbances and the measurement errors, simultaneously.</p></li>
 and average case losses using a single evaluation, and will also consider the
 combined effect of the disturbances and measurement errors of the problem.
 Therefore, this solution it is the default one used in <em>Metacontrol</em>.</p>
-<p>Since <a class="reference internal" href="#equation-hexact">(15)</a> also minimizes the worst-case loss, its evaluation
+<p>Since <a class="reference internal" href="#equation-hexact">(15)</a> also minimizes the average-case loss, its evaluation
 was also considered inside <em>Metacontrol</em>: the user can inspect the expected
 average-case loss for each control structure that can exist in the
 combinatorial problem. The expression for the average-case loss is a result of
-the work of <a class="bibtex reference internal" href="../zbibliography.html#kariwala08" id="id24">[21]</a> and is described in <a class="reference internal" href="#equation-avgloss">(16)</a>:</p>
+the work of <a class="bibtex reference internal" href="../zbibliography.html#kariwala08" id="id24">[22]</a> and is described in <a class="reference internal" href="#equation-avgloss">(16)</a>:</p>
 <div class="math notranslate nohighlight" id="equation-avgloss">
 <span class="eqno">(16)<a class="headerlink" href="#equation-avgloss" title="Permalink to this equation">¶</a></span>\[    L_{\text {average}}=\frac{1}{6\left(n_{y}+n_{d}\right)}\left\|J_{u u}^{\frac{1}{2}}\left(H G^{y}\right)^{-1} H \widetilde{F}\right\|_{F}^{2}\]</div>
 <p>Lastly, it was necessary to implement within <em>Metacontrol</em> a branch-and-bound
@@ -376,18 +376,18 @@ measurements both increases. Without a search method that is capable of
 quickly discarding undesired solutions, the usability of <em>Metacontrol</em> would be
 seriously compromised. Luckily, there are several implementations of
 branch-and-bound algorithms tailored for SOC studies purposes, such as
-in <a class="bibtex reference internal" href="../zbibliography.html#cao05" id="id26">[7]</a><a class="bibtex reference internal" href="../zbibliography.html#cao08" id="id27">[6]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id28">[20]</a>.</p>
-<p>From the aforementioned works, <a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id29">[20]</a> it is of particular
+in <a class="bibtex reference internal" href="../zbibliography.html#cao05" id="id26">[8]</a><a class="bibtex reference internal" href="../zbibliography.html#cao08" id="id27">[7]</a><a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id28">[21]</a>.</p>
+<p>From the aforementioned works, <a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id29">[21]</a> it is of particular
 interest: the monotonic criterion implemented consists of the exact local
-method from <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id30">[12]</a> and derived explicitly by
+method from <a class="bibtex reference internal" href="../zbibliography.html#halvorsen03" id="id30">[13]</a> and derived explicitly by
 <a class="bibtex reference internal" href="../zbibliography.html#alstad09" id="id31">[2]</a>, which is used as the default methodology to pre-screen
 the most promising self-optimizing CV candidates in <em>Metacontrol</em>. Therefore,
-the usage of the proposed branch-and-bound algorithm by <a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id32">[20]</a> it
+the usage of the proposed branch-and-bound algorithm by <a class="bibtex reference internal" href="../zbibliography.html#kariwala2009" id="id32">[21]</a> it
 is not only convenient, making the software more effective, but also keeps the
 “calculation engine” from <em>Metacontrol</em> using the same criterion. It would not
 make any sense, for instance, using a branch-and-bound algorithm that outputs the
 index of the most promising CVs using the maximum singular value rule from
-<a class="bibtex reference internal" href="../zbibliography.html#skogebook" id="id33">[31]</a> and use the CV index sequence from this algorithm
+<a class="bibtex reference internal" href="../zbibliography.html#skogebook" id="id33">[33]</a> and use the CV index sequence from this algorithm
 to evaluate the worst-case loss. Fundamentally speaking, the orders of
 “best” control structures would not be the same, simply because the search
 method would be using an different criterion from the linear method

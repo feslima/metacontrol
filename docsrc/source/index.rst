@@ -10,6 +10,29 @@ Metacontrol is a Python based software which assembles several methodologies
 into a single bundle so that a fast implementation of the Self-Optimizing 
 Control (SOC) technique can be achieved.
 
+.. list-table:: 
+   
+   *  - .. figure:: /images/feature_aspen.png
+           :scale: 45%
+
+           Use the process models that you created in Aspen Plus.
+
+      - .. figure:: /images/feature_kriging.png
+           :scale: 45%
+
+           Generate Kriging surrogate models of your processes.
+   *  - .. figure:: /images/feature_opt.png
+           :scale: 45%
+
+           Optimize your kriging surrogate models.
+
+      - .. figure:: /images/feature_soc.png
+           :scale: 45%
+
+           Generate the best self-optimizing control 
+           structures.
+
+
 How to cite us
 ==============
 
@@ -113,10 +136,24 @@ Documentation Contents
    zbibliography
 
 
+Contact
+========
 
-Indices and tables
-==================
+.. figure:: /images/profile_placeholder.jpg
+   :align: center
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   ..
+
+   | Felipe Lima, Msc. 
+   | Federal University of Campina Grande
+   | email: felipe.lima@eq.ufcg.edu.br 
+
+ 
+.. figure:: /images/victor_profile.jpg
+   :align: center
+
+   ..
+
+   | Victor Alves, Msc. 
+   | Federal University of Campina Grande
+   | email: victor.alves@eq.ufcg.edu.br

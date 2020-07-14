@@ -1,5 +1,5 @@
 **********************************************
-Metacontrol GUI Manual
+*Metacontrol* GUI Manual
 **********************************************
 
 Over this section, the user will be introduced to each environment (tab)
