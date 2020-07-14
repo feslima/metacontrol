@@ -139,7 +139,7 @@ Documentation Contents
 Contact
 ========
 
-.. figure:: /images/profile_placeholder.jpg
+.. figure:: /images/felipe_profile.jpg
    :align: center
 
    ..
